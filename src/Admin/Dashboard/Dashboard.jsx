@@ -95,20 +95,13 @@ export default function Dashboard() {
 
         {/* Keep all the existing content exactly the same */}
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <OverviewCard
             title="Total Users"
             value="1,280"
             icon={<Users className="w-6 h-6 text-blue-600" />}
             change={-2.5}
             iconBg="bg-blue-100"
-          />
-          <OverviewCard
-            title="Monthly Revenue"
-            value="$58,000"
-            icon={<DollarSign className="w-6 h-6 text-green-600" />}
-            change={12.3}
-            iconBg="bg-green-100"
           />
           <OverviewCard
             title="Total Vehicles"
@@ -263,4 +256,3 @@ function BookingOverviewCard({ title, value }) {
     </div>
   )
 }
-

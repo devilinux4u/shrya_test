@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/Select.jsx";
+"use client"
+
+import { useState } from "react"
 
 export default function Filter() {
-  const [minPrice, setMinPrice] = useState(12600);
-  const [maxPrice, setMaxPrice] = useState(41100);
+  const [minPrice, setMinPrice] = useState(12600)
+  const [maxPrice, setMaxPrice] = useState(41100)
 
   const filterOptions = [
     { name: "Year", options: ["2024", "2023", "2022", "2021", "2020"] },
@@ -15,12 +16,12 @@ export default function Filter() {
     { name: "Engine", options: ["4 Cylinder", "6 Cylinder", "8 Cylinder", "Electric"] },
     { name: "Fuel Economy", options: ["Good", "Better", "Best"] },
     { name: "Exterior Color", options: ["Black", "White", "Silver", "Red", "Blue"] },
-  ];
+  ]
 
   const handleReset = () => {
-    setMinPrice(12600);
-    setMaxPrice(41100);
-  };
+    setMinPrice(12600)
+    setMaxPrice(41100)
+  }
 
   return (
     <div className="w-full max-w-sm bg-white p-6 rounded-lg shadow">
@@ -59,18 +60,16 @@ export default function Filter() {
 
         <div className="space-y-3">
           {filterOptions.map((filter) => (
-            <Select key={filter.name}>
-              <SelectTrigger className="w-full bg-white border text-gray-500">
-                <SelectValue placeholder={filter.name} />
-              </SelectTrigger>
-              <SelectContent>
-                {filter.options.map((option) => (
-                  <SelectItem key={option} value={option.toLowerCase()}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select key={filter.name} className="w-full p-2 border rounded bg-white text-gray-500">
+              <option value="" disabled selected>
+                {filter.name}
+              </option>
+              {filter.options.map((option) => (
+                <option key={option} value={option.toLowerCase()}>
+                  {option}
+                </option>
+              ))}
+            </select>
           ))}
         </div>
 
@@ -82,5 +81,6 @@ export default function Filter() {
         </button>
       </div>
     </div>
-  );
+  )
 }
+

@@ -1,7 +1,8 @@
 import { useState } from "react"
-import { MapPin, Calendar, ChevronLeft, ChevronRight, Search, ChevronDown } from "lucide-react"
+import { MapPin, Calendar, ChevronLeft, ChevronRight, Search, ChevronDown, X } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import Purse from '../assets/Purse.png'
+import ReportItem from './ReportItem'
 
 const items = [
   {
@@ -51,6 +52,7 @@ export default function LostAndFound() {
   const [currentPage, setCurrentPage] = useState(1)
   const [activeFilter, setActiveFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [showReportItemForm, setShowReportItemForm] = useState(false)
   const itemsPerPage = 6
   const navigate = useNavigate()
 
@@ -59,7 +61,7 @@ export default function LostAndFound() {
   }
 
   const handleReportItem = () => {
-    navigate("/ReportItem")
+    setShowReportItemForm(true)
   }
 
   // Filter items based on activeFilter and search query
@@ -82,7 +84,7 @@ export default function LostAndFound() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
+      <div className="mt-12 max-w-6xl mx-auto">
         {/* Search and Filters */}
         <div className="mb-8 space-y-6">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -274,7 +276,21 @@ export default function LostAndFound() {
           </div>
         )}
       </div>
+
+      {/* Report Item Form Modal */}
+      {showReportItemForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-4xl">
+            <button
+              onClick={() => setShowReportItemForm(false)}
+              className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-2"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <ReportItem />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-

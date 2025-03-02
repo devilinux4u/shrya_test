@@ -44,7 +44,7 @@ const YourWishlist = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       {/* Header */}
-      <h1 className="text-4xl font-bold mb-4">
+      <h1 className="mt-12 text-4xl font-bold mb-4">
           <span className="text-orange-500">Your </span>
           <span className="font-mono"> List</span>
         </h1>

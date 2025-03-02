@@ -4,7 +4,6 @@ import { useState } from "react"
 import {
   Search,
   Plus,
-  Edit2,
   Trash2,
   MapPin,
   Calendar,
@@ -14,6 +13,7 @@ import {
   AlertTriangle,
   Eye,
   Clock,
+  Edit3,
 } from "lucide-react"
 
 // Mock data remains the same
@@ -38,37 +38,6 @@ const initialItems = [
     image: "/wallet.jpg",
     description: "Brown leather wallet with ID and credit cards.",
   },
-  {
-    id: 3,
-    name: "Keys",
-    category: "Accessories",
-    location: "Main Entrance",
-    dateFound: "2024-01-25",
-    status: "pending",
-    image: "/keys.jpg",
-    description: "Set of keys with a blue keychain.",
-  },
-  {
-    id: 4,
-    name: "Document",
-    category: "Documents",
-    location: "Lecture Hall A",
-    dateFound: "2024-01-28",
-    status: "disposed",
-    image: "/document.jpg",
-    description: "Important document left in lecture hall.",
-  },
-  {
-    id: 5,
-    name: "Charger",
-    category: "Electronics",
-    location: "Student Union",
-    dateFound: "2024-02-01",
-    status: "pending",
-    image: "/charger.jpg",
-    description: "iPhone charger found near the couches.",
-  },
-  
 ]
 
 export default function LostAndFound() {
@@ -96,8 +65,6 @@ export default function LostAndFound() {
         return "bg-yellow-100 text-yellow-800"
       case "claimed":
         return "bg-green-100 text-green-800"
-      case "disposed":
-        return "bg-red-100 text-red-800"
       default:
         return "bg-gray-100 text-gray-800"
     }
@@ -109,11 +76,13 @@ export default function LostAndFound() {
         return <Clock className="w-4 h-4 mr-1" />
       case "claimed":
         return <CheckCircle className="w-4 h-4 mr-1" />
-      case "disposed":
-        return <XCircle className="w-4 h-4 mr-1" />
       default:
         return <AlertTriangle className="w-4 h-4 mr-1" />
     }
+  }
+
+  const updateStatus = (id, newStatus) => {
+    setItems(items.map(item => item.id === id ? { ...item, status: newStatus } : item))
   }
 
   return (
@@ -182,7 +151,6 @@ export default function LostAndFound() {
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
               <option value="claimed">Claimed</option>
-              <option value="disposed">Disposed</option>
             </select>
             <button
               onClick={() => setShowAddItem(true)}
@@ -222,10 +190,16 @@ export default function LostAndFound() {
                   <button onClick={() => setSelectedItem(item)} className="p-2 hover:bg-gray-100 rounded-full">
                     <Eye className="w-5 h-5 text-gray-600" />
                   </button>
+                  <button onClick={() => setShowAddItem(true)} className="p-2 hover:bg-gray-100 rounded-full">
+                    <Edit3 className="w-5 h-5 text-gray-600" />
+                  </button>
                   {item.status === "pending" && (
                     <>
-                      <button className="p-2 hover:bg-gray-100 rounded-full">
-                        <Edit2 className="w-5 h-5 text-gray-600" />
+                      <button
+                        onClick={() => updateStatus(item.id, "claimed")}
+                        className="p-2 hover:bg-gray-100 rounded-full"
+                      >
+                        <CheckCircle className="w-5 h-5 text-green-600" />
                       </button>
                       <button
                         onClick={() => setShowDeleteConfirm(item.id)}
@@ -427,4 +401,3 @@ export default function LostAndFound() {
     </div>
   )
 }
-

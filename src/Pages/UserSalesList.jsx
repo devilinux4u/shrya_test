@@ -1,7 +1,10 @@
 import Thar from "../assets/Thar.png";
 import Mazda from "../assets/Mazda.png";
+import { useNavigate } from "react-router-dom";
 
 export default function UserSalesList() {
+
+  const navigate = useNavigate();
     const handleSellVehicle = () => {
         navigate('/SellVehicle');
       };
@@ -45,7 +48,7 @@ export default function UserSalesList() {
     ]
   
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="mt-12 container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-12">
           <h1 className="text-4xl font-bold">

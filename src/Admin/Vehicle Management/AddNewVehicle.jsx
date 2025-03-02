@@ -1,16 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { Camera, Plus, X, ArrowLeft } from "lucide-react"
+import { Camera, Plus, X, ArrowLeft } from 'lucide-react'
 import { useNavigate } from "react-router-dom"
 
 export default function AddNewVehicle() {
   const navigate = useNavigate()
   const [vehicle, setVehicle] = useState({
+    title: "",
     make: "",
     model: "",
     year: "",
     type: "",
+    color: "",
+    ownership: "",
+    totalKm: "",
     fuelType: "",
     transmission: "",
     mileage: "",
@@ -57,15 +61,16 @@ export default function AddNewVehicle() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Here you would typically send the vehicle data to your backend
     console.log("Submitting vehicle:", vehicle)
-    // Reset form or redirect after successful submission
   }
 
+  const colorOptions = [
+    "White", "Black", "Silver", "Gray", "Red", "Blue", "Green", "Brown", "Gold", 
+    "Orange", "Yellow", "Purple", "Other"
+  ]
+
   return (
-    // Add ml-64 to offset the fixed sidebar
     <div className="flex-1 ml-64 min-h-screen bg-gray-50">
-      {/* Add padding inside this container */}
       <div className="p-8">
         {/* Header */}
         <div className="mb-8">
@@ -78,55 +83,79 @@ export default function AddNewVehicle() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Basic Information Card */}
+          {/* Title and Basic Information Card */}
           <div className="bg-white rounded-xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Basic Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="make" className="block text-sm font-medium text-gray-700">
-                  Make
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Vehicle Title & Basic Information</h2>
+            <div className="grid grid-cols-1 gap-6">
+              <div className="col-span-full">
+                <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                  Vehicle Title
                 </label>
                 <input
                   type="text"
-                  id="make"
-                  name="make"
-                  value={vehicle.make}
+                  id="title"
+                  name="title"
+                  value={vehicle.title}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
-                  placeholder="e.g., Toyota"
+                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                  placeholder="e.g., 2023 Toyota Camry Hybrid XLE"
                 />
               </div>
-              <div>
-                <label htmlFor="model" className="block text-sm font-medium text-gray-700">
-                  Model
-                </label>
-                <input
-                  type="text"
-                  id="model"
-                  name="model"
-                  value={vehicle.model}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
-                  placeholder="e.g., Camry"
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div>
+                  <label htmlFor="make" className="block text-sm font-medium text-gray-700">
+                    Make
+                  </label>
+                  <input
+                    type="text"
+                    id="make"
+                    name="make"
+                    value={vehicle.make}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                    placeholder="e.g., Toyota"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="model" className="block text-sm font-medium text-gray-700">
+                    Model
+                  </label>
+                  <input
+                    type="text"
+                    id="model"
+                    name="model"
+                    value={vehicle.model}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                    placeholder="e.g., Camry"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="year" className="block text-sm font-medium text-gray-700">
+                    Year
+                  </label>
+                  <input
+                    type="number"
+                    id="year"
+                    name="year"
+                    value={vehicle.year}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                    placeholder="e.g., 2023"
+                  />
+                </div>
               </div>
-              <div>
-                <label htmlFor="year" className="block text-sm font-medium text-gray-700">
-                  Year
-                </label>
-                <input
-                  type="number"
-                  id="year"
-                  name="year"
-                  value={vehicle.year}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
-                  placeholder="e.g., 2023"
-                />
-              </div>
+            </div>
+          </div>
+
+          {/* Vehicle Details Card */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Vehicle Details</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <label htmlFor="type" className="block text-sm font-medium text-gray-700">
                   Type
@@ -137,7 +166,7 @@ export default function AddNewVehicle() {
                   value={vehicle.type}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
+                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
                 >
                   <option value="">Select type</option>
                   <option value="sedan">Sedan</option>
@@ -149,13 +178,72 @@ export default function AddNewVehicle() {
                   <option value="convertible">Convertible</option>
                 </select>
               </div>
+              <div>
+                <label htmlFor="color" className="block text-sm font-medium text-gray-700">
+                  Color
+                </label>
+                <select
+                  id="color"
+                  name="color"
+                  value={vehicle.color}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                >
+                  <option value="">Select color</option>
+                  {colorOptions.map((color) => (
+                    <option key={color} value={color.toLowerCase()}>
+                      {color}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="ownership" className="block text-sm font-medium text-gray-700">
+                  Ownership
+                </label>
+                <select
+                  id="ownership"
+                  name="ownership"
+                  value={vehicle.ownership}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                >
+                  <option value="">Select ownership</option>
+                  <option value="1">1st Owner</option>
+                  <option value="2">2nd Owner</option>
+                  <option value="3">3rd Owner</option>
+                  <option value="4+">4+ Owners</option>
+                </select>
+              </div>
             </div>
           </div>
 
           {/* Technical Details Card */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-6">Technical Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label htmlFor="totalKm" className="block text-sm font-medium text-gray-700">
+                  Total Kilometers Run
+                </label>
+                <div className="mt-1 relative rounded-lg shadow-sm">
+                  <input
+                    type="number"
+                    id="totalKm"
+                    name="totalKm"
+                    value={vehicle.totalKm}
+                    onChange={handleChange}
+                    required
+                    className="block w-full rounded-lg border-gray-300 pl-3 pr-12 focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                    placeholder="e.g., 50000"
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                    <span className="text-gray-500 sm:text-sm">km</span>
+                  </div>
+                </div>
+              </div>
               <div>
                 <label htmlFor="fuelType" className="block text-sm font-medium text-gray-700">
                   Fuel Type
@@ -166,7 +254,7 @@ export default function AddNewVehicle() {
                   value={vehicle.fuelType}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
+                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
                 >
                   <option value="">Select fuel type</option>
                   <option value="gasoline">Gasoline</option>
@@ -185,28 +273,13 @@ export default function AddNewVehicle() {
                   value={vehicle.transmission}
                   onChange={handleChange}
                   required
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
+                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
                 >
                   <option value="">Select transmission</option>
                   <option value="automatic">Automatic</option>
                   <option value="manual">Manual</option>
                   <option value="cvt">CVT</option>
                 </select>
-              </div>
-              <div>
-                <label htmlFor="mileage" className="block text-sm font-medium text-gray-700">
-                  Mileage (km)
-                </label>
-                <input
-                  type="number"
-                  id="mileage"
-                  name="mileage"
-                  value={vehicle.mileage}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
-                  placeholder="e.g., 50000"
-                />
               </div>
             </div>
           </div>
@@ -219,31 +292,41 @@ export default function AddNewVehicle() {
                 <label htmlFor="price" className="block text-sm font-medium text-gray-700">
                   Sale Price (Rs.)
                 </label>
-                <input
-                  type="number"
-                  id="price"
-                  name="price"
-                  value={vehicle.price}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
-                  placeholder="e.g., 2500000"
-                />
+                <div className="mt-1 relative rounded-lg shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-500 sm:text-sm">Rs.</span>
+                  </div>
+                  <input
+                    type="number"
+                    id="price"
+                    name="price"
+                    value={vehicle.price}
+                    onChange={handleChange}
+                    required
+                    className="block w-full rounded-lg border-gray-300 pl-12 focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                    placeholder="e.g., 2500000"
+                  />
+                </div>
               </div>
               <div>
                 <label htmlFor="rentalPrice" className="block text-sm font-medium text-gray-700">
                   Rental Price (Rs. per day)
                 </label>
-                <input
-                  type="number"
-                  id="rentalPrice"
-                  name="rentalPrice"
-                  value={vehicle.rentalPrice}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
-                  placeholder="e.g., 5000"
-                />
+                <div className="mt-1 relative rounded-lg shadow-sm">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span className="text-gray-500 sm:text-sm">Rs.</span>
+                  </div>
+                  <input
+                    type="number"
+                    id="rentalPrice"
+                    name="rentalPrice"
+                    value={vehicle.rentalPrice}
+                    onChange={handleChange}
+                    required
+                    className="block w-full rounded-lg border-gray-300 pl-12 focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                    placeholder="e.g., 5000"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -262,7 +345,7 @@ export default function AddNewVehicle() {
                   rows="4"
                   value={vehicle.description}
                   onChange={handleChange}
-                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#4F46E5] focus:ring-[#4F46E5]"
+                  className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
                   placeholder="Provide a detailed description of the vehicle..."
                 ></textarea>
               </div>
@@ -274,7 +357,7 @@ export default function AddNewVehicle() {
                     type="text"
                     value={newFeature}
                     onChange={(e) => setNewFeature(e.target.value)}
-                    className="flex-1 rounded-l-lg border-gray-300 focus:border-[#4F46E5] focus:ring-[#4F46E5]"
+                    className="flex-1 rounded-l-lg border-gray-300 focus:border-[#ff6b00] focus:ring-[#ff6b00]"
                     placeholder="Add a feature (e.g., Leather seats)"
                   />
                   <button
@@ -289,13 +372,13 @@ export default function AddNewVehicle() {
                   {vehicle.features.map((feature, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center rounded-full bg-[#4F46E5]/10 py-1 pl-3 pr-2 text-sm font-medium text-[#4F46E5]"
+                      className="inline-flex items-center rounded-full bg-[#ff6b00]/10 py-1 pl-3 pr-2 text-sm font-medium text-[#ff6b00]"
                     >
                       {feature}
                       <button
                         type="button"
                         onClick={() => handleFeatureRemove(index)}
-                        className="ml-1 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-[#4F46E5] hover:bg-[#4F46E5]/20"
+                        className="ml-1 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-[#ff6b00] hover:bg-[#ff6b00]/20"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -316,7 +399,7 @@ export default function AddNewVehicle() {
                   <div className="mt-4 flex text-sm text-gray-600">
                     <label
                       htmlFor="images"
-                      className="relative cursor-pointer rounded-md bg-white font-medium text-[#4F46E5] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#4F46E5] focus-within:ring-offset-2 hover:text-[#4338CA]"
+                      className="relative cursor-pointer rounded-md bg-white font-medium text-[#ff6b00] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#ff6b00] focus-within:ring-offset-2 hover:text-[#ff8533]"
                     >
                       <span>Upload images</span>
                       <input
@@ -367,7 +450,7 @@ export default function AddNewVehicle() {
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] font-medium"
+              className="px-6 py-2.5 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium"
             >
               Add Vehicle
             </button>
@@ -377,4 +460,3 @@ export default function AddNewVehicle() {
     </div>
   )
 }
-

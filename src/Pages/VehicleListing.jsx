@@ -49,7 +49,7 @@ export default function VehicleListing() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="mt-12 flex flex-col md:flex-row gap-8">
         {/* Filters Sidebar */}
         <div className="w-full md:w-64 space-y-6">
           <div className="bg-white p-4 rounded-lg shadow">

@@ -32,14 +32,7 @@ const menuItems = [
       { title: "Add New Vehicle", path: "/admin/addnewvehicles" }
     ],
   },
-  {
-    title: "Sales",
-    icon: ShoppingCart,
-    submenu: [
-      { title: "Orders", path: "/admin/orders" },
-      { title: "Transactions", path: "/admin/transactions" },
-    ],
-  },
+  
   {
     title: "Rentals",
     icon: Key,
@@ -47,6 +40,11 @@ const menuItems = [
       { title: "Active Rentals", path: "/admin/activerentals" },
       { title: "Rental History", path: "/admin/rentalhistory" },
     ],
+  },
+  {
+    title: "Transactions",
+    icon: Settings,
+    path: "/admin/transactions",
   },
   {
     title: "Users",
@@ -59,20 +57,11 @@ const menuItems = [
     path: "/admin/lostandfound",
   },
   {
-    title: "Wishlist Analytics",
+    title: "Wishlist",
     icon: Heart,
     path: "/admin/wishlist",
   },
-  {
-    title: "Reports",
-    icon: FileText,
-    path: "/admin/reports",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    path: "/admin/settings",
-  },
+  
 ]
 
 export default function Sidebar() {

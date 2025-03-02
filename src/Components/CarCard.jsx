@@ -8,6 +8,7 @@ import Creta from '../assets/Creta.png';
 import Seat from '../assets/Seat.png';
 import Transmission from '../assets/Transmission.png';
 import Fuel from '../assets/Fuel.png';
+import { useNavigate } from 'react-router-dom';
 
 const CarCard = () => {
   const cars = [
@@ -72,8 +73,9 @@ const CarCard = () => {
       image: Prado
     }
   ];
+  const navigate = useNavigate();
   const handleExploreRental = () => {
-    navigate('/CarCard');
+    navigate('/RentalGallery');
   };
 
   return (
@@ -116,7 +118,7 @@ const CarCard = () => {
         ))}
       </div>
 
-      <button onClick={CarCard} className="mt-10 px-8 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition mx-auto block">
+      <button onClick={handleExploreRental} className="mt-10 px-8 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition mx-auto block">
         Explore Rentals
       </button>
     </section>

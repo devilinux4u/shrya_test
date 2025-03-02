@@ -80,9 +80,9 @@ const Wishlist = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4">
+    <div className=" min-h-screen bg-gray-100 py-8 px-4">
       {/* Header */}
-      <div className="max-w-6xl mx-auto text-center mb-8">
+      <div className="mt-12 max-w-6xl mx-auto text-center mb-8">
         <button onClick={handleYourList} className="inline-block bg-[#4B3EAE] text-white px-6 py-2 rounded-full mb-4">Your List</button>
         <h1 className="text-4xl font-bold mb-4">
           <span className="text-orange-500">Can't</span>

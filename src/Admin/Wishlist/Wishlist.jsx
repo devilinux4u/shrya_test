@@ -65,7 +65,7 @@ export default function Wishlist() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Wishlist Analytics</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Wishlist</h1>
           <p className="text-gray-600">Track wishlist performance and user engagement</p>
         </div>
 
@@ -80,10 +80,6 @@ export default function Wishlist() {
             <option value="last90">Last 90 days</option>
             <option value="lastYear">Last year</option>
           </select>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
-            <Download className="w-5 h-5" />
-            Export Report
-          </button>
         </div>
       </div>
 
@@ -104,111 +100,8 @@ export default function Wishlist() {
             <span className="text-sm">12% increase</span>
           </div>
         </div>
-
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Active Users</p>
-              <h3 className="text-2xl font-bold text-gray-800">{data.overview.activeUsers}</h3>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-full">
-              <Users className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center text-green-600">
-            <TrendingUp className="w-4 h-4 mr-1" />
-            <span className="text-sm">8% increase</span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Conversion Rate</p>
-              <h3 className="text-2xl font-bold text-gray-800">{data.overview.conversionRate}%</h3>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <ShoppingCart className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center text-green-600">
-            <TrendingUp className="w-4 h-4 mr-1" />
-            <span className="text-sm">5% increase</span>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600">Avg Items Per List</p>
-              <h3 className="text-2xl font-bold text-gray-800">{data.overview.averageItemsPerList}</h3>
-            </div>
-            <div className="p-3 bg-yellow-100 rounded-full">
-              <Car className="w-6 h-6 text-yellow-600" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center text-yellow-600">
-            <ArrowDownRight className="w-4 h-4 mr-1" />
-            <span className="text-sm">2% decrease</span>
-          </div>
-        </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* Monthly Trends Chart */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Monthly Trends</h3>
-          <div className="h-64 relative">
-            {/* Chart bars */}
-            <div className="absolute inset-0 flex items-end justify-between px-4">
-              {data.monthlyTrends.map((month, index) => (
-                <div key={index} className="flex flex-col items-center gap-2 w-1/6">
-                  <div className="w-full flex flex-col items-center gap-1">
-                    <div
-                      style={{ height: `${(month.wishlists / maxWishlists) * 100}%` }}
-                      className="w-4 bg-blue-500 rounded-t"
-                    />
-                    <div
-                      style={{ height: `${(month.conversions / maxWishlists) * 100}%` }}
-                      className="w-4 bg-green-500 rounded-t"
-                    />
-                  </div>
-                  <span className="text-xs text-gray-600">{month.month}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="flex justify-center gap-4 mt-4">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-blue-500 rounded" />
-              <span className="text-sm text-gray-600">Wishlists</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-green-500 rounded" />
-              <span className="text-sm text-gray-600">Conversions</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Category Analysis */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Category Analysis</h3>
-          <div className="space-y-4">
-            {data.categoryAnalysis.map((category, index) => (
-              <div key={index}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">{category.category}</span>
-                  <span className="text-gray-800 font-medium">{category.count} items</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div style={{ width: `${category.percentage}%` }} className="bg-blue-500 h-2 rounded-full" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Popular Vehicles */}
       <div className="bg-white rounded-xl shadow-md p-6">

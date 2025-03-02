@@ -12,7 +12,7 @@ function RentalVehicles() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col items-center justify-start relative overflow-hidden">
+    <div className="mt-12 min-h-screen w-full bg-white flex flex-col items-center justify-start relative overflow-hidden">
       {/* Hero Section */}
       <div className="w-full max-w-[100rem] mx-auto p-6 grid grid-cols-1 lg:grid-cols-2 items-center gap-8">
         {/* Text Content */}

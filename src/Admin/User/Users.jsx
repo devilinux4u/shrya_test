@@ -4,7 +4,6 @@ import { useState } from "react"
 import {
   Search,
   UserPlus,
-  Edit2,
   Trash2,
   Shield,
   User,
@@ -48,7 +47,7 @@ const initialUsers = [
     name: "Mike Wilson",
     email: "mike.wilson@example.com",
     phone: "+1 (555) 345-6789",
-    role: "staff",
+    role: "customer",
     status: "inactive",
     joinDate: "2024-02-01",
     lastLogin: "2024-02-20",
@@ -77,8 +76,6 @@ export default function Users() {
     switch (role) {
       case "admin":
         return "bg-purple-100 text-purple-800"
-      case "staff":
-        return "bg-blue-100 text-blue-800"
       case "customer":
         return "bg-green-100 text-green-800"
       default:
@@ -152,24 +149,6 @@ export default function Users() {
             </div>
             <p className="text-2xl font-bold mt-2">{users.filter((u) => u.status === "active").length}</p>
           </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-500">Customers</h3>
-              <User className="w-6 h-6 text-purple-500" />
-            </div>
-            <p className="text-2xl font-bold mt-2">{users.filter((u) => u.role === "customer").length}</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-500">Staff Members</h3>
-              <Shield className="w-6 h-6 text-indigo-500" />
-            </div>
-            <p className="text-2xl font-bold mt-2">
-              {users.filter((u) => u.role === "staff" || u.role === "admin").length}
-            </p>
-          </div>
         </div>
 
         {/* Filters */}
@@ -192,7 +171,6 @@ export default function Users() {
             >
               <option value="all">All Roles</option>
               <option value="customer">Customers</option>
-              <option value="staff">Staff</option>
               <option value="admin">Admins</option>
             </select>
             <select
@@ -249,11 +227,7 @@ export default function Users() {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        {user.verified && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                            Verified
-                          </span>
-                        )}
+                        {user.verified }
                       </div>
                     </div>
                   </td>
@@ -284,9 +258,6 @@ export default function Users() {
                     <div className="flex justify-end gap-2">
                       <button onClick={() => setSelectedUser(user)} className="text-blue-600 hover:text-blue-900">
                         <Eye className="w-5 h-5" />
-                      </button>
-                      <button className="text-indigo-600 hover:text-indigo-900">
-                        <Edit2 className="w-5 h-5" />
                       </button>
                       <button onClick={() => setShowDeleteConfirm(user.id)} className="text-red-600 hover:text-red-900">
                         <Trash2 className="w-5 h-5" />
@@ -350,7 +321,6 @@ export default function Users() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                 >
                   <option value="customer">Customer</option>
-                  <option value="staff">Staff</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
@@ -453,7 +423,6 @@ export default function Users() {
               >
                 Close
               </button>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Edit User</button>
             </div>
           </div>
         </div>

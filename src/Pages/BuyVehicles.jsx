@@ -1,21 +1,20 @@
-import React from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { X } from "lucide-react"; // Import the X icon
 import Toyota from "../assets/Toyota.png";
 import SellCarCard from "../Components/SellCarCard";
+import SellVehicle from "./SellVehicle";
 
 export default function VehicleDetails() {
-  const navigate = useNavigate(); // Define navigate using useNavigate
-
-  const handleSellVehicle = () => {
-    navigate("/SellVehicle");
-  };
+  const navigate = useNavigate();
+  const [showSellVehicleForm, setShowSellVehicleForm] = useState(false);
 
   return (
-    <div className="container mx-auto px-4 py-8 relative">
+    <div className="mt-12 container mx-auto px-4 py-8 relative">
       {/* Top Button */}
-      <div className="absolute right-4 top-4">
+      <div className="absolute left-4 top-4">
         <button
-          onClick={handleSellVehicle}
+          onClick={() => setShowSellVehicleForm(true)}
           className="bg-[#C84C27] text-white px-6 py-2 rounded-full hover:bg-[#B43D1B] transition-colors"
         >
           Sell a vehicle
@@ -88,6 +87,21 @@ export default function VehicleDetails() {
         </div>
       </div>
       <SellCarCard />
+
+      {/* Sell Vehicle Form Modal */}
+      {showSellVehicleForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-4xl">
+            <button
+              onClick={() => setShowSellVehicleForm(false)}
+              className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-2"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <SellVehicle />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

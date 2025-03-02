@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Camera } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ReportItem = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,12 @@ const ReportItem = ({ onClose, onSubmit }) => {
     phone: "",
     email: "",
   });
+
+  const navigate = useNavigate();
+
+  const handleCancel = () => {
+    navigate("/LostAndFound");
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -130,45 +137,7 @@ const ReportItem = ({ onClose, onSubmit }) => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Information</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Your Name"
-              required
-            />
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Phone Number"
-              required
-            />
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Email Address"
-              required
-            />
-          </div>
-
-          <div className="flex justify-between mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border rounded-md hover:bg-gray-100 transition-colors"
-            >
-              Cancel
-            </button>
+          <div className="flex justify-center mt-4">
             <button
               type="submit"
               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"

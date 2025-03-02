@@ -52,7 +52,7 @@ const RentalVehicleDetails = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="flex flex-col gap-8">
+      <div className="mt-12 flex flex-col gap-8">
         {/* Header Section */}
         <div className="bg-white rounded-xl p-6 shadow-md">
           <div className="flex justify-between items-start mb-6">
