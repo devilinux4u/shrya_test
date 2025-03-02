@@ -1,10 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { FaUser, FaLock, FaGoogle,} from "react-icons/fa"
+import { FaUser, FaLock, FaGoogle, } from "react-icons/fa"
 import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
-import {useGoogleLogin} from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
+
+
+
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -22,10 +25,39 @@ export default function Login() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    console.log("Login attempt:", formData);
+    // console.log("Login attempt:", formData);
     // Add your login logic here
+
+    const user = formData.username;
+    const pass = formData.password;
+
+    try {
+      const response = await fetch('http://127.0.0.1:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user, pass }),
+      });
+
+      const data = await response.json();
+
+      if (data.value) {
+        // setSuccess(true);
+        // Store token or handle successful login
+        console.log('Login successful:');
+      } else {
+        // setError('Login failed: ' + data.message);
+        console.log('noo Login successful:');
+
+      }
+    } catch (err) {
+      // setError('Login failed: ' + err.message);
+      console.log('Login failed: ' + err.message);
+    } 
+
   };
 
   const pageVariants = {
@@ -47,22 +79,22 @@ export default function Login() {
     e.preventDefault();
     navigate('/Register'); // Replaced router.push with navigate
   };
-const responseGoogle = async (authResult)=>{
-  try {
-    if(authResult['code']){
+  const responseGoogle = async (authResult) => {
+    try {
+      if (authResult['code']) {
 
+      }
+    } catch (error) {
+      console.log('error: ', error);
     }
-  } catch (error) {
-    console.log('error: ', error);
   }
-}
-const googleLogin = useGoogleLogin({
-  onSuccess: async (response) => {
-    console.log("User Info:", response);
-  },
-  onError: (error) => console.error("Login Failed:", error),
-  flow: "implicit", // This ensures you get 'authuser' and 'scope'
-});
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (response) => {
+      console.log("User Info:", response);
+    },
+    onError: (error) => console.error("Login Failed:", error),
+    flow: "implicit", // This ensures you get 'authuser' and 'scope'
+  });
 
 
   return (
@@ -76,7 +108,7 @@ const googleLogin = useGoogleLogin({
     >
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row">
         {/* Left Side - Blue Section */}
-        <motion.div 
+        <motion.div
           initial={{ x: -100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -93,7 +125,7 @@ const googleLogin = useGoogleLogin({
         </motion.div>
 
         {/* Right Side - Login Form */}
-        <motion.div 
+        <motion.div
           initial={{ x: 100, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -146,27 +178,27 @@ const googleLogin = useGoogleLogin({
               Login
             </motion.button>
 
-            <div  className="relative my-8">
+            <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">
-                  or 
+                  or
                 </span>
               </div>
             </div>
 
-<motion.button
-  whileHover={{ scale: 1.02 }}
-  whileTap={{ scale: 0.98 }}
-  onClick={googleLogin}
-  className="w-full py-3 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-300"
->
-  <FaGoogle className="w-5 h-5 mr-2 text-red-500" /> Login with Google
-</motion.button>
-            
-            
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={googleLogin}
+              className="w-full py-3 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-300"
+            >
+              <FaGoogle className="w-5 h-5 mr-2 text-red-500" /> Login with Google
+            </motion.button>
+
+
           </form>
         </motion.div>
       </div>

@@ -3,13 +3,16 @@ const app = express();
 const port = process.env.PORT || 3000;
 const path = require("path");
 const bodyParser = require("body-parser");
-const cookiee = require('cookie-parser');
+// const cookiee = require('cookie-parser');
 
+const cors = require('cors');
+
+app.use(cors())
 
 const login = require('./routes/login');
 
  
-app.use(cookiee());
+// app.use(cookiee());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
