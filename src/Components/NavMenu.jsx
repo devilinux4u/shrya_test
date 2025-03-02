@@ -17,10 +17,6 @@ const NavMenu = () => {
     navigate("/Login")
   }
 
-  const handleWishVehicle = () => {
-    navigate("/Wishlist")
-  }
-
   const handleLogo = () => {
     navigate("/Home")
   }
@@ -95,14 +91,8 @@ const NavMenu = () => {
               <NavLink to="/FAQ">FAQ</NavLink>
             </div>
 
-            {/* Get Started and Wish Vehicle Buttons */}
+            {/* Get Started Button */}
             <div className="flex items-center space-x-4">
-              <button
-                onClick={handleWishVehicle}
-                className="px-6 py-3 rounded-full text-lg font-semibold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out transform hover:scale-105"
-              >
-                Wish Vehicle
-              </button>
               <button
                 onClick={handleGetStarted}
                 className="px-6 py-3 rounded-full text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105"
@@ -170,12 +160,6 @@ const NavMenu = () => {
         </div>
         <div className="pt-4 pb-3 border-t border-gray-200 bg-white">
           <div className="px-4">
-            <button
-              onClick={handleWishVehicle}
-              className="block w-full px-5 py-3 text-center text-lg font-semibold text-white bg-green-600 hover:bg-green-700 rounded-full transition duration-300 ease-in-out transform hover:scale-105"
-            >
-              Wish Vehicle
-            </button>
             <button
               onClick={handleGetStarted}
               className="block w-full px-5 py-3 text-center text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full transition duration-300 ease-in-out transform hover:scale-105 mt-3"
