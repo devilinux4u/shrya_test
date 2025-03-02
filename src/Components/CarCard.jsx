@@ -79,13 +79,13 @@ const CarCard = () => {
   };
 
   return (
-    <section className="p-10 max-w-7xl mx-auto min-h-screen">
+    <section className="p-10 w-full h-full flex flex-col items-center">
       <div className="text-center mb-10">
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">Explore our Top Deals</h2>
         <p className="text-lg text-gray-500">from Top Rated Dealers</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-14">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
         {cars.map(car => (
           <div
             key={car.id}
@@ -118,7 +118,7 @@ const CarCard = () => {
         ))}
       </div>
 
-      <button onClick={handleExploreRental} className="mt-10 px-8 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition mx-auto block">
+      <button onClick={handleExploreRental} className="mt-10 px-8 py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition">
         Explore Rentals
       </button>
     </section>
