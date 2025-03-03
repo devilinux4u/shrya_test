@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Clock, Send, Facebook, Instagram, Linkedin, MessageSquare } from "lucide-react"
+import { MapPin, Phone, Mail, Send, Facebook, Instagram, Linkedin, MessageSquare } from "lucide-react"
 
 const Contact = () => {
   const handleSubmit = (e) => {
@@ -36,7 +36,7 @@ const Contact = () => {
                   <p className="text-gray-600">
                     Shreya Auto Enterprises
                     <br />
-                    Pragati Marga, Kathmandu
+                    Bishalnagar-5, Kathmandu,
                     <br />
                     Nepal
                   </p>
@@ -50,8 +50,8 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Call Us</h3>
-                  <p className="text-gray-600">+977-1-4444444</p>
-                  <p className="text-gray-600">+977-9841234567</p>
+                  <p className="text-gray-600">+977-9841594067</p>
+                  <p className="text-gray-600">01-4541713</p>
                 </div>
               </div>
 
@@ -62,21 +62,7 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Email Us</h3>
-                  <p className="text-gray-600">info@shreyaauto.com</p>
-                  <p className="text-gray-600">support@shreyaauto.com</p>
-                </div>
-              </div>
-
-              {/* Business Hours */}
-              <div className="flex items-start space-x-4">
-                <div className="bg-orange-100 p-3 rounded-full">
-                  <Clock className="h-6 w-6 text-[#ff6b00]" />
-                </div>
-                <div>
-                  <h3 className="font-semibold mb-1">Business Hours</h3>
-                  <p className="text-gray-600">Monday - Friday: 9:00 AM - 6:00 PM</p>
-                  <p className="text-gray-600">Saturday: 9:00 AM - 3:00 PM</p>
-                  <p className="text-gray-600">Sunday: Closed</p>
+                  <p className="text-gray-600">shreyaauto.enterprises@gmail.com</p>
                 </div>
               </div>
             </div>
@@ -116,32 +102,18 @@ const Contact = () => {
               <h2 className="text-2xl font-bold">Send us a Message</h2>
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-2">
-                    First Name
-                  </label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-2">
-                    Last Name
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
-                    required
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
-                  />
-                </div>
+              {/* Full Name */}
+              <div>
+                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
+                />
               </div>
 
               {/* Email */}
@@ -167,20 +139,6 @@ const Contact = () => {
                   type="tel"
                   id="phone"
                   name="phone"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
-                />
-              </div>
-
-              {/* Subject */}
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-2">
-                  Subject
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  name="subject"
                   required
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
                 />
@@ -233,4 +191,3 @@ const Contact = () => {
 }
 
 export default Contact
-

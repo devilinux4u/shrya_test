@@ -1,6 +1,5 @@
 import React from 'react';
 import CarCard from '../Components/CarCard';
-import ContactForm from '../Components/ContactForm';
 import { useNavigate } from 'react-router-dom';
 import HomeCar from '../assets/HomeCar.png';
 import Service from '../assets/Service.png';
@@ -116,7 +115,6 @@ const Home = () => {
       </section>
 
       <CarCard />
-      <ContactForm />
     </div>
   );
 };

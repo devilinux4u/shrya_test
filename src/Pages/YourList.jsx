@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { CheckCircle, Clock, Car, Calendar, DollarSign } from "lucide-react";
-import Wishlist from "./Wishlist"; // Assuming Wishlist.jsx is in the same directory
+"use client"
+
+import { useState } from "react"
+import { CheckCircle, Clock, Car, Calendar, DollarSign } from "lucide-react"
+import WishlistForm from "../Components/WishlistForm"
 
 // Sample data - In real app, this would come from an API
 const wishlistItems = [
@@ -35,19 +37,19 @@ const wishlistItems = [
     dateSubmitted: "2024-02-03",
   },
   // Add more items as needed
-];
+]
 
-const YourWishlist = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const YourList = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleBook = (id) => {
-    console.log("Booking vehicle with id:", id);
+    console.log("Booking vehicle with id:", id)
     // Add booking logic here
-  };
+  }
 
   const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
+    setIsModalOpen(!isModalOpen)
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -160,22 +162,11 @@ const YourWishlist = () => {
         )}
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl">
-            <button
-              onClick={toggleModal}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-            >
-              &times;
-            </button>
-            <Wishlist />
-          </div>
-        </div>
-      )}
+      {/* WishlistForm Modal */}
+      <WishlistForm isOpen={isModalOpen} onClose={toggleModal} />
     </div>
-  );
-};
+  )
+}
 
-export default YourWishlist;
+export default YourList
+

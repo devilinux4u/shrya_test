@@ -114,25 +114,8 @@ const AboutUs = () => {
           </div>
         </div>
 
-        {/* Future Features Section */}
-        <div className="bg-white rounded-3xl shadow-lg p-8">
-          <h2 className="text-3xl font-bold mb-6">Coming Soon</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <Sparkles className="h-6 w-6 text-[#ff6b00] mr-2" />
-                <h3 className="text-xl font-semibold">New Features</h3>
-              </div>
-              <ul className="list-disc list-inside text-gray-600 space-y-2 ml-2">
-                <li>Online vehicle rental platform</li>
-                <li>Wishlist management system</li>
-                <li>Test ride scheduling</li>
-                <li>Vehicle purchase and swap options</li>
-                <li>Enhanced customer support</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+
+        
       </div>
     </div>
   );

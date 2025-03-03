@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react"; // Import the X icon
+import { X } from 'lucide-react'; 
 import Toyota from "../assets/Toyota.png";
 import SellCarCard from "../Components/SellCarCard";
-import SellVehicle from "./SellVehicle";
+import SellVehicleForm from "../Components/SellVehicleForm";
 
 export default function VehicleDetails() {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ export default function VehicleDetails() {
           {/* Vehicle Image */}
           <div>
             <img
-              src={Toyota}
+              src={Toyota || "/placeholder.svg"}
               alt="Toyota Land Cruiser Prado"
               className="w-full h-auto"
             />
@@ -89,19 +89,10 @@ export default function VehicleDetails() {
       <SellCarCard />
 
       {/* Sell Vehicle Form Modal */}
-      {showSellVehicleForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-4xl">
-            <button
-              onClick={() => setShowSellVehicleForm(false)}
-              className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-2"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <SellVehicle />
-          </div>
-        </div>
-      )}
+      <SellVehicleForm 
+        isOpen={showSellVehicleForm} 
+        onClose={() => setShowSellVehicleForm(false)} 
+      />
     </div>
   );
 }

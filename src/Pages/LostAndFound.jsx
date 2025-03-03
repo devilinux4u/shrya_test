@@ -1,8 +1,8 @@
 import { useState } from "react"
-import { MapPin, Calendar, ChevronLeft, ChevronRight, Search, ChevronDown, X } from "lucide-react"
+import { MapPin, Calendar, ChevronLeft, ChevronRight, Search, ChevronDown, X } from 'lucide-react'
 import { useNavigate } from "react-router-dom"
 import Purse from '../assets/Purse.png'
-import ReportItem from './ReportItem'
+import LostAndFoundForm from "../Components/LostAndFoundForm"
 
 const items = [
   {
@@ -62,6 +62,13 @@ export default function LostAndFound() {
 
   const handleReportItem = () => {
     setShowReportItemForm(true)
+  }
+
+  const handleFormSubmit = (formData) => {
+    // Handle form submission here
+    console.log("Form submitted:", formData)
+    // You might want to add the new item to your items list or send it to an API
+    setShowReportItemForm(false)
   }
 
   // Filter items based on activeFilter and search query
@@ -287,7 +294,7 @@ export default function LostAndFound() {
             >
               <X className="h-5 w-5" />
             </button>
-            <ReportItem />
+            <LostAndFoundForm onClose={() => setShowReportItemForm(false)} onSubmit={handleFormSubmit} />
           </div>
         </div>
       )}

@@ -9,11 +9,8 @@ import RentalVehicles from './Pages/RentalVehicles';
 import RentalVehicleDesc from './Pages/RentalVehicleDesc';
 import BuyVehicles from './Pages/BuyVehicles';
 import VehicleListing from './Pages/VehicleListing';
-import SellVehicle from './Pages/SellVehicle';
 import UserSalesList from './Pages/UserSalesList';
 import LostAndFound from './Pages/LostAndFound';
-import ReportItem from './Pages/ReportItem';
-import Wishlist from './Pages/Wishlist';
 import YourList from './Pages/YourList';
 import BuyVehiclesDesc from './Pages/BuyVehiclesDesc';
 import AboutUs from './Pages/AboutUs';
@@ -33,11 +30,10 @@ function App() {
         <Route path="/RentalVehicleDesc" element={<RentalVehicleDesc />} />
         <Route path="/BuyVehicles" element={<BuyVehicles />} />
         <Route path="/VehicleListing" element={<VehicleListing />} />
-        <Route path="/SellVehicle" element={<SellVehicle />} />
+    
         <Route path="/UserSalesList" element={<UserSalesList />} />
         <Route path="/LostAndFound" element={<LostAndFound />} />
-        <Route path="/ReportItem" element={<ReportItem />} />
-        <Route path="/Wishlist" element={<Wishlist />} />
+      
         <Route path="/YourList" element={<YourList />} />
         <Route path="/BuyVehiclesDesc" element={<BuyVehiclesDesc />} />
         <Route path="/AboutUs" element={<AboutUs />} />
