@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
 
+import Cookies from 'js-cookie';
 
 
 
@@ -25,10 +26,8 @@ export default function Login() {
     }));
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log("Login attempt:", formData);
-    // Add your login logic here
 
     const user = formData.username;
     const pass = formData.password;
@@ -36,6 +35,7 @@ export default function Login() {
     try {
       const response = await fetch('http://127.0.0.1:3000/login', {
         method: 'POST',
+        credentials: "include",
         headers: {
           'Content-Type': 'application/json',
         },
@@ -45,18 +45,17 @@ export default function Login() {
       const data = await response.json();
 
       if (data.value) {
-        // setSuccess(true);
-        // Store token or handle successful login
-        console.log('Login successful:');
+        navigate("/RentalVehicles");
+        Cookies.set('sauto', data.cok, { expires: 7 });
+        console.log('Login successful: ', Cookies.get('sauto')); // Store token or handle successful login
       } else {
         // setError('Login failed: ' + data.message);
         console.log('noo Login successful:');
-
       }
     } catch (err) {
       // setError('Login failed: ' + err.message);
       console.log('Login failed: ' + err.message);
-    } 
+    }
 
   };
 

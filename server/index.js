@@ -3,20 +3,27 @@ const app = express();
 const port = process.env.PORT || 3000;
 const path = require("path");
 const bodyParser = require("body-parser");
-// const cookiee = require('cookie-parser');
 
 const cors = require('cors');
 
-app.use(cors())
+app.use(
+    cors({
+        origin: 'http://localhost:5173',
+        credentials: true
+    })
+)
 
 const login = require('./routes/login');
+const register = require('./routes/register');
+const message = require('./routes/message');
+const wishlist = require('./routes/wishlist');
 
- 
-// app.use(cookiee());
+
+app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.use('/', login);
+app.use('/', login, register, message, wishlist);
 
 app.get('*', (req, res) => {
     res.send('404-error not found');
