@@ -1,4 +1,6 @@
 import { MapPin, Phone, Mail, Send, Facebook, Instagram, Linkedin, MessageSquare } from "lucide-react"
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const Contact = () => {
   const handleSubmit = async(e) => {
@@ -6,11 +8,9 @@ const Contact = () => {
 
     // Collect form data
     const formData = {
-      fname: e.target.firstName.value,
-      lname: e.target.lastName.value,
+      name: e.target.fullName.value,
       email: e.target.email.value,
       phno: e.target.phone.value,
-      sub: e.target.subject.value,
       msg: e.target.message.value,
     };
 
@@ -24,14 +24,13 @@ const Contact = () => {
       });
 
       const result = await response.json();
-      if (result.value) {
-        alert("Message sent successfully!");
+      if (result.success) {
+        toast.success(result.msg);
       } else {
-        alert("Failed to send message. Please try again.");
+        toast.error(result.msg);
       }
     } catch (error) {
-      console.error("Error:", error);
-      alert("An error occurred. Please try again.");
+      toast.error("Error while sending message");
     }
 
   }
@@ -216,6 +215,7 @@ const Contact = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   )
 }

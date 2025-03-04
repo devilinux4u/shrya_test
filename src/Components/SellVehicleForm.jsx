@@ -62,7 +62,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault()
     console.log("Submitting vehicle:", vehicle)
-    onClose()
+    onClose() 
   }
 
   const nextStep = () => setStep(step + 1)

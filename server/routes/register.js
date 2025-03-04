@@ -11,7 +11,7 @@ router.post('/register', async (req, res) => {
         let existingUser = await users.findOne({ where: { uname: data.user } });
 
         if (existingUser) {
-            return res.send({ value: false, msg: 'User already exists' });
+            return res.json({ success: false, msg: 'User already exists' });
         }
 
         // Encrypt the password
@@ -19,15 +19,17 @@ router.post('/register', async (req, res) => {
 
         // Create a new user
         let newUser = await users.create({
+            fname: data.name,
             uname: data.user,
             email: data.email,
+            num: data.number,
             pass: hashedPass
         });
 
-        res.send({ value: true, msg: 'User created successfully' });
+        res.json({ success: true, msg: 'Registration successful!' });
     } catch (err) {
         console.log(err.message);
-        res.send({ value: 'err' });
+        res.json({ success: false, msg: 'An error occurred' });
     }
 });
 

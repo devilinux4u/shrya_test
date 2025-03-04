@@ -1,6 +1,13 @@
 
 module.exports.user = (sequelize, DataTypes) => {
     const user = sequelize.define('user', {
+        fname: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+            }
+        },
         uname: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -9,6 +16,13 @@ module.exports.user = (sequelize, DataTypes) => {
             }
         },
         email: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+            }
+        },
+        num: {
             type: DataTypes.STRING,
             allowNull: false,
             validate: {
@@ -29,14 +43,7 @@ module.exports.user = (sequelize, DataTypes) => {
 
 module.exports.contact = (sequelize, DataTypes) => {
     const contact = sequelize.define('contact', {
-        fname: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        lname: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false,
             validate: {
@@ -51,14 +58,6 @@ module.exports.contact = (sequelize, DataTypes) => {
             }
         },
         phno: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-                isNumeric: true, // Ensures only numeric values
-            }
-        },
-        sub: {
             type: DataTypes.STRING,
             allowNull: false,
             validate: {

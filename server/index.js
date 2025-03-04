@@ -17,13 +17,14 @@ const login = require('./routes/login');
 const register = require('./routes/register');
 const message = require('./routes/message');
 const wishlist = require('./routes/wishlist');
+const sell = require('./routes/sellVechile');
 
 
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.use('/', login, register, message, wishlist);
+app.use('/', login, register, message, wishlist, sell);
 
 app.get('*', (req, res) => {
     res.send('404-error not found');
