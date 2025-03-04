@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import Logo from "../assets/Logo.png"
-import { Menu, X, ChevronDown } from "lucide-react"
+import { Menu, X, ChevronDown, User } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 
 const NavMenu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isServicesOpen, setIsServicesOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userFullName, setUserFullName] = useState("")
 
   const navigate = useNavigate()
 
@@ -19,6 +21,10 @@ const NavMenu = () => {
 
   const handleLogo = () => {
     navigate("/Home")
+  }
+
+  const handleProfileClick = () => {
+    navigate("/UserProfile")
   }
 
   const toggleServices = () => {
@@ -35,6 +41,19 @@ const NavMenu = () => {
     }
 
     window.addEventListener("scroll", handleScroll)
+
+    // Check login status and user info
+    const checkLoginStatus = () => {
+      const loggedIn = localStorage.getItem("isLoggedIn") === "true"
+      setIsLoggedIn(loggedIn)
+      if (loggedIn) {
+        const fullName = localStorage.getItem("userFullName")
+        setUserFullName(fullName || "")
+      }
+    }
+
+    checkLoginStatus()
+
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
@@ -56,7 +75,7 @@ const NavMenu = () => {
             </Link>
           </div>
 
-          {/* Navigation and Get Started - now on the right */}
+          {/* Navigation and User Profile - now on the right */}
           <div className="hidden md:flex md:items-center">
             {/* Desktop Navigation */}
             <div className="flex items-baseline space-x-8">
@@ -91,14 +110,26 @@ const NavMenu = () => {
               <NavLink to="/FAQ">FAQ</NavLink>
             </div>
 
-            {/* Get Started Button */}
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={handleGetStarted}
-                className="px-6 py-3 rounded-full text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105"
-              >
-                Get Started
-              </button>
+            {/* User Profile or Get Started Button */}
+            <div className="flex items-center space-x-4 ml-8">
+              {isLoggedIn ? (
+                <div className="flex items-center space-x-3">
+                  <span className="text-gray-800 font-medium">{userFullName}</span>
+                  <button
+                    onClick={handleProfileClick}
+                    className="p-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+                  >
+                    <User className="h-6 w-6" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={handleGetStarted}
+                  className="px-6 py-3 rounded-full text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105"
+                >
+                  Get Started
+                </button>
+              )}
             </div>
           </div>
 
@@ -160,12 +191,24 @@ const NavMenu = () => {
         </div>
         <div className="pt-4 pb-3 border-t border-gray-200 bg-white">
           <div className="px-4">
-            <button
-              onClick={handleGetStarted}
-              className="block w-full px-5 py-3 text-center text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full transition duration-300 ease-in-out transform hover:scale-105 mt-3"
-            >
-              Get Started
-            </button>
+            {isLoggedIn ? (
+              <div className="flex items-center justify-between">
+                <span className="text-gray-800 font-medium">{userFullName}</span>
+                <button
+                  onClick={handleProfileClick}
+                  className="p-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+                >
+                  <User className="h-6 w-6" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleGetStarted}
+                className="block w-full px-5 py-3 text-center text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-full transition duration-300 ease-in-out transform hover:scale-105 mt-3"
+              >
+                Get Started
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -192,3 +235,4 @@ const NavLink = ({ to, children, mobile, menuItem }) => (
 )
 
 export default NavMenu
+
