@@ -1,8 +1,10 @@
+"use client"
+
 import { useState } from "react"
-import { MapPin, Calendar, ChevronLeft, ChevronRight, Search, ChevronDown, X } from 'lucide-react'
+import { MapPin, Calendar, ChevronLeft, ChevronRight, Search, ChevronDown } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import Purse from '../assets/Purse.png'
-import LostAndFoundForm from "../Components/LostAndFoundForm"
+import Purse from "../assets/Purse.png"
+import LostAndFoundForm from "../components/LostAndFoundForm"
 
 const items = [
   {
@@ -14,14 +16,12 @@ const items = [
     date: "01/02/2024",
     type: "lost",
     status: "active",
-    image: Purse,
+    images: [Purse, "/placeholder.svg?height=200&width=200", "/placeholder.svg?height=200&width=200"],
     details: {
       founderName: "Hari Ram",
       foundDate: "2022-11-10",
-      foundInCar: "Mazda 6",
       foundLocation: "Kalanki",
-      color: "Black",
-      contact: "9849716945",
+      contact: "9876543210",
     },
   },
   {
@@ -32,7 +32,7 @@ const items = [
     date: "02/02/2024",
     type: "found",
     status: "active",
-    image: "/placeholder.svg?height=200&width=200",
+    images: ["/placeholder.svg?height=200&width=200", "/placeholder.svg?height=200&width=200"],
   },
   {
     id: 3,
@@ -42,7 +42,7 @@ const items = [
     date: "01/02/2024",
     type: "lost",
     status: "resolved",
-    image: "/placeholder.svg?height=200&width=200",
+    images: ["/placeholder.svg?height=200&width=200"],
   },
   // Add more items as needed
 ]
@@ -53,11 +53,13 @@ export default function LostAndFound() {
   const [activeFilter, setActiveFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [showReportItemForm, setShowReportItemForm] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const itemsPerPage = 6
   const navigate = useNavigate()
 
   const handleContactReporter = (item) => {
     setExpandedItem(expandedItem === item.id ? null : item.id)
+    setCurrentImageIndex(0)
   }
 
   const handleReportItem = () => {
@@ -88,6 +90,14 @@ export default function LostAndFound() {
   })
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage)
+
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex === expandedItem.images.length - 1 ? 0 : prevIndex + 1))
+  }
+
+  const prevImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? expandedItem.images.length - 1 : prevIndex - 1))
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -156,16 +166,8 @@ export default function LostAndFound() {
                           <p className="text-xl">{item.details.foundDate}</p>
                         </div>
                         <div>
-                          <h3 className="text-sm text-gray-500 mb-1">Found in Car</h3>
-                          <p className="text-xl">{item.details.foundInCar}</p>
-                        </div>
-                        <div>
                           <h3 className="text-sm text-gray-500 mb-1">Found Location</h3>
                           <p className="text-xl">{item.details.foundLocation}</p>
-                        </div>
-                        <div>
-                          <h3 className="text-sm text-gray-500 mb-1">Color</h3>
-                          <p className="text-xl">{item.details.color}</p>
                         </div>
                         <div>
                           <h3 className="text-sm text-gray-500 mb-1">Contact</h3>
@@ -200,19 +202,52 @@ export default function LostAndFound() {
                       </div>
                     </div>
 
-                    <div className="flex justify-center items-start">
-                      <img
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.title}
-                        className="w-full max-w-md rounded-lg"
-                      />
+                    <div className="flex flex-col items-center justify-start">
+                      <div className="relative w-full max-w-md">
+                        <img
+                          src={item.images[currentImageIndex] || "/placeholder.svg"}
+                          alt={`${item.title} - Image ${currentImageIndex + 1}`}
+                          className="w-full h-64 object-cover rounded-lg"
+                        />
+                        {item.images.length > 1 && (
+                          <>
+                            <button
+                              onClick={prevImage}
+                              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
+                            >
+                              <ChevronLeft className="w-6 h-6" />
+                            </button>
+                            <button
+                              onClick={nextImage}
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
+                            >
+                              <ChevronRight className="w-6 h-6" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                      <div className="flex mt-4 space-x-2">
+                        {item.images.map((_, index) => (
+                          <button
+                            key={index}
+                            onClick={() => setCurrentImageIndex(index)}
+                            className={`w-3 h-3 rounded-full ${
+                              currentImageIndex === index ? "bg-blue-600" : "bg-gray-300"
+                            }`}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
               ) : (
                 <>
                   <div className="relative">
-                    <img src={item.image || "/placeholder.svg"} alt={item.title} className="w-full h-48 object-cover" />
+                    <img
+                      src={item.images[0] || "/placeholder.svg"}
+                      alt={item.title}
+                      className="w-full h-48 object-cover"
+                    />
                     <span
                       className={`absolute top-4 right-4 px-2 py-1 rounded-full text-sm font-medium ${
                         item.type === "lost"
@@ -285,19 +320,12 @@ export default function LostAndFound() {
       </div>
 
       {/* Report Item Form Modal */}
-      {showReportItemForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-4xl">
-            <button
-              onClick={() => setShowReportItemForm(false)}
-              className="absolute top-4 right-4 bg-red-500 text-white rounded-full p-2"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <LostAndFoundForm onClose={() => setShowReportItemForm(false)} onSubmit={handleFormSubmit} />
-          </div>
-        </div>
-      )}
+      <LostAndFoundForm
+        isOpen={showReportItemForm}
+        onClose={() => setShowReportItemForm(false)}
+        onSubmit={handleFormSubmit}
+      />
     </div>
   )
 }
+

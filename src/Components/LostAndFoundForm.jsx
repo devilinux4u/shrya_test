@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { Camera } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Camera, X } from "lucide-react"
+import { toast } from "react-toastify"
 
-const LostAndFoundForm = ({ onClose, onSubmit }) => {
+const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     type: "lost",
     title: "",
@@ -15,9 +15,32 @@ const LostAndFoundForm = ({ onClose, onSubmit }) => {
     name: "",
     phone: "",
     email: "",
+    images: [],
+    lostInCar: "",
   })
 
-  const navigate = useNavigate()
+  const [errors, setErrors] = useState({})
+
+  // Close modal with escape key
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") onClose()
+    }
+    window.addEventListener("keydown", handleEsc)
+    return () => window.removeEventListener("keydown", handleEsc)
+  }, [onClose])
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "unset"
+    }
+    return () => {
+      document.body.style.overflow = "unset"
+    }
+  }, [isOpen])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -27,123 +50,245 @@ const LostAndFoundForm = ({ onClose, onSubmit }) => {
     }))
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSubmit(formData)
-    onClose()
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files)
+    const imageUrls = files.map((file) => URL.createObjectURL(file))
+    setFormData((prevData) => ({
+      ...prevData,
+      images: [...prevData.images, ...imageUrls],
+    }))
   }
 
+  const handleImageRemove = (index) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      images: prevData.images.filter((_, i) => i !== index),
+    }))
+  }
+
+  const validateForm = () => {
+    const newErrors = {}
+    if (!formData.type) newErrors.type = "Type is required"
+    if (!formData.title.trim()) newErrors.title = "Title is required"
+    if (!formData.description.trim()) newErrors.description = "Description is required"
+    if (!formData.location.trim()) newErrors.location = "Location is required"
+    if (!formData.date) newErrors.date = "Date is required"
+    if (!formData.category) newErrors.category = "Category is required"
+    if (!formData.name.trim()) newErrors.name = "Name is required"
+    if (!formData.phone.trim()) newErrors.phone = "Phone number is required"
+    if (!formData.email.trim()) newErrors.email = "Email is required"
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid"
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (validateForm()) {
+      try {
+        await onSubmit(formData)
+        toast.success("Report submitted successfully!")
+        onClose()
+      } catch (error) {
+        toast.error("An error occurred while submitting the report. Please try again.")
+      }
+    } else {
+      toast.error("Please fill in all required fields correctly.")
+    }
+  }
+
+  if (!isOpen) return null
+
   return (
-    <div className="bg-white rounded-lg p-4 sm:p-6 max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Report Lost/Found Item</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-1">
-          <label htmlFor="type" className="block text-sm font-medium">
-            Type
-          </label>
-          <select
-            id="type"
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            className="p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 w-full"
-          >
-            <option value="lost">Lost Item</option>
-            <option value="found">Found Item</option>
-          </select>
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
+        {/* Close button */}
+        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
+          <X className="h-6 w-6" />
+        </button>
+
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-gray-900">Report Lost/Found Item</h1>
         </div>
 
-        <div className="space-y-1">
-          <label htmlFor="title" className="block text-sm font-medium">
-            Title
-          </label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 w-full"
-            placeholder="Brief title of the item"
-            required
-          />
+        {/* Form content */}
+        <div className="px-6 py-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 180px)" }}>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <SelectField
+                label="Type"
+                name="type"
+                value={formData.type}
+                onChange={handleChange}
+                options={[
+                  { value: "lost", label: "Lost Item" },
+                  { value: "found", label: "Found Item" },
+                ]}
+                error={errors.type}
+              />
+              <InputField
+                label="Title"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                placeholder="Brief title of the item"
+                error={errors.title}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                rows="4"
+                value={formData.description}
+                onChange={handleChange}
+                className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] ${
+                  errors.description ? "border-red-500" : ""
+                }`}
+                placeholder="Provide a detailed description of the item..."
+              ></textarea>
+              {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <InputField
+                label="Location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Where was it lost/found?"
+                error={errors.location}
+              />
+              <InputField
+                label="Date"
+                name="date"
+                type="date"
+                value={formData.date}
+                onChange={handleChange}
+                error={errors.date}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Item Images</label>
+              <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8">
+                <div className="text-center">
+                  <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="mt-4 flex text-sm text-gray-600">
+                    <label
+                      htmlFor="images"
+                      className="relative cursor-pointer rounded-md bg-white font-medium text-[#ff6b00] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#ff6b00] focus-within:ring-offset-2 hover:text-[#ff8533]"
+                    >
+                      <span>Upload images</span>
+                      <input
+                        id="images"
+                        name="images"
+                        type="file"
+                        className="sr-only"
+                        multiple
+                        onChange={handleImageUpload}
+                        accept="image/*"
+                      />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to 10MB</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+                {formData.images.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image || "/placeholder.svg"}
+                      alt={`Item ${index + 1}`}
+                      className="h-24 w-full object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleImageRemove(index)}
+                      className="absolute top-1 right-1 h-6 w-6 rounded-full bg-white/80 text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </form>
         </div>
 
-        <div className="space-y-1">
-          <label htmlFor="description" className="block text-sm font-medium">
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows={3}
-            className="p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 w-full"
-            placeholder="Detailed description of the item..."
-            required
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label htmlFor="location" className="block text-sm font-medium">
-            Location
-          </label>
-          <input
-            type="text"
-            id="location"
-            name="location"
-            value={formData.location}
-            onChange={handleChange}
-            className="p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 w-full"
-            placeholder="Where was it lost/found?"
-            required
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label htmlFor="date" className="block text-sm font-medium">
-            Date
-          </label>
-          <input
-            type="date"
-            id="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500 w-full"
-            required
-          />
-        </div>
-
-        <div className="space-y-1">
-          <label className="block text-sm font-medium">Upload Image</label>
-          <div className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:border-blue-500 transition flex flex-col items-center justify-center">
-            <Camera className="h-8 w-8 text-gray-400" />
-            <p className="mt-1 text-sm text-gray-600">Click to upload or drag and drop</p>
-            <input type="file" className="hidden" accept="image/*" multiple />
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors"
+            >
+              Submit Report
+            </button>
           </div>
         </div>
-
-        <div className="flex justify-end gap-2 sm:gap-4 mt-6">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Submit Report
-          </button>
-        </div>
-      </form>
+      </div>
     </div>
   )
 }
+
+const InputField = ({ label, name, type = "text", value, onChange, placeholder, error }) => (
+  <div>
+    <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+      {label}
+    </label>
+    <input
+      type={type}
+      id={name}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className={`w-full px-4 py-2 rounded-lg border ${
+        error ? "border-red-500" : "border-gray-300"
+      } focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors`}
+      placeholder={placeholder}
+    />
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+  </div>
+)
+
+const SelectField = ({ label, name, value, onChange, options, error }) => (
+  <div>
+    <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+      {label}
+    </label>
+    <select
+      id={name}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className={`w-full rounded-lg ${
+        error ? "border-red-500" : "border-gray-300"
+      } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]`}
+    >
+      <option value="">Select {label.toLowerCase()}</option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+  </div>
+)
 
 export default LostAndFoundForm
 
