@@ -20,10 +20,37 @@ export default function Register() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Registration attempt:", formData);
-    // Add your registration logic here
+
+    const user = formData.username;
+    const email = formData.email;
+    const pass = formData.password;
+
+    try {
+      const response = await fetch('http://127.0.0.1:3000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user, email, pass }),
+      });
+
+      const data = await response.json();
+
+      if (data.value) {
+        navigate("/Login");
+        console.log('Register successful:'); // Store token or handle successful login
+      } else {
+        // setError('Login failed: ' + data.message);
+        console.log('noo register successful:');
+      }
+    } catch (err) {
+      // setError('Login failed: ' + err.message);
+      console.log('Register failed: ' + err.message);
+    }
+
+
   };
 
   const googleLogin = () => {

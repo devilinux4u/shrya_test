@@ -1,9 +1,39 @@
 import { MapPin, Phone, Mail, Send, Facebook, Instagram, Linkedin, MessageSquare } from "lucide-react"
 
 const Contact = () => {
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault()
-    // Handle form submission logic here
+
+    // Collect form data
+    const formData = {
+      fname: e.target.firstName.value,
+      lname: e.target.lastName.value,
+      email: e.target.email.value,
+      phno: e.target.phone.value,
+      sub: e.target.subject.value,
+      msg: e.target.message.value,
+    };
+
+    try {
+      const response = await fetch("http://localhost:3000/contact", {  
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      if (result.value) {
+        alert("Message sent successfully!");
+      } else {
+        alert("Failed to send message. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred. Please try again.");
+    }
+
   }
 
   return (
