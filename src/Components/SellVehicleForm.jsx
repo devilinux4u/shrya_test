@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Camera, Plus, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Camera, X, ChevronLeft, ChevronRight } from "lucide-react"
 
 export default function SellVehicleForm({ isOpen, onClose }) {
   const [step, setStep] = useState(1)
@@ -17,7 +17,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     transmission: "",
     price: "",
     description: "",
-    features: [],
     images: [],
   })
 
@@ -42,25 +41,9 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     }
   }, [isOpen])
 
-  const [newFeature, setNewFeature] = useState("")
-
   const handleChange = (e) => {
     const { name, value } = e.target
     setVehicle((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleFeatureAdd = () => {
-    if (newFeature.trim()) {
-      setVehicle((prev) => ({ ...prev, features: [...prev.features, newFeature.trim()] }))
-      setNewFeature("")
-    }
-  }
-
-  const handleFeatureRemove = (index) => {
-    setVehicle((prev) => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index),
-    }))
   }
 
   const handleImageUpload = (e) => {
@@ -81,22 +64,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     console.log("Submitting vehicle:", vehicle)
     onClose()
   }
-
-  const colorOptions = [
-    "White",
-    "Black",
-    "Silver",
-    "Gray",
-    "Red",
-    "Blue",
-    "Green",
-    "Brown",
-    "Gold",
-    "Orange",
-    "Yellow",
-    "Purple",
-    "Other",
-  ]
 
   const nextStep = () => setStep(step + 1)
   const prevStep = () => setStep(step - 1)
@@ -146,7 +113,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         return (
           <div className="space-y-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-6">Vehicle Details</h2>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <SelectField
                 label="Type"
                 name="type"
@@ -162,12 +129,12 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                   { value: "convertible", label: "Convertible" },
                 ]}
               />
-              <SelectField
+              <InputField
                 label="Color"
                 name="color"
                 value={vehicle.color}
                 onChange={handleChange}
-                options={colorOptions.map((color) => ({ value: color.toLowerCase(), label: color }))}
+                placeholder="e.g., Red"
               />
               <InputField
                 label="Total Kilometers Run"
@@ -184,7 +151,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 value={vehicle.fuelType}
                 onChange={handleChange}
                 options={[
-                  { value: "gasoline", label: "Gasoline" },
+                  { value: "Petrol", label: "Petrol" },
                   { value: "diesel", label: "Diesel" },
                   { value: "electric", label: "Electric" },
                   { value: "hybrid", label: "Hybrid" },
@@ -198,7 +165,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 options={[
                   { value: "automatic", label: "Automatic" },
                   { value: "manual", label: "Manual" },
-                  { value: "cvt", label: "CVT" },
                 ]}
               />
               <InputField
@@ -216,7 +182,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
       case 3:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Description & Features</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Description & Images</h2>
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                 Description
@@ -232,88 +198,49 @@ export default function SellVehicleForm({ isOpen, onClose }) {
               ></textarea>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Features</label>
-              <div className="flex rounded-lg shadow-sm">
-                <input
-                  type="text"
-                  value={newFeature}
-                  onChange={(e) => setNewFeature(e.target.value)}
-                  className="flex-1 rounded-l-lg border-gray-300 focus:border-[#ff6b00] focus:ring-[#ff6b00]"
-                  placeholder="Add a feature (e.g., Leather seats)"
-                />
-                <button
-                  type="button"
-                  onClick={handleFeatureAdd}
-                  className="inline-flex items-center rounded-r-lg border border-l-0 border-gray-300 bg-gray-50 px-4 text-gray-700 hover:bg-gray-100"
-                >
-                  <Plus className="h-5 w-5" />
-                </button>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Images</label>
+              <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8">
+                <div className="text-center">
+                  <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className="mt-4 flex text-sm text-gray-600">
+                    <label
+                      htmlFor="images"
+                      className="relative cursor-pointer rounded-md bg-white font-medium text-[#ff6b00] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#ff6b00] focus-within:ring-offset-2 hover:text-[#ff8533]"
+                    >
+                      <span>Upload images</span>
+                      <input
+                        id="images"
+                        name="images"
+                        type="file"
+                        className="sr-only"
+                        multiple
+                        onChange={handleImageUpload}
+                        accept="image/*"
+                      />
+                    </label>
+                    <p className="pl-1">or drag and drop</p>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to 10MB</p>
+                </div>
               </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {vehicle.features.map((feature, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center rounded-full bg-[#ff6b00]/10 py-1 pl-3 pr-2 text-sm font-medium text-[#ff6b00]"
-                  >
-                    {feature}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+                {vehicle.images.map((image, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={image || "/placeholder.svg"}
+                      alt={`Vehicle ${index + 1}`}
+                      className="h-24 w-full object-cover rounded-lg"
+                    />
                     <button
                       type="button"
-                      onClick={() => handleFeatureRemove(index)}
-                      className="ml-1 inline-flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-[#ff6b00] hover:bg-[#ff6b00]/20"
+                      onClick={() => handleImageRemove(index)}
+                      className="absolute top-1 right-1 h-6 w-6 rounded-full bg-white/80 text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-4 w-4" />
                     </button>
-                  </span>
+                  </div>
                 ))}
               </div>
-            </div>
-          </div>
-        )
-      case 4:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Vehicle Images</h2>
-            <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8">
-              <div className="text-center">
-                <Camera className="mx-auto h-12 w-12 text-gray-400" />
-                <div className="mt-4 flex text-sm text-gray-600">
-                  <label
-                    htmlFor="images"
-                    className="relative cursor-pointer rounded-md bg-white font-medium text-[#ff6b00] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#ff6b00] focus-within:ring-offset-2 hover:text-[#ff8533]"
-                  >
-                    <span>Upload images</span>
-                    <input
-                      id="images"
-                      name="images"
-                      type="file"
-                      className="sr-only"
-                      multiple
-                      onChange={handleImageUpload}
-                      accept="image/*"
-                    />
-                  </label>
-                  <p className="pl-1">or drag and drop</p>
-                </div>
-                <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to 10MB</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {vehicle.images.map((image, index) => (
-                <div key={index} className="relative group">
-                  <img
-                    src={image || "/placeholder.svg"}
-                    alt={`Vehicle ${index + 1}`}
-                    className="h-40 w-full object-cover rounded-lg"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleImageRemove(index)}
-                    className="absolute top-2 right-2 h-8 w-8 rounded-full bg-white/80 text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
-                  >
-                    <X className="h-5 w-5" />
-                  </button>
-                </div>
-              ))}
             </div>
           </div>
         )
@@ -338,7 +265,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         {/* Progress bar */}
         <div className="px-6 py-4 bg-gray-50">
           <div className="flex space-x-2">
-            {[1, 2, 3, 4].map((stepNumber) => (
+            {[1, 2, 3].map((stepNumber) => (
               <div
                 key={stepNumber}
                 className={`h-2 rounded-full flex-1 transition-colors duration-200 ${
@@ -366,7 +293,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 <ChevronLeft className="w-5 h-5 mr-1" /> Previous
               </button>
             )}
-            {step < 4 ? (
+            {step < 3 ? (
               <button
                 type="button"
                 onClick={nextStep}
@@ -389,21 +316,35 @@ export default function SellVehicleForm({ isOpen, onClose }) {
   )
 }
 
-const InputField = ({ label, name, type = "text", value, onChange, placeholder }) => (
+const InputField = ({ label, name, type = "text", value, onChange, placeholder, prefix, suffix }) => (
   <div>
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
       {label}
     </label>
-    <input
-      type={type}
-      id={name}
-      name={name}
-      value={value}
-      onChange={onChange}
-      required
-      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors"
-      placeholder={placeholder}
-    />
+    <div className="relative rounded-md shadow-sm">
+      {prefix && (
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span className="text-gray-500 sm:text-sm">{prefix}</span>
+        </div>
+      )}
+      <input
+        type={type}
+        id={name}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required
+        className={`w-full rounded-lg border border-gray-300 focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors ${
+          prefix ? "pl-7" : "pl-4"
+        } ${suffix ? "pr-12" : "pr-4"} py-2`}
+        placeholder={placeholder}
+      />
+      {suffix && (
+        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+          <span className="text-gray-500 sm:text-sm">{suffix}</span>
+        </div>
+      )}
+    </div>
   </div>
 )
 
