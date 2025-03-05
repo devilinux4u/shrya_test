@@ -33,22 +33,22 @@ export default function AdminRentalVehicles() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedVehicleData, setUpdatedVehicleData] = useState({
-    make: '',
-    model: '',
-    year: '',
+    make: "",
+    model: "",
+    year: "",
     price: { hour: 0, day: 0, week: 0, month: 0 },
     specs: {
       seats: 0,
       doors: 0,
-      transmission: '',
-      fuel: '',
+      transmission: "",
+      fuel: "",
       mileage: 0,
-      engine: '',
-      power: 0
+      engine: "",
+      power: 0,
     },
-    features: '',
-    description: '',
-    numberPlate: ''
+    features: "",
+    description: "",
+    numberPlate: "",
   });
 
   useEffect(() => {
@@ -59,20 +59,22 @@ export default function AdminRentalVehicles() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await fetch("http://localhost:3000/api/vehicles");
-      
+
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
       }
-      
+
       const { data } = await response.json();
-      
-      const transformedVehicles = data.map(vehicle => ({
+
+      const transformedVehicles = data.map((vehicle) => ({
         _id: vehicle.id.toString(),
-        make: vehicle.make || 'Unknown',
-        model: vehicle.model || 'Unknown',
+        make: vehicle.make || "Unknown",
+        model: vehicle.model || "Unknown",
         year: vehicle.year || new Date().getFullYear(),
         price: {
           hour: vehicle.priceHour || 0,
@@ -83,8 +85,8 @@ export default function AdminRentalVehicles() {
         specs: {
           seats: vehicle.seats || 4,
           doors: vehicle.doors || 4,
-          transmission: vehicle.transmission || 'Automatic',
-          fuel: vehicle.fuelType || 'Petrol',
+          transmission: vehicle.transmission || "Automatic",
+          fuel: vehicle.fuelType || "Petrol",
           mileage: vehicle.mileage || 0,
           engine: vehicle.engine || "N/A",
           power: vehicle.power || 0,
@@ -92,20 +94,20 @@ export default function AdminRentalVehicles() {
         features: vehicle.features || "N/A",
         description: vehicle.description || "N/A",
         // Update this line to match the alias from your backend
-        imagePreviewUrls: vehicle.rentVehicleImages 
-          ? vehicle.rentVehicleImages.map(img => 
-              img.image.startsWith('http') 
-                ? img.image 
+        imagePreviewUrls: vehicle.rentVehicleImages
+          ? vehicle.rentVehicleImages.map((img) =>
+              img.image.startsWith("http")
+                ? img.image
                 : `http://localhost:3000/uploads/${img.image}`
-            ) 
+            )
           : ["/placeholder.svg"],
         createdAt: vehicle.createdAt || new Date().toISOString(),
         status: vehicle.status || "available",
         postedBy: "admin",
         numberPlate: vehicle.numberPlate || "N/A",
-        vehicle_images: vehicle.rentVehicleImages || [] // Update this reference too
+        vehicle_images: vehicle.rentVehicleImages || [], // Update this reference too
       }));
-      
+
       setVehicles(transformedVehicles);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
@@ -115,24 +117,27 @@ export default function AdminRentalVehicles() {
       setLoading(false);
     }
   };
-  
+
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this vehicle?")) {
       try {
-        const response = await fetch(`http://localhost:3000/api/vehicles/${id}`, {
-          method: "DELETE"
-        });
-        
+        const response = await fetch(
+          `http://localhost:3000/api/vehicles/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const result = await response.json();
-        
+
         if (result.error) {
           throw new Error(result.error);
         }
-        
+
         setVehicles(vehicles.filter((vehicle) => vehicle._id !== id));
         toast.success("Vehicle deleted successfully");
       } catch (error) {
@@ -141,7 +146,7 @@ export default function AdminRentalVehicles() {
       }
     }
   };
- 
+
   const handleAddNew = () => {
     navigate("/admin/add-rental-vehicle");
   };
@@ -162,7 +167,7 @@ export default function AdminRentalVehicles() {
         vehicle.year.toString().includes(searchTerm) ||
         vehicle.numberPlate.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const postedByMatch = 
+      const postedByMatch =
         postedByFilter === "all" ||
         (postedByFilter === "admin" && vehicle.postedBy === "admin") ||
         (postedByFilter === "user" && vehicle.postedBy !== "admin");
@@ -176,9 +181,13 @@ export default function AdminRentalVehicles() {
         case "date-oldest":
           return new Date(a.createdAt) - new Date(b.createdAt);
         case "price-high":
-          return Number.parseFloat(b.price.day) - Number.parseFloat(a.price.day);
+          return (
+            Number.parseFloat(b.price.day) - Number.parseFloat(a.price.day)
+          );
         case "price-low":
-          return Number.parseFloat(a.price.day) - Number.parseFloat(b.price.day);
+          return (
+            Number.parseFloat(a.price.day) - Number.parseFloat(b.price.day)
+          );
         default:
           return new Date(b.createdAt) - new Date(a.createdAt);
       }
@@ -241,40 +250,11 @@ export default function AdminRentalVehicles() {
           <div className="bg-white rounded-xl shadow-md mb-6 p-5">
             <div className="flex items-center mb-4">
               <Filter className="h-5 w-5 mr-2 text-indigo-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Sort By</h2>
             </div>
 
             <div className="space-y-6">
               <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  Posted By
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  <FilterButton
-                    active={postedByFilter === "all"}
-                    onClick={() => setPostedByFilter("all")}
-                  >
-                    All Users
-                  </FilterButton>
-                  <FilterButton
-                    active={postedByFilter === "admin"}
-                    onClick={() => setPostedByFilter("admin")}
-                  >
-                    Admin
-                  </FilterButton>
-                  <FilterButton
-                    active={postedByFilter === "user"}
-                    onClick={() => setPostedByFilter("user")}
-                  >
-                    User
-                  </FilterButton>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-sm font-medium text-gray-700 mb-3">
-                  Sort By
-                </h3>
                 <div className="flex flex-wrap gap-2">
                   <FilterButton
                     active={sortByFilter === "default"}
@@ -286,13 +266,15 @@ export default function AdminRentalVehicles() {
                     active={sortByFilter === "price-low"}
                     onClick={() => setSortByFilter("price-low")}
                   >
-                    <DollarSign className="h-4 w-4 mr-1 inline" /> Price: Low to High
+                    <DollarSign className="h-4 w-4 mr-1 inline" /> Price: Low to
+                    High
                   </FilterButton>
                   <FilterButton
                     active={sortByFilter === "price-high"}
                     onClick={() => setSortByFilter("price-high")}
                   >
-                    <DollarSign className="h-4 w-4 mr-1 inline" /> Price: High to Low
+                    <DollarSign className="h-4 w-4 mr-1 inline" /> Price: High
+                    to Low
                   </FilterButton>
                   <FilterButton
                     active={sortByFilter === "date-latest"}
@@ -364,8 +346,8 @@ export default function AdminRentalVehicles() {
                     {vehicle.vehicle_images && vehicle.vehicle_images[0] ? (
                       <img
                         src={
-                          vehicle.vehicle_images[0].image.startsWith('http') 
-                            ? vehicle.vehicle_images[0].image 
+                          vehicle.vehicle_images[0].image.startsWith("http")
+                            ? vehicle.vehicle_images[0].image
                             : `../../server${vehicle.vehicle_images[0].image}`
                         }
                         alt={`${vehicle.make} ${vehicle.model}`}
