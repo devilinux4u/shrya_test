@@ -17,7 +17,8 @@ import {
   Trash2,
 } from "lucide-react";
 import Cookies from "js-cookie";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import LostAndFoundForm from "../Components/LostAndFoundForm";
 
 const ReportedItems = () => {
@@ -314,7 +315,13 @@ const ReportedItems = () => {
         )
       );
 
-      toast.success("Item updated successfully");
+      setFilteredItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === itemId ? { ...item, ...updatedData } : item
+        )
+      );
+
+      toast.success("Item updated successfully!"); // Ensure success toast is called here
       setIsEditing(false);
       setUpdatedData({
         title: "",
@@ -332,6 +339,8 @@ const ReportedItems = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+      {/* Add ToastContainer here */}
+      <ToastContainer />
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">

@@ -79,8 +79,7 @@ const LostAndFound = () => {
         item.description.toLowerCase().includes(query) ||
         item.location.toLowerCase().includes(query) ||
         (item.make && item.make.toLowerCase().includes(query)) ||
-        (item.model &&
-          item.model.toLowerCase().includes(query)) ||
+        (item.model && item.model.toLowerCase().includes(query)) ||
         (item.nplate && item.nplate.toLowerCase().includes(query))
       );
     }
@@ -181,10 +180,6 @@ const LostAndFound = () => {
       ).length;
       message = `Showing ${count} ${filter} items`;
     }
-
-    toast.info(message, {
-      icon: "🔍",
-    });
   };
 
   // Function to handle adding a new lost and found item
@@ -512,9 +507,7 @@ const LostAndFound = () => {
                   {selectedItem.make && (
                     <div>
                       <h3 className="text-gray-600 text-sm">Vehicle Make</h3>
-                      <p className="text-xl font-medium">
-                        {selectedItem.make}
-                      </p>
+                      <p className="text-xl font-medium">{selectedItem.make}</p>
                     </div>
                   )}
 
