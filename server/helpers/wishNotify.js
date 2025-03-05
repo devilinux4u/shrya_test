@@ -1,10 +1,8 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 
-
-// Function to send OTP via email
-const sendOtpEmail = async (recipientEmail, name, vehicle) => {
-
+// Function to send wishlist availability notification via email
+const sendWishlistNotification = async (recipientEmail, name, vehicle) => {
     // Configure the email transporter
     const transporter = nodemailer.createTransport({
         host: 'smtp.zoho.com',
@@ -16,21 +14,127 @@ const sendOtpEmail = async (recipientEmail, name, vehicle) => {
         },
     });
 
+    // Create HTML content with table layout
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wishlist Vehicle Available</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                color: #333;
+            }
+            .container {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+            .header {
+                background-color: #f0f7ff;
+                padding: 20px;
+                text-align: center;
+                border-bottom: 3px solid #3498db;
+            }
+            .content {
+                padding: 20px;
+            }
+            .footer {
+                background-color: #f8f8f8;
+                padding: 15px;
+                text-align: center;
+                font-size: 12px;
+                color: #777;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            table, th, td {
+                border: 1px solid #ddd;
+            }
+            th {
+                background-color: #f2f2f2;
+                padding: 12px;
+                text-align: left;
+                width: 40%;
+            }
+            td {
+                padding: 10px;
+            }
+            .notification {
+                background-color: #eaffea;
+                padding: 15px;
+                margin: 20px 0;
+                border-left: 4px solid #2ecc71;
+            }
+            .cta-button {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #3498db;
+                color: white;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+                margin: 20px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h2>Wishlist Vehicle Now Available!</h2>
+            </div>
+            <div class="content">
+                <p>Hello ${name},</p>
+                
+                <div class="notification">
+                    <strong>Great news!</strong> A vehicle from your wishlist is now available.
+                </div>
+                
+                <table>
+                    <tr>
+                        <th>Vehicle</th>
+                        <td>${vehicle}</td>
+                    </tr>
+                </table>
+                
+                <p>Don't wait too long - vehicles in demand often get booked quickly!</p>
+                
+                <div style="text-align: center;">
+                    <a href="#" class="cta-button">View Vehicle Now</a>
+                </div>
+                
+                <p>Thank you for choosing Shreya Auto for your vehicle needs.</p>
+                <p>Best Regards,<br>Shreya Auto Team</p>
+            </div>
+            <div class="footer">
+                <p>This is an automated notification. Please do not reply to this email.</p>
+                <p>If you no longer wish to receive these notifications, please update your preferences in your account settings.</p>
+            </div>
+        </div>
+    </body>
+    </html>`;
+
     const mailOptions = {
         from: process.env.EMAIL_USER, // Sender email
         to: recipientEmail, // Recipient email
         subject: 'Your Wishlist Vehicle is Now Available!',
+        html: htmlContent,
         text: `Hello ${name},\n\nGreat news! The vehicle you wished for (${vehicle}) is now available. Check it out on our website.\n\nBest Regards,\nShreya Auto Team`,
     };
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`Notification sent successfully to ${recipientEmail}`);
+        console.log(`Wishlist notification sent successfully to ${recipientEmail}`);
     } catch (error) {
-        console.error('Error sending notification:', error);
+        console.error('Error sending wishlist notification:', error);
         throw error;
     }
 };
 
 // Export the function
-module.exports = sendOtpEmail;
+module.exports = sendWishlistNotification;
