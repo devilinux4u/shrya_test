@@ -229,4 +229,62 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+router.put("/cancel/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the rental
+    const rental = await db.rental.findByPk(id);
+    if (!rental) {
+      return res.status(404).json({ success: false, message: "Rental not found" });
+    }
+
+    // Update rental status to 'cancelled'
+    rental.status = "cancelled";
+    await rental.save();
+
+    // Update transaction status to 'cancelled'
+    const transaction = await db.Transaction.findOne({ where: { bookingId: id } });
+    if (transaction) {
+      transaction.status = "cancelled";
+      await transaction.save();
+    }
+
+    res.status(200).json({ success: true, message: "Rental cancelled successfully", data: rental });
+  } catch (error) {
+    console.error("Error cancelling rental:", error);
+    res.status(500).json({ success: false, message: "Failed to cancel rental", error: error.message });
+  }
+});
+
+router.put("/update/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the rental
+    const rental = await db.rental.findByPk(id);
+    if (!rental) {
+      return res.status(404).json({ success: false, message: "Rental not found" });
+    }
+
+    // Update rental status
+    rental.status = req.body.status;
+    await rental.save();
+
+    // Update transaction status to 'paid' if rental is completed or late completed
+    if (["completed", "completed_late"].includes(req.body.status)) {
+      const transaction = await db.Transaction.findOne({ where: { bookingId: id } });
+      if (transaction && transaction.status === "pending") {
+        transaction.status = "paid";
+        await transaction.save();
+      }
+    }
+
+    res.status(200).json({ success: true, message: "Rental updated successfully", data: rental });
+  } catch (error) {
+    console.error("Error updating rental:", error);
+    res.status(500).json({ success: false, message: "Failed to update rental", error: error.message });
+  }
+});
+
 module.exports = router;

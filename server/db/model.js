@@ -516,7 +516,7 @@ module.exports.Transaction = (sequelize, DataTypes) => {
         allowNull: false
       },
       status: {
-        type: DataTypes.ENUM('paid', 'pending', 'canceled', 'failed'),
+        type: DataTypes.ENUM('paid', 'pending', 'cancelled'),
         defaultValue: 'pending'
       },
       method: {

@@ -88,13 +88,14 @@ export default function Transactions() {
   };
 
   // Calculate total amounts
-  const totalAmount = transactions.reduce(
-    (sum, trx) => sum + (trx.amount || 0),
-    0
-  );
+  const totalAmount = transactions
+    .filter((trx) => trx.status === "paid")
+    .reduce((sum, trx) => sum + (trx.amount || 0), 0);
+
   const completedAmount = transactions
     .filter((trx) => trx.status === "paid")
     .reduce((sum, trx) => sum + (trx.amount || 0), 0);
+
   const pendingAmount = transactions
     .filter((trx) => trx.status === "pending")
     .reduce((sum, trx) => sum + (trx.amount || 0), 0);

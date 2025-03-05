@@ -19,8 +19,13 @@ router.get('/api/transaction', async (req, res) => {
           ],
           order: [['createdAt', 'DESC']]
         });
+
+        // Filter out transactions with status 'pending' or 'cancelled' for total calculation
+        const totalAmount = transactions
+          .filter((trx) => trx.status === "paid")
+          .reduce((sum, trx) => sum + trx.amount, 0);
     
-        res.status(200).json({ success: true, data: transactions });
+        res.status(200).json({ success: true, data: transactions, totalAmount });
       } catch (error) {
         console.error("Error fetching transactions:", error);
         res.status(500).json({ success: false, message: 'Failed to fetch transactions', error: error.message });

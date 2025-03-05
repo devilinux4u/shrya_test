@@ -297,7 +297,11 @@ const RentalBookingForm = ({ vehicleId }) => {
       formData.append("termsAccepted", bookingData.termsAccepted);
       formData.append("totalAmount", totalAmount);
       formData.append("rentalDuration", duration);
-      formData.append("status", "active");
+      if (bookingData.paymentMethod === "payLater") {
+        formData.append("status", "pending");
+      } else {
+        formData.append("status", "not_paid");
+      }
 
       if (bookingData.driveOption === "selfDrive" && bookingData.licenseImage) {
         formData.append("licenseImage", bookingData.licenseImage);

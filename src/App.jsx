@@ -38,7 +38,7 @@ import RentalDetails from "./Admin/Rentals/RentalDetails";
 import MySales from "./Pages/MySales";
 import Feedback from "./Admin/Feedback/Feedback";
 import GoogleAuth from "./Pages/LoginGoogle";
-import PaymentVerify from "./Pages/PaymentSuccess";
+import PaymentSuccess from "./Pages/PaymentSuccess";
 import Appointments from "./Admin/Vehicle Management/Appointments";
 import UserAppointments from "./Pages/UserAppointments";
 
@@ -83,7 +83,7 @@ function App() {
         <Route path="/Profile" element={<Profile />} />
         <Route path="/UserBookings" element={<UserBookings />} />
         <Route path="/ReportedItems" element={<ReportedItems />} />
-        <Route path="/payment-verify" element={<PaymentVerify />} />
+        <Route path="/PaymentSuccess" element={<PaymentSuccess />} />
         <Route path="/UserAppointments" element={<UserAppointments />} />
 
         <Route
