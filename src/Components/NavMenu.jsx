@@ -23,10 +23,6 @@ const NavMenu = () => {
     navigate("/Home")
   }
 
-  const handleProfileClick = () => {
-    navigate("/UserProfile")
-  }
-
   const toggleServices = () => {
     setIsServicesOpen(!isServicesOpen)
   }
@@ -62,7 +58,7 @@ const NavMenu = () => {
     localStorage.removeItem("userFullName")
     setIsLoggedIn(false)
     setUserFullName("")
-    navigate("/Home")
+    navigate("/Login")
   }
 
   return (
@@ -126,7 +122,6 @@ const NavMenu = () => {
                 <div className="flex items-center space-x-3">
                   <div className="relative group">
                     <button
-                      onClick={handleProfileClick}
                       className="flex items-center space-x-2 p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out"
                     >
                       <User className="h-5 w-5" />
@@ -147,7 +142,21 @@ const NavMenu = () => {
                           className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                           role="menuitem"
                         >
-                          Settings
+                          My Bookings
+                        </Link>
+                        <Link
+                          to="/Settings"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                          role="menuitem"
+                        >
+                         Items Reported
+                        </Link>
+                        <Link
+                          to="/Settings"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                          role="menuitem"
+                        >
+                         History
                         </Link>
                         <button
                           onClick={handleLogout}
@@ -233,7 +242,6 @@ const NavMenu = () => {
               <div className="flex items-center justify-between">
                 <span className="text-gray-800 font-medium">{userFullName}</span>
                 <button
-                  onClick={handleProfileClick}
                   className="p-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out"
                 >
                   <User className="h-6 w-6" />

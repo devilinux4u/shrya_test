@@ -75,12 +75,36 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (validateForm()) {
-      console.log("Submitting vehicle:", vehicle)
-      toast.success("Vehicle listed successfully!")
-      onClose()
+      try {
+        // Simulate API call to list the vehicle
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+
+        console.log("Submitting vehicle:", vehicle)
+        toast.success("Vehicle listed successfully!")
+        onClose()
+        // Reset form state
+        setVehicle({
+          title: "",
+          make: "",
+          model: "",
+          year: "",
+          type: "",
+          color: "",
+          totalKm: "",
+          fuelType: "",
+          transmission: "",
+          price: "",
+          description: "",
+          images: [],
+        })
+        setStep(1)
+      } catch (error) {
+        console.error("Error listing vehicle:", error)
+        toast.error("Failed to list vehicle. Please try again.")
+      }
     } else {
       toast.error("Please fill in all required fields")
     }
@@ -336,38 +360,37 @@ export default function SellVehicleForm({ isOpen, onClose }) {
 
         {/* Form content */}
         <div className="px-6 py-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 180px)" }}>
-          <form onSubmit={handleSubmit}>{renderStep()}</form>
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex justify-between">
-            {step > 1 && (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
-              >
-                <ChevronLeft className="w-5 h-5 mr-1" /> Previous
-              </button>
-            )}
-            {step < 3 ? (
-              <button
-                type="button"
-                onClick={nextStep}
-                className="px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors flex items-center ml-auto"
-              >
-                Next <ChevronRight className="w-5 h-5 ml-1" />
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors ml-auto"
-              >
-                List Your Vehicle
-              </button>
-            )}
-          </div>
+          <form onSubmit={handleSubmit}>
+            {renderStep()}
+            {/* Footer */}
+            <div className="mt-6 flex justify-between">
+              {step > 1 && (
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+                >
+                  <ChevronLeft className="w-5 h-5 mr-1" /> Previous
+                </button>
+              )}
+              {step < 3 ? (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors flex items-center ml-auto"
+                >
+                  Next <ChevronRight className="w-5 h-5 ml-1" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors ml-auto"
+                >
+                  List Vehicle
+                </button>
+              )}
+            </div>
+          </form>
         </div>
       </div>
     </div>
@@ -432,4 +455,3 @@ const SelectField = ({ label, name, value, onChange, options, error }) => (
     {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
-
