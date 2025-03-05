@@ -1,15 +1,26 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Sonata from "../assets/Sonata.png";
 import CarCard from "../Components/CarCard";
-import { Car } from "lucide-react";
 
 function RentalVehicles() {
   const navigate = useNavigate();
+  const [carData, setCarData] = useState(null);
+
+  useEffect(() => {
+    // Fetch car data from API
+    fetch("https://api.example.com/cars/sonata") // Replace with actual API endpoint
+      .then((response) => response.json())
+      .then((data) => setCarData(data))
+      .catch((error) => console.error("Error fetching car data:", error));
+  }, []);
 
   const handleRentNow = () => {
     navigate(`/RentalVehicleDesc`);
   };
+
+  if (!carData) {
+    return <div>Loading...</div>; // Show loading state while fetching data
+  }
 
   return (
     <div className="mt-12 min-h-screen w-full bg-white flex flex-col items-center justify-start relative overflow-hidden">
@@ -20,24 +31,22 @@ function RentalVehicles() {
           {/* Brand and Model */}
           <div>
             <h2 className="text-[#E94A35] font-semibold text-3xl lg:text-4xl">
-              HYUNDAI
+              {carData.brand.toUpperCase()}
             </h2>
             <h1 className="text-black text-5xl lg:text-6xl font-extrabold tracking-wider">
-              SONATA
+              {carData.model.toUpperCase()}
             </h1>
           </div>
 
           {/* Description */}
           <p className="text-gray-600 text-base lg:text-lg leading-relaxed max-w-lg">
-            The purpose of Elite Drives is to be the best choice in automobiles
-            for its customers and to be part of the special moments of their
-            lives.
+            {carData.description}
           </p>
 
           {/* Price */}
           <div className="flex items-baseline space-x-2">
             <span className="text-[#E94A35] text-3xl lg:text-4xl font-bold">
-              Rs. 500
+              Rs. {carData.price}
             </span>
             <span className="text-gray-600 text-lg">/hr</span>
           </div>
@@ -53,10 +62,9 @@ function RentalVehicles() {
 
         {/* Car Image */}
         <div className="relative">
-          {/* Removed the 20% OFF badge */}
           <img
-            src={Sonata}
-            alt="Hyundai Sonata"
+            src={carData.image}
+            alt={`${carData.brand} ${carData.model}`}
             className="w-full h-auto max-w-full object-contain"
           />
         </div>
@@ -64,7 +72,6 @@ function RentalVehicles() {
 
       {/* Car Cards Section */}
       <div className="w-full max-w-7xl mx-auto p-6 mt-10 space-y-6">
-        {/* Individual Car Card */}
         <CarCard />
       </div>
     </div>
