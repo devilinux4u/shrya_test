@@ -123,13 +123,17 @@ const NavMenu = () => {
               <div className="relative">
                 <button
                   onClick={toggleServices}
-                  className={`hover:text-blue-600 px-3 py-2 rounded-md text-lg font-medium flex items-center transition duration-300 ease-in-out text-black `}
+                  className={`flex items-center px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out ${
+                    isScrolled
+                      ? "text-black hover:text-blue-600"
+                      : "text-white hover:text-blue-300"
+                  }`}
                 >
                   Services
                   <ChevronDown
                     className={`ml-1 w-5 h-5 transition-transform duration-300 ease-in-out ${
                       isServicesOpen ? "rotate-180" : ""
-                    }`}
+                    } ${isScrolled ? "text-black" : "text-white"}`}
                   />
                 </button>
                 {isServicesOpen && (
@@ -156,14 +160,12 @@ const NavMenu = () => {
                       >
                         Buy And Sell
                       </NavLink>
-                      {/* Modified to use handleProtectedRoute */}
                       <button
                         onClick={() => handleProtectedRoute("/YourList")}
                         className="block w-full text-left px-4 py-2 text-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-300 ease-in-out"
                       >
                         Wishlist
                       </button>
-                      {/* Modified to use handleProtectedRoute */}
                       <button
                         onClick={() => handleProtectedRoute("/LostAndFound")}
                         className="block w-full text-left px-4 py-2 text-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-300 ease-in-out"
@@ -197,7 +199,11 @@ const NavMenu = () => {
                   <div className="relative">
                     <button
                       onClick={toggleProfileMenu}
-                      className="flex items-center space-x-2 p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+                      className={`flex items-center space-x-2 p-2 rounded-full ${
+                        isScrolled
+                          ? "bg-gray-200 text-black hover:bg-gray-300"
+                          : "bg-blue-600 text-white hover:bg-blue-700"
+                      } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out`}
                     >
                       <User className="h-5 w-5" />
                       <span className="font-medium text-sm hidden sm:inline">
@@ -284,7 +290,11 @@ const NavMenu = () => {
               ) : (
                 <button
                   onClick={handleGetStarted}
-                  className="px-6 py-3 rounded-full text-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105"
+                  className={`px-6 py-3 rounded-full text-lg font-semibold ${
+                    isScrolled
+                      ? "text-black bg-gray-200 hover:bg-gray-300"
+                      : "text-white bg-blue-600 hover:bg-blue-700"
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out transform hover:scale-105`}
                 >
                   Get Started
                 </button>
@@ -478,7 +488,7 @@ const NavLink = ({ to, children, mobile, menuItem, onClick, isScrolled }) => (
           : "hover:text-blue-600 px-3 py-2 rounded-md text-lg font-medium"
       }
       transition duration-300 ease-in-out hover:bg-blue-50
-      ${!mobile && !menuItem ? (isScrolled ? "text-black" : "text-black") : ""}
+      ${!mobile && !menuItem ? (isScrolled ? "text-black" : "text-white") : ""}
     `}
   >
     {children}
