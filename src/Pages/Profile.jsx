@@ -8,7 +8,8 @@ import axios from "axios"
 
 import Cookies from "js-cookie"
 
-const userId = Cookies.get("sauto").split("-")[0]
+const sautoCookie = Cookies.get("sauto");
+const userId = sautoCookie ? sautoCookie.split("-")[0] : null;
 
 const Profile = () => {
   const [user, setUser] = useState({
@@ -29,6 +30,18 @@ const Profile = () => {
 
   // Fetch user data from API
   useEffect(() => {
+    if (!userId) {
+      toast.error("User ID not found. Please log in again.", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      return;
+    }
+
     const fetchUserData = async () => {
       try {
         setIsLoading(true)
@@ -49,7 +62,7 @@ const Profile = () => {
     }
 
     fetchUserData()
-  }, [])
+  }, [userId])
 
   // Close photo options when clicking outside
   useEffect(() => {
