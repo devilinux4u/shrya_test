@@ -50,6 +50,11 @@ module.exports.User = (sequelize, DataTypes) => {
         verified: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
+        },
+        role: {
+            type: DataTypes.ENUM('admin', 'user'),
+            allowNull: false,
+            defaultValue: 'user',
         }
     })
     return User;

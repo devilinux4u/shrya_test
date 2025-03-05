@@ -30,7 +30,7 @@ router.get('/profile/:id', async (req, res) => {
     try {
         const userId = req.params.id;
         const userProfile = await users.findByPk(userId, {
-            attributes: ['fname', 'uname', 'email', 'num', 'profile', 'createdAt']
+            attributes: ['fname', 'uname', 'email', 'num', 'role', 'profile', 'createdAt']
         });
 
         if (userProfile) {

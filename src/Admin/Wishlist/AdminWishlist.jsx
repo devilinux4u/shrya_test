@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { subMonths, subYears } from "date-fns"; // Import date-fns for date manipulation
 
 export default function AdminWishlist() {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -25,6 +26,11 @@ export default function AdminWishlist() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [customDateRange, setCustomDateRange] = useState({
+    start: "",
+    end: "",
+  });
   // Purpose is always "buy"
   const [selectedItem, setSelectedItem] = useState(null);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
@@ -94,8 +100,29 @@ export default function AdminWishlist() {
       );
     }
 
+    // Apply date filter
+    const filterByDate = (date) => {
+      const itemDate = new Date(date);
+      if (dateFilter === "lastMonth") {
+        return itemDate >= subMonths(new Date(), 1);
+      } else if (dateFilter === "lastYear") {
+        return itemDate >= subYears(new Date(), 1);
+      } else if (dateFilter === "custom") {
+        const startDate = customDateRange.start
+          ? new Date(customDateRange.start)
+          : new Date(0);
+        const endDate = customDateRange.end
+          ? new Date(customDateRange.end)
+          : new Date();
+        return itemDate >= startDate && itemDate <= endDate;
+      }
+      return true;
+    };
+
+    result = result.filter((item) => filterByDate(item.createdAt));
+
     setFilteredItems(result);
-  }, [wishlistItems, searchTerm, filterStatus]);
+  }, [wishlistItems, searchTerm, filterStatus, dateFilter, customDateRange]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -174,8 +201,6 @@ export default function AdminWishlist() {
         return "bg-yellow-100 text-yellow-800";
       case "available":
         return "bg-green-100 text-green-800";
-      case "fulfilled":
-        return "bg-blue-100 text-blue-800";
       case "cancelled":
         return "bg-red-100 text-red-800";
       default:
@@ -188,8 +213,6 @@ export default function AdminWishlist() {
       case "pending":
         return <Clock className="w-4 h-4 mr-1" />;
       case "available":
-        return <Check className="w-4 h-4 mr-1" />;
-      case "fulfilled":
         return <Check className="w-4 h-4 mr-1" />;
       case "cancelled":
         return <X className="w-4 h-4 mr-1" />;
@@ -294,64 +317,65 @@ export default function AdminWishlist() {
         </p>
       </div>
 
-      <div className="mb-8 flex flex-col sm:flex-row items-center gap-4">
-        {/* Search Bar */}
-        <div className="relative w-full sm:w-1/3">
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="relative flex-grow">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by vehicle, model, or customer..."
+            placeholder="Search wishlist items..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
+            className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-
-        {/* Simple Filter Buttons */}
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => setFilterStatus("all")}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              filterStatus === "all"
-                ? "bg-[#ff6b00] text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
+        <div className="flex gap-4">
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            All
-          </button>
-          <button
-            onClick={() => setFilterStatus("pending")}
-            className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
-              filterStatus === "pending"
-                ? "bg-yellow-500 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="available">Available</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <Clock className="w-4 h-4 mr-1" />
-            Pending
-          </button>
-          <button
-            onClick={() => setFilterStatus("available")}
-            className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
-              filterStatus === "available"
-                ? "bg-green-500 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <Check className="w-4 h-4 mr-1" />
-            Available
-          </button>
-          <button
-            onClick={() => setFilterStatus("cancelled")}
-            className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
-              filterStatus === "cancelled"
-                ? "bg-red-500 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }`}
-          >
-            <X className="w-4 h-4 mr-1" />
-            Cancelled
-          </button>
+            <option value="all">All Dates</option>
+            <option value="lastMonth">Last Month</option>
+            <option value="lastYear">Last Year</option>
+            <option value="custom">Custom Range</option>
+          </select>
+          {dateFilter === "custom" && (
+            <div className="flex gap-2">
+              <input
+                type="date"
+                value={customDateRange.start}
+                onChange={(e) =>
+                  setCustomDateRange({
+                    ...customDateRange,
+                    start: e.target.value,
+                  })
+                }
+                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <input
+                type="date"
+                value={customDateRange.end}
+                onChange={(e) =>
+                  setCustomDateRange({
+                    ...customDateRange,
+                    end: e.target.value,
+                  })
+                }
+                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          )}
         </div>
       </div>
 
