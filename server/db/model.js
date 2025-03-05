@@ -77,7 +77,7 @@ module.exports.contact = (sequelize, DataTypes) => {
 };
 
 module.exports.vehicle = (sequelize, DataTypes) => {
-    const Vehicle = sequelize.define('vehicle_sell', {
+    const Vehicle = sequelize.define('vehicle', {
         uid: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -137,10 +137,19 @@ module.exports.vehicle = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: false,
             validate: { notEmpty: true }
+        }
+    });
+
+    const VehicleImage = sequelize.define("vehicle_image", {
+        vehicleId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: { model: "vehicles", key: "id" },
+            onDelete: "CASCADE"
         },
         image: {
-            type: DataTypes.BLOB('long'), 
-            allowNull: false,
+            type: DataTypes.BLOB("long"),
+            allowNull: false
         }
     });
 
