@@ -18,6 +18,8 @@ import {
   MessageSquare,
   X,
   User,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
@@ -45,6 +47,8 @@ export default function LostAndFound() {
     date: "",
   });
   const [isFormOpen, setIsFormOpen] = useState(false); // State to manage form visibility
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
 
   // Fetch data from the API
   useEffect(() => {
@@ -110,6 +114,18 @@ export default function LostAndFound() {
 
     setFilteredItems(filtered);
   }, [searchTerm, userFilter, statusFilter, items]);
+
+  // Calculate pagination values
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   // Status helpers
   const getStatusColor = (type) => {
@@ -400,7 +416,7 @@ export default function LostAndFound() {
       {/* Items Grid */}
       {!isLoading && !error && filteredItems.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
+          {currentItems.map((item) => (
             <div
               key={item.id}
               className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300"
@@ -505,6 +521,53 @@ export default function LostAndFound() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {filteredItems.length > 0 && (
+        <div className="flex justify-center mt-10">
+          <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              (number) => (
+                <button
+                  key={number}
+                  onClick={() => paginate(number)}
+                  className={`px-4 py-2 border-r border-gray-200 ${
+                    currentPage === number
+                      ? "bg-orange-500 text-white font-medium"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {number}
+                </button>
+              )
+            )}
+
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 flex items-center ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
 

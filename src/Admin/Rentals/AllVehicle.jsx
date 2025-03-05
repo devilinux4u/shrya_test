@@ -15,6 +15,8 @@ import {
   DollarSign,
   Clock,
   Users,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -57,6 +59,9 @@ export default function AdminRentalVehicles() {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const vehiclesPerPage = 6;
 
   useEffect(() => {
     fetchVehicles();
@@ -255,6 +260,17 @@ export default function AdminRentalVehicles() {
       }
     });
 
+  const indexOfLastVehicle = currentPage * vehiclesPerPage;
+  const indexOfFirstVehicle = indexOfLastVehicle - vehiclesPerPage;
+  const currentVehicles = filteredVehicles.slice(
+    indexOfFirstVehicle,
+    indexOfLastVehicle
+  );
+
+  const totalPages = Math.ceil(filteredVehicles.length / vehiclesPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   const FilterButton = ({ active, onClick, children }) => (
     <button
       onClick={onClick}
@@ -399,7 +415,7 @@ export default function AdminRentalVehicles() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredVehicles.map((vehicle) => (
+              {currentVehicles.map((vehicle) => (
                 <div
                   key={vehicle._id}
                   className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
@@ -502,22 +518,49 @@ export default function AdminRentalVehicles() {
             </div>
           )}
 
-          {!loading && !error && filteredVehicles.length > 0 && (
-            <div className="mt-8 flex justify-center">
-              <nav className="flex items-center space-x-2">
-                <button className="px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50">
-                  Previous
+          {filteredVehicles.length > 0 && (
+            <div className="flex justify-center mt-10">
+              <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                    currentPage === 1
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
-                <button className="px-3 py-1 rounded-md bg-[#ff6b00] text-white">
-                  1
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (number) => (
+                    <button
+                      key={number}
+                      onClick={() => paginate(number)}
+                      className={`px-4 py-2 border-r border-gray-200 ${
+                        currentPage === number
+                          ? "bg-orange-500 text-white font-medium"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {number}
+                    </button>
+                  )
+                )}
+
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 flex items-center ${
+                    currentPage === totalPages
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <ChevronRight className="w-5 h-5" />
                 </button>
-                <button className="px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50">
-                  2
-                </button>
-                <button className="px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50">
-                  Next
-                </button>
-              </nav>
+              </div>
             </div>
           )}
         </div>

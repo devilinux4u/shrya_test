@@ -35,7 +35,6 @@ router.get('/contact', async (req, res) => {
   }
 });
 
-
 // Update the status of a contact message
 router.put('/contact/:id', async (req, res) => {
   try {
@@ -54,6 +53,24 @@ router.put('/contact/:id', async (req, res) => {
   } catch (error) {
     console.error("Error updating contact message status:", error);
     res.status(500).json({ success: false, msg: "Error while updating status" });
+  }
+});
+
+// Delete a contact message
+router.delete('/contact/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const contact = await contacts.findByPk(id);
+    if (!contact) {
+      return res.status(404).json({ success: false, msg: "Message not found" });
+    }
+
+    await contact.destroy();
+    res.json({ success: true, msg: "Message deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting contact message:", error);
+    res.status(500).json({ success: false, msg: "Error while deleting message" });
   }
 });
 
