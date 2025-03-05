@@ -94,9 +94,14 @@ module.exports.contact = (sequelize, DataTypes) => {
 module.exports.vehicle = (sequelize, DataTypes) => {
     const Vehicle = sequelize.define('vehicles', {
         uid: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER, // Change type to INTEGER to match the users table's id column
             allowNull: false,
-            validate: { notEmpty: true }
+            references: {
+                model: 'users', // Reference the users table
+                key: 'id' // Reference the id column in the users table
+            },
+            onDelete: 'CASCADE', // Update to CASCADE for proper deletion behavior
+            onUpdate: 'CASCADE'
         },
         make: {
             type: DataTypes.STRING,
@@ -287,9 +292,14 @@ module.exports.WishlistImage = (sequelize, DataTypes) => {
 module.exports.LostAndFound = (sequelize, DataTypes) => {
     const LostAndFound = sequelize.define("LostAndFound", {
         uid: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER, // Change type to INTEGER to match the users table's id column
             allowNull: false,
-            validate: { notEmpty: true }
+            references: {
+                model: 'users', // Reference the users table
+                key: 'id' // Reference the id column in the users table
+            },
+            onDelete: 'CASCADE', // Update to CASCADE for proper deletion behavior
+            onUpdate: 'CASCADE'
         },
         type: { type: DataTypes.STRING, allowNull: false },
         title: { type: DataTypes.STRING, allowNull: false },

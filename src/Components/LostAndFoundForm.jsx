@@ -81,37 +81,60 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Validate the form before submitting
     if (!validateForm()) {
       Object.values(errors).forEach((error) => {
-        toast.error(error)
-      })
-      return
+        toast.error(error);
+      });
+      return;
     }
 
+    try {
+      // Retrieve uid from cookies
+      const uid = Cookies.get("uid");
+      if (!uid) {
+        toast.error("User ID is missing. Please log in again.");
+        return;
+      }
+
+      // Convert formData to FormData for submission
+      const formDataToSubmit = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === "images") {
+          value.forEach((image) => {
+            formDataToSubmit.append("images", image);
+          });
+        } else {
+          formDataToSubmit.append(key, value);
+        }
+      });
+
+      // Append uid to the form data
+      formDataToSubmit.append("id", uid);
 
       // Send the request to the backend
       const response = await fetch("http://localhost:3000/api/lost-and-found", {
         method: "POST",
         body: formDataToSubmit,
-      }); 
+      });
+
       // Check if the response is OK, if not throw an error
       if (!response.ok) {
         const errorDetails = await response.text();
         console.error("HTTP error details:", errorDetails);
         throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
       }
-  
+
       const data = await response.json();
       console.log("API Response Data:", data);
-  
+
       // Handle the success response from the server
-      if (data.success) { // Check the `success` property
+      if (data.success) {
         console.log("Report submitted successfully!");
         toast.success("Lost and Found report submitted successfully!");
-  
+
         // Reset the form state including images
         setFormData({
           type: "lost",
@@ -121,12 +144,12 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
           date: "",
           images: [],
         });
-  
+
         window.location.reload();
 
         // Clear selected images and previews
         onClose(); // Close the form/modal
-  
+
         // Redirect to the lost and found page after a delay
         setTimeout(() => {
           navigate("/LostAndFound");
@@ -141,9 +164,6 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
       toast.error(`Failed to submit report: ${error.message}`);
     }
   };
-    // Pass the form data to the parent component
-    onSubmit(formData)
-  }
 
   if (!isOpen) return null
 
