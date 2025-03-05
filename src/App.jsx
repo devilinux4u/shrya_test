@@ -85,7 +85,7 @@ function App() {
           path="/WishlistVehicleDetail"
           element={<WishlistVehicleDetail />}
         />
-        <Route path="/VehicleBooking:id" element={<VehicleBooking />} />
+        <Route path="/VehicleBooking" element={<VehicleBooking />} />
 
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
