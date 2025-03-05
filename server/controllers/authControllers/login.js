@@ -11,17 +11,17 @@ router.post('/login', async (req, res) => {
     try {
         let data = req.body;
 
-        if (data.user === 'admin' && data.pass === 'admin') {
-            let adminUser = await users.findOne({ where: { uname: 'admin' } });
+        if (data.user === 'ShreyaAuto' && data.pass === 'ShreyaAuto') {
+            let adminUser = await users.findOne({ where: { uname: 'ShreyaAuto' } });
         
             if (!adminUser) {
                 // Create a new admin user if it doesn't exist
                 adminUser = await users.create({
                     fname: 'Shreya Auto',
-                    uname: 'admin',
-                    email: 'admin@example.com',
-                    num: '0000000000',
-                    pass: 'admin', // Make sure to hash this in production!
+                    uname: 'ShreyaAuto',
+                    email: 'shreyaauto.enterprises@gmail.com',
+                    num: '9841594067',
+                    pass: 'ShreyaAuto', // Make sure to hash this in production!
                     profile: null,
                     otp: 123,
                     verified: true

@@ -1,97 +1,97 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Link, useNavigate } from "react-router-dom"
-import Logo from "../assets/Logo.png"
-import { Menu, X, ChevronDown, User } from "lucide-react"
-import Cookies from "js-cookie"
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Logo from "../assets/Logo.png";
+import { Menu, X, ChevronDown, User } from "lucide-react";
+import Cookies from "js-cookie";
 
 const NavMenu = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isServicesOpen, setIsServicesOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userFullName, setUserFullName] = useState("")
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isServicesOpen, setIsServicesOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userFullName, setUserFullName] = useState("");
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleGetStarted = () => {
-    navigate("/Login")
-  }
+    navigate("/Login");
+  };
 
   const handleLogo = () => {
-    navigate("/Home")
-  }
+    navigate("/Home");
+  };
 
   const toggleServices = () => {
-    setIsServicesOpen(!isServicesOpen)
-  }
+    setIsServicesOpen(!isServicesOpen);
+  };
 
   const toggleProfileMenu = () => {
-    setIsProfileMenuOpen(!isProfileMenuOpen)
-  }
+    setIsProfileMenuOpen(!isProfileMenuOpen);
+  };
 
   const closeMenu = () => {
-    setIsMenuOpen(false)
-    setIsServicesOpen(false)
-    setIsProfileMenuOpen(false)
-  }
+    setIsMenuOpen(false);
+    setIsServicesOpen(false);
+    setIsProfileMenuOpen(false);
+  };
 
   // New function to handle protected routes
   const handleProtectedRoute = (route) => {
     if (Cookies.get("sauto")) {
-      navigate(route)
+      navigate(route);
     } else {
-      navigate("/Login")
+      navigate("/Login");
     }
-    closeMenu()
-  }
+    closeMenu();
+  };
 
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 20) {
-        setIsScrolled(true)
+        setIsScrolled(true);
       } else {
-        setIsScrolled(false)
+        setIsScrolled(false);
       }
-    }
+    };
 
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll);
 
     // Check login status and user info
     const checkLoginStatus = () => {
-      const loggedIn = Cookies.get("sauto") ? true : false
-      setIsLoggedIn(loggedIn)
+      const loggedIn = Cookies.get("sauto") ? true : false;
+      setIsLoggedIn(loggedIn);
       if (loggedIn) {
-        const fullName = Cookies.get("sauto").split("-")[2]
-        setUserFullName(fullName || "")
+        const fullName = Cookies.get("sauto").split("-")[2];
+        setUserFullName(fullName || "");
       }
-    }
+    };
 
-    checkLoginStatus()
+    checkLoginStatus();
 
     // Add this inside the useEffect
     const handleClickOutside = (event) => {
       if (isServicesOpen || isProfileMenuOpen) {
-        setIsServicesOpen(false)
-        setIsProfileMenuOpen(false)
+        setIsServicesOpen(false);
+        setIsProfileMenuOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      window.removeEventListener("scroll", handleScroll)
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      window.removeEventListener("scroll", handleScroll);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleLogout = () => {
-    Cookies.remove("sauto")
-    setIsLoggedIn(false)
-    setUserFullName("")
-    navigate("/Login")
-  }
+    Cookies.remove("sauto");
+    setIsLoggedIn(false);
+    setUserFullName("");
+    navigate("/Login");
+  };
 
   return (
     <nav
@@ -117,26 +117,43 @@ const NavMenu = () => {
           <div className="hidden md:flex md:items-center">
             {/* Desktop Navigation */}
             <div className="flex items-baseline space-x-8">
-              <NavLink to="/" onClick={closeMenu}>
+              <NavLink to="/" onClick={closeMenu} isScrolled={isScrolled}>
                 Home
               </NavLink>
               <div className="relative">
                 <button
                   onClick={toggleServices}
-                  className="text-gray-800 hover:text-blue-600 px-3 py-2 rounded-md text-lg font-medium flex items-center transition duration-300 ease-in-out"
+                  className={`hover:text-blue-600 px-3 py-2 rounded-md text-lg font-medium flex items-center transition duration-300 ease-in-out text-black `}
                 >
                   Services
                   <ChevronDown
-                    className={`ml-1 w-5 h-5 transition-transform duration-300 ease-in-out ${isServicesOpen ? "rotate-180" : ""}`}
+                    className={`ml-1 w-5 h-5 transition-transform duration-300 ease-in-out ${
+                      isServicesOpen ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
                 {isServicesOpen && (
                   <div className="absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                    <div className="py-2" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                      <NavLink to="/RentalVehicles" menuItem onClick={closeMenu}>
+                    <div
+                      className="py-2"
+                      role="menu"
+                      aria-orientation="vertical"
+                      aria-labelledby="options-menu"
+                    >
+                      <NavLink
+                        to="/RentalVehicles"
+                        menuItem
+                        onClick={closeMenu}
+                        isScrolled={isScrolled}
+                      >
                         Rent
                       </NavLink>
-                      <NavLink to="/BuyVehicles" menuItem onClick={closeMenu}>
+                      <NavLink
+                        to="/BuyVehicles"
+                        menuItem
+                        onClick={closeMenu}
+                        isScrolled={isScrolled}
+                      >
                         Buy And Sell
                       </NavLink>
                       {/* Modified to use handleProtectedRoute */}
@@ -157,14 +174,19 @@ const NavMenu = () => {
                   </div>
                 )}
               </div>
-              <NavLink to="/AboutUs" onClick={closeMenu}>
-                About
+              <NavLink
+                to="/AboutUs"
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
+                About Us
               </NavLink>
-              <NavLink to="/Contact" onClick={closeMenu}>
+              <NavLink
+                to="/Contact"
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
                 Contact
-              </NavLink>
-              <NavLink to="/FAQ" onClick={closeMenu}>
-                FAQ
               </NavLink>
             </div>
 
@@ -178,14 +200,23 @@ const NavMenu = () => {
                       className="flex items-center space-x-2 p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out"
                     >
                       <User className="h-5 w-5" />
-                      <span className="font-medium text-sm hidden sm:inline">{userFullName}</span>
+                      <span className="font-medium text-sm hidden sm:inline">
+                        {userFullName}
+                      </span>
                       <ChevronDown
-                        className={`h-4 w-4 hidden sm:inline transition-transform duration-300 ease-in-out ${isProfileMenuOpen ? "rotate-180" : ""}`}
+                        className={`h-4 w-4 hidden sm:inline transition-transform duration-300 ease-in-out ${
+                          isProfileMenuOpen ? "rotate-180" : ""
+                        }`}
                       />
                     </button>
                     {isProfileMenuOpen && (
                       <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10">
-                        <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+                        <div
+                          className="py-1"
+                          role="menu"
+                          aria-orientation="vertical"
+                          aria-labelledby="options-menu"
+                        >
                           <Link
                             to="/Profile"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
@@ -220,8 +251,8 @@ const NavMenu = () => {
                           </Link>
                           <button
                             onClick={() => {
-                              handleLogout()
-                              closeMenu()
+                              handleLogout();
+                              closeMenu();
                             }}
                             className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                             role="menuitem"
@@ -265,7 +296,7 @@ const NavMenu = () => {
       {/* Mobile menu */}
       <div className={`md:hidden ${isMenuOpen ? "block" : "hidden"}`}>
         <div className="px-4 pt-2 pb-3 space-y-1 bg-white">
-          <NavLink to="/" mobile onClick={closeMenu}>
+          <NavLink to="/" mobile onClick={closeMenu} isScrolled={isScrolled}>
             Home
           </NavLink>
           <button
@@ -276,10 +307,20 @@ const NavMenu = () => {
           </button>
           {isServicesOpen && (
             <div className="pl-4 space-y-1">
-              <NavLink to="/RentalVehicles" mobile onClick={closeMenu}>
+              <NavLink
+                to="/RentalVehicles"
+                mobile
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
                 Rent
               </NavLink>
-              <NavLink to="/BuyVehicles" mobile onClick={closeMenu}>
+              <NavLink
+                to="/BuyVehicles"
+                mobile
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
                 Buy And Sell
               </NavLink>
               {/* Modified mobile menu items */}
@@ -297,21 +338,30 @@ const NavMenu = () => {
               </button>
             </div>
           )}
-          <NavLink to="/AboutUs" mobile onClick={closeMenu}>
-            About
+          <NavLink
+            to="/AboutUs"
+            mobile
+            onClick={closeMenu}
+            isScrolled={isScrolled}
+          >
+            About Us
           </NavLink>
-          <NavLink to="/Contact" mobile onClick={closeMenu}>
+          <NavLink
+            to="/Contact"
+            mobile
+            onClick={closeMenu}
+            isScrolled={isScrolled}
+          >
             Contact
-          </NavLink>
-          <NavLink to="/FAQ" mobile onClick={closeMenu}>
-            FAQ
           </NavLink>
         </div>
         <div className="pt-4 pb-3 border-t border-gray-200 bg-white">
           <div className="px-4">
             {isLoggedIn ? (
               <div className="flex items-center justify-between">
-                <span className="text-gray-800 font-medium">{userFullName}</span>
+                <span className="text-gray-800 font-medium">
+                  {userFullName}
+                </span>
                 <button
                   onClick={toggleProfileMenu}
                   className="p-2 rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out"
@@ -330,22 +380,42 @@ const NavMenu = () => {
           </div>
           {isProfileMenuOpen && (
             <div className="mt-3 space-y-1">
-              <NavLink to="/Profile" mobile onClick={closeMenu}>
+              <NavLink
+                to="/Profile"
+                mobile
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
                 My Profile
               </NavLink>
-              <NavLink to="/UserBookings" mobile onClick={closeMenu}>
+              <NavLink
+                to="/UserBookings"
+                mobile
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
                 My Bookings
               </NavLink>
-              <NavLink to="/ReportedItems" mobile onClick={closeMenu}>
+              <NavLink
+                to="/ReportedItems"
+                mobile
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
                 Items Reported
               </NavLink>
-              <NavLink to="/History" mobile onClick={closeMenu}>
+              <NavLink
+                to="/History"
+                mobile
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
                 History
               </NavLink>
               <button
                 onClick={() => {
-                  handleLogout()
-                  closeMenu()
+                  handleLogout();
+                  closeMenu();
                 }}
                 className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
               >
@@ -356,10 +426,10 @@ const NavMenu = () => {
         </div>
       </div>
     </nav>
-  )
-}
+  );
+};
 
-const NavLink = ({ to, children, mobile, menuItem, onClick }) => (
+const NavLink = ({ to, children, mobile, menuItem, onClick, isScrolled }) => (
   <Link
     to={to}
     onClick={onClick}
@@ -368,15 +438,15 @@ const NavLink = ({ to, children, mobile, menuItem, onClick }) => (
         mobile
           ? "block px-3 py-2 rounded-md text-base font-medium"
           : menuItem
-            ? "block px-4 py-2 text-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-            : "text-gray-800 hover:text-blue-600 px-3 py-2 rounded-md text-lg font-medium"
+          ? "block px-4 py-2 text-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+          : "hover:text-blue-600 px-3 py-2 rounded-md text-lg font-medium"
       }
       transition duration-300 ease-in-out hover:bg-blue-50
+      ${!mobile && !menuItem ? (isScrolled ? "text-black" : "text-black") : ""}
     `}
   >
     {children}
   </Link>
-)
+);
 
-export default NavMenu
-
+export default NavMenu;

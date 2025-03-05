@@ -1,57 +1,59 @@
-import './index.css';
-import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
-import NavMenu from './Components/NavMenu';
-import Login from './Pages/Login';
-import Register from './Pages/Register';
-import Footer from './Components/Footer';
-import Home from './Pages/Home';
-import RentalVehicles from './Pages/RentalVehicles';
-import RentalVehicleDesc from './Pages/RentalVehicleDesc';
-import BuyVehicles from './Pages/BuyVehicles';
-import VehicleListing from './Pages/VehicleListing';
-import UserSalesList from './Pages/UserSalesList';
-import LostAndFound from './Pages/LostAndFound';
-import YourList from './Pages/YourList';
-import BuyVehiclesDesc from './Pages/BuyVehiclesDesc';
-import AboutUs from './Pages/AboutUs';
-import Contact from './Pages/Contact';
-import FAQ from './Pages/FAQ';
-import RentalGallery from './Pages/RentalGallery';
-import Dashboard from './Admin/Dashboard/Dashboard';
-import Sidebar from './Admin/Sidebar';
-import Vehicles from './Admin/Vehicle Management/Vehicles';
-import AddNewVehicle from './Admin/Vehicle Management/AddNewVehicle';
-import Transactions from './Admin/Sales/Transactions';
-import ActiveRentals from './Admin/Rentals/ActiveRentals';
-import RentalHistory from './Admin/Rentals/RentalHistory';
-import Users from './Admin/User/Users';
-import AdminLostAndFound from './Admin/LostAndFound/LostAndFound';
-import AdminWishlist from './Admin/Wishlist/AdminWishlist';
-import Profile from './Pages/Profile';
-import UserBookings from './Pages/UserBookings';
-import ReportedItems from './Pages/ReportedItems';
-import History from './Pages/History'; 
-import UserVerification from './Pages/UserVerification';
-import WishlistVehicleDetail from './Pages/WishlistVehicleDetail';
-import VehicleBooking from './Pages/VehicleBooking';
-import ViewDetails from './Admin/Vehicle Management/ViewDetails';
-
-
+import "./index.css";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import NavMenu from "./Components/NavMenu";
+import Login from "./Pages/Login";
+import Register from "./Pages/Register";
+import Footer from "./Components/Footer";
+import Home from "./Pages/Home";
+import RentalVehicles from "./Pages/RentalVehicles";
+import RentalVehicleDesc from "./Pages/RentalVehicleDesc";
+import BuyVehicles from "./Pages/BuyVehicles";
+import VehicleListing from "./Pages/VehicleListing";
+import UserSalesList from "./Pages/UserSalesList";
+import LostAndFound from "./Pages/LostAndFound";
+import YourList from "./Pages/YourList";
+import BuyVehiclesDesc from "./Pages/BuyVehiclesDesc";
+import AboutUs from "./Pages/AboutUs";
+import Contact from "./Pages/Contact";
+import RentalGallery from "./Pages/RentalGallery";
+import Dashboard from "./Admin/Dashboard/Dashboard";
+import Sidebar from "./Admin/Sidebar";
+import Vehicles from "./Admin/Vehicle Management/Vehicles";
+import AddNewVehicle from "./Admin/Vehicle Management/AddNewVehicle";
+import Transactions from "./Admin/Sales/Transactions";
+import ActiveRentals from "./Admin/Rentals/ActiveRentals";
+import RentalHistory from "./Admin/Rentals/RentalHistory";
+import Users from "./Admin/User/Users";
+import AdminLostAndFound from "./Admin/LostAndFound/LostAndFound";
+import AdminWishlist from "./Admin/Wishlist/AdminWishlist";
+import Profile from "./Pages/Profile";
+import UserBookings from "./Pages/UserBookings";
+import ReportedItems from "./Pages/ReportedItems";
+import History from "./Pages/History";
+import UserVerification from "./Pages/UserVerification";
+import WishlistVehicleDetail from "./Pages/WishlistVehicleDetail";
+import VehicleBooking from "./Pages/VehicleBooking";
+import ViewDetails from "./Admin/Vehicle Management/ViewDetails";
+import AddVehicle from "./Admin/Rentals/AddVehicle";
+import AllVehicle from "./Admin/Rentals/AllVehicle";
+import RentalDetails from "./Admin/Rentals/RentalDetails";
 
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const isAdminRoute = location.pathname.startsWith('/admin');
-  const isAuthRoute = location.pathname === '/Login' || location.pathname === '/Register';
+  const isAdminRoute = location.pathname.startsWith("/admin");
+  const isAuthRoute =
+    location.pathname === "/Login" || location.pathname === "/Register";
 
   const handleLogin = async (credentials) => {
     // Perform login logic here
-    const isAdmin = credentials.username === 'admin' && credentials.password === 'admin'; // Example check
+    const isAdmin =
+      credentials.username === "admin" && credentials.password === "admin"; // Example check
     if (isAdmin) {
-      navigate('/admin/dashboard');
+      navigate("/admin/dashboard");
     } else {
-      navigate('/RentalVehicles');
+      navigate("/RentalVehicles");
     }
   };
 
@@ -74,16 +76,17 @@ function App() {
         <Route path="/BuyVehiclesDesc" element={<BuyVehiclesDesc />} />
         <Route path="/AboutUs" element={<AboutUs />} />
         <Route path="/Contact" element={<Contact />} />
-        <Route path="/FAQ" element={<FAQ />} />
         <Route path="/RentalGallery" element={<RentalGallery />} />
         <Route path="/Profile" element={<Profile />} />
         <Route path="/UserBookings" element={<UserBookings />} />
         <Route path="/ReportedItems" element={<ReportedItems />} />
         <Route path="/History" element={<History />} />
-        <Route path="/WishlistVehicleDetail" element={<WishlistVehicleDetail />} />
+        <Route
+          path="/WishlistVehicleDetail"
+          element={<WishlistVehicleDetail />}
+        />
         <Route path="/VehicleBooking:id" element={<VehicleBooking />} />
-      
-        
+
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/viewdetails" element={<ViewDetails />} />
@@ -95,9 +98,14 @@ function App() {
         <Route path="/admin/users" element={<Users />} />
         <Route path="/admin/lostandfound" element={<AdminLostAndFound />} />
         <Route path="/admin/adminwishlist" element={<AdminWishlist />} />
-     
-      </Routes> {/* Closing the Routes tag */}
-      {!isAdminRoute && !isAuthRoute && <Footer />} {/* Footer for non-admin and non-auth routes */}
+        <Route path="/admin/addvehicle" element={<AddVehicle />} />
+        <Route path="/admin/allvehicles" element={<AllVehicle />} />
+        <Route path="/admin/rentaldetails" element={<RentalDetails />} />
+        <Route path="/admin/rental-details/:id" element={<RentalDetails />} />
+      </Routes>{" "}
+      {/* Closing the Routes tag */}
+      {!isAdminRoute && !isAuthRoute && <Footer />}{" "}
+      {/* Footer for non-admin and non-auth routes */}
     </>
   );
 }

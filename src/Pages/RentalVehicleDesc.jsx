@@ -1,17 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Star, Heart, Users, DoorOpen, Fuel, Gauge, ArrowLeft, ArrowRight } from "lucide-react"
-
+import { useState } from "react";
+import {
+  Users,
+  DoorOpen,
+  Fuel,
+  Gauge,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
+import RentalBookingForm from "../Components/RentalBookingForm"; // Adjust the path as needed
 const RentalVehicleDesc = () => {
-  const [isLiked, setIsLiked] = useState(false)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [activeTab, setActiveTab] = useState("description")
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState("description");
+  const [isBookingFormVisible, setIsBookingFormVisible] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState("day");
 
   const vehicle = {
     name: "Land Rover Defender",
     model: "2023",
-    rating: 4.5,
     totalReviews: 128,
     price: "3000",
     images: [
@@ -28,7 +35,14 @@ const RentalVehicleDesc = () => {
       mileage: "15 km/l",
       engine: "2.0L 4-cylinder",
       power: "296 hp",
-      features: ["AC", "Sunroof", "Cruise Control", "Airbags", "Parking Sensors", "360° Camera"],
+      features: [
+        "AC",
+        "Sunroof",
+        "Cruise Control",
+        "Airbags",
+        "Parking Sensors",
+        "360° Camera",
+      ],
     },
     description:
       "The Land Rover Defender is the epitome of luxury and capability. This SUV combines sophisticated design with legendary Land Rover all-terrain expertise. The vehicle features a robust architecture and advanced technology to ensure exceptional performance both on and off-road.",
@@ -36,27 +50,31 @@ const RentalVehicleDesc = () => {
       {
         id: 1,
         user: "John Doe",
-        rating: 5,
         date: "2024-02-15",
-        comment: "Excellent vehicle, perfect for both city driving and off-road adventures.",
+        comment:
+          "Excellent vehicle, perfect for both city driving and off-road adventures.",
       },
       {
         id: 2,
         user: "Jane Smith",
-        rating: 4,
         date: "2024-02-10",
-        comment: "Great performance and comfort, though fuel efficiency could be better.",
+        comment:
+          "Great performance and comfort, though fuel efficiency could be better.",
       },
     ],
-  }
+  };
 
   const handleImageNavigation = (direction) => {
     if (direction === "next") {
-      setCurrentImageIndex((prev) => (prev === vehicle.images.length - 1 ? 0 : prev + 1))
+      setCurrentImageIndex((prev) =>
+        prev === vehicle.images.length - 1 ? 0 : prev + 1
+      );
     } else {
-      setCurrentImageIndex((prev) => (prev === 0 ? vehicle.images.length - 1 : prev - 1))
+      setCurrentImageIndex((prev) =>
+        prev === 0 ? vehicle.images.length - 1 : prev - 1
+      );
     }
-  }
+  };
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -64,7 +82,9 @@ const RentalVehicleDesc = () => {
         return (
           <div className="space-y-4">
             <h3 className="text-xl font-semibold">About this vehicle</h3>
-            <p className="text-gray-600 leading-relaxed">{vehicle.description}</p>
+            <p className="text-gray-600 leading-relaxed">
+              {vehicle.description}
+            </p>
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mt-6">
               <div>
@@ -81,48 +101,46 @@ const RentalVehicleDesc = () => {
               </div>
             </div>
           </div>
-        )
+        );
       case "features":
         return (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {vehicle.specs.features.map((feature, index) => (
-              <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+              <div
+                key={index}
+                className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg"
+              >
                 <div className="w-2 h-2 bg-[#ff6b00] rounded-full" />
                 <span>{feature}</span>
               </div>
             ))}
           </div>
-        )
-      case "reviews":
-        return (
-          <div className="space-y-6">
-            {vehicle.reviews.map((review) => (
-              <div key={review.id} className="border-b pb-6">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="font-semibold">{review.user}</p>
-                    <p className="text-sm text-gray-500">{review.date}</p>
-                  </div>
-                  <div className="flex">
-                    {[...Array(5)].map((_, index) => (
-                      <Star
-                        key={index}
-                        className={`w-4 h-4 ${
-                          index < review.rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-gray-600">{review.comment}</p>
-              </div>
-            ))}
-          </div>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
+
+  const handleBookNowClick = () => {
+    setIsBookingFormVisible(true);
+  };
+
+  const handleCloseBookingForm = () => {
+    setIsBookingFormVisible(false);
+  };
+
+  const calculatePrice = () => {
+    switch (selectedDuration) {
+      case "hour":
+        return (vehicle.price / 24).toFixed(2);
+      case "week":
+        return (vehicle.price * 7).toFixed(2);
+      case "month":
+        return (vehicle.price * 30).toFixed(2);
+      default:
+        return vehicle.price;
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 min-h-screen">
@@ -131,29 +149,12 @@ const RentalVehicleDesc = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">{vehicle.name}</h1>
           <p className="text-gray-500">{vehicle.model} Model</p>
+          <p className="text-gray-700 font-medium mt-1">
+            Number Plate: AB-123-CD
+          </p>
         </div>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
-          <div className="flex items-center gap-2">
-            <div className="flex">
-              {[...Array(5)].map((_, index) => (
-                <Star
-                  key={index}
-                  className={`w-5 h-5 ${
-                    index < Math.floor(vehicle.rating)
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "fill-gray-200 text-gray-200"
-                  }`}
-                />
-              ))}
-            </div>
-            <span className="text-gray-600">({vehicle.totalReviews} reviews)</span>
-          </div>
-          <button
-            onClick={() => setIsLiked(!isLiked)}
-            className={`p-2 rounded-full ${isLiked ? "bg-red-50" : "bg-gray-50"} transition-colors`}
-          >
-            <Heart className={`w-6 h-6 ${isLiked ? "fill-red-500 text-red-500" : "text-gray-400"}`} />
-          </button>
+          {/* Removed reviews display */}
         </div>
       </div>
 
@@ -181,7 +182,9 @@ const RentalVehicleDesc = () => {
             <button
               key={index}
               onClick={() => setCurrentImageIndex(index)}
-              className={`w-2 h-2 rounded-full ${currentImageIndex === index ? "bg-white" : "bg-white/50"}`}
+              className={`w-2 h-2 rounded-full ${
+                currentImageIndex === index ? "bg-white" : "bg-white/50"
+              }`}
             />
           ))}
         </div>
@@ -192,7 +195,7 @@ const RentalVehicleDesc = () => {
         {vehicle.images.map((image, index) => (
           <button
             key={index}
-            onClick={() => setCurrentImageIndex(index)}
+            onClick={() => setCurrentImageIndex(index)} // Fixed syntax error
             className={`relative rounded-lg overflow-hidden ${
               currentImageIndex === index ? "ring-2 ring-[#ff6b00]" : ""
             }`}
@@ -206,12 +209,23 @@ const RentalVehicleDesc = () => {
         ))}
       </div>
 
-      {/* Price */}
+      {/* Price with Dropdown */}
       <div className="mb-8">
-        <p className="text-3xl font-bold text-[#ff6b00]">
-          Rs. {vehicle.price}
-          <span className="text-base font-normal text-gray-600">/day</span>
-        </p>
+        <div className="flex items-center gap-4">
+          <p className="text-3xl font-bold text-[#ff6b00]">
+            Rs. {calculatePrice()}
+          </p>
+          <select
+            value={selectedDuration}
+            onChange={(e) => setSelectedDuration(e.target.value)}
+            className="border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
+          >
+            <option value="day">/day</option>
+            <option value="hour">/hour</option>
+            <option value="week">/week</option>
+            <option value="month">/month</option>
+          </select>
+        </div>
       </div>
 
       {/* Specifications Grid */}
@@ -249,12 +263,14 @@ const RentalVehicleDesc = () => {
       {/* Custom Tabs */}
       <div className="w-full">
         <div className="flex border-b mb-8">
-          {["description", "features", "reviews"].map((tab) => (
+          {["description", "features"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-6 py-3 text-sm font-medium capitalize ${
-                activeTab === tab ? "border-b-2 border-[#ff6b00] text-[#ff6b00]" : "text-gray-500 hover:text-gray-700"
+                activeTab === tab
+                  ? "border-b-2 border-[#ff6b00] text-[#ff6b00]"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {tab}
@@ -267,13 +283,43 @@ const RentalVehicleDesc = () => {
 
       {/* Book Now Button */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t md:relative md:border-0 md:bg-transparent md:p-0 md:mt-8">
-        <button className="w-full md:w-auto px-8 py-3 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors">
+        <button
+          onClick={handleBookNowClick}
+          className="w-full md:w-auto px-8 py-3 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
+        >
           Book Now
         </button>
       </div>
+
+      {/* Rental Booking Form Popup */}
+      {isBookingFormVisible && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto p-4">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl my-8 relative">
+            <button
+              onClick={handleCloseBookingForm}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10 bg-white rounded-full p-1"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+            <RentalBookingForm />
+          </div>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default RentalVehicleDesc
-
+export default RentalVehicleDesc;

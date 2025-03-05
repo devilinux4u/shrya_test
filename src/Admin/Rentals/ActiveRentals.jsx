@@ -1,385 +1,571 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Search, Car, User, Calendar, Clock, MapPin, AlertCircle, CheckCircle, XCircle, Eye } from "lucide-react"
+import { useState, useEffect } from "react";
+import {
+  Car,
+  Calendar,
+  Clock,
+  User,
+  Search,
+  Eye,
+  Phone,
+  Mail,
+  CheckCircle,
+  AlertTriangle,
+  Loader2,
+  Filter,
+} from "lucide-react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
-// Mock data for active rentals
-const initialRentals = [
+// Dummy data for active rentals
+const dummyRentals = [
   {
-    id: "RNT-2024-001",
-    customer: {
-      name: "John Smith",
-      email: "john.smith@email.com",
-      phone: "+1 (555) 123-4567",
-    },
+    _id: "r1",
     vehicle: {
-      name: "Tesla Model 3",
-      plate: "ABC 123",
-      color: "Red",
-      gps: { lat: 40.7128, lng: -74.006 },
+      _id: "v1",
+      make: "Toyota",
+      model: "Corolla",
+      year: 2022,
+      imageUrl: "/placeholder.svg?height=400&width=600",
+      numberPlate: "KA-01-AB-1234",
     },
-    startDate: "2024-02-15",
-    endDate: "2024-02-25",
-    status: "on_time",
-    totalAmount: 750,
-    deposit: 500,
+    user: {
+      _id: "u1",
+      name: "John Doe",
+      email: "john.doe@example.com",
+      phone: "+91 9876543210",
+      profileImage: "/placeholder.svg?height=200&width=200",
+    },
+    rentalPeriod: {
+      type: "day", // hour, day, week, month
+      startDate: "2025-03-25T10:00:00Z",
+      endDate: "2025-03-29T10:00:00Z",
+      totalHours: 96,
+      hoursRemaining: 48,
+    },
+    totalAmount: 10000,
+    paymentStatus: "paid",
+    status: "active",
   },
   {
-    id: "RNT-2024-002",
-    customer: {
-      name: "Sarah Johnson",
-      email: "sarah.j@email.com",
-      phone: "+1 (555) 234-5678",
-    },
+    _id: "r2",
     vehicle: {
-      name: "BMW X5",
-      plate: "XYZ 789",
-      color: "Black",
-      gps: { lat: 40.7589, lng: -73.9851 },
+      _id: "v2",
+      make: "Honda",
+      model: "Civic",
+      year: 2021,
+      imageUrl: "/placeholder.svg?height=400&width=600",
+      numberPlate: "KA-02-CD-5678",
     },
-    startDate: "2024-02-18",
-    endDate: "2024-02-28",
-    status: "extended",
-    totalAmount: 900,
-    deposit: 600,
+    user: {
+      _id: "u2",
+      name: "Jane Smith",
+      email: "jane.smith@example.com",
+      phone: "+91 9876543211",
+      profileImage: "/placeholder.svg?height=200&width=200",
+    },
+    rentalPeriod: {
+      type: "week",
+      startDate: "2025-03-20T14:00:00Z",
+      endDate: "2025-04-03T14:00:00Z",
+      totalHours: 336,
+      hoursRemaining: 120,
+    },
+    totalAmount: 16000,
+    paymentStatus: "paid",
+    status: "active",
   },
   {
-    id: "RNT-2024-003",
-    customer: {
-      name: "Mike Wilson",
-      email: "mike.w@email.com",
-      phone: "+1 (555) 345-6789",
-    },
+    _id: "r3",
     vehicle: {
-      name: "Mercedes C-Class",
-      plate: "DEF 456",
-      color: "Silver",
-      gps: { lat: 40.7549, lng: -73.984 },
+      _id: "v3",
+      make: "Suzuki",
+      model: "Swift",
+      year: 2023,
+      imageUrl: "/placeholder.svg?height=400&width=600",
+      numberPlate: "KA-03-EF-9012",
     },
-    startDate: "2024-02-20",
-    endDate: "2024-02-23",
-    status: "overdue",
-    totalAmount: 450,
-    deposit: 400,
+    user: {
+      _id: "u3",
+      name: "Robert Johnson",
+      email: "robert.johnson@example.com",
+      phone: "+91 9876543212",
+      profileImage: "/placeholder.svg?height=200&width=200",
+    },
+    rentalPeriod: {
+      type: "day",
+      startDate: "2025-03-28T09:00:00Z",
+      endDate: "2025-03-30T09:00:00Z",
+      totalHours: 48,
+      hoursRemaining: 36,
+    },
+    totalAmount: 4000,
+    paymentStatus: "paid",
+    status: "active",
   },
-]
+  {
+    _id: "r4",
+    vehicle: {
+      _id: "v4",
+      make: "Hyundai",
+      model: "Tucson",
+      year: 2022,
+      imageUrl: "/placeholder.svg?height=400&width=600",
+      numberPlate: "KA-04-GH-3456",
+    },
+    user: {
+      _id: "u4",
+      name: "Emily Davis",
+      email: "emily.davis@example.com",
+      phone: "+91 9876543213",
+      profileImage: "/placeholder.svg?height=200&width=200",
+    },
+    rentalPeriod: {
+      type: "hour",
+      startDate: "2025-03-29T13:00:00Z",
+      endDate: "2025-03-29T19:00:00Z",
+      totalHours: 6,
+      hoursRemaining: 4,
+    },
+    totalAmount: 3000,
+    paymentStatus: "paid",
+    status: "active",
+  },
+  {
+    _id: "r5",
+    vehicle: {
+      _id: "v5",
+      make: "Kia",
+      model: "Sportage",
+      year: 2023,
+      imageUrl: "/placeholder.svg?height=400&width=600",
+      numberPlate: "KA-05-IJ-7890",
+    },
+    user: {
+      _id: "u5",
+      name: "Michael Wilson",
+      email: "michael.wilson@example.com",
+      phone: "+91 9876543214",
+      profileImage: "/placeholder.svg?height=200&width=200",
+    },
+    rentalPeriod: {
+      type: "month",
+      startDate: "2025-03-01T12:00:00Z",
+      endDate: "2025-04-01T12:00:00Z",
+      totalHours: 744,
+      hoursRemaining: 72,
+    },
+    totalAmount: 75000,
+    paymentStatus: "paid",
+    status: "active",
+  },
+];
 
 export default function ActiveRentals() {
-  const [rentals, setRentals] = useState(initialRentals)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterStatus, setFilterStatus] = useState("all")
-  const [selectedRental, setSelectedRental] = useState(null)
-  const [showMap, setShowMap] = useState(false)
+  const navigate = useNavigate();
+  const [rentals, setRentals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "on_time":
-        return "bg-green-100 text-green-800"
-      case "extended":
-        return "bg-[#4F46E5]/10 text-[#4F46E5]"
-      case "overdue":
-        return "bg-red-100 text-red-800"
+  useEffect(() => {
+    // Simulate API call with dummy data
+    setTimeout(() => {
+      setRentals(dummyRentals);
+      setLoading(false);
+    }, 1000);
+  }, []);
+
+  const fetchRentals = async () => {
+    // For demo purposes, just reset to dummy data
+    setLoading(true);
+    setTimeout(() => {
+      setRentals(dummyRentals);
+      setLoading(false);
+    }, 1000);
+  };
+
+  const handleViewDetails = (id) => {
+    navigate(`/admin/rental-details/${id}`);
+  };
+
+  // Format date to readable format
+  const formatDate = (dateString) => {
+    const options = {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
+  // Calculate percentage of time elapsed
+  const calculateTimeProgress = (rental) => {
+    const { totalHours, hoursRemaining } = rental.rentalPeriod;
+    const hoursElapsed = totalHours - hoursRemaining;
+    return Math.round((hoursElapsed / totalHours) * 100);
+  };
+
+  // Format rental duration
+  const formatDuration = (rental) => {
+    const { type } = rental.rentalPeriod;
+    switch (type) {
+      case "hour":
+        return `${rental.rentalPeriod.totalHours} hours`;
+      case "day":
+        return `${rental.rentalPeriod.totalHours / 24} days`;
+      case "week":
+        return `${rental.rentalPeriod.totalHours / 168} weeks`;
+      case "month":
+        return `${rental.rentalPeriod.totalHours / 720} months`;
       default:
-        return "bg-gray-100 text-gray-800"
+        return `${rental.rentalPeriod.totalHours} hours`;
     }
-  }
+  };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "on_time":
-        return <CheckCircle className="w-5 h-5 text-green-600" />
-      case "extended":
-        return <Clock className="w-5 h-5 text-[#4F46E5]" />
-      case "overdue":
-        return <AlertCircle className="w-5 h-5 text-red-600" />
-      default:
-        return null
+  // Format time remaining
+  const formatTimeRemaining = (hours) => {
+    if (hours < 1) {
+      return "Less than 1 hour";
     }
-  }
+    if (hours < 24) {
+      return `${Math.round(hours)} hours`;
+    }
+    if (hours < 168) {
+      return `${Math.round(hours / 24)} days, ${Math.round(hours % 24)} hours`;
+    }
+    return `${Math.floor(hours / 24)} days`;
+  };
 
-  const getDaysRemaining = (endDate) => {
-    const today = new Date()
-    const end = new Date(endDate)
-    const diffTime = end - today
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays
-  }
-
+  // Filter rentals
   const filteredRentals = rentals.filter((rental) => {
-    const matchesSearch =
-      rental.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.vehicle.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.vehicle.plate.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = filterStatus === "all" || rental.status === filterStatus
-    return matchesSearch && matchesStatus
-  })
+    // Search filter
+    const searchMatch =
+      rental.vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rental.vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rental.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rental.vehicle.numberPlate
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+    // Type filter
+    if (filterType === "all") return searchMatch;
+    return searchMatch && rental.rentalPeriod.type === filterType;
+  });
+
+  // Filter button component
+  const FilterButton = ({ active, onClick, children }) => (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+        active
+          ? "bg-indigo-600 text-white"
+          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+      }`}
+    >
+      {children}
+    </button>
+  );
 
   return (
-    // Add ml-64 to offset the fixed sidebar
-    <div className="flex-1 ml-64 min-h-screen bg-gray-50">
-      {/* Add padding inside this container */}
-      <div className="p-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Active Rentals</h1>
-
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-gray-500">Total Active</h3>
-                <div className="p-3 bg-[#4F46E5]/10 rounded-full">
-                  <Car className="w-6 h-6 text-[#4F46E5]" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold mt-2">{rentals.length}</p>
-              <div className="mt-2 text-sm text-gray-600">Currently rented vehicles</div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-gray-500">On Time</h3>
-                <div className="p-3 bg-green-100 rounded-full">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold mt-2">{rentals.filter((r) => r.status === "on_time").length}</p>
-              <div className="mt-2 text-sm text-green-600">Regular returns expected</div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-gray-500">Attention Needed</h3>
-                <div className="p-3 bg-red-100 rounded-full">
-                  <AlertCircle className="w-6 h-6 text-red-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold mt-2">{rentals.filter((r) => r.status === "overdue").length}</p>
-              <div className="mt-2 text-sm text-red-600">Overdue returns</div>
+    <>
+      <ToastContainer position="top-right" theme="colored" />
+      <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+        <div className="p-4 sm:p-6 md:p-8">
+          <div className="mb-6 md:mb-8">
+            <div className="border-l-4 border-[#ff6b00] pl-4">
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+                Active Rentals
+              </h1>
+              <p className="mt-2 text-gray-600">
+                Monitor and manage currently active vehicle rentals
+              </p>
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search rentals..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
-              />
-            </div>
-            <div className="flex gap-4">
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="on_time">On Time</option>
-                <option value="extended">Extended</option>
-                <option value="overdue">Overdue</option>
-              </select>
-              <button
-                onClick={() => setShowMap(!showMap)}
-                className={`px-4 py-2 rounded-lg border transition-colors ${
-                  showMap
-                    ? "bg-[#4F46E5]/10 border-[#4F46E5] text-[#4F46E5]"
-                    : "border-gray-300 text-gray-600 hover:border-[#4F46E5] hover:text-[#4F46E5]"
-                }`}
-              >
-                <MapPin className="w-5 h-5" />
-              </button>
+          {/* Search Bar */}
+          <div className="bg-white rounded-xl shadow-md mb-6">
+            <div className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+              <div className="relative w-full sm:w-auto flex-1 max-w-md">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search by vehicle, user or number plate..."
+                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Rentals Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRentals.map((rental) => (
-            <div
-              key={rental.id}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
-            >
-              <div className="p-6">
-                {/* Rental Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">{rental.id}</h3>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(rental.status)}`}
-                    >
-                      {getStatusIcon(rental.status)}
-                      <span className="ml-1">{rental.status.replace("_", " ").toUpperCase()}</span>
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setSelectedRental(rental)}
-                    className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <Eye className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Vehicle Info */}
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Car className="w-4 h-4" />
-                    <span className="font-medium">{rental.vehicle.name}</span>
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    Plate: {rental.vehicle.plate} • {rental.vehicle.color}
-                  </div>
-                </div>
-
-                {/* Customer Info */}
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <User className="w-4 h-4" />
-                    <span className="font-medium">{rental.customer.name}</span>
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">{rental.customer.phone}</div>
-                </div>
-
-                {/* Dates */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      {rental.startDate} - {rental.endDate}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Clock className="w-4 h-4" />
-                    <span>{getDaysRemaining(rental.endDate)} days remaining</span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="mt-4 flex justify-end gap-2">
-                  <button className="px-3 py-1 text-sm bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] transition-colors">
-                    Extend
-                  </button>
-                  <button className="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                    Process Return
-                  </button>
-                </div>
-              </div>
+          {/* Filters Section */}
+          <div className="bg-white rounded-xl shadow-md mb-6 p-5">
+            <div className="flex items-center mb-4">
+              <Filter className="h-5 w-5 mr-2 text-indigo-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
             </div>
-          ))}
-        </div>
 
-        {/* Rental Detail Modal */}
-        {selectedRental && (
-          <div
-            className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-            onClick={() => setSelectedRental(null)}
-          >
-            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Rental Details</h2>
-                  <p className="text-sm text-gray-500 mt-1">View rental information and manage status</p>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ${getStatusColor(selectedRental.status)}`}
-                  >
-                    {getStatusIcon(selectedRental.status)}
-                    <span className="ml-1">{selectedRental.status.replace("_", " ").toUpperCase()}</span>
-                  </span>
-                </div>
-                <button onClick={() => setSelectedRental(null)} className="p-2 text-gray-400 hover:text-gray-600">
-                  <XCircle className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Vehicle Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Vehicle Information</h3>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Vehicle</p>
-                    <p className="text-gray-900">{selectedRental.vehicle.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">License Plate</p>
-                    <p className="text-gray-900">{selectedRental.vehicle.plate}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Color</p>
-                    <p className="text-gray-900">{selectedRental.vehicle.color}</p>
-                  </div>
-                </div>
-
-                {/* Customer Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Customer Information</h3>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Name</p>
-                    <p className="text-gray-900">{selectedRental.customer.name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Email</p>
-                    <p className="text-gray-900">{selectedRental.customer.email}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Phone</p>
-                    <p className="text-gray-900">{selectedRental.customer.phone}</p>
-                  </div>
-                </div>
-
-                {/* Rental Details */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Rental Details</h3>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Start Date</p>
-                    <p className="text-gray-900">{selectedRental.startDate}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">End Date</p>
-                    <p className="text-gray-900">{selectedRental.endDate}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Days Remaining</p>
-                    <p className="text-gray-900">{getDaysRemaining(selectedRental.endDate)} days</p>
-                  </div>
-                </div>
-
-                {/* Financial Information */}
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900">Financial Details</h3>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Total Amount</p>
-                    <p className="text-gray-900">Rs. {selectedRental.totalAmount.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-500">Security Deposit</p>
-                    <p className="text-gray-900">Rs. {selectedRental.deposit.toLocaleString()}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 flex justify-end gap-3 border-t pt-6">
-                <button
-                  onClick={() => setSelectedRental(null)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors"
+            <div>
+              <h3 className="text-sm font-medium text-gray-700 mb-3">
+                Rental Type
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                <FilterButton
+                  active={filterType === "all"}
+                  onClick={() => setFilterType("all")}
                 >
-                  Close
-                </button>
-                <button className="px-4 py-2 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] font-medium transition-colors">
-                  Extend Rental
-                </button>
-                <button className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-colors">
-                  Process Return
-                </button>
+                  All Types
+                </FilterButton>
+                <FilterButton
+                  active={filterType === "hour"}
+                  onClick={() => setFilterType("hour")}
+                >
+                  Hourly
+                </FilterButton>
+                <FilterButton
+                  active={filterType === "day"}
+                  onClick={() => setFilterType("day")}
+                >
+                  Daily
+                </FilterButton>
+                <FilterButton
+                  active={filterType === "week"}
+                  onClick={() => setFilterType("week")}
+                >
+                  Weekly
+                </FilterButton>
+                <FilterButton
+                  active={filterType === "month"}
+                  onClick={() => setFilterType("month")}
+                >
+                  Monthly
+                </FilterButton>
               </div>
             </div>
           </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
+          {/* Rentals List */}
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <Loader2 className="h-8 w-8 text-[#ff6b00] animate-spin" />
+              <span className="ml-2 text-lg text-gray-600">
+                Loading active rentals...
+              </span>
+            </div>
+          ) : error ? (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex items-start">
+              <AlertTriangle className="h-6 w-6 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
+              <div>
+                <h3 className="text-lg font-medium text-red-800">
+                  Error loading rentals
+                </h3>
+                <p className="mt-1 text-red-700">{error}</p>
+                <button
+                  onClick={fetchRentals}
+                  className="mt-3 text-sm font-medium text-red-800 hover:text-red-900"
+                >
+                  Try again
+                </button>
+              </div>
+            </div>
+          ) : filteredRentals.length === 0 ? (
+            <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
+              <Car className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No active rentals found
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {searchTerm || filterType !== "all"
+                  ? "Try adjusting your search or filters"
+                  : "There are currently no active vehicle rentals"}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {filteredRentals.map((rental) => (
+                <div
+                  key={rental._id}
+                  className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
+                    {/* Vehicle Image and Info */}
+                    <div className="md:col-span-1 relative">
+                      <div className="h-full">
+                        <img
+                          src={rental.vehicle.imageUrl || "/placeholder.svg"}
+                          alt={`${rental.vehicle.make} ${rental.vehicle.model}`}
+                          className="w-full h-full object-cover md:h-full"
+                          style={{ minHeight: "200px" }}
+                        />
+                        <div className="absolute top-0 left-0 bg-[#ff6b00] text-white px-3 py-1 rounded-br-lg font-medium">
+                          {rental.rentalPeriod.type.charAt(0).toUpperCase() +
+                            rental.rentalPeriod.type.slice(1)}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Rental Details */}
+                    <div className="p-5 md:col-span-2 lg:col-span-3">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Vehicle Info */}
+                        <div>
+                          <h3 className="text-lg font-bold text-gray-900 mb-1">
+                            {rental.vehicle.make} {rental.vehicle.model} (
+                            {rental.vehicle.year})
+                          </h3>
+                          <p className="text-sm text-gray-600 mb-3">
+                            Number Plate: {rental.vehicle.numberPlate}
+                          </p>
+
+                          <div className="flex items-center mb-4">
+                            <div className="h-10 w-10 rounded-full bg-gray-100 overflow-hidden mr-3">
+                              <img
+                                src={
+                                  rental.user.profileImage || "/placeholder.svg"
+                                }
+                                alt={rental.user.name}
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">
+                                {rental.user.name}
+                              </p>
+                              <div className="flex items-center text-sm text-gray-600">
+                                <User className="h-3 w-3 mr-1" />
+                                <span>Renter</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1 text-sm">
+                            <div className="flex items-center text-gray-600">
+                              <Phone className="h-4 w-4 mr-2" />
+                              <span>{rental.user.phone}</span>
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                              <Mail className="h-4 w-4 mr-2" />
+                              <span>{rental.user.email}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Rental Period */}
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                            <Calendar className="h-4 w-4 mr-2 text-[#ff6b00]" />
+                            Rental Period
+                          </h4>
+
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-sm text-gray-600">
+                                Start Date
+                              </p>
+                              <p className="font-medium text-gray-900">
+                                {formatDate(rental.rentalPeriod.startDate)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">End Date</p>
+                              <p className="font-medium text-gray-900">
+                                {formatDate(rental.rentalPeriod.endDate)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">Duration</p>
+                              <p className="font-medium text-gray-900">
+                                {formatDuration(rental)}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-gray-600">
+                                Total Amount
+                              </p>
+                              <p className="font-medium text-gray-900">
+                                Rs. {rental.totalAmount.toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Time Remaining */}
+                        <div>
+                          <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                            <Clock className="h-4 w-4 mr-2 text-[#ff6b00]" />
+                            Time Remaining
+                          </h4>
+
+                          <div className="mb-2">
+                            <div className="flex justify-between text-sm mb-1">
+                              <span className="text-gray-600">Progress</span>
+                              <span className="font-medium text-gray-900">
+                                {calculateTimeProgress(rental)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                              <div
+                                className="bg-[#ff6b00] h-2.5 rounded-full"
+                                style={{
+                                  width: `${calculateTimeProgress(rental)}%`,
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+
+                          <div className="mb-4">
+                            <p className="text-sm text-gray-600">Time Left</p>
+                            <p className="font-medium text-gray-900">
+                              {formatTimeRemaining(
+                                rental.rentalPeriod.hoursRemaining
+                              )}
+                            </p>
+                          </div>
+
+                          <div className="flex items-center">
+                            <div
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                rental.rentalPeriod.hoursRemaining < 12
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-green-100 text-green-800"
+                              }`}
+                            >
+                              {rental.rentalPeriod.hoursRemaining < 12 ? (
+                                <AlertTriangle className="h-3 w-3 inline mr-1" />
+                              ) : (
+                                <CheckCircle className="h-3 w-3 inline mr-1" />
+                              )}
+                              {rental.rentalPeriod.hoursRemaining < 12
+                                ? "Ending Soon"
+                                : "On Schedule"}
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => handleViewDetails(rental._id)}
+                            className="mt-4 w-full flex items-center justify-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}

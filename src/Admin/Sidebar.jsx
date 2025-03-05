@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Car,
@@ -16,8 +16,8 @@ import {
   Search,
   Heart,
   Menu,
-} from "lucide-react"
-import Cookies from "js-cookie"
+} from "lucide-react";
+import Cookies from "js-cookie";
 
 const menuItems = [
   {
@@ -30,7 +30,7 @@ const menuItems = [
     icon: Car,
     submenu: [
       { title: "All Vehicles", path: "/admin/vehicles" },
-      { title: "Add New Vehicle", path: "/admin/addnewvehicles" }
+      { title: "Add New Vehicle", path: "/admin/addnewvehicles" },
     ],
   },
 
@@ -38,6 +38,8 @@ const menuItems = [
     title: "Rentals",
     icon: Key,
     submenu: [
+      { title: "Add Vehicle", path: "/admin/addvehicle" },
+      { title: "All Vehicles", path: "/admin/allvehicles" },
       { title: "Active Rentals", path: "/admin/activerentals" },
       { title: "Rental History", path: "/admin/rentalhistory" },
     ],
@@ -62,33 +64,37 @@ const menuItems = [
     icon: Heart,
     path: "/admin/adminwishlist",
   },
-
-]
+];
 
 export default function Sidebar() {
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-  const [openSubmenu, setOpenSubmenu] = useState(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [openSubmenu, setOpenSubmenu] = useState(null);
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleSubmenu = (index) => {
-    setOpenSubmenu(openSubmenu === index ? null : index)
-  }
+    setOpenSubmenu(openSubmenu === index ? null : index);
+  };
 
   const handleLogout = () => {
     // Delete cookies
-    Cookies.remove("sauto") // Replace "your_cookie_name" with your actual cookie key(s)
+    Cookies.remove("sauto"); // Replace "your_cookie_name" with your actual cookie key(s)
     // Navigate to login page
     navigate("/Login");
   };
 
   return (
     <>
-      <button className="fixed top-4 left-4 z-40 lg:hidden" onClick={toggleSidebar}>
+      <button
+        className="fixed top-4 left-4 z-40 lg:hidden"
+        onClick={toggleSidebar}
+      >
         <Menu className="w-6 h-6" />
       </button>
       <div
-        className={`fixed inset-y-0 left-0 z-30 w-64 bg-gray-900 text-white transition-transform duration-300 ease-in-out transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+        className={`fixed inset-y-0 left-0 z-30 w-64 bg-gray-900 text-white transition-transform duration-300 ease-in-out transform ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
       >
         <div className="flex items-center justify-center h-16 bg-gray-800">
           <h1 className="text-2xl font-bold">Admin Panel</h1>
@@ -105,7 +111,9 @@ export default function Sidebar() {
                     <item.icon className="w-5 h-5 mr-4" />
                     {item.title}
                     <ChevronDown
-                      className={`w-4 h-4 ml-auto transition-transform duration-200 ${openSubmenu === index ? "rotate-180" : ""}`}
+                      className={`w-4 h-4 ml-auto transition-transform duration-200 ${
+                        openSubmenu === index ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
                   {openSubmenu === index && (
@@ -145,6 +153,5 @@ export default function Sidebar() {
         </div>
       </div>
     </>
-  )
+  );
 }
-

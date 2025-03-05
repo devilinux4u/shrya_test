@@ -173,7 +173,7 @@ router.put("/resolve/:id", async (req, res) => {
 router.put("/edit/:itemId", async (req, res) => {
   try {
     const { itemId } = req.params;
-    const { title, description, location, date } = req.body;
+    const { title, description, location, date, type } = req.body;
 
     // Find the item
     const report = await LostAndFound.findByPk(itemId);
@@ -186,6 +186,7 @@ router.put("/edit/:itemId", async (req, res) => {
     report.description = description || report.description;
     report.location = location || report.location;
     report.date = date || report.date;
+    report.type = type || report.type;
 
     await report.save();
 
@@ -193,6 +194,30 @@ router.put("/edit/:itemId", async (req, res) => {
   } catch (error) {
     console.error("Error updating item:", error);
     res.status(500).json({ success: false, message: "Failed to update item", error: error.message });
+  }
+});
+
+// DELETE route to delete a Lost & Found report
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the item
+    const report = await LostAndFound.findByPk(id);
+    if (!report) {
+      return res.status(404).json({ success: false, message: "Item not found" });
+    }
+
+    // Delete associated images
+    await LostAndFoundImage.destroy({ where: { lostAndFoundId: id } });
+
+    // Delete the item
+    await report.destroy();
+
+    res.status(200).json({ success: true, message: "Item deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting item:", error);
+    res.status(500).json({ success: false, message: "Failed to delete item", error: error.message });
   }
 });
 
