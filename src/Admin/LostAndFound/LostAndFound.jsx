@@ -68,9 +68,10 @@ export default function LostAndFound() {
         }
 
         const data = await response.json();
+        console.log("Fetched data:", data);
         const processedItems = data.data.map((item) => ({
           ...item,
-          userType: item.user.fname === "Admin" ? "Admin" : "User",
+          userType: item.user.fname === "admin" ? "admin" : "user",
         }));
 
         setItems(processedItems || []);
@@ -106,9 +107,10 @@ export default function LostAndFound() {
     }
 
     if (userFilter) {
-      filtered = filtered.filter(
-        (item) => item.userType.toLowerCase() === userFilter.toLowerCase()
-      );
+      filtered = filtered.filter((item) => {
+        const role = item.user.role; // Use the role directly from the backend
+        return role.toLowerCase() === userFilter.toLowerCase();
+      });
     }
 
     if (statusFilter) {
@@ -118,8 +120,6 @@ export default function LostAndFound() {
         filtered = filtered.filter((item) => item.type === "found");
       } else if (statusFilter === "resolved") {
         filtered = filtered.filter((item) => item.status === "resolved");
-      } else if (statusFilter === "active") {
-        filtered = filtered.filter((item) => item.status === "active");
       }
     }
 
@@ -418,8 +418,8 @@ export default function LostAndFound() {
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">All Users</option>
-                  <option value="Admin">Admin</option>
-                  <option value="User">User</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
                 </select>
               </div>
               <div className="flex-1">
@@ -432,7 +432,6 @@ export default function LostAndFound() {
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">All Status</option>
-                  <option value="active">Active</option>
                   <option value="lost">Lost</option>
                   <option value="found">Found</option>
                   <option value="resolved">Resolved</option>

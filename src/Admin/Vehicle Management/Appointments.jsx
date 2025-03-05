@@ -35,24 +35,29 @@ export default function Appointments() {
   const bookingsPerPage = 5;
 
   useEffect(() => {
-    // Fetch bookings data from your API
     const fetchBookings = async () => {
       try {
-        // Replace with your actual API endpoint
-        const response = await fetch("http://localhost:3000/bookings");
+        const response = await fetch("http://localhost:3000/api/appointments");
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`Failed to fetch bookings: ${response.statusText}`);
         }
         const data = await response.json();
-        setBookings(data.bookings || mockBookings); // Use mock data for preview
-        setLoading(false);
+        setBookings(
+          data.appointments.map((booking) => ({
+            ...booking,
+            user: booking.user || {}, // Fallback to an empty object if user is undefined
+            vehicle: {
+              ...booking.vehicle,
+              seller: booking.vehicle?.user?.fname || "Unknown Seller", // Fallback to "Unknown Seller" if vehicle.user is undefined
+            },
+          }))
+        );
       } catch (error) {
         console.error("Error fetching bookings:", error);
-        setBookings(mockBookings); // Use mock data if fetch fails
+      } finally {
         setLoading(false);
       }
     };
-
     fetchBookings();
   }, []);
 

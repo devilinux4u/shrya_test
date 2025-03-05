@@ -183,7 +183,7 @@ router.get("/vehicles/admin/all", async (req, res) => {
                 {
                     model: users,
                     as: "user",
-                    attributes: ["fname"] // Fetch fname instead of uname
+                    attributes: ["role", "fname"] // Fetch fname instead of uname
                 }
             ]
         });

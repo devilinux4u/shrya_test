@@ -85,7 +85,7 @@ router.get("/all", async (req, res) => {
         {
           model: users,
           as: "user",
-          attributes: ['fname', 'num'], // Only fetch name and contact
+          attributes: ['fname', 'num','role'], // Only fetch name and contact
         },
       ],
       order: [['createdAt', 'DESC']],
@@ -110,7 +110,7 @@ router.get("/admin/all", async (req, res) => {
         {
           model: users,
           as: "user",
-          attributes: ['fname', 'num'], // Only fetch name and contact
+          attributes: ['fname', 'num', 'role'], // Include the role field
         },
       ],
       order: [['createdAt', 'DESC']],

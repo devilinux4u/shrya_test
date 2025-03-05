@@ -56,12 +56,26 @@ export default function BuyVehiclesDesc() {
     setBookingDetails((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleBookingSubmit = (e) => {
+  const handleBookingSubmit = async (e) => {
     e.preventDefault();
-    console.log("Booking Details:", bookingDetails);
-    // Add logic to handle booking submission
-    setShowBookNowForm(false);
-    navigate("/UserAppointments"); // Redirect to UserAppointments page
+    try {
+      const response = await fetch("http://localhost:3000/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: 1, // Replace with actual user ID from auth
+          vehicleId: vehicle.id,
+          ...bookingDetails,
+        }),
+      });
+      if (!response.ok) throw new Error("Failed to create appointment");
+      const data = await response.json();
+      console.log("Appointment created:", data);
+      setShowBookNowForm(false);
+      navigate("/UserAppointments");
+    } catch (error) {
+      console.error("Error submitting booking:", error);
+    }
   };
 
   useEffect(() => {

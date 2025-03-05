@@ -41,11 +41,14 @@ export default function RentalHistory() {
           throw new Error("Failed to fetch rental data");
         }
         const data = await response.json();
-
+        console.log(data);
         if (!data.data || !Array.isArray(data.data)) {
           throw new Error("Invalid data format received from API");
         }
-
+        const mappedRentalsTest = data.data.map((rental) => {
+          console.log(rental);
+          return rental; // Ensure the map function returns the rental object
+        });
         const mappedRentals = data.data.map((rental) => ({
           id: rental.id,
           status: rental.status,
@@ -60,12 +63,12 @@ export default function RentalHistory() {
           returnTime: rental.returnTime,
           driveOption: rental.driveOption || "self-drive",
           rentVehicle: {
-            id: rental.rentalVehicles?.id || "",
-            make: rental.rentalVehicles?.make || "",
-            model: rental.rentalVehicles?.model || "",
-            year: rental.rentalVehicles?.year || "",
-            numberPlate: rental.rentalVehicles?.numberPlate || "",
-            transmission: rental.rentalVehicles?.transmission || "",
+            id: rental.RentalVehicle?.id || "",
+            make: rental.RentalVehicle?.make || "",
+            model: rental.RentalVehicl?.model || "",
+            year: rental.RentalVehicle?.year || "",
+            numberPlate: rental.RentalVehicle?.numberPlate || "",
+            transmission: rental.RentalVehicle?.transmission || "",
           },
           user: {
             id: rental.user?.id || rental.User?.id || "N/A",
@@ -80,7 +83,7 @@ export default function RentalHistory() {
               "N/A",
           },
         }));
-
+        console.log(mappedRentals);
         setRentals(mappedRentals);
         setError(null);
       } catch (error) {
@@ -163,7 +166,7 @@ export default function RentalHistory() {
     .filter((rental) => {
       const matchesSearch =
         rental.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-        `${rental.user.fname || ""} `
+        `${rental.user.fname || ""} ${rental.user.lname || ""}`
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         `${rental.rentVehicle.make || ""} ${rental.rentVehicle.model || ""}`
@@ -379,7 +382,7 @@ export default function RentalHistory() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">
-                                {rental.user.fname}
+                                {rental.user.fname} {rental.user.lname}
                               </div>
                               <div className="text-sm text-gray-500">
                                 {rental.user.email}

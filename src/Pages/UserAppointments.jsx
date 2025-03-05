@@ -37,25 +37,24 @@ export default function UserAppointments() {
   const [currentUserId, setCurrentUserId] = useState("user123"); // This would come from auth
 
   useEffect(() => {
-    // Fetch user's appointments from your API
     const fetchAppointments = async () => {
       try {
-        // Replace with your actual API endpoint
-        // This would typically include the user's ID or token for authentication
-        const response = await fetch("http://localhost:3000/user/appointments");
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        const response = await fetch("http://localhost:3000/api/appointments");
+        if (!response.ok) throw new Error("Failed to fetch appointments");
         const data = await response.json();
-        setAppointments(data.appointments || mockAppointments); // Use mock data for preview
-        setLoading(false);
+        setAppointments(
+          data.appointments.map((app) => ({
+            ...app,
+            buyer: app.user || {}, // Fallback to an empty object if user is undefined
+            seller: app.vehicle?.user || {}, // Fallback to an empty object if vehicle.user is undefined
+          }))
+        );
       } catch (error) {
         console.error("Error fetching appointments:", error);
-        setAppointments(mockAppointments); // Use mock data if fetch fails
+      } finally {
         setLoading(false);
       }
     };
-
     fetchAppointments();
   }, []);
 
