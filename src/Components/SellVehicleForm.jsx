@@ -80,95 +80,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     });
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    Object.keys(vehicle).forEach((key) => {
-      if (key !== "images" && key !== "imagePreviewUrls" && !vehicle[key]) {
-        newErrors[key] = `${
-          key.charAt(0).toUpperCase() + key.slice(1)
-        } is required`;
-        toast.error(
-          `${key.charAt(0).toUpperCase() + key.slice(1)} is required`
-        );
-      }
-    });
-
-    // Check if images are uploaded
-    if (vehicle.images.length === 0) {
-      newErrors.images = "Please upload at least one image";
-      toast.error("Please upload at least one image");
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (validateForm()) {
-      try {
-        const formData = new FormData();
-
-        Object.entries(vehicle).forEach(([key, value]) => {
-          if (key !== "images" && key !== "imagePreviewUrls") {
-            formData.append(key, value);
-          }
-        });
-
-        // Add actual image files to FormData
-        if (vehicle.images.length > 0) {
-          vehicle.images.forEach((imageData) => {
-            formData.append(`images`, imageData);
-          });
-        }
-
-        formData.append("id", Cookies.get("sauto").split("-")[0]);
-
-
-        console.log(formData);
-
-        const response = await fetch("http://127.0.0.1:3000/addVehicle", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          toast.success("Vehicle listed successfully!");
-          // Reset form and close it
-          setVehicle({
-            make: "",
-            model: "",
-            year: "",
-            color: "",
-            totalKm: "",
-            fuelType: "",
-            transmission: "",
-            price: "",
-            description: "",
-            images: [],
-            imagePreviewUrls: [],
-            ownership: "",
-            mileage: "",
-            seats: "",
-            engineCC: "",
-          });
-          setStep(1);
-          onClose(); // Close the form after successful submission
-          window.location.reload();
-        } else {
-          toast.error("Failed to list vehicle. Please try again.");
-        }
-      } catch (error) {
-        console.error("Error listing vehicle:", error);
-        toast.error("Failed to list vehicle. Please try again.");
-      }
-    } else {
-      toast.error("Please fill in all required fields");
-    }
-  };
-
   const validateStep = () => {
     const stepFields = {
       1: ["make", "model", "year", "color"],
@@ -182,7 +93,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         "seats",
         "engineCC",
       ],
-      3: ["description"], // Description is only validated in step 3
+      3: ["description"],
     };
 
     const currentStepFields = stepFields[step];
@@ -193,16 +104,12 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         stepErrors[field] = `${
           field.charAt(0).toUpperCase() + field.slice(1)
         } is required`;
-        toast.error(
-          `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
-        );
       }
     });
 
     // Check for images in step 3
     if (step === 3 && vehicle.images.length === 0) {
       stepErrors.images = "Please upload at least one image";
-      toast.error("Please upload at least one image");
     }
 
     setErrors(stepErrors);
@@ -214,7 +121,80 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     if (validateStep()) {
       setStep(step + 1);
     } else {
-      toast.error("Please fill in all required fields");
+      // Show toast for each error
+      Object.values(errors).forEach((error) => {
+        toast.error(error);
+      });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateStep()) {
+      // Show toast for each error
+      Object.values(errors).forEach((error) => {
+        toast.error(error);
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+
+      Object.entries(vehicle).forEach(([key, value]) => {
+        if (key !== "images" && key !== "imagePreviewUrls") {
+          formData.append(key, value);
+        }
+      });
+
+      // Add actual image files to FormData
+      if (vehicle.images.length > 0) {
+        vehicle.images.forEach((imageData) => {
+          formData.append(`images`, imageData);
+        });
+      }
+
+      formData.append("id", Cookies.get("sauto").split("-")[0]);
+
+      console.log(formData);
+
+      const response = await fetch("http://127.0.0.1:3000/addVehicle", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Vehicle listed successfully!");
+        // Reset form and close it
+        setVehicle({
+          make: "",
+          model: "",
+          year: "",
+          color: "",
+          totalKm: "",
+          fuelType: "",
+          transmission: "",
+          price: "",
+          description: "",
+          images: [],
+          imagePreviewUrls: [],
+          ownership: "",
+          mileage: "",
+          seats: "",
+          engineCC: "",
+        });
+        setStep(1);
+        onClose(); // Close the form after successful submission
+        window.location.reload();
+      } else {
+        toast.error("Failed to list vehicle. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error listing vehicle:", error);
+      toast.error("Failed to list vehicle. Please try again.");
     }
   };
 
