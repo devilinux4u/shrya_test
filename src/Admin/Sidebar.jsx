@@ -64,6 +64,11 @@ const menuItems = [
     icon: Heart,
     path: "/admin/adminwishlist",
   },
+  {
+    title: "Feedback",
+    icon: FileText,
+    path: "/admin/feedback",
+  },
 ];
 
 export default function Sidebar() {

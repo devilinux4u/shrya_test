@@ -7,33 +7,33 @@ function VehicleCard({ vehicle }) {
 
   return (
     <div
-      className="flex flex-col items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
       onClick={() => {
         const vehicleParams = new URLSearchParams(vehicle);
-        navigate(`/BuyVehiclesDesc?${vehicleParams}`); // Correct route name
+        navigate(`/BuyVehiclesDesc?${vehicleParams}`);
       }}
+      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col items-center text-center cursor-pointer"
     >
       <img
         src={
-          `../../server/controllers${vehicle.images[0].image}` ||
-          "default_image_url.jpg"
-        } // Provide a default image
-        alt={`${vehicle.make || "Unknown"} ${vehicle.model || ""}`}
-        className="w-full max-w-xs object-cover rounded-lg hover:scale-105 transition-transform duration-300"
+          (vehicle.images &&
+            vehicle.images.length > 0 &&
+            `../../server/controllers${vehicle.images[0].image}`) ||
+          "/placeholder.svg"
+        }
+        alt={`${vehicle.model || "Unknown"} ${vehicle.type || ""}`}
+        className="w-full h-48 object-contain"
       />
-      <div className="text-center mt-4">
-        <p className="text-red-600 font-semibold uppercase tracking-wide">
-          {vehicle.make || "Unknown"}
+      <div className="p-4">
+        <h3 className="text-red-600 font-medium">
+          {vehicle.make || "Unknown"} {vehicle.model || "Model N/A"}
+        </h3>
+        <p className="text-gray-600">Year: {vehicle.year || "Year N/A"}</p>
+        <p className="text-gray-600">
+          Total Km Run:{" "}
+          {vehicle.mile ? vehicle.mile.toLocaleString() : "Mileage N/A"} km
         </p>
-        <p className="text-gray-700 text-lg font-medium mt-1">
-          {vehicle.model || "Model N/A"}
-        </p>
-        <div className="flex justify-center gap-4 mt-2 text-sm text-gray-600">
-          <span>{vehicle.year || "Year N/A"}</span>
-          <span>{vehicle.mile || "Mileage N/A"}</span>
-        </div>
-        <p className="text-gray-800 text-lg font-semibold mt-2">
-          Rs. {vehicle.price || "Price N/A"}
+        <p className="mt-2 font-semibold">
+          Rs. {vehicle.price ? vehicle.price.toLocaleString() : "Price N/A"}
         </p>
       </div>
     </div>
@@ -87,14 +87,13 @@ export default function SellCarCard() {
         <p className="text-center text-gray-600">Loading vehicles...</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {vehicles.length > 0 ? (
-            vehicles.map((vehicle, index) => (
+          {vehicles.slice(0, 6).map(
+            (
+              vehicle,
+              index // Limit to 6 vehicles
+            ) => (
               <VehicleCard key={index} vehicle={vehicle} />
-            ))
-          ) : (
-            <p className="text-center text-gray-600 col-span-3">
-              No vehicles found.
-            </p>
+            )
           )}
         </div>
       )}

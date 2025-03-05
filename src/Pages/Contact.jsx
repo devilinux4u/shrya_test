@@ -1,33 +1,39 @@
-"use client"
+"use client";
 
-import { MapPin, Phone, Mail, Send, Facebook, Instagram, Linkedin, MessageSquare } from "lucide-react"
-import { ToastContainer, toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
-import { useEffect } from "react"
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Send,
+  Facebook,
+  Instagram,
+  Linkedin,
+  MessageSquare,
+} from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useEffect } from "react";
 
 const Contact = () => {
   useEffect(() => {
     // Remove map initialization
     return () => {
       // Cleanup code if necessary
-    }
-  }, [])
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Collect form data
     const formData = {
-      name: e.target.fullName.value,
-      email: e.target.email.value,
-      phno: e.target.phone.value,
       msg: e.target.message.value,
-    }
+    };
 
     // Validate form data
-    if (!formData.name || !formData.email || !formData.phno || !formData.msg) {
-      toast.error("All fields are required")
-      return
+    if (!formData.msg) {
+      toast.error("Message field is required");
+      return;
     }
 
     try {
@@ -37,20 +43,20 @@ const Contact = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
       if (result.success) {
-        toast.success(result.msg)
+        toast.success(result.msg);
         // Reset the form after successful submission
-        e.target.reset()
+        e.target.reset();
       } else {
-        toast.error(result.msg)
+        toast.error(result.msg);
       }
     } catch (error) {
-      toast.error("Error while sending message")
+      toast.error("Error while sending message");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -61,7 +67,8 @@ const Contact = () => {
             Contact <span className="text-[#ff6b00]">Us</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            Have questions? We'd love to hear from you. Send us a message and
+            we'll respond as soon as possible.
           </p>
         </div>
 
@@ -108,7 +115,9 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Email Us</h3>
-                  <p className="text-gray-600">shreyaauto.enterprises@gmail.com</p>
+                  <p className="text-gray-600">
+                    shreyaauto.enterprises@gmail.com
+                  </p>
                 </div>
               </div>
             </div>
@@ -121,51 +130,12 @@ const Contact = () => {
               <h2 className="text-2xl font-bold">Send us a Message</h2>
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Full Name */}
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  id="fullName"
-                  name="fullName"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
-                />
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
-                />
-              </div>
-
               {/* Message */}
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="message"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Message
                 </label>
                 <textarea
@@ -191,13 +161,22 @@ const Contact = () => {
             <div className="mt-8 pt-8 border-t border-gray-200">
               <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
               <div className="flex space-x-4">
-                <a href="#" className="bg-orange-100 p-3 rounded-full hover:bg-orange-200 transition-colors">
+                <a
+                  href="#"
+                  className="bg-orange-100 p-3 rounded-full hover:bg-orange-200 transition-colors"
+                >
                   <Facebook className="h-6 w-6 text-[#ff6b00]" />
                 </a>
-                <a href="#" className="bg-orange-100 p-3 rounded-full hover:bg-orange-200 transition-colors">
+                <a
+                  href="#"
+                  className="bg-orange-100 p-3 rounded-full hover:bg-orange-200 transition-colors"
+                >
                   <Instagram className="h-6 w-6 text-[#ff6b00]" />
                 </a>
-                <a href="#" className="bg-orange-100 p-3 rounded-full hover:bg-orange-200 transition-colors">
+                <a
+                  href="#"
+                  className="bg-orange-100 p-3 rounded-full hover:bg-orange-200 transition-colors"
+                >
                   <Linkedin className="h-6 w-6 text-[#ff6b00]" />
                 </a>
               </div>
@@ -207,8 +186,7 @@ const Contact = () => {
       </div>
       <ToastContainer />
     </div>
-  )
-}
+  );
+};
 
-export default Contact
-
+export default Contact;

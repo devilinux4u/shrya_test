@@ -81,6 +81,7 @@ const dummyRental = {
   status: "active",
   notes:
     "Customer requested child seat. Vehicle has been thoroughly cleaned and sanitized before handover.",
+  driverOption: "self-drive", // or "hire-driver"
 };
 
 export default function RentalDetails() {
@@ -90,6 +91,7 @@ export default function RentalDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(0);
+  const [isLicensePreviewOpen, setIsLicensePreviewOpen] = useState(false);
 
   useEffect(() => {
     fetchRentalDetails();
@@ -256,6 +258,7 @@ export default function RentalDetails() {
                     <img
                       src={
                         rental.vehicle.imageUrls[activeImage] ||
+                        "/placeholder.svg" ||
                         "/placeholder.svg"
                       }
                       alt={`${rental.vehicle.make} ${rental.vehicle.model}`}
@@ -427,8 +430,10 @@ export default function RentalDetails() {
                               rental.additionalServices.reduce(
                                 (sum, service) => sum + service.price,
                                 0
-                              )
-                            ).toLocaleString()}
+                              ) -
+                              (rental.driverOption === "hire-driver" ? 2000 : 0)
+                            ) // Assuming driver's amount is Rs. 2000
+                              .toLocaleString()}
                           </span>
                         </div>
 
@@ -445,6 +450,15 @@ export default function RentalDetails() {
                             </span>
                           </div>
                         ))}
+
+                        {rental.driverOption === "hire-driver" && (
+                          <div className="flex justify-between text-sm">
+                            <span className="text-gray-600">Driver Fee</span>
+                            <span className="font-medium text-gray-900">
+                              Rs. 2000
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       <div className="border-t border-gray-200 pt-3 flex justify-between">
@@ -452,7 +466,11 @@ export default function RentalDetails() {
                           Total Amount
                         </span>
                         <span className="font-bold text-gray-900">
-                          Rs. {rental.totalAmount.toLocaleString()}
+                          Rs.{" "}
+                          {(
+                            rental.totalAmount +
+                            (rental.driverOption === "hire-driver" ? 2000 : 0)
+                          ).toLocaleString()}
                         </span>
                       </div>
 
@@ -478,23 +496,6 @@ export default function RentalDetails() {
                   </div>
                 </div>
               </div>
-
-              {/* Notes */}
-              {rental.notes && (
-                <div className="bg-white rounded-xl shadow-md overflow-hidden">
-                  <div className="bg-gradient-to-r from-[#ff6b00] to-[#ff8533] px-6 py-4">
-                    <h2 className="text-white text-lg font-semibold flex items-center">
-                      <FileText className="mr-2 h-5 w-5" />
-                      Notes
-                    </h2>
-                  </div>
-                  <div className="p-6">
-                    <p className="text-gray-700 whitespace-pre-line">
-                      {rental.notes}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Sidebar - Customer and Rental Period */}
@@ -627,19 +628,34 @@ export default function RentalDetails() {
                     </div>
 
                     <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-600">Progress</span>
-                        <span className="font-medium text-gray-900">
-                          {calculateTimeProgress(rental)}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div
-                          className="bg-[#ff6b00] h-2.5 rounded-full"
-                          style={{ width: `${calculateTimeProgress(rental)}%` }}
-                        ></div>
-                      </div>
+                      <p className="text-sm font-medium text-gray-600">
+                        Driver Option
+                      </p>
+                      <p className="font-medium text-gray-900 capitalize">
+                        {rental.driverOption === "self-drive"
+                          ? "Self Drive"
+                          : "Hire a Driver"}
+                      </p>
                     </div>
+
+                    {rental.driverOption === "self-drive" && (
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          Driving License
+                        </p>
+                        <p className="font-medium text-gray-900">
+                          {rental.user.drivingLicense}
+                        </p>
+                        <div className="mt-2">
+                          <img
+                            src={rental.user.profileImage || "/placeholder.svg"}
+                            alt="Driving License"
+                            className="h-32 w-32 object-cover rounded-md border cursor-pointer hover:opacity-90 transition-opacity"
+                            onClick={() => setIsLicensePreviewOpen(true)}
+                          />
+                        </div>
+                      </div>
+                    )}
 
                     <div>
                       <p className="text-sm font-medium text-gray-600">
@@ -680,6 +696,48 @@ export default function RentalDetails() {
           </div>
         </div>
       </div>
+      {/* License Image Preview Modal */}
+      {isLicensePreviewOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          onClick={() => setIsLicensePreviewOpen(false)}
+        >
+          <div
+            className="bg-white rounded-lg overflow-hidden max-w-3xl max-h-[90vh] w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex justify-between items-center p-4 border-b">
+              <h3 className="font-semibold text-lg">Driving License</h3>
+              <button
+                onClick={() => setIsLicensePreviewOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="p-4 flex items-center justify-center">
+              <img
+                src={rental.user.profileImage || "/placeholder.svg"}
+                alt="Driving License"
+                className="max-w-full max-h-[70vh] object-contain"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

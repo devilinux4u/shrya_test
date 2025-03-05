@@ -294,7 +294,9 @@ const RentalVehicleDesc = () => {
       {/* Rental Booking Form Popup */}
       {isBookingFormVisible && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-y-auto p-4">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl my-8 relative">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl my-8 relative h-[80vh] overflow-y-auto">
+            {" "}
+            {/* Added overflow-y-auto */}
             <button
               onClick={handleCloseBookingForm}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10 bg-white rounded-full p-1"

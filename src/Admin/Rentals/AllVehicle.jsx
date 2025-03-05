@@ -51,6 +51,10 @@ export default function AdminRentalVehicles() {
     numberPlate: "",
   });
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewedVehicle, setViewedVehicle] = useState(null);
+
   useEffect(() => {
     fetchVehicles();
   }, []);
@@ -148,15 +152,58 @@ export default function AdminRentalVehicles() {
   };
 
   const handleAddNew = () => {
-    navigate("/admin/add-rental-vehicle");
+    navigate("/admin/addvehicle");
   };
 
-  const handleEdit = (id) => {
-    navigate(`/admin/edit-rental-vehicle/${id}`);
+  const handleEdit = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setUpdatedVehicleData({
+      make: vehicle.make,
+      model: vehicle.model,
+      year: vehicle.year,
+      price: vehicle.price,
+      specs: vehicle.specs,
+      features: vehicle.features,
+      description: vehicle.description,
+      numberPlate: vehicle.numberPlate,
+    });
+    setIsEditModalOpen(true);
   };
 
-  const handleView = (id) => {
-    navigate(`/admin/view-rental-vehicle/${id}`);
+  const handleView = (vehicle) => {
+    setViewedVehicle(vehicle);
+    setIsViewModalOpen(true);
+  };
+
+  const handleUpdateVehicle = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/vehicles/${selectedVehicle._id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedVehicleData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update vehicle");
+      }
+
+      const updatedVehicle = await response.json();
+      setVehicles((prevVehicles) =>
+        prevVehicles.map((vehicle) =>
+          vehicle._id === selectedVehicle._id ? updatedVehicle : vehicle
+        )
+      );
+      setIsEditModalOpen(false);
+      toast.success("Vehicle updated successfully");
+    } catch (error) {
+      console.error("Error updating vehicle:", error);
+      toast.error("Failed to update vehicle");
+    }
   };
 
   const filteredVehicles = vehicles
@@ -416,13 +463,13 @@ export default function AdminRentalVehicles() {
 
                     <div className="flex justify-between pt-4 border-t border-gray-100">
                       <button
-                        onClick={() => handleView(vehicle._id)}
+                        onClick={() => handleView(vehicle)}
                         className="text-gray-600 hover:text-[#ff6b00] transition-colors"
                       >
                         <Eye className="h-5 w-5" />
                       </button>
                       <button
-                        onClick={() => handleEdit(vehicle._id)}
+                        onClick={() => handleEdit(vehicle)}
                         className="text-gray-600 hover:text-blue-600 transition-colors"
                       >
                         <Edit className="h-5 w-5" />
@@ -460,6 +507,433 @@ export default function AdminRentalVehicles() {
           )}
         </div>
       </div>
+
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-3xl">
+            <h2 className="text-xl font-bold mb-4">Edit Vehicle</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium">Make</label>
+                <input
+                  type="text"
+                  value={updatedVehicleData.make}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      make: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Model</label>
+                <input
+                  type="text"
+                  value={updatedVehicleData.model}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      model: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Year</label>
+                <input
+                  type="number"
+                  value={updatedVehicleData.year}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      year: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Number Plate
+                </label>
+                <input
+                  type="text"
+                  value={updatedVehicleData.numberPlate}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      numberPlate: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Price (Hour)
+                </label>
+                <input
+                  type="number"
+                  value={updatedVehicleData.price.hour}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      price: {
+                        ...updatedVehicleData.price,
+                        hour: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Price (Day)</label>
+                <input
+                  type="number"
+                  value={updatedVehicleData.price.day}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      price: {
+                        ...updatedVehicleData.price,
+                        day: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Price (Week)
+                </label>
+                <input
+                  type="number"
+                  value={updatedVehicleData.price.week}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      price: {
+                        ...updatedVehicleData.price,
+                        week: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Price (Month)
+                </label>
+                <input
+                  type="number"
+                  value={updatedVehicleData.price.month}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      price: {
+                        ...updatedVehicleData.price,
+                        month: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Seats</label>
+                <input
+                  type="number"
+                  value={updatedVehicleData.specs.seats}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      specs: {
+                        ...updatedVehicleData.specs,
+                        seats: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Doors</label>
+                <input
+                  type="number"
+                  value={updatedVehicleData.specs.doors}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      specs: {
+                        ...updatedVehicleData.specs,
+                        doors: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Transmission
+                </label>
+                <input
+                  type="text"
+                  value={updatedVehicleData.specs.transmission}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      specs: {
+                        ...updatedVehicleData.specs,
+                        transmission: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Fuel Type</label>
+                <input
+                  type="text"
+                  value={updatedVehicleData.specs.fuel}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      specs: {
+                        ...updatedVehicleData.specs,
+                        fuel: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Mileage</label>
+                <input
+                  type="number"
+                  value={updatedVehicleData.specs.mileage}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      specs: {
+                        ...updatedVehicleData.specs,
+                        mileage: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Engine</label>
+                <input
+                  type="text"
+                  value={updatedVehicleData.specs.engine}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      specs: {
+                        ...updatedVehicleData.specs,
+                        engine: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Power</label>
+                <input
+                  type="number"
+                  value={updatedVehicleData.specs.power}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      specs: {
+                        ...updatedVehicleData.specs,
+                        power: e.target.value,
+                      },
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div className="lg:col-span-3">
+                <label className="block text-sm font-medium">
+                  Features (comma-separated)
+                </label>
+                <textarea
+                  value={updatedVehicleData.features}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      features: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+              <div className="lg:col-span-3">
+                <label className="block text-sm font-medium">Description</label>
+                <textarea
+                  value={updatedVehicleData.description}
+                  onChange={(e) =>
+                    setUpdatedVehicleData({
+                      ...updatedVehicleData,
+                      description: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-lg p-2"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-4 py-2 bg-gray-200 rounded-lg mr-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateVehicle}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isViewModalOpen && viewedVehicle && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-3xl">
+            <h2 className="text-xl font-bold mb-4">Vehicle Details</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="lg:col-span-3">
+                <label className="block text-sm font-medium">Images</label>
+                <div className="flex gap-2 overflow-x-auto">
+                  {viewedVehicle.vehicle_images.length > 0 ? (
+                    viewedVehicle.vehicle_images.map((image, index) => (
+                      <img
+                        key={index}
+                        src={
+                          image.image.startsWith("http")
+                            ? image.image
+                            : `http://localhost:3000/uploads/${image.image}`
+                        }
+                        alt={`Vehicle Image ${index + 1}`}
+                        className="h-32 w-32 object-cover rounded-lg border"
+                        onError={(e) => {
+                          e.target.src = "/placeholder.svg";
+                        }}
+                      />
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No images available</p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Make</label>
+                <p className="text-gray-700">{viewedVehicle.make}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Model</label>
+                <p className="text-gray-700">{viewedVehicle.model}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Year</label>
+                <p className="text-gray-700">{viewedVehicle.year}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Number Plate
+                </label>
+                <p className="text-gray-700">{viewedVehicle.numberPlate}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Price (Hour)
+                </label>
+                <p className="text-gray-700">Rs. {viewedVehicle.price.hour}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Price (Day)</label>
+                <p className="text-gray-700">Rs. {viewedVehicle.price.day}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Price (Week)
+                </label>
+                <p className="text-gray-700">Rs. {viewedVehicle.price.week}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Price (Month)
+                </label>
+                <p className="text-gray-700">Rs. {viewedVehicle.price.month}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Seats</label>
+                <p className="text-gray-700">{viewedVehicle.specs.seats}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Doors</label>
+                <p className="text-gray-700">{viewedVehicle.specs.doors}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Transmission
+                </label>
+                <p className="text-gray-700">
+                  {viewedVehicle.specs.transmission}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Fuel Type</label>
+                <p className="text-gray-700">{viewedVehicle.specs.fuel}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Mileage</label>
+                <p className="text-gray-700">{viewedVehicle.specs.mileage}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Engine</label>
+                <p className="text-gray-700">{viewedVehicle.specs.engine}</p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium">Power</label>
+                <p className="text-gray-700">{viewedVehicle.specs.power}</p>
+              </div>
+              <div className="lg:col-span-3">
+                <label className="block text-sm font-medium">Features</label>
+                <p className="text-gray-700">{viewedVehicle.features}</p>
+              </div>
+              <div className="lg:col-span-3">
+                <label className="block text-sm font-medium">Description</label>
+                <p className="text-gray-700">{viewedVehicle.description}</p>
+              </div>
+            </div>
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => setIsViewModalOpen(false)}
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

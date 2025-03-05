@@ -214,97 +214,92 @@ const RentalGallery = () => {
 
         {/* Car Grid - Right Side */}
         <div className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {currentCars.map((car) => (
-              <div
-                key={car.id}
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-1 flex flex-col overflow-hidden"
-              >
-                <div className="p-6 flex justify-center items-center bg-gray-50">
-                  <img
-                    src={
-                      `../../server${car.rentVehicleImages[0].image}` ||
-                      "/placeholder.svg"
-                    }
-                    alt={car.make}
-                    className="w-full h-40 object-contain"
-                  />
-                </div>
-                <div className="p-4">
-                  <div className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs mb-2 inline-block">
-                    {car.make}
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    {car.model}
-                  </h3>
-                  <p className="text-red-500 font-semibold text-base mb-4">
-                    Rs. {car.priceHour}/-
-                  </p>
-                  <div className="flex justify-between items-center text-gray-500 text-sm mb-4">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-5 h-5" />
-                      <span>{car.seats} Seats</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Gauge className="w-5 h-5" />
-                      <span>{car.transmission}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Fuel className="w-5 h-5" />
-                      <span>{car.fuelType}</span>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {car.features.split(",").map((feature) => (
-                      <span
-                        key={feature}
-                        className="bg-gray-50 text-gray-600 rounded-full px-2 py-1 text-xs border border-gray-100"
-                      >
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                  <button className="w-full py-2 bg-[#ff6b00] text-white rounded-md hover:bg-[#ff8533] transition">
-                    Rent Now
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="mt-8 flex justify-center items-center space-x-4">
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-
-              {[...Array(totalPages)].map((_, index) => (
-                <button
-                  key={index + 1}
-                  onClick={() => handlePageChange(index + 1)}
-                  className={`w-8 h-8 rounded-full ${
-                    currentPage === index + 1
-                      ? "bg-[#ff6b00] text-white"
-                      : "hover:bg-gray-100"
-                  }`}
+          {filteredCars.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {currentCars.map((car) => (
+                <div
+                  key={car.id}
+                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-1 flex flex-col overflow-hidden"
                 >
-                  {index + 1}
-                </button>
+                  <div className="p-6 flex justify-center items-center bg-gray-50">
+                    <img
+                      src={
+                        `../../server${car.rentVehicleImages[0].image}` ||
+                        "/placeholder.svg"
+                      }
+                      alt={car.make}
+                      className="w-full h-40 object-contain"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <div className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs mb-2 inline-block">
+                      {car.make}
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                      {car.model}
+                    </h3>
+                    <p className="text-red-500 font-semibold text-base mb-4">
+                      Rs. {car.priceHour}/-
+                    </p>
+                    <div className="flex justify-between items-center text-gray-500 text-sm mb-4">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-5 h-5" />
+                        <span>{car.seats} Seats</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Gauge className="w-5 h-5" />
+                        <span>{car.transmission}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Fuel className="w-5 h-5" />
+                        <span>{car.fuelType}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {car.features.split(",").map((feature) => (
+                        <span
+                          key={feature}
+                          className="bg-gray-50 text-gray-600 rounded-full px-2 py-1 text-xs border border-gray-100"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                    <button className="w-full py-2 bg-[#ff6b00] text-white rounded-md hover:bg-[#ff8533] transition">
+                      Rent Now
+                    </button>
+                  </div>
+                </div>
               ))}
-
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-6 w-6" />
-              </button>
             </div>
+          ) : (
+            <p className="text-center text-gray-600">
+              No cars found matching your criteria.
+            </p>
           )}
+
+          {/* Pagination */}
+          <div className="flex justify-center items-center gap-2 mt-8">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+            >
+              ←
+            </button>
+            <span className="text-sm">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+            >
+              →
+            </button>
+          </div>
 
           {filteredCars.length === 0 && (
             <div className="text-center py-10">

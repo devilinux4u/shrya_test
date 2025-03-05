@@ -37,6 +37,8 @@ import ViewDetails from "./Admin/Vehicle Management/ViewDetails";
 import AddVehicle from "./Admin/Rentals/AddVehicle";
 import AllVehicle from "./Admin/Rentals/AllVehicle";
 import RentalDetails from "./Admin/Rentals/RentalDetails";
+import MySales from "./Pages/MySales";
+import Feedback from "./Admin/Feedback/Feedback";
 
 function App() {
   const location = useLocation();
@@ -86,6 +88,7 @@ function App() {
           element={<WishlistVehicleDetail />}
         />
         <Route path="/VehicleBooking" element={<VehicleBooking />} />
+        <Route path="/MySales" element={<MySales />} />
 
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
@@ -102,6 +105,7 @@ function App() {
         <Route path="/admin/allvehicles" element={<AllVehicle />} />
         <Route path="/admin/rentaldetails" element={<RentalDetails />} />
         <Route path="/admin/rental-details/:id" element={<RentalDetails />} />
+        <Route path="/admin/feedback" element={<Feedback />} />
       </Routes>{" "}
       {/* Closing the Routes tag */}
       {!isAdminRoute && !isAuthRoute && <Footer />}{" "}

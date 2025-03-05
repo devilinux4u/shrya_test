@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react"
-import { Camera, X, ChevronLeft, ChevronRight } from "lucide-react"
-import { toast, ToastContainer } from "react-toastify"
-import 'react-toastify/dist/ReactToastify.css';
-import Cookies from "js-cookie"
+import { useState, useEffect } from "react";
+import { Camera, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Cookies from "js-cookie";
 
 export default function SellVehicleForm({ isOpen, onClose }) {
   const [vehicle, setVehicle] = useState({
@@ -21,116 +21,118 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     mileage: "",
     seats: "",
     engineCC: "",
-  })
+  });
 
-  const [errors, setErrors] = useState({})
-  const [step, setStep] = useState(1)
+  const [errors, setErrors] = useState({});
+  const [step, setStep] = useState(1);
 
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === "Escape") onClose()
-    }
-    window.addEventListener("keydown", handleEsc)
-    return () => window.removeEventListener("keydown", handleEsc)
-  }, [onClose])
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
 
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "unset"
+    document.body.style.overflow = isOpen ? "hidden" : "unset";
     return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [isOpen])
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
   useEffect(() => {
     return () => {
       vehicle.imagePreviewUrls.forEach((url) => {
-        URL.revokeObjectURL(url)
-      })
-    }
-  }, [vehicle.imagePreviewUrls])
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, [vehicle.imagePreviewUrls]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setVehicle((prev) => ({ ...prev, [name]: value }))
-    setErrors((prev) => ({ ...prev, [name]: "" }))
-  }
+    const { name, value } = e.target;
+    setVehicle((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
+  };
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files)
-    const newPreviewUrls = files.map((file) => URL.createObjectURL(file))
+    const files = Array.from(e.target.files);
+    const newPreviewUrls = files.map((file) => URL.createObjectURL(file));
 
     setVehicle((prev) => ({
       ...prev,
       images: [...prev.images, ...files],
       imagePreviewUrls: [...prev.imagePreviewUrls, ...newPreviewUrls],
-    }))
-  }
+    }));
+  };
 
   const handleImageRemove = (index) => {
     setVehicle((prev) => {
       if (prev.imagePreviewUrls[index]) {
-        URL.revokeObjectURL(prev.imagePreviewUrls[index])
+        URL.revokeObjectURL(prev.imagePreviewUrls[index]);
       }
 
       return {
         ...prev,
         images: prev.images.filter((_, i) => i !== index),
         imagePreviewUrls: prev.imagePreviewUrls.filter((_, i) => i !== index),
-      }
-    })
-  }
+      };
+    });
+  };
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors = {};
     Object.keys(vehicle).forEach((key) => {
       if (key !== "images" && key !== "imagePreviewUrls" && !vehicle[key]) {
-        newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`
-        toast.error(`${key.charAt(0).toUpperCase() + key.slice(1)} is required`)
+        newErrors[key] = `${
+          key.charAt(0).toUpperCase() + key.slice(1)
+        } is required`;
+        toast.error(
+          `${key.charAt(0).toUpperCase() + key.slice(1)} is required`
+        );
       }
-    })
+    });
 
     // Check if images are uploaded
     if (vehicle.images.length === 0) {
-      newErrors.images = "Please upload at least one image"
-      toast.error("Please upload at least one image")
+      newErrors.images = "Please upload at least one image";
+      toast.error("Please upload at least one image");
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (validateForm()) {
       try {
-        const formData = new FormData()
+        const formData = new FormData();
 
         Object.entries(vehicle).forEach(([key, value]) => {
           if (key !== "images" && key !== "imagePreviewUrls") {
-            formData.append(key, value)
+            formData.append(key, value);
           }
-        })
+        });
 
         // Add actual image files to FormData
         if (vehicle.images.length > 0) {
           vehicle.images.forEach((imageData) => {
-            formData.append(`images`, imageData)
-          })
+            formData.append(`images`, imageData);
+          });
         }
 
-        formData.append("id", Cookies.get("sauto").split("-")[0])
-
-        console.log(formData)
+        console.log(formData);
 
         const response = await fetch("http://127.0.0.1:3000/addVehicle", {
           method: "POST",
           body: formData,
-        })
+        });
 
-        const data = await response.json()
+        const data = await response.json();
 
         if (data.success) {
-          toast.success("Vehicle listed successfully!")
+          toast.success("Vehicle listed successfully!");
           // Reset form and close it
           setVehicle({
             make: "",
@@ -148,64 +150,79 @@ export default function SellVehicleForm({ isOpen, onClose }) {
             mileage: "",
             seats: "",
             engineCC: "",
-          })
-          setStep(1)
-          onClose() // Close the form after successful submission
+          });
+          setStep(1);
+          onClose(); // Close the form after successful submission
           window.location.reload();
         } else {
-          toast.error("Failed to list vehicle. Please try again.")
+          toast.error("Failed to list vehicle. Please try again.");
         }
       } catch (error) {
-        console.error("Error listing vehicle:", error)
-        toast.error("Failed to list vehicle. Please try again.")
+        console.error("Error listing vehicle:", error);
+        toast.error("Failed to list vehicle. Please try again.");
       }
     } else {
-      toast.error("Please fill in all required fields")
+      toast.error("Please fill in all required fields");
     }
-  }
- 
+  };
+
   const validateStep = () => {
     const stepFields = {
       1: ["make", "model", "year", "color"],
-      2: ["totalKm", "fuelType", "transmission", "price", "ownership", "mileage", "seats", "engineCC"],
+      2: [
+        "totalKm",
+        "fuelType",
+        "transmission",
+        "price",
+        "ownership",
+        "mileage",
+        "seats",
+        "engineCC",
+      ],
       3: ["description"], // Description is only validated in step 3
-    }
+    };
 
-    const currentStepFields = stepFields[step]
-    const stepErrors = {}
+    const currentStepFields = stepFields[step];
+    const stepErrors = {};
 
     currentStepFields.forEach((field) => {
       if (!vehicle[field]) {
-        stepErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
-        toast.error(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`)
+        stepErrors[field] = `${
+          field.charAt(0).toUpperCase() + field.slice(1)
+        } is required`;
+        toast.error(
+          `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+        );
       }
-    })
+    });
 
     // Check for images in step 3
     if (step === 3 && vehicle.images.length === 0) {
-      stepErrors.images = "Please upload at least one image"
-      toast.error("Please upload at least one image")
+      stepErrors.images = "Please upload at least one image";
+      toast.error("Please upload at least one image");
     }
 
-    setErrors(stepErrors)
-    return Object.keys(stepErrors).length === 0
-  }
+    setErrors(stepErrors);
+    return Object.keys(stepErrors).length === 0;
+  };
 
-  const prevStep = () => setStep(step - 1)
+  const prevStep = () => setStep(step - 1);
   const nextStep = () => {
     if (validateStep()) {
-      setStep(step + 1)
+      setStep(step + 1);
     } else {
-      toast.error("Please fill in all required fields")
+      toast.error("Please fill in all required fields");
     }
-  }
+  };
 
   const renderStep = () => {
     switch (step) {
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Basic Information
+            </h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <InputField
                 label="Make"
@@ -242,11 +259,13 @@ export default function SellVehicleForm({ isOpen, onClose }) {
               />
             </div>
           </div>
-        )
+        );
       case 2:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Vehicle Details</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+              Vehicle Details
+            </h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <InputField
                 label="Total Kilometers Run"
@@ -336,13 +355,18 @@ export default function SellVehicleForm({ isOpen, onClose }) {
               />
             </div>
           </div>
-        )
+        );
       case 3:
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Description & Images</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+              Description & Images
+            </h2>
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Description
               </label>
               <textarea
@@ -358,7 +382,9 @@ export default function SellVehicleForm({ isOpen, onClose }) {
               ></textarea>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Images</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Vehicle Images
+              </label>
               <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8">
                 <div className="text-center">
                   <Camera className="mx-auto h-12 w-12 text-gray-400" />
@@ -380,7 +406,9 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                     </label>
                     <p className="pl-1">or drag and drop</p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to 10MB</p>
+                  <p className="text-xs text-gray-500 mt-2">
+                    PNG, JPG, GIF up to 10MB
+                  </p>
                 </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
@@ -401,28 +429,35 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                   </div>
                 ))}
               </div>
-              {errors.images && <p className="mt-2 text-sm text-red-500">{errors.images}</p>}
+              {errors.images && (
+                <p className="mt-2 text-sm text-red-500">{errors.images}</p>
+              )}
             </div>
           </div>
-        )
+        );
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <>
       <ToastContainer />
       <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
         <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
-          <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+          >
             <X className="h-6 w-6" />
           </button>
 
           <div className="px-6 py-4 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-gray-900">Sell Your Vehicle</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Sell Your Vehicle
+            </h1>
           </div>
 
           <div className="px-6 py-4 bg-gray-50">
@@ -438,7 +473,10 @@ export default function SellVehicleForm({ isOpen, onClose }) {
             </div>
           </div>
 
-          <div className="px-6 py-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 180px)" }}>
+          <div
+            className="px-6 py-6 overflow-y-auto"
+            style={{ maxHeight: "calc(90vh - 180px)" }}
+          >
             <form onSubmit={handleSubmit}>
               {renderStep()}
               <div className="mt-6 flex justify-between">
@@ -473,12 +511,25 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         </div>
       </div>
     </>
-  )
+  );
 }
 
-const InputField = ({ label, name, type = "text", value, onChange, placeholder, prefix, suffix, error }) => (
+const InputField = ({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  prefix,
+  suffix,
+  error,
+}) => (
   <div>
-    <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 mb-1"
+    >
       {label}
     </label>
     <div className="relative rounded-md shadow-sm">
@@ -507,11 +558,14 @@ const InputField = ({ label, name, type = "text", value, onChange, placeholder, 
       )}
     </div>
   </div>
-)
+);
 
 const SelectField = ({ label, name, value, onChange, options, error }) => (
   <div>
-    <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 mb-1"
+    >
       {label}
     </label>
     <select
@@ -531,5 +585,4 @@ const SelectField = ({ label, name, value, onChange, options, error }) => (
       ))}
     </select>
   </div>
-)
-
+);

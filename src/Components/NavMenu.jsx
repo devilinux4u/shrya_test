@@ -242,6 +242,23 @@ const NavMenu = () => {
                             Reported Items
                           </Link>
                           <Link
+                            to="/MySales"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                            role="menuitem"
+                            onClick={closeMenu}
+                          >
+                            My Sales
+                          </Link>
+                          <Link
+                            to="/YourList"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                            role="menuitem"
+                            onClick={closeMenu}
+                          >
+                            My Wishlist
+                          </Link>
+
+                          <Link
                             to="/History"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
                             role="menuitem"
@@ -404,6 +421,25 @@ const NavMenu = () => {
               >
                 Items Reported
               </NavLink>
+
+              <NavLink
+                to="/MySales"
+                mobile
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
+                My Sales
+              </NavLink>
+
+              <NavLink
+                to="/YourList"
+                mobile
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
+                My Wishlist
+              </NavLink>
+
               <NavLink
                 to="/History"
                 mobile

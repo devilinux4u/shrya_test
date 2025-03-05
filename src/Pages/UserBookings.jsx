@@ -1,400 +1,786 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Calendar, Clock, MapPin, Car, Filter, Search, ChevronLeft, ChevronRight, X, CheckCircle, AlertCircle } from 'lucide-react';
-import Cookies from "js-cookie";
+import {
+  Clock,
+  Car,
+  MapPin,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Search,
+  X,
+  AlertTriangle,
+  CheckCircle,
+} from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const UserBookings = () => {
-  const [bookings, setBookings] = useState([]);
-  const [filteredBookings, setFilteredBookings] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showFilters, setShowFilters] = useState(false);
-  const bookingsPerPage = 6;
+  const navigate = useNavigate();
 
-  // Mock data - replace with actual API call
+  // State variables
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("newest");
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  // Sample data - in a real app, this would come from an API
   useEffect(() => {
     // Simulate API call
-    setTimeout(() => {
-      const mockBookings = [
-        {
-          id: "BK-1001",
-          vehicleName: "Toyota Camry",
-          vehicleImage: "/placeholder.svg?height=200&width=300",
-          bookingDate: "2024-03-10",
-          startDate: "2024-03-15",
-          endDate: "2024-03-20",
-          status: "active",
-          price: 25000,
-          location: "Pragati Marga, Kathmandu",
-          vehicleType: "Sedan",
-          color: "Silver",
-        },
-        {
-          id: "BK-1002",
-          vehicleName: "Honda CR-V",
-          vehicleImage: "/placeholder.svg?height=200&width=300",
-          bookingDate: "2024-02-25",
-          startDate: "2024-03-01",
-          endDate: "2024-03-05",
-          status: "completed",
-          price: 30000,
-          location: "Pragati Marga, Kathmandu",
-          vehicleType: "SUV",
-          color: "Black",
-        },
-        {
-          id: "BK-1003",
-          vehicleName: "Hyundai i20",
-          vehicleImage: "/placeholder.svg?height=200&width=300",
-          bookingDate: "2024-03-05",
-          startDate: "2024-03-25",
-          endDate: "2024-03-30",
-          status: "active",
-          price: 18000,
-          location: "Pragati Marga, Kathmandu",
-          vehicleType: "Hatchback",
-          color: "Red",
-        },
-        {
-          id: "BK-1004",
-          vehicleName: "Mahindra Scorpio",
-          vehicleImage: "/placeholder.svg?height=200&width=300",
-          bookingDate: "2024-01-15",
-          startDate: "2024-01-20",
-          endDate: "2024-01-25",
-          status: "cancelled",
-          price: 28000,
-          location: "Pragati Marga, Kathmandu",
-          vehicleType: "SUV",
-          color: "White",
-        },
-        {
-          id: "BK-1005",
-          vehicleName: "Maruti Swift",
-          vehicleImage: "/placeholder.svg?height=200&width=300",
-          bookingDate: "2024-02-10",
-          startDate: "2024-02-15",
-          endDate: "2024-02-20",
-          status: "completed",
-          price: 15000,
-          location: "Pragati Marga, Kathmandu",
-          vehicleType: "Hatchback",
-          color: "Blue",
-        },
-        {
-          id: "BK-1006",
-          vehicleName: "Tata Nexon",
-          vehicleImage: "/placeholder.svg?height=200&width=300",
-          bookingDate: "2024-03-08",
-          startDate: "2024-04-01",
-          endDate: "2024-04-05",
-          status: "active",
-          price: 22000,
-          location: "Pragati Marga, Kathmandu",
-          vehicleType: "Compact SUV",
-          color: "Green",
-        },
-        {
-          id: "BK-1007",
-          vehicleName: "Ford EcoSport",
-          vehicleImage: "/placeholder.svg?height=200&width=300",
-          bookingDate: "2024-03-01",
-          startDate: "2024-03-12",
-          endDate: "2024-03-18",
-          status: "active",
-          price: 24000,
-          location: "Pragati Marga, Kathmandu",
-          vehicleType: "Compact SUV",
-          color: "Orange",
-        },
-      ];
-      
-      setBookings(mockBookings);
-      setFilteredBookings(mockBookings);
-      setIsLoading(false);
-    }, 1000);
+    const fetchBookings = async () => {
+      setLoading(true);
+      try {
+        // In a real app, you would fetch from your API
+        // const response = await fetch('http://localhost:3000/api/bookings')
+        // const data = await response.json()
+
+        // Simulated data
+        const data = [
+          {
+            id: "BK12345",
+            vehicleName: "Toyota Camry",
+            vehicleImage: "/placeholder.svg?height=200&width=300",
+            pickupLocation: "123 Main Street, City Center",
+            dropoffLocation: "456 Oak Avenue, Downtown",
+            pickupDate: "2025-04-10",
+            pickupTime: "10:00",
+            returnDate: "2025-04-15",
+            returnTime: "18:00",
+            rentalType: "day",
+            rentalDuration: 5,
+            driveOption: "selfDrive",
+            status: "confirmed",
+            totalAmount: 15000,
+            createdAt: "2025-04-01T10:30:00",
+            paymentMethod: "creditCard",
+            vehicleDetails: {
+              make: "Toyota",
+              model: "Camry",
+              year: "2023",
+              specs: {
+                seats: "5",
+                doors: "4",
+                transmission: "Automatic",
+                fuel: "Petrol",
+                type: "Sedan",
+              },
+            },
+          },
+          {
+            id: "BK12346",
+            vehicleName: "Honda Civic",
+            vehicleImage: "/placeholder.svg?height=200&width=300",
+            pickupLocation: "789 Pine Road, Uptown",
+            dropoffLocation: "789 Pine Road, Uptown",
+            pickupDate: "2025-04-05",
+            pickupTime: "09:00",
+            returnDate: "2025-04-06",
+            returnTime: "09:00",
+            rentalType: "day",
+            rentalDuration: 1,
+            driveOption: "hireDriver",
+            status: "completed",
+            totalAmount: 5000,
+            createdAt: "2025-03-28T14:15:00",
+            paymentMethod: "payLater",
+            vehicleDetails: {
+              make: "Honda",
+              model: "Civic",
+              year: "2022",
+              specs: {
+                seats: "5",
+                doors: "4",
+                transmission: "Automatic",
+                fuel: "Petrol",
+                type: "Sedan",
+              },
+            },
+          },
+          {
+            id: "BK12347",
+            vehicleName: "Ford Explorer",
+            vehicleImage: "/placeholder.svg?height=200&width=300",
+            pickupLocation: "321 Maple Drive, Westside",
+            dropoffLocation: "654 Elm Street, Eastside",
+            pickupDate: "2025-04-20",
+            pickupTime: "11:00",
+            returnDate: "2025-04-27",
+            returnTime: "11:00",
+            rentalType: "week",
+            rentalDuration: 1,
+            driveOption: "selfDrive",
+            status: "confirmed",
+            totalAmount: 25000,
+            createdAt: "2025-04-02T09:45:00",
+            paymentMethod: "creditCard",
+            vehicleDetails: {
+              make: "Ford",
+              model: "Explorer",
+              year: "2024",
+              specs: {
+                seats: "7",
+                doors: "5",
+                transmission: "Automatic",
+                fuel: "Diesel",
+                type: "SUV",
+              },
+            },
+          },
+          {
+            id: "BK12348",
+            vehicleName: "Nissan Altima",
+            vehicleImage: "/placeholder.svg?height=200&width=300",
+            pickupLocation: "987 Cedar Lane, Northside",
+            dropoffLocation: "987 Cedar Lane, Northside",
+            pickupDate: "2025-03-15",
+            pickupTime: "14:00",
+            returnDate: "2025-03-18",
+            returnTime: "14:00",
+            rentalType: "day",
+            rentalDuration: 3,
+            driveOption: "selfDrive",
+            status: "cancelled",
+            totalAmount: 9000,
+            createdAt: "2025-03-10T16:20:00",
+            paymentMethod: "payLater",
+            cancelReason: "Change of plans",
+            vehicleDetails: {
+              make: "Nissan",
+              model: "Altima",
+              year: "2023",
+              specs: {
+                seats: "5",
+                doors: "4",
+                transmission: "Automatic",
+                fuel: "Petrol",
+                type: "Sedan",
+              },
+            },
+          },
+          {
+            id: "BK12349",
+            vehicleName: "BMW X5",
+            vehicleImage: "/placeholder.svg?height=200&width=300",
+            pickupLocation: "456 Birch Street, Southside",
+            dropoffLocation: "123 Main Street, City Center",
+            pickupDate: "2025-05-01",
+            pickupTime: "12:00",
+            returnDate: "2025-05-31",
+            returnTime: "12:00",
+            rentalType: "month",
+            rentalDuration: 1,
+            driveOption: "hireDriver",
+            status: "pending",
+            totalAmount: 95000,
+            createdAt: "2025-04-03T11:10:00",
+            paymentMethod: "creditCard",
+            vehicleDetails: {
+              make: "BMW",
+              model: "X5",
+              year: "2024",
+              specs: {
+                seats: "5",
+                doors: "5",
+                transmission: "Automatic",
+                fuel: "Petrol",
+                type: "SUV",
+              },
+            },
+          },
+        ];
+
+        setBookings(data);
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+        setError("Failed to load your bookings. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
   }, []);
 
-  // Filter bookings based on status and search query
-  useEffect(() => {
-    let result = bookings;
-    
+  // Filter bookings based on status and search term
+  const filteredBookings = bookings.filter((booking) => {
     // Filter by status
-    if (activeFilter !== "all") {
-      result = result.filter(booking => booking.status === activeFilter);
+    if (statusFilter !== "all" && booking.status !== statusFilter) {
+      return false;
     }
-    
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter(booking => 
-        booking.vehicleName.toLowerCase().includes(query) ||
-        booking.id.toLowerCase().includes(query) ||
-        booking.vehicleType.toLowerCase().includes(query) ||
-        booking.color.toLowerCase().includes(query)
+
+    // Filter by search term
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        booking.id.toLowerCase().includes(searchLower) ||
+        booking.vehicleName.toLowerCase().includes(searchLower) ||
+        booking.pickupLocation.toLowerCase().includes(searchLower)
       );
     }
-    
-    setFilteredBookings(result);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [activeFilter, searchQuery, bookings]);
 
-  // Get current bookings for pagination
-  const indexOfLastBooking = currentPage * bookingsPerPage;
-  const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
-  const currentBookings = filteredBookings.slice(indexOfFirstBooking, indexOfLastBooking);
-  const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage);
+    return true;
+  });
 
-  // Format date to readable format
+  // Sort bookings
+  const sortedBookings = [...filteredBookings].sort((a, b) => {
+    switch (sortBy) {
+      case "newest":
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      case "oldest":
+        return new Date(a.createdAt) - new Date(b.createdAt);
+      case "price-high":
+        return b.totalAmount - a.totalAmount;
+      case "price-low":
+        return a.totalAmount - b.totalAmount;
+      default:
+        return 0;
+    }
+  });
+
+  // Pagination
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedBookings.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(sortedBookings.length / itemsPerPage);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  // Format date
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Format time
+  const formatTime = (timeString) => {
+    return timeString;
+  };
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    return `Rs. ${amount.toLocaleString()}`;
   };
 
   // Get status badge color
   const getStatusBadge = (status) => {
     switch (status) {
-      case "active":
-        return {
-          bgColor: "bg-green-100",
-          textColor: "text-green-800",
-          icon: <CheckCircle className="w-4 h-4 mr-1" />,
-        };
+      case "confirmed":
+        return "bg-green-100 text-green-800";
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
       case "completed":
-        return {
-          bgColor: "bg-gray-100",
-          textColor: "text-gray-800",
-          icon: <CheckCircle className="w-4 h-4 mr-1" />,
-        };
+        return "bg-blue-100 text-blue-800";
       case "cancelled":
-        return {
-          bgColor: "bg-red-100",
-          textColor: "text-red-800",
-          icon: <X className="w-4 h-4 mr-1" />,
-        };
+        return "bg-red-100 text-red-800";
       default:
-        return {
-          bgColor: "bg-gray-100",
-          textColor: "text-gray-800",
-          icon: <AlertCircle className="w-4 h-4 mr-1" />,
-        };
+        return "bg-gray-100 text-gray-800";
     }
   };
 
+  // Get status icon
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "confirmed":
+        return <CheckCircle className="w-4 h-4 mr-1" />;
+      case "pending":
+        return <Clock className="w-4 h-4 mr-1" />;
+      case "completed":
+        return <CheckCircle className="w-4 h-4 mr-1" />;
+      case "cancelled":
+        return <X className="w-4 h-4 mr-1" />;
+      default:
+        return null;
+    }
+  };
+
+  // Handle booking cancellation
+  const handleCancelBooking = (booking) => {
+    setSelectedBooking(booking);
+    setIsCancelModalOpen(true);
+  };
+
+  // Confirm cancellation
+  const confirmCancellation = async () => {
+    if (!selectedBooking) return;
+
+    setIsCancelling(true);
+
+    try {
+      // In a real app, you would call your API
+      // await fetch(`http://localhost:3000/api/bookings/${selectedBooking.id}/cancel`, {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ reason: cancelReason }),
+      // })
+
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Update local state
+      setBookings((prevBookings) =>
+        prevBookings.map((booking) =>
+          booking.id === selectedBooking.id
+            ? { ...booking, status: "cancelled", cancelReason }
+            : booking
+        )
+      );
+
+      toast.success("Booking cancelled successfully");
+      setIsCancelModalOpen(false);
+      setCancelReason("");
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      toast.error("Failed to cancel booking. Please try again.");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  // View booking details
+  const viewBookingDetails = (booking) => {
+    setSelectedBooking(booking);
+    setIsDetailModalOpen(true);
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setStatusFilter("all");
+    setSearchTerm("");
+    setSortBy("newest");
+    setCurrentPage(1);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div className="mt-12 min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <ToastContainer position="top-right" autoClose={3000} />
+
+      {/* Header */}
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-          <p className="mt-2 text-gray-600">View and manage all your vehicle bookings</p>
+          <h1 className="text-3xl font-bold text-gray-900">Your Bookings</h1>
+          <p className="mt-2 text-gray-600">
+            View and manage all your vehicle rental bookings
+          </p>
         </div>
 
-        {/* Search and Filters */}
-        <div className="mb-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-grow">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search bookings..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div className="sm:hidden">
+        {/* Search and Filter Section */}
+        <div className="mb-6 flex flex-col md:flex-row items-center gap-4">
+          {/* Search Bar */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by booking ID, vehicle name, or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent shadow-sm"
+            />
+          </div>
+
+          {/* Filter By Section */}
+          <div className=" p-4 flex items-center gap-2">
+            <Filter className="w-5 h-5 text-[#ff6b00]" />
+            <span className="text-lg font-medium text-gray-700">
+              Filter By:
+            </span>
+            <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-50"
-              >
-                <Filter className="h-5 w-5" />
-                <span>Filters</span>
-              </button>
-            </div>
-            <div className={`sm:flex gap-2 ${showFilters ? 'flex' : 'hidden'} flex-wrap`}>
-              <button
-                onClick={() => setActiveFilter("all")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  activeFilter === "all"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                onClick={() => setStatusFilter("all")}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                  statusFilter === "all"
+                    ? "bg-[#ff6b00] text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
+                <Car className="w-4 h-4" />
                 All
               </button>
               <button
-                onClick={() => setActiveFilter("active")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  activeFilter === "active"
-                    ? "bg-green-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                onClick={() => setStatusFilter("confirmed")}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                  statusFilter === "confirmed"
+                    ? "bg-green-500 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                Active
+                <CheckCircle className="w-4 h-4" />
+                Confirmed
               </button>
               <button
-                onClick={() => setActiveFilter("completed")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  activeFilter === "completed"
-                    ? "bg-gray-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                onClick={() => setStatusFilter("pending")}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                  statusFilter === "pending"
+                    ? "bg-yellow-500 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
+                <Clock className="w-4 h-4" />
+                Pending
+              </button>
+              <button
+                onClick={() => setStatusFilter("completed")}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                  statusFilter === "completed"
+                    ? "bg-blue-500 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                <CheckCircle className="w-4 h-4" />
                 Completed
               </button>
               <button
-                onClick={() => setActiveFilter("cancelled")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  activeFilter === "cancelled"
-                    ? "bg-red-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                onClick={() => setStatusFilter("cancelled")}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                  statusFilter === "cancelled"
+                    ? "bg-red-500 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
+                <X className="w-4 h-4" />
                 Cancelled
               </button>
             </div>
           </div>
         </div>
 
-        {/* Bookings List */}
-        {isLoading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-        ) : filteredBookings.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <Car className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">No bookings found</h3>
-            <p className="text-gray-500 mb-6">
-              {searchQuery
-                ? "No bookings match your search criteria."
-                : activeFilter !== "all"
-                ? `You don't have any ${activeFilter} bookings.`
-                : "You haven't made any bookings yet."}
-            </p>
-            <Link
-              to="/RentalVehicles"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+        {/* Clear Filters Button */}
+        {(statusFilter !== "all" || searchTerm || sortBy !== "newest") && (
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={clearAllFilters}
+              className="text-sm text-[#ff6b00] hover:text-[#ff8533] flex items-center"
             >
-              Browse Vehicles
-            </Link>
+              <X className="w-4 h-4 mr-1" />
+              Clear all filters
+            </button>
           </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentBookings.map((booking) => {
-                const statusBadge = getStatusBadge(booking.status);
-                
-                return (
-                  <div
-                    key={booking.id}
-                    className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300"
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ff6b00]"></div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <p className="text-red-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
+        {/* No Bookings State */}
+        {!loading && !error && filteredBookings.length === 0 && (
+          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+            <Car className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-1">
+              No bookings found
+            </h3>
+            <p className="text-gray-500">
+              {searchTerm || statusFilter !== "all"
+                ? "Try adjusting your filters or search terms"
+                : "You haven't made any bookings yet"}
+            </p>
+            {(searchTerm || statusFilter !== "all") && (
+              <button
+                onClick={clearAllFilters}
+                className="mt-4 px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
+              >
+                Clear All Filters
+              </button>
+            )}
+            {!searchTerm && statusFilter === "all" && (
+              <button
+                onClick={() => navigate("/RentalVehicleDesc")}
+                className="mt-4 px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
+              >
+                Browse Vehicles
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Bookings List */}
+        {!loading && !error && filteredBookings.length > 0 && (
+          <div className="space-y-6">
+            {currentItems.map((booking) => (
+              <div
+                key={booking.id}
+                className="bg-white rounded-xl shadow-sm overflow-hidden relative"
+              >
+                {/* Cancel Booking Button */}
+                {(booking.status === "confirmed" ||
+                  booking.status === "pending") && (
+                  <button
+                    onClick={() => handleCancelBooking(booking)}
+                    className="absolute top-4 right-4 px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
                   >
-                    <div className="relative">
+                    Cancel Booking
+                  </button>
+                )}
+
+                <div className="p-6">
+                  <div className="flex flex-col md:flex-row gap-6">
+                    {/* Vehicle Image */}
+                    <div className="w-full md:w-1/4 h-48 bg-gray-100 rounded-lg overflow-hidden">
                       <img
                         src={booking.vehicleImage || "/placeholder.svg"}
                         alt={booking.vehicleName}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-full object-cover"
                       />
-                      <div className="absolute top-3 right-3">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusBadge.bgColor} ${statusBadge.textColor}`}>
-                          {statusBadge.icon}
-                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                        </span>
-                      </div>
                     </div>
-                    <div className="p-5">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">{booking.vehicleName}</h3>
-                        <span className="text-sm font-medium text-gray-500">#{booking.id}</span>
+
+                    {/* Booking Details */}
+                    <div className="flex-1">
+                      <div className="mb-4">
+                        <h3 className="text-xl font-bold text-gray-900">
+                          {booking.vehicleName}
+                        </h3>
+                        <p className="text-gray-600">
+                          {booking.vehicleDetails.make}{" "}
+                          {booking.vehicleDetails.model} (
+                          {booking.vehicleDetails.year})
+                        </p>
                       </div>
-                      
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                          <span>
-                            {formatDate(booking.startDate)} - {formatDate(booking.endDate)}
-                          </span>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <p className="text-sm text-gray-500">Pickup</p>
+                          <p className="font-medium">
+                            {formatDate(booking.pickupDate)} at{" "}
+                            {formatTime(booking.pickupTime)}
+                          </p>
                         </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <MapPin className="w-4 h-4 mr-2 text-gray-400" />
-                          <span>{booking.location}</span>
+                        <div>
+                          <p className="text-sm text-gray-500">Return</p>
+                          <p className="font-medium">
+                            {formatDate(booking.returnDate)} at{" "}
+                            {formatTime(booking.returnTime)}
+                          </p>
                         </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Car className="w-4 h-4 mr-2 text-gray-400" />
-                          <span>{booking.vehicleType} • {booking.color}</span>
+                        <div>
+                          <p className="text-sm text-gray-500">
+                            Pickup Location
+                          </p>
+                          <p className="font-medium flex items-start">
+                            <MapPin className="w-4 h-4 mr-1 mt-1 flex-shrink-0" />
+                            <span>{booking.pickupLocation}</span>
+                          </p>
                         </div>
-                      </div>
-                      
-                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                        <div className="text-lg font-bold text-gray-900">
-                          Rs. {booking.price.toLocaleString()}
+                        <div>
+                          <p className="text-sm text-gray-500">Total Amount</p>
+                          <p className="font-bold text-[#ff6b00]">
+                            {formatCurrency(booking.totalAmount)}
+                          </p>
                         </div>
-                        <Link
-                          to={`/booking-details/${booking.id}`}
-                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                        >
-                          View Details
-                        </Link>
+                        <div>
+                          <p className="text-sm text-gray-500">Status</p>
+                          <p className="font-medium flex items-center">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-sm font-medium flex items-center ${getStatusBadge(
+                                booking.status
+                              )}`}
+                            >
+                              {getStatusIcon(booking.status)}
+                              {booking.status.charAt(0).toUpperCase() +
+                                booking.status.slice(1)}
+                            </span>
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">
+                            Payment Method
+                          </p>
+                          <p className="font-medium">
+                            {booking.paymentMethod === "creditCard"
+                              ? "Credit/Debit Card"
+                              : "Pay at Pickup"}
+                          </p>
+                        </div>
+                        {booking.cancelReason && (
+                          <div>
+                            <p className="text-sm text-gray-500">
+                              Cancellation Reason
+                            </p>
+                            <p className="font-medium">
+                              {booking.cancelReason}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
+            ))}
 
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center mt-8">
-                <nav className="flex items-center space-x-2">
+                <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+                  {/* Previous Button */}
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={`p-2 rounded-md ${
+                    className={`px-4 py-2 border-r border-gray-200 flex items-center ${
                       currentPage === 1
                         ? "text-gray-400 cursor-not-allowed"
-                        : "text-gray-700 hover:bg-gray-100"
+                        : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    <ChevronLeft className="h-5 w-5" />
+                    <ChevronLeft className="w-5 h-5" />
                   </button>
-                  
-                  {[...Array(totalPages)].map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 rounded-md ${
-                        currentPage === i + 1
-                          ? "bg-blue-600 text-white"
-                          : "text-gray-700 hover:bg-gray-100"
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                  
+
+                  {/* Page Numbers */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (number) => (
+                      <button
+                        key={number}
+                        onClick={() => paginate(number)}
+                        className={`px-4 py-2 border-r border-gray-200 ${
+                          currentPage === number
+                            ? "bg-[#ff6b00] text-white font-medium"
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {number}
+                      </button>
+                    )
+                  )}
+
+                  {/* Next Button */}
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={`p-2 rounded-md ${
+                    className={`px-4 py-2 flex items-center ${
                       currentPage === totalPages
                         ? "text-gray-400 cursor-not-allowed"
-                        : "text-gray-700 hover:bg-gray-100"
+                        : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
-                    <ChevronRight className="h-5 w-5" />
+                    <ChevronRight className="w-5 h-5" />
                   </button>
-                </nav>
+                </div>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
+
+      {/* Cancel Booking Modal */}
+      {isCancelModalOpen && selectedBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Cancel Booking
+                </h2>
+                <button
+                  onClick={() => setIsCancelModalOpen(false)}
+                  className="p-2 rounded-full hover:bg-gray-100"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                  <div className="flex items-start">
+                    <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5 mr-2" />
+                    <div>
+                      <h3 className="text-sm font-medium text-yellow-800">
+                        Cancellation Policy
+                      </h3>
+                      <p className="mt-1 text-sm text-yellow-700">
+                        Cancellations made at least 24 hours before the pickup
+                        time will receive a full refund. Cancellations made
+                        within 24 hours may be subject to a cancellation fee.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-gray-600 mb-4">
+                  Are you sure you want to cancel your booking for{" "}
+                  <span className="font-medium">
+                    {selectedBooking.vehicleName}
+                  </span>
+                  ?
+                </p>
+
+                <div className="mb-4">
+                  <label
+                    htmlFor="cancelReason"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Reason for cancellation (optional)
+                  </label>
+                  <textarea
+                    id="cancelReason"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    rows="3"
+                    className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] transition-colors"
+                    placeholder="Please provide a reason for cancellation..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsCancelModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Keep Booking
+                </button>
+                <button
+                  onClick={confirmCancellation}
+                  disabled={isCancelling}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center"
+                >
+                  {isCancelling ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    "Confirm Cancellation"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

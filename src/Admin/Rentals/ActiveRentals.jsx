@@ -288,9 +288,10 @@ export default function ActiveRentals() {
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="bg-white rounded-xl shadow-md mb-6">
-            <div className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+          {/* Search Bar and Filters Section */}
+          <div className="  mb-6 p-5">
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+              {/* Search Bar */}
               <div className="relative w-full sm:w-auto flex-1 max-w-md">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className="h-5 w-5 text-gray-400" />
@@ -303,51 +304,47 @@ export default function ActiveRentals() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Filters Section */}
-          <div className="bg-white rounded-xl shadow-md mb-6 p-5">
-            <div className="flex items-center mb-4">
-              <Filter className="h-5 w-5 mr-2 text-indigo-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-gray-700 mb-3">
-                Rental Type
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                <FilterButton
-                  active={filterType === "all"}
-                  onClick={() => setFilterType("all")}
-                >
-                  All Types
-                </FilterButton>
-                <FilterButton
-                  active={filterType === "hour"}
-                  onClick={() => setFilterType("hour")}
-                >
-                  Hourly
-                </FilterButton>
-                <FilterButton
-                  active={filterType === "day"}
-                  onClick={() => setFilterType("day")}
-                >
-                  Daily
-                </FilterButton>
-                <FilterButton
-                  active={filterType === "week"}
-                  onClick={() => setFilterType("week")}
-                >
-                  Weekly
-                </FilterButton>
-                <FilterButton
-                  active={filterType === "month"}
-                  onClick={() => setFilterType("month")}
-                >
-                  Monthly
-                </FilterButton>
+              {/* Filters Section */}
+              <div className="flex items-center gap-4">
+                <div className="flex items-center">
+                  <Filter className="h-5 w-5 mr-2 text-gray-700" />
+                  <h3 className="text-sm font-medium text-gray-700">
+                    Filter By
+                  </h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <FilterButton
+                    active={filterType === "all"}
+                    onClick={() => setFilterType("all")}
+                  >
+                    All Types
+                  </FilterButton>
+                  <FilterButton
+                    active={filterType === "hour"}
+                    onClick={() => setFilterType("hour")}
+                  >
+                    Hourly
+                  </FilterButton>
+                  <FilterButton
+                    active={filterType === "day"}
+                    onClick={() => setFilterType("day")}
+                  >
+                    Daily
+                  </FilterButton>
+                  <FilterButton
+                    active={filterType === "week"}
+                    onClick={() => setFilterType("week")}
+                  >
+                    Weekly
+                  </FilterButton>
+                  <FilterButton
+                    active={filterType === "month"}
+                    onClick={() => setFilterType("month")}
+                  >
+                    Monthly
+                  </FilterButton>
+                </div>
               </div>
             </div>
           </div>
@@ -455,6 +452,14 @@ export default function ActiveRentals() {
                               <Mail className="h-4 w-4 mr-2" />
                               <span>{rental.user.email}</span>
                             </div>
+                            <div className="flex items-center text-gray-600">
+                              <User className="h-4 w-4 mr-2" />
+                              <span>
+                                {rental.driverService === "self-drive"
+                                  ? "Self Drive"
+                                  : "Hire a Driver"}
+                              </span>
+                            </div>
                           </div>
                         </div>
 
@@ -504,22 +509,7 @@ export default function ActiveRentals() {
                             Time Remaining
                           </h4>
 
-                          <div className="mb-2">
-                            <div className="flex justify-between text-sm mb-1">
-                              <span className="text-gray-600">Progress</span>
-                              <span className="font-medium text-gray-900">
-                                {calculateTimeProgress(rental)}%
-                              </span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2.5">
-                              <div
-                                className="bg-[#ff6b00] h-2.5 rounded-full"
-                                style={{
-                                  width: `${calculateTimeProgress(rental)}%`,
-                                }}
-                              ></div>
-                            </div>
-                          </div>
+                          {/* Removed progress bar and percentage display */}
 
                           <div className="mb-4">
                             <p className="text-sm text-gray-600">Time Left</p>

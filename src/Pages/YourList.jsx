@@ -48,6 +48,7 @@ const YourList = () => {
     budget: "",
     description: "",
   });
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch data from backend
   useEffect(() => {
@@ -83,7 +84,7 @@ const YourList = () => {
     fetchWishlistItems();
   }, []);
 
-  // Filter items based on current filters
+  // Filter items based on current filters and search query
   const filteredItems = items.filter((item) => {
     // Filter by purpose (buy/rent)
     if (currentFilter !== "all" && item.purpose !== currentFilter) {
@@ -92,6 +93,14 @@ const YourList = () => {
 
     // Filter by status (arrived/pending)
     if (statusFilter !== "all" && item.status !== statusFilter) {
+      return false;
+    }
+
+    // Filter by search query
+    if (
+      searchQuery &&
+      !item.vehicleName.toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
       return false;
     }
 
@@ -358,12 +367,23 @@ const YourList = () => {
 
       {/* Filter Options */}
       <div className="mb-8 max-w-6xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-center gap-4">
-          <div className="flex items-center text-gray-700 font-medium">
-            <Filter className="w-5 h-5 mr-2" />
-            Filter by:
+        <div className=" p-4 flex flex-wrap items-center gap-4">
+          {/* Search Bar */}
+          <div className="flex-grow">
+            <input
+              type="text"
+              placeholder="Search by vehicle name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm"
+            />
           </div>
+          {/* Filter Buttons */}
           <div className="flex flex-wrap gap-3 relative">
+            <div className="flex items-center text-gray-700 font-medium">
+              <Filter className="w-5 h-5 mr-2" />
+              Filter by:
+            </div>
             <button
               onClick={() => {
                 setCurrentFilter("all");
@@ -538,23 +558,7 @@ const YourList = () => {
             </div>
           </div>
 
-          <div className="ml-auto text-sm text-gray-500">
-            {!isLoading && (
-              <>
-                Showing {filteredItems.length} vehicle
-                {filteredItems.length !== 1 ? "s" : ""}
-                {currentFilter !== "all" && (
-                  <span> • {currentFilter === "buy" ? "Buy" : "Rent"}</span>
-                )}
-                {statusFilter !== "all" && (
-                  <span>
-                    {" "}
-                    • {statusFilter === "available" ? "Arrived" : "Pending"}
-                  </span>
-                )}
-              </>
-            )}
-          </div>
+          <div className="ml-auto text-sm text-gray-500"></div>
         </div>
       </div>
 

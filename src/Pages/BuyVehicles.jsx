@@ -65,8 +65,12 @@ export default function VehicleDetails() {
           <>
             {/* Brand and Model */}
             <div className="text-center mb-4">
-              <h1 className="text-[#C84C27] text-3xl font-medium mb-2">{vehicle.make || "Unknown Make"}</h1>
-              <h2 className="text-4xl tracking-[0.5em] font-bold">{vehicle.model || "Unknown Model"}</h2>
+              <h1 className="text-[#C84C27] text-3xl font-medium mb-2">
+                {vehicle.make || "Unknown Make"}
+              </h1>
+              <h2 className="text-4xl tracking-[0.5em] font-bold">
+                {vehicle.model || "Unknown Model"}
+              </h2>
             </div>
 
             {/* Vehicle Image and Details */}
@@ -74,7 +78,10 @@ export default function VehicleDetails() {
               {/* Vehicle Image */}
               <div>
                 <img
-                  src={`../../server/controllers${vehicle.images[0].image}`|| "/placeholder.svg"}
+                  src={
+                    `../../server/controllers${vehicle.images[0].image}` ||
+                    "/placeholder.svg"
+                  }
                   alt={vehicle.model || "Vehicle"}
                   className="w-full h-auto"
                 />
@@ -82,7 +89,9 @@ export default function VehicleDetails() {
 
               {/* Vehicle Specifications */}
               <div className="space-y-6">
-                <h3 className="text-xl text-gray-600 italic">Expect the unexpected</h3>
+                <h3 className="text-xl text-gray-600 italic">
+                  Expect the unexpected
+                </h3>
 
                 <div className="bg-gray-50 p-6 rounded-lg space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -92,7 +101,9 @@ export default function VehicleDetails() {
                     </div>
                     <div>
                       <p className="text-gray-500">Mileage:</p>
-                      <p className="font-medium">{vehicle.mile ? `${vehicle.mile} km` : "N/A"}</p>
+                      <p className="font-medium">
+                        {vehicle.mile ? `${vehicle.mile} km` : "N/A"}
+                      </p>
                     </div>
                     <div>
                       <p className="text-gray-500">Fuel Type:</p>
@@ -100,7 +111,9 @@ export default function VehicleDetails() {
                     </div>
                     <div>
                       <p className="text-gray-500">Price:</p>
-                      <p className="font-medium">Rs. {vehicle.price || "N/A"}</p>
+                      <p className="font-medium">
+                        Rs. {vehicle.price || "N/A"}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -110,7 +123,9 @@ export default function VehicleDetails() {
             {/* Bottom Content */}
             <div className="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-xl text-gray-600 mb-2">Change your perspectives</h3>
+                <h3 className="text-xl text-gray-600 mb-2">
+                  Change your perspectives
+                </h3>
                 <h2 className="text-4xl font-bold">Move your passion.</h2>
               </div>
               <div>
@@ -118,8 +133,9 @@ export default function VehicleDetails() {
                   Choose the ideal model for your lifestyle
                 </h3>
                 <p className="text-gray-600">
-                  The purpose of Elite Drives is to be the best choice in automobiles for its
-                  customers and to be part of the special moments of their lives.
+                  The purpose of Elite Drives is to be the best choice in
+                  automobiles for its customers and to be part of the special
+                  moments of their lives.
                 </p>
               </div>
             </div>
@@ -131,7 +147,10 @@ export default function VehicleDetails() {
       <SellCarCard />
 
       {/* Sell Vehicle Form Modal */}
-      <SellVehicleForm isOpen={showSellVehicleForm} onClose={() => setShowSellVehicleForm(false)} />
+      <SellVehicleForm
+        isOpen={showSellVehicleForm}
+        onClose={() => setShowSellVehicleForm(false)}
+      />
     </div>
   );
 }
