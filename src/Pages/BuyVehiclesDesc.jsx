@@ -7,7 +7,6 @@ import {
   useTransform,
   AnimatePresence,
 } from "framer-motion";
-import BuyNowForm from "../Components/BuyNowForm";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Cookies from "js-cookie";
