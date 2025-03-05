@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,11 +12,29 @@ import {
   Legend,
   PointElement,
   ArcElement,
-} from "chart.js"
-import { Bar, Line } from "react-chartjs-2"
-import { Car, Users, DollarSign, ShoppingCart, Calendar, ArrowUp, ArrowDown } from "lucide-react"
+} from "chart.js";
+import { Bar, Line } from "react-chartjs-2";
+import {
+  Car,
+  Users,
+  DollarSign,
+  ShoppingCart,
+  Calendar,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, Title, Tooltip, Legend, PointElement, ArcElement)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  PointElement,
+  ArcElement
+);
 
 export default function Dashboard() {
   const [notifications] = useState([
@@ -25,7 +43,7 @@ export default function Dashboard() {
     { id: 3, type: "found", message: "Item claimed: Designer sunglasses" },
     { id: 4, type: "inquiry", message: "Rental inquiry for Tesla Model 3" },
     { id: 5, type: "lost", message: "New lost item reported: Car keys" },
-  ])
+  ]);
 
   const vehicleData = {
     labels: ["Listed", "Sold", "Rented", "Exchanged"],
@@ -37,7 +55,7 @@ export default function Dashboard() {
         barThickness: 40,
       },
     ],
-  }
+  };
 
   const revenueData = {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
@@ -57,7 +75,7 @@ export default function Dashboard() {
         tension: 0.4,
       },
     ],
-  }
+  };
 
   const chartOptions = {
     responsive: true,
@@ -84,7 +102,7 @@ export default function Dashboard() {
         },
       },
     },
-  }
+  };
 
   return (
     // Add ml-64 to offset the fixed sidebar and remove the original p-8 padding
@@ -171,11 +189,18 @@ export default function Dashboard() {
               {[
                 { type: "Sale", item: "Toyota Camry", amount: "$25,000" },
                 { type: "Rental", item: "Tesla Model 3", amount: "$150/day" },
-                { type: "Exchange", item: "Honda Civic for Ford Focus", amount: "Even Exchange" },
+                {
+                  type: "Exchange",
+                  item: "Honda Civic for Ford Focus",
+                  amount: "Even Exchange",
+                },
                 { type: "Sale", item: "BMW X5", amount: "$45,000" },
                 { type: "Rental", item: "Chevrolet Malibu", amount: "$80/day" },
               ].map((transaction, index) => (
-                <div key={index} className="flex justify-between items-center border-b pb-2">
+                <div
+                  key={index}
+                  className="flex justify-between items-center border-b pb-2"
+                >
                   <div>
                     <p className="font-medium">{transaction.type}</p>
                     <p className="text-sm text-gray-600">{transaction.item}</p>
@@ -191,17 +216,22 @@ export default function Dashboard() {
             <h2 className="text-lg font-semibold mb-6">Recent Activities</h2>
             <div className="space-y-4">
               {notifications.map((notification) => (
-                <div key={notification.id} className="flex items-start space-x-3 border-b pb-2">
+                <div
+                  key={notification.id}
+                  className="flex items-start space-x-3 border-b pb-2"
+                >
                   <div className="w-2 h-2 mt-2 rounded-full bg-blue-500" />
                   <div>
                     <p className="font-medium">
                       {notification.type === "lost"
                         ? "Lost Item"
                         : notification.type === "found"
-                          ? "Found Item"
-                          : "New Inquiry"}
+                        ? "Found Item"
+                        : "New Inquiry"}
                     </p>
-                    <p className="text-sm text-gray-600">{notification.message}</p>
+                    <p className="text-sm text-gray-600">
+                      {notification.message}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -210,12 +240,12 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // Keep all the helper components exactly the same
 function OverviewCard({ title, value, icon, change, iconBg }) {
-  const isPositive = change >= 0
+  const isPositive = change >= 0;
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <div className="flex justify-between items-start">
@@ -225,13 +255,21 @@ function OverviewCard({ title, value, icon, change, iconBg }) {
         </div>
         <div className={`p-3 rounded-full ${iconBg}`}>{icon}</div>
       </div>
-      <div className={`flex items-center mt-4 ${isPositive ? "text-green-500" : "text-red-500"}`}>
-        {isPositive ? <ArrowUp className="w-4 h-4 mr-1" /> : <ArrowDown className="w-4 h-4 mr-1" />}
+      <div
+        className={`flex items-center mt-4 ${
+          isPositive ? "text-green-500" : "text-red-500"
+        }`}
+      >
+        {isPositive ? (
+          <ArrowUp className="w-4 h-4 mr-1" />
+        ) : (
+          <ArrowDown className="w-4 h-4 mr-1" />
+        )}
         <span className="text-sm font-medium">{Math.abs(change)}%</span>
         <span className="text-sm text-gray-500 ml-1">vs last month</span>
       </div>
     </div>
-  )
+  );
 }
 
 function EarningSummaryCard({ title, value, icon }) {
@@ -245,7 +283,7 @@ function EarningSummaryCard({ title, value, icon }) {
         <div className="p-3 bg-gray-50 rounded-full">{icon}</div>
       </div>
     </div>
-  )
+  );
 }
 
 function BookingOverviewCard({ title, value }) {
@@ -254,5 +292,5 @@ function BookingOverviewCard({ title, value }) {
       <p className="text-sm text-gray-600">{title}</p>
       <p className="text-xl font-semibold mt-1">{value}</p>
     </div>
-  )
+  );
 }
