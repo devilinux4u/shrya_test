@@ -11,12 +11,8 @@ const initialUsers = [
     uname: "test2",
     email: "prabeshshrestha4693@gmail.com",
     num: "987654322",
-    pass: "$2b$10$y8iX1I.O9taQmnYY0TMYIORgUi3R1.0B5GRLNqqVbfO...",
-    otp: "130154",
-    verified: 1,
-    createdAt: "2025-03-12 17:13:17",
-    updatedAt: "2025-03-12 17:13:46",
     profile: null,
+    createdAt: "2025-03-12 17:13:17",
   },
   {
     id: 8,
@@ -24,12 +20,8 @@ const initialUsers = [
     uname: "Prabesh100",
     email: "sthaprabe20@gmail.com",
     num: "9813245282",
-    pass: "$2b$10$P3QzjGlXhB7sWTiYIEp8rO7EisbEHZEhN5zlzpyoDxp...",
-    otp: "614553",
-    verified: 1,
-    createdAt: "2025-03-18 15:57:10",
-    updatedAt: "2025-03-20 16:32:45",
     profile: "/uploads/profile/1742488365626-07564df3-461f-4b70-...",
+    createdAt: "2025-03-18 15:57:10",
   },
 ]
 
@@ -45,7 +37,6 @@ export default function Users() {
     uname: "",
     email: "",
     num: "",
-    pass: "",
   })
 
   const getVerifiedStatus = (verified) => {
@@ -70,15 +61,12 @@ export default function Users() {
     const newUserData = {
       id: users.length > 0 ? Math.max(...users.map(user => user.id)) + 1 : 1,
       ...newUser,
-      otp: Math.floor(100000 + Math.random() * 900000).toString(),
-      verified: 0,
-      createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
-      updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
       profile: null,
+      createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
     }
     setUsers([...users, newUserData])
     setShowAddUser(false)
-    setNewUser({ fname: "", uname: "", email: "", num: "", pass: "" })
+    setNewUser({ fname: "", uname: "", email: "", num: "" })
   }
 
   const handleDeleteUser = (id) => {
@@ -93,11 +81,7 @@ export default function Users() {
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.num.includes(searchTerm)
     
-    const matchesVerified = filterVerified === "all" || 
-      (filterVerified === "verified" && user.verified === 1) ||
-      (filterVerified === "unverified" && user.verified === 0)
-    
-    return matchesSearch && matchesVerified
+    return matchesSearch
   })
 
   return (
@@ -164,64 +148,24 @@ export default function Users() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Last Updated
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined Date</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        {user.profile ? (
-                          <img 
-                            src={user.profile || "/placeholder.svg"} 
-                            alt={user.fname} 
-                            className="h-10 w-10 rounded-full object-cover"
-                            onError={(e) => {
-                              e.target.src = "/placeholder.svg?height=40&width=40";
-                            }}
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                            <User className="w-6 h-6 text-gray-500" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.fname}</div>
-                        <div className="text-sm text-gray-500">@{user.uname}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{user.email}</div>
-                    <div className="text-sm text-gray-500">{user.num}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getVerifiedStatus(user.verified)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(user.createdAt)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(user.updatedAt)}
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.fname}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@{user.uname}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.num}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(user.createdAt)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">
                       <button 
@@ -306,16 +250,6 @@ export default function Users() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Password</label>
-                <input
-                  type="password"
-                  required
-                  value={newUser.pass}
-                  onChange={(e) => setNewUser({ ...newUser, pass: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
-                />
-              </div>
 
               <div className="flex justify-end gap-3 mt-6">
                 <button
@@ -385,24 +319,6 @@ export default function Users() {
                   <div>
                     <p className="text-sm text-gray-500">User ID</p>
                     <p className="text-gray-800">{selectedUser.id}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">OTP</p>
-                    <p className="text-gray-800">{selectedUser.otp}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Created At</p>
-                    <p className="text-gray-800 flex items-center">
-                      <Clock className="w-4 h-4 mr-1 text-gray-400" />
-                      {formatDate(selectedUser.createdAt)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Last Updated</p>
-                    <p className="text-gray-800 flex items-center">
-                      <Clock className="w-4 h-4 mr-1 text-gray-400" />
-                      {formatDate(selectedUser.updatedAt)}
-                    </p>
                   </div>
                 </div>
               </div>

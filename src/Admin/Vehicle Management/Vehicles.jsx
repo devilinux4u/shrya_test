@@ -171,6 +171,7 @@ export default function Vehicles() {
     navigate("/admin/viewdetails")
   }
 
+  
 
   const handleDeleteVehicle = (vehicleId) => {
     // Add confirmation dialog
@@ -375,7 +376,7 @@ export default function Vehicles() {
                         View Details
                       </button>
                       <button 
-                        onClick={() => handleEditVehicle(vehicle)}
+                       
                         className="p-2 text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <Edit className="w-5 h-5" />
