@@ -76,3 +76,74 @@ module.exports.contact = (sequelize, DataTypes) => {
     return contact;
 };
 
+module.exports.vehicle = (sequelize, DataTypes) => {
+    const Vehicle = sequelize.define('vehicle_sell', {
+        uid: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        title: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        make: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        model: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        year: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        type: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        color: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        km: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        fuel: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        trans: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        price: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        des: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        image: {
+            type: DataTypes.BLOB('long'), 
+            allowNull: false,
+        }
+    });
+
+    return Vehicle; 
+};
+

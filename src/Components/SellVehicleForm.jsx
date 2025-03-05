@@ -59,10 +59,48 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     console.log("Submitting vehicle:", vehicle)
-    onClose() 
+    onClose()
+
+    // Send vehicle data to server
+    try {
+      // Send data to server
+      const response = await fetch('/addVehicle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+
+      const result = await response.json()
+      console.log(result)
+      setMessage("Wishlist request submitted successfully!")
+      setFormData({
+        purpose: "",
+        vehicleType: "",
+        brand: "",
+        model: "",
+        year: "",
+        color: "",
+        budget: "",
+        duration: "",
+        additionalRequirements: "",
+        name: "",
+        email: "",
+        phone: "",
+      })
+    } catch (error) {
+      setMessage("Failed to submit wishlist request. Please try again.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const nextStep = () => setStep(step + 1)
@@ -268,9 +306,8 @@ export default function SellVehicleForm({ isOpen, onClose }) {
             {[1, 2, 3].map((stepNumber) => (
               <div
                 key={stepNumber}
-                className={`h-2 rounded-full flex-1 transition-colors duration-200 ${
-                  step >= stepNumber ? "bg-[#ff6b00]" : "bg-gray-200"
-                }`}
+                className={`h-2 rounded-full flex-1 transition-colors duration-200 ${step >= stepNumber ? "bg-[#ff6b00]" : "bg-gray-200"
+                  }`}
               />
             ))}
           </div>
@@ -334,9 +371,8 @@ const InputField = ({ label, name, type = "text", value, onChange, placeholder, 
         value={value}
         onChange={onChange}
         required
-        className={`w-full rounded-lg border border-gray-300 focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors ${
-          prefix ? "pl-7" : "pl-4"
-        } ${suffix ? "pr-12" : "pr-4"} py-2`}
+        className={`w-full rounded-lg border border-gray-300 focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors ${prefix ? "pl-7" : "pl-4"
+          } ${suffix ? "pr-12" : "pr-4"} py-2`}
         placeholder={placeholder}
       />
       {suffix && (
