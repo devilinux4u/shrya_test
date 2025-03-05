@@ -3,12 +3,12 @@ const router = express.Router();
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const { booking, booking_image: BookingImage, vehicles, users } = require("../../db/sequelize");
+const { rental, rentl_Vimg, vehicles, users } = require("../../db/sequelize");
 
 // Image routes
 router.get("/:id", async (req, res) => {
   try {
-    const image = await BookingImage.findByPk(req.params.id);
+    const image = await rentl_Vimg.findByPk(req.params.id);
     if (!image) return res.status(404).json({ success: false, message: "Image not found" });
     const imagePath = path.join(__dirname, '..', image.imageUrl);
     if (!fs.existsSync(imagePath)) return res.status(404).json({ success: false, message: "File not found" });
@@ -20,7 +20,7 @@ router.get("/:id", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   try {
-    const image = await BookingImage.findByPk(req.params.id);
+    const image = await rentl_Vimg.findByPk(req.params.id);
     if (!image) return res.status(404).json({ success: false, message: "Image not found" });
     const imagePath = path.join(__dirname, '..', image.imageUrl);
     if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
@@ -31,7 +31,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// Booking routes
+// Rental routes
 const uploadDir = path.join(__dirname, '../../uploads/licenses');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -72,8 +72,8 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
       });
     }
 
-    // Create booking
-    const newBooking = await booking.create({
+    // Create rental
+    const newRental = await rental.create({
       userId: user.id,
       vehicleId: vehicle.id,
       pickupLocation: req.body.pickupLocation,
@@ -84,30 +84,29 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
       returnTime: req.body.returnTime,
       rentalType: req.body.rentalType,
       driveOption: req.body.driveOption,
-      drivingLicense: req.body.drivingLicense,
       paymentMethod: req.body.paymentMethod,
       totalAmount: parseFloat(req.body.totalAmount),
       rentalDuration: parseInt(req.body.rentalDuration),
-      status: 'pending'
+      status: 'confirmed' // Changed from 'pending' to match model default
     });
 
     // Handle license image
     if (req.file && req.body.driveOption === 'selfDrive') {
-      await BookingImage.create({
+      await rentl_Vimg.create({
         imageUrl: `/uploads/licenses/${req.file.filename}`,
-        bookingId: newBooking.id,
+        rentalId: newRental.id,
         imageType: 'license'
       });
     }
 
     return res.status(201).json({
       success: true,
-      message: 'Booking created successfully',
-      bookingId: newBooking.id
+      message: 'Rental created successfully',
+      rentalId: newRental.id
     });
 
   } catch (error) {
-    console.error('Booking error:', error);
+    console.error('Rental error:', error);
     return res.status(500).json({
       success: false,
       message: error.message || 'Internal server error'
