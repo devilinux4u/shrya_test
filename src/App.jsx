@@ -19,7 +19,7 @@ import Dashboard from "./Admin/Dashboard/Dashboard";
 import Sidebar from "./Admin/Sidebar";
 import Vehicles from "./Admin/Vehicle Management/Vehicles";
 import AddNewVehicle from "./Admin/Vehicle Management/AddNewVehicle";
-import Transactions from "./Admin/Sales/Transactions";
+import Transactions from "./Admin/Transaction/Transactions";
 import ActiveRentals from "./Admin/Rentals/ActiveRentals";
 import RentalHistory from "./Admin/Rentals/RentalHistory";
 import Users from "./Admin/User/Users";
