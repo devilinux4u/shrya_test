@@ -1,86 +1,104 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import { Search, ChevronLeft, ChevronRight, Users, Gauge, Fuel } from "lucide-react"
+import { useState, useEffect, useRef } from "react";
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+  Gauge,
+  Fuel,
+} from "lucide-react";
 
 const RentalGallery = () => {
-  const [carsData, setCarsData] = useState([])
-  const [searchTerm, setSearchTerm] = useState("")
+  const [carsData, setCarsData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     transmission: "all",
     fuel: "all",
     priceRange: "all",
     passengers: "all",
     features: [],
-  })
-  const [currentPage, setCurrentPage] = useState(1)
-  const [filteredCars, setFilteredCars] = useState([])
-  const carsPerPage = 4 // Changed to show 4 cars (2 rows of 2)
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [filteredCars, setFilteredCars] = useState([]);
+  const carsPerPage = 4; // Changed to show 4 cars (2 rows of 2)
 
-  const features = ["AC", "Bluetooth", "Airbags", "Sunroof", "Cruise Control", "Parking Sensors"]
+  const features = [
+    "AC",
+    "Bluetooth",
+    "Airbags",
+    "Sunroof",
+    "Cruise Control",
+    "Parking Sensors",
+  ];
 
-  const cars = useRef([])
+  const cars = useRef([]);
 
   useEffect(() => {
     // Fetch car data from API
     const fetchCars = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:3000/rent/all") // Replace with your API endpoint
-        const data = await response.json()
-        setCarsData(data)
-        cars.current = data
-        setFilteredCars(data)
+        const response = await fetch("http://127.0.0.1:3000/rent/all"); // Replace with your API endpoint
+        const data = await response.json();
+        setCarsData(data);
+        cars.current = data;
+        setFilteredCars(data);
       } catch (error) {
-        console.error("Error fetching car data:", error)
+        console.error("Error fetching car data:", error);
       }
-    }
+    };
 
-    fetchCars()
-  }, [])
+    fetchCars();
+  }, []);
 
   useEffect(() => {
     let result = cars.current.filter(
       (car) =>
         car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.model.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
+        car.model.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     if (filters.transmission !== "all") {
-      result = result.filter((car) => car.transmission === filters.transmission)
+      result = result.filter(
+        (car) => car.transmission === filters.transmission
+      );
     }
 
     if (filters.fuel !== "all") {
-      result = result.filter((car) => car.fuelType === filters.fuel)
+      result = result.filter((car) => car.fuelType === filters.fuel);
     }
 
     if (filters.priceRange !== "all") {
-      const [min, max] = filters.priceRange.split("-").map(Number)
+      const [min, max] = filters.priceRange.split("-").map(Number);
       result = result.filter((car) => {
-        const price = Number(car.price)
-        return price >= min && (max ? price <= max : true)
-      })
+        const price = Number(car.price);
+        return price >= min && (max ? price <= max : true);
+      });
     }
 
     if (filters.passengers !== "all") {
-      result = result.filter((car) => car.seats === filters.passengers)
+      result = result.filter((car) => car.seats === filters.passengers);
     }
 
     if (filters.features.length > 0) {
-      result = result.filter((car) => filters.features.every((feature) => car.features.includes(feature)))
+      result = result.filter((car) =>
+        filters.features.every((feature) => car.features.includes(feature))
+      );
     }
 
-    setFilteredCars(result)
-    setCurrentPage(1)
-  }, [searchTerm, filters])
+    setFilteredCars(result);
+    setCurrentPage(1);
+  }, [searchTerm, filters]);
 
-  const indexOfLastCar = currentPage * carsPerPage
-  const indexOfFirstCar = indexOfLastCar - carsPerPage
-  const currentCars = filteredCars.slice(indexOfFirstCar, indexOfLastCar)
-  const totalPages = Math.ceil(filteredCars.length / carsPerPage)
+  const indexOfLastCar = currentPage * carsPerPage;
+  const indexOfFirstCar = indexOfLastCar - carsPerPage;
+  const currentCars = filteredCars.slice(indexOfFirstCar, indexOfLastCar);
+  const totalPages = Math.ceil(filteredCars.length / carsPerPage);
 
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber)
-  }
+    setCurrentPage(pageNumber);
+  };
 
   const handleFeatureToggle = (feature) => {
     setFilters((prev) => ({
@@ -88,13 +106,15 @@ const RentalGallery = () => {
       features: prev.features.includes(feature)
         ? prev.features.filter((f) => f !== feature)
         : [...prev.features, feature],
-    }))
-  }
+    }));
+  };
 
   return (
     <section className="mt-12 p-4 md:p-10 max-w-[1400px] mx-auto min-h-screen">
       <div className="text-center mb-10">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Explore our Top Deals</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+          Explore our Top Deals
+        </h2>
         <p className="text-lg text-gray-500">from Top Rated Dealers</p>
       </div>
 
@@ -120,7 +140,9 @@ const RentalGallery = () => {
                 <select
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
                   value={filters.transmission}
-                  onChange={(e) => setFilters({ ...filters, transmission: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, transmission: e.target.value })
+                  }
                 >
                   <option value="all">All Transmissions</option>
                   <option value="Manual">Manual</option>
@@ -130,7 +152,9 @@ const RentalGallery = () => {
                 <select
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
                   value={filters.fuel}
-                  onChange={(e) => setFilters({ ...filters, fuel: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, fuel: e.target.value })
+                  }
                 >
                   <option value="all">All Fuel Types</option>
                   <option value="Petrol">Petrol</option>
@@ -140,7 +164,9 @@ const RentalGallery = () => {
                 <select
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
                   value={filters.priceRange}
-                  onChange={(e) => setFilters({ ...filters, priceRange: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, priceRange: e.target.value })
+                  }
                 >
                   <option value="all">All Prices</option>
                   <option value="0-1000">Under Rs. 1000</option>
@@ -152,7 +178,9 @@ const RentalGallery = () => {
                 <select
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
                   value={filters.passengers}
-                  onChange={(e) => setFilters({ ...filters, passengers: e.target.value })}
+                  onChange={(e) =>
+                    setFilters({ ...filters, passengers: e.target.value })
+                  }
                 >
                   <option value="all">All Passenger Capacities</option>
                   <option value="5">5 Seater</option>
@@ -160,7 +188,9 @@ const RentalGallery = () => {
                 </select>
 
                 <div className="border border-gray-200 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Features</h4>
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">
+                    Features
+                  </h4>
                   <div className="flex flex-wrap gap-2">
                     {features.map((feature) => (
                       <button
@@ -191,14 +221,25 @@ const RentalGallery = () => {
                 className="bg-white rounded-lg shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-1 flex flex-col overflow-hidden"
               >
                 <div className="p-6 flex justify-center items-center bg-gray-50">
-                  <img src={`../../server${car.rentVehicleImages[0].image}` || "/placeholder.svg"} alt={car.make} className="w-full h-40 object-contain" />
+                  <img
+                    src={
+                      `../../server${car.rentVehicleImages[0].image}` ||
+                      "/placeholder.svg"
+                    }
+                    alt={car.make}
+                    className="w-full h-40 object-contain"
+                  />
                 </div>
                 <div className="p-4">
                   <div className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs mb-2 inline-block">
-                    {car.model}
+                    {car.make}
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">{car.make}</h3>
-                  <p className="text-red-500 font-semibold text-base mb-4">Rs. {car.priceHour}/-</p>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    {car.model}
+                  </h3>
+                  <p className="text-red-500 font-semibold text-base mb-4">
+                    Rs. {car.priceHour}/-
+                  </p>
                   <div className="flex justify-between items-center text-gray-500 text-sm mb-4">
                     <div className="flex items-center gap-2">
                       <Users className="w-5 h-5" />
@@ -214,7 +255,7 @@ const RentalGallery = () => {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {car.features.split(',').map((feature) => (
+                    {car.features.split(",").map((feature) => (
                       <span
                         key={feature}
                         className="bg-gray-50 text-gray-600 rounded-full px-2 py-1 text-xs border border-gray-100"
@@ -246,7 +287,9 @@ const RentalGallery = () => {
                   key={index + 1}
                   onClick={() => handlePageChange(index + 1)}
                   className={`w-8 h-8 rounded-full ${
-                    currentPage === index + 1 ? "bg-[#ff6b00] text-white" : "hover:bg-gray-100"
+                    currentPage === index + 1
+                      ? "bg-[#ff6b00] text-white"
+                      : "hover:bg-gray-100"
                   }`}
                 >
                   {index + 1}
@@ -265,13 +308,15 @@ const RentalGallery = () => {
 
           {filteredCars.length === 0 && (
             <div className="text-center py-10">
-              <p className="text-gray-500 text-lg">No cars found matching your criteria.</p>
+              <p className="text-gray-500 text-lg">
+                No cars found matching your criteria.
+              </p>
             </div>
           )}
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default RentalGallery
+export default RentalGallery;
