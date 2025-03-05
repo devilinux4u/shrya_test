@@ -13,7 +13,7 @@ router.get('/dashboard/summary', async (req, res) => {
     const totalSellVehicles = await vehicles.count();
 
     // 3. Total Rental Vehicles
-    const totalRentalVehicles = await rental.count();
+    const totalRentalVehicles = await RentalAllVehicles.count();
 
     // 4. Total Bookings and Active Bookings
     const totalBookings = await rental.count({

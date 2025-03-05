@@ -264,6 +264,16 @@ export default function Transactions() {
                 className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
               />
             </div>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
+            >
+              <option value="all">All Status</option>
+              <option value="paid">Paid</option>
+              <option value="pending">Pending</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
             <DatePicker
               selected={startDate}
               onChange={(date) => setStartDate(date)}
@@ -530,13 +540,12 @@ export default function Transactions() {
                     <div>
                       <p className="text-sm text-gray-500">Vehicle</p>
                       <p className="font-medium">
-                        {selectedTransaction.Booking?.RentalVehicle
-                          ?.make || "N/A"}{" "}
-                        {selectedTransaction.Booking?.RentalVehicle
-                          ?.model || ""}{" "}
+                        {selectedTransaction.Booking?.RentalVehicle?.make ||
+                          "N/A"}{" "}
+                        {selectedTransaction.Booking?.RentalVehicle?.model ||
+                          ""}{" "}
                         (
-                        {selectedTransaction.Booking?.RentalVehicle
-                          ?.year || ""}
+                        {selectedTransaction.Booking?.RentalVehicle?.year || ""}
                         )
                       </p>
                     </div>

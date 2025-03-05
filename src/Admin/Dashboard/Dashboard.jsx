@@ -77,6 +77,17 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(true);
 
+  // Theme colors
+  const primaryBlue = "#2563EB"; // Blue-600
+  const primaryOrange = "#F97316"; // Orange-500
+
+  // Colors for wishlist chart - defined outside the component to be consistent
+  const wishlistColors = {
+    Available: "#10B981", // Green
+    Pending: "#F59E0B", // Amber
+    Cancelled: "#EF4444", // Red
+  };
+
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
@@ -107,9 +118,9 @@ export default function Dashboard() {
             { model: "BMW X5", sales: 5 },
           ],
           wishlistStatus: data.wishlistStatus || [
-            { name: "Available", value: 12, color: "#10B981" },
-            { name: "Pending", value: 5, color: "#F59E0B" },
-            { name: "Cancelled", value: 3, color: "#EF4444" },
+            { name: "Available", value: 12, color: wishlistColors.Available },
+            { name: "Pending", value: 5, color: wishlistColors.Pending },
+            { name: "Cancelled", value: 3, color: wishlistColors.Cancelled },
           ],
           bookingStatusOverview: data.overview || [
             { status: "Pending", count: 10 },
@@ -162,11 +173,22 @@ export default function Dashboard() {
     switch (status) {
       case "completed":
       case "paid":
-        return "bg-blue-100 text-blue-800";
+        return "bg-green-100 text-green-800";
       case "pending":
-        return "bg-orange-100 text-orange-800";
+        return "bg-yellow-100 text-yellow-800";
       case "cancelled":
-        return "bg-blue-50 text-blue-600";
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getPaymentMethodStyle = (method) => {
+    switch (method) {
+      case "cash":
+        return "bg-green-100 text-green-800";
+      case "khalti":
+        return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -182,19 +204,6 @@ export default function Dashboard() {
         return <Building className="w-4 h-4" />;
       default:
         return <DollarSign className="w-4 h-4" />;
-    }
-  };
-
-  const getPaymentMethodStyle = (method) => {
-    switch (method) {
-      case "cash":
-        return "bg-blue-100 text-blue-800";
-      case "khalti":
-        return "bg-orange-100 text-orange-800";
-      case "bank_transfer":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -226,17 +235,6 @@ export default function Dashboard() {
   // Format currency
   const formatCurrency = (amount) => {
     return `Rs. ${amount?.toLocaleString() || 0}`;
-  };
-
-  // Theme colors
-  const primaryBlue = "#2563EB"; // Blue-600
-  const primaryOrange = "#F97316"; // Orange-500
-
-  // Colors for wishlist chart
-  const wishlistColors = {
-    available: "#10B981", // Green
-    pending: "#F59E0B", // Amber
-    cancelled: "#EF4444", // Red
   };
 
   if (loading) {
@@ -351,6 +349,7 @@ export default function Dashboard() {
             <div className="h-[300px]">
               <WishlistPieChart
                 data={dashboardData.wishlistStatus}
+                colors={wishlistColors}
               />
             </div>
           </div>
@@ -672,7 +671,7 @@ function HorizontalBarChart({ data, primaryColor }) {
   );
 }
 
-function WishlistPieChart({ data }) {
+function WishlistPieChart({ data, colors }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
@@ -684,9 +683,7 @@ function WishlistPieChart({ data }) {
           outerRadius={90}
           paddingAngle={2}
           dataKey="value"
-          label={({ name, percent }) =>
-            `${name} ${(percent * 100).toFixed(0)}%`
-          }
+          label={({ name, value }) => `${name}: ${value}`}
           labelLine={true}
         >
           {data.map((entry, index) => (
