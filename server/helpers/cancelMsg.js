@@ -33,7 +33,7 @@ const cancelEmail = async (msg, data, admin) => {
         },
     });
 
-    if (!admin) {
+    if (admin == false) {
         mailOptions = {
             from: process.env.EMAIL_USER, // Sender email
             to: process.env.EMAIL_ADMIN, // Recipient email
@@ -41,12 +41,12 @@ const cancelEmail = async (msg, data, admin) => {
             text: `Dear Admin, \n\n ${data.User?.fname || "Unknown User"} canceled ${data.RentalVehicle.make} ${data.RentalVehicle.model} ${data.RentalVehicle.year} rental vehicle booking for ${formatDateTime(data.pickupDate)}. \n\n Reason: ${msg ? msg : 'none'}`
         };
     }
-    else{
+    else if (admin == true) {
         mailOptions = {
             from: process.env.EMAIL_USER, // Sender email
-            to: data.User?.email || "admin@example.com", // Fallback email if undefined
+            to: data.user?.email, // Fallback email if undefined
             subject: 'Rental Cancellation Notification',
-            text: `Dear ${data.User?.fname || "Customer"}, \n\n Your booking for ${data.RentalVehicle.make} ${data.RentalVehicle.model} ${data.RentalVehicle.year} rental vehicle on ${formatDateTime(data.pickupDate)} has been canceled. \n\n Reason: ${msg ? msg : 'none'}`
+            text: `Dear ${data.user?.fname || "Customer"}, \n\n Your booking for ${data.RentalVehicle.make} ${data.RentalVehicle.model} ${data.RentalVehicle.year} rental vehicle on ${formatDateTime(data.pickupDate)} has been canceled. \n\n Reason: ${msg ? msg : 'none'}`
         };
     }
 

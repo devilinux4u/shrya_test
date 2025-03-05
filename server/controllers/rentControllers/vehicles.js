@@ -300,7 +300,18 @@ router.put("/cancel/:id", async (req, res) => {
     report.status = "cancelled";
     await report.save();
 
-    cancelEmail(req.body.reason, req.body.data, req.body.isAdmin)
+    if (
+      report.paymentMethod == 'payLater'
+    ) {
+      const existingTransaction = await db.Transaction.findOne({ where: { bookingId: report.id } });
+
+      if (existingTransaction) {
+        existingTransaction.status = 'cancelled';
+        await existingTransaction.save();
+      };
+    }
+
+    cancelEmail(req.body.reason, req.body.data,req.body.isAdmin)
 
     res.status(200).json({ success: true, message: "Item marked as resolved", data: report });
   } catch (error) {

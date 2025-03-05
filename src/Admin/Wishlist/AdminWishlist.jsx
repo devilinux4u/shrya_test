@@ -469,7 +469,7 @@ export default function AdminWishlist() {
                 <div
                   className={`absolute top-3 right-3 px-4 py-1 rounded-full font-medium flex items-center ${
                     item.status === "available"
-                      ? "bg-green-100 text-green-800" // Updated to green
+                      ? "bg-green-100 text-green-800"
                       : item.status === "pending"
                       ? "bg-yellow-100 text-yellow-800"
                       : "bg-red-100 text-red-800"

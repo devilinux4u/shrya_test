@@ -349,9 +349,11 @@ router.put("/wishlist/:id/cancel", async (req, res) => {
         wishlistItem.status = "cancelled";
         await wishlistItem.save();
 
-        console.log(req.body.vehicle, req.body.reason)
+        const name = await users.findByPk(wishlistItem.uid)
 
-        wishCancelNotify(req.body.vehicle, req.body.reason)
+        console.log(name.fname)
+
+        wishCancelNotify(name.fname, req.body.vehicle, req.body.reason)
 
         res.json({ success: true, message: "Wishlist status updated & notification sent!" });
     } catch (error) {

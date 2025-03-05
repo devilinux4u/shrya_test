@@ -271,7 +271,7 @@ const YourList = () => {
         },
         body: JSON.stringify({
           reason: cancelReason,
-          vehicle: selectedItem
+          vehicle: selectedItem,
         }),
       });
 
@@ -383,6 +383,18 @@ const YourList = () => {
               >
                 Pending
               </button>
+
+              <button
+                onClick={() => handleStatusFilterChange("cancelled")}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  statusFilter === "cancelled"
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                disabled={isLoading}
+              >
+                Cancelled
+              </button>
             </div>
           </div>
         </div>
@@ -435,7 +447,9 @@ const YourList = () => {
                         className={`px-3 py-1 rounded-full text-sm font-medium flex items-center ${
                           item.status === "available"
                             ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
+                            : item.status === "pending"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-red-100 text-red-800"
                         }`}
                       >
                         {item.status === "available" ? (
@@ -443,10 +457,15 @@ const YourList = () => {
                             <CheckCircle className="w-4 h-4 mr-1" />
                             Arrived
                           </>
-                        ) : (
+                        ) : item.status === "pending" ? (
                           <>
                             <Clock className="w-4 h-4 mr-1" />
                             Pending
+                          </>
+                        ) : (
+                          <>
+                            <X className="w-4 h-4 mr-1" />
+                            Cancelled
                           </>
                         )}
                       </span>
