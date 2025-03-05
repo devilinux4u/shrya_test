@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import {
   MapPin,
   Search,
@@ -10,7 +9,6 @@ import {
   ChevronRight,
   CheckCircle,
   AlertTriangle,
-  Eye,
   Package,
   X,
   RefreshCw,
@@ -46,6 +44,8 @@ const ReportedItems = () => {
     numberPlate: "",
   });
   const itemsPerPage = 6;
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Fetch data from API
   useEffect(() => {
@@ -211,7 +211,7 @@ const ReportedItems = () => {
         setSelectedItem(null);
       }
 
-      toast.success("Item marked as resolved successfully");
+      toast.success("Status updated to resolved successfully!"); // Add success toast
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update item status. Please try again.");
@@ -222,15 +222,18 @@ const ReportedItems = () => {
 
   // Handle item deletion
   const handleDeleteItem = async (itemId) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) {
-      return;
-    }
+    setSelectedItemId(itemId);
+    setIsDeleting(false); // Reset the deleting state
+    setShowDeleteConfirmation(true); // Show the confirmation modal
+  };
 
+  // Add this new function to handle the actual deletion after confirmation
+  const confirmDelete = async () => {
     setIsDeleting(true);
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/lost-and-found/${itemId}`,
+        `http://localhost:3000/api/lost-and-found/${selectedItemId}`,
         {
           method: "DELETE",
           headers: {
@@ -244,10 +247,14 @@ const ReportedItems = () => {
       }
 
       // Update local state
-      setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+      setItems((prevItems) =>
+        prevItems.filter((item) => item.id !== selectedItemId)
+      );
 
-      // Close modal if open
-      if (selectedItem && selectedItem.id === itemId) {
+      // Close modals
+      setShowDeleteConfirmation(false);
+      if (selectedItem && selectedItem.id === selectedItemId) {
+        setIsViewing(false);
         setSelectedItem(null);
       }
 
@@ -425,12 +432,12 @@ const ReportedItems = () => {
                 ? `You don't have any ${activeFilter} items.`
                 : "You haven't reported any items yet."}
             </p>
-            <Link
-              to="/LostAndFound"
+            <button
+              onClick={() => setIsFormOpen(true)}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
             >
               Report an Item
-            </Link>
+            </button>
           </div>
         ) : (
           <>
@@ -1063,6 +1070,75 @@ const ReportedItems = () => {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirmation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center justify-center mb-6">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                  <Trash2 className="h-8 w-8 text-red-600" />
+                </div>
+              </div>
+
+              <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
+                Confirm Deletion
+              </h3>
+              <p className="text-center text-gray-600 mb-6">
+                Are you sure you want to delete this item? This action cannot be
+                undone.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-3 sm:justify-center">
+                <button
+                  onClick={() => setShowDeleteConfirmation(false)}
+                  className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 w-full sm:w-auto"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                  className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 flex items-center justify-center w-full sm:w-auto"
+                >
+                  {isDeleting ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Deleting...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Item
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Floating Action Button for reporting items */}
+      {!isFormOpen && (
+        <button
+          onClick={() => setIsFormOpen(true)}
+          className="fixed right-6 bottom-6 p-4 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 transition-colors z-10 flex items-center justify-center"
+          aria-label="Report an item"
+        >
+          <Package className="h-6 w-6" />
+        </button>
+      )}
+      {/* LostAndFoundForm Modal */}
+      <LostAndFoundForm
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onAddItem={(newItem) => {
+          setItems((prevItems) => [newItem, ...prevItems]);
+          setFilteredItems((prevItems) => [newItem, ...prevItems]);
+          setIsFormOpen(false);
+          toast.success("Item reported successfully!");
+        }}
+      />
     </div>
   );
 };
