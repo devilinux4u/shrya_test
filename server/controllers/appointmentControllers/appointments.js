@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { Appointment, users, vehicles, v_img } = require("../../db/sequelize");
+const cancelEmail = require("../../helpers/appointmentCancelMsg");
 
 router.post("/", async (req, res) => {
   const { userId, vehicleId, date, time, location, description } = req.body;
@@ -118,7 +119,8 @@ router.get("/user/:userId", async (req, res) => {
 
 router.patch("/:id/status", async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, role } = req.body;
+  // console.log(req.body) // Debug log
 
   console.log(`Updating status for appointment ID: ${id}`); // Debug log
 
@@ -139,8 +141,8 @@ router.patch("/:id/status", async (req, res) => {
 
     if (!appointment) {
       console.error(`Appointment not found with ID: ${id}`);
-      return res.status(404).json({ 
-        success: false, 
+      return res.status(404).json({
+        success: false,
         message: "Appointment not found",
         receivedId: id // Send back the ID we received for debugging
       });
@@ -149,19 +151,36 @@ router.patch("/:id/status", async (req, res) => {
     appointment.status = status;
     await appointment.save();
 
+    if (status === "cancelled") {
+      let eid;
+      if (role === 'buyer') {
+        eid = appointment.SelleruserId;
+      } else if (role === 'seller') {
+        eid = appointment.userId;
+      } else {
+        console.log('Invalid role');
+        return;
+      }
+
+      const userEmail = await users.findOne({ where: { id: eid } });
+
+      cancelEmail(userEmail, appointment)
+
+    }
+
     console.log(`Successfully updated appointment ${id} to status: ${status}`);
-    res.status(200).json({ 
-      success: true, 
-      message: "Status updated", 
+    res.status(200).json({
+      success: true,
+      message: "Status updated",
       status,
-      data: appointment 
+      data: appointment
     });
   } catch (error) {
     console.error(`Error updating appointment ${id}:`, error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       message: "Internal server error",
-      error: error.message 
+      error: error.message
     });
   }
 });
