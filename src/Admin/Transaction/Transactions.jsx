@@ -12,9 +12,20 @@ import {
   XCircle,
   ChevronLeft,
   ChevronRight,
+  User,
+  Calendar,
+  Clock,
+  Car,
+  CreditCardIcon as CardIcon,
+  MapPin,
+  Phone,
+  Mail,
+  CheckCircle,
+  AlertTriangle,
+  X,
 } from "lucide-react";
-import DatePicker from "react-datepicker"; // Correct import for DatePicker
-import "react-datepicker/dist/react-datepicker.css"; // Ensure styles are imported
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -32,15 +43,11 @@ export default function Transactions() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:3000/api/transaction"); // Replace with your API endpoint
+        const response = await fetch("http://127.0.0.1:3000/api/transaction");
         if (!response.ok) {
           throw new Error("Failed to fetch transactions");
         }
         const data = await response.json();
-
-        console.log(data.data);
-
-        // Ensure transactions is an array
         setTransactions(data.data);
       } catch (err) {
         setError(err.message);
@@ -55,13 +62,28 @@ export default function Transactions() {
   const getStatusColor = (status) => {
     switch (status) {
       case "completed":
+      case "paid":
         return "bg-green-100 text-green-800";
       case "pending":
         return "bg-yellow-100 text-yellow-800";
-      case "cancelled": // Added case for cancelled
+      case "cancelled":
         return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "completed":
+      case "paid":
+        return <CheckCircle className="w-5 h-5 text-green-600" />;
+      case "pending":
+        return <Clock className="w-5 h-5 text-yellow-600" />;
+      case "cancelled":
+        return <X className="w-5 h-5 text-red-600" />;
+      default:
+        return <AlertTriangle className="w-5 h-5 text-gray-600" />;
     }
   };
 
@@ -94,16 +116,16 @@ export default function Transactions() {
     .filter((trx) => trx.status === "paid")
     .reduce((sum, trx) => sum + (trx.amount || 0), 0);
 
-  const completedAmount = transactions
-    .filter((trx) => trx.status === "paid")
-    .reduce((sum, trx) => sum + (trx.amount || 0), 0);
-
   const pendingAmount = transactions
     .filter((trx) => trx.status === "pending")
     .reduce((sum, trx) => sum + (trx.amount || 0), 0);
 
+  const cancelledAmount = transactions
+    .filter((trx) => trx.status === "cancelled")
+    .reduce((sum, trx) => sum + (trx.amount || 0), 0);
+
   const filteredTransactions = transactions.filter((transaction) => {
-    const customer = transaction.user?.fname?.toLowerCase() || "";
+    const customer = transaction.Booking?.User?.fname?.toLowerCase() || "";
     const matchesSearch = customer.includes(searchTerm.toLowerCase());
 
     const matchesType = filterType === "all" || transaction.type === filterType;
@@ -141,6 +163,14 @@ export default function Transactions() {
     const min = String(date.getMinutes()).padStart(2, "0");
     const ss = String(date.getSeconds()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}, ${hh}:${min}:${ss}`;
+  };
+
+  const formatDate = (dateTime) => {
+    const date = new Date(dateTime);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
   };
 
   if (loading) {
@@ -182,6 +212,39 @@ export default function Transactions() {
               </p>
               <div className="mt-2 text-sm text-gray-600">
                 {transactions.length} transactions
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-gray-500">Pending Transactions</h3>
+                <div className="p-3 bg-yellow-100 rounded-full">
+                  <ArrowDownRight className="w-6 h-6 text-yellow-800" />
+                </div>
+              </div>
+              <p className="text-2xl font-bold mt-2">
+                Rs. {pendingAmount.toLocaleString()}
+              </p>
+              <div className="mt-2 text-sm text-gray-600">
+                {transactions.filter((trx) => trx.status === "pending").length}{" "}
+                transactions
+              </div>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-gray-500">Cancelled Transactions</h3>
+                <div className="p-3 bg-red-100 rounded-full">
+                  <XCircle className="w-6 h-6 text-red-800" />
+                </div>
+              </div>
+              <p className="text-2xl font-bold mt-2">
+                Rs. {cancelledAmount.toLocaleString()}
+              </p>
+              <div className="mt-2 text-sm text-gray-600">
+                {
+                  transactions.filter((trx) => trx.status === "cancelled")
+                    .length
+                }{" "}
+                transactions
               </div>
             </div>
           </div>
@@ -244,23 +307,26 @@ export default function Transactions() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentTransactions.map((transaction) => (
-                  <tr key={transaction.id} className="hover:bg-gray-50">
+                  <tr
+                    key={transaction.id || Math.random()}
+                    className="hover:bg-gray-50"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {transaction.id}
+                        {transaction.id ? transaction.id : "N/A"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {transaction.Booking.User.fname}
+                        {transaction.Booking?.User?.fname || "N/A"}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {transaction.Booking.User.email}
+                        {transaction.Booking?.User?.email || "N/A"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        Rs. {transaction.amount.toLocaleString()}
+                        Rs. {transaction.amount?.toLocaleString() || "0"}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -269,7 +335,7 @@ export default function Transactions() {
                           transaction.status
                         )}`}
                       >
-                        {transaction.status.toUpperCase()}
+                        {transaction.status?.toUpperCase() || "N/A"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -280,7 +346,7 @@ export default function Transactions() {
                       >
                         {getPaymentMethodIcon(transaction.method)}
                         <span className="ml-2">
-                          {transaction.method}
+                          {transaction.method || "N/A"}
                           {transaction.cardLast4 &&
                             ` (*${transaction.cardLast4})`}
                         </span>
@@ -358,96 +424,226 @@ export default function Transactions() {
           </div>
         )}
 
-        {/* Transaction Detail Modal */}
+        {/* Improved Transaction Detail Modal */}
         {selectedTransaction && (
           <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
             onClick={() => setSelectedTransaction(null)}
           >
             <div
-              className="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl"
+              className="bg-white rounded-xl shadow-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    Transaction Details
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    View transaction information and process refunds
-                  </p>
+              {/* Header with Transaction ID and Status */}
+              <div className="flex justify-between items-center mb-6 pb-4 border-b">
+                <div className="flex items-center">
+                  <div className="mr-4">
+                    <div
+                      className={`p-3 rounded-full ${
+                        selectedTransaction.status === "paid" ||
+                        selectedTransaction.status === "completed"
+                          ? "bg-green-100"
+                          : selectedTransaction.status === "pending"
+                          ? "bg-yellow-100"
+                          : "bg-red-100"
+                      }`}
+                    >
+                      {getStatusIcon(selectedTransaction.status)}
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Transaction #{selectedTransaction.id}
+                    </h2>
+                    <div className="flex items-center mt-1">
+                      <span
+                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
+                          selectedTransaction.status
+                        )}`}
+                      >
+                        {selectedTransaction.status?.toUpperCase() || "N/A"}
+                      </span>
+                      <span className="ml-2 text-sm text-gray-500">
+                        {formatDateTime(selectedTransaction.createdAt)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
                 <button
                   onClick={() => setSelectedTransaction(null)}
-                  className="p-2 text-gray-400 hover:text-gray-600"
+                  className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
                 >
                   <XCircle className="w-6 h-6" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      Transaction ID
-                    </h3>
-                    <p className="text-lg font-medium text-gray-900">
-                      {selectedTransaction.id}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      Order ID
-                    </h3>
-                    <p className="text-lg font-medium text-gray-900">
-                      {selectedTransaction.pxid}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      Amount
-                    </h3>
-                    <p className="text-lg font-medium text-gray-900">
-                      Rs. {selectedTransaction.amount.toLocaleString()}
-                    </p>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Left Column - Customer Information */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <User className="w-5 h-5 mr-2 text-gray-500" />
+                    Customer Information
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Full Name</p>
+                      <p className="font-medium">
+                        {selectedTransaction.Booking?.User?.fname || "N/A"}{" "}
+                        {selectedTransaction.Booking?.User?.lname || ""}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Email</p>
+                      <div className="flex items-center">
+                        <Mail className="w-4 h-4 mr-1 text-gray-400" />
+                        <p className="font-medium">
+                          {selectedTransaction.Booking?.User?.email || "N/A"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Phone</p>
+                      <div className="flex items-center">
+                        <Phone className="w-4 h-4 mr-1 text-gray-400" />
+                        <p className="font-medium">
+                          {selectedTransaction.Booking?.User?.phone || "N/A"}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      Status
-                    </h3>
-                    <span
-                      className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                        selectedTransaction.status
-                      )}`}
-                    >
-                      {selectedTransaction.status.toUpperCase()}
-                    </span>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      Payment Method
-                    </h3>
-                    <div className="flex items-center mt-1">
-                      {getPaymentMethodIcon(selectedTransaction.method)}
-                      <span className="ml-2 text-gray-900">
-                        {selectedTransaction.method}
-                        {selectedTransaction.cardLast4 &&
-                          ` (*${selectedTransaction.cardLast4})`}
-                      </span>
+                {/* Middle Column - Vehicle & Rental Information */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <Car className="w-5 h-5 mr-2 text-gray-500" />
+                    Vehicle & Rental Details
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Vehicle</p>
+                      <p className="font-medium">
+                        {selectedTransaction.Booking?.Rental?.RentVehicle
+                          ?.make || "N/A"}{" "}
+                        {selectedTransaction.Booking?.Rental?.RentVehicle
+                          ?.model || ""}{" "}
+                        (
+                        {selectedTransaction.Booking?.Rental?.RentVehicle
+                          ?.year || ""}
+                        )
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">License Plate</p>
+                      <p className="font-medium">
+                        {selectedTransaction.Booking?.Rental?.RentVehicle
+                          ?.numberPlate || "N/A"}
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-sm text-gray-500">Start Date</p>
+                        <div className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-1 text-gray-400" />
+                          <p className="font-medium">
+                            {selectedTransaction.Booking?.Rental?.startDate
+                              ? formatDate(
+                                  selectedTransaction.Booking.Rental.startDate
+                                )
+                              : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-gray-500">End Date</p>
+                        <div className="flex items-center">
+                          <Calendar className="w-4 h-4 mr-1 text-gray-400" />
+                          <p className="font-medium">
+                            {selectedTransaction.Booking?.Rental?.endDate
+                              ? formatDate(
+                                  selectedTransaction.Booking.Rental.endDate
+                                )
+                              : "N/A"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Rental Duration</p>
+                      <p className="font-medium">
+                        {selectedTransaction.Booking?.Rental?.totalDays || "0"}{" "}
+                        days
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Pickup Location</p>
+                      <p className="font-medium">
+                        {selectedTransaction.Booking?.pickupLocation || "N/A"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Drop-off Location</p>
+                      <p className="font-medium">
+                        {selectedTransaction.Booking?.dropoffLocation || "N/A"}
+                      </p>
                     </div>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">Date</h3>
-                    <p className="text-lg font-medium text-gray-900">
-                      {formatDateTime(selectedTransaction.createdAt)}
-                    </p>
+                </div>
+
+                {/* Right Column - Payment Information */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <CardIcon className="w-5 h-5 mr-2 text-gray-500" />
+                    Payment Information
+                  </h3>
+
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Payment Method</p>
+                      <div className="flex items-center">
+                        {getPaymentMethodIcon(selectedTransaction.method)}
+                        <p className="font-medium ml-2">
+                          {selectedTransaction.method || "N/A"}
+                          {selectedTransaction.cardLast4 &&
+                            ` (*${selectedTransaction.cardLast4})`}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center mt-3 pt-2 border-t border-gray-200">
+                      <p className="text-base font-semibold">Total Amount</p>
+                      <p className="text-lg font-bold text-gray-900">
+                        Rs.{" "}
+                        {selectedTransaction.amount?.toLocaleString() || "0"}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
 
+              {/* Additional Notes or Booking Details */}
+              {selectedTransaction.Booking?.notes && (
+                <div className="mt-6 bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    Notes
+                  </h3>
+                  <p className="text-gray-700">
+                    {selectedTransaction.Booking.notes}
+                  </p>
+                </div>
+              )}
+
+              {/* Action Buttons */}
               <div className="mt-8 flex justify-end gap-3 border-t pt-6">
                 <button
                   onClick={() => setSelectedTransaction(null)}
@@ -455,11 +651,6 @@ export default function Transactions() {
                 >
                   Close
                 </button>
-                {selectedTransaction.status === "completed" && (
-                  <button className="px-4 py-2 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] font-medium">
-                    Process Refund
-                  </button>
-                )}
               </div>
             </div>
           </div>

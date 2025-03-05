@@ -7,22 +7,18 @@ import {
   Plus,
   Edit,
   Trash2,
-  Eye,
-  Filter,
-  Calendar,
+  ChevronDown,
   Loader2,
   AlertCircle,
-  DollarSign,
-  Clock,
+  Calendar,
   Users,
   ChevronLeft,
   ChevronRight,
-  X,
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-import { subMonths, subYears } from "date-fns"; // Import date-fns for date manipulation
+import { subMonths, subYears } from "date-fns";
 
 export default function AdminRentalVehicles() {
   const navigate = useNavigate();
@@ -113,7 +109,6 @@ export default function AdminRentalVehicles() {
         },
         features: vehicle.features || "N/A",
         description: vehicle.description || "N/A",
-        // Update this line to match the alias from your backend
         imagePreviewUrls: vehicle.rentVehicleImages
           ? vehicle.rentVehicleImages.map((img) =>
               img.image.startsWith("http")
@@ -125,7 +120,7 @@ export default function AdminRentalVehicles() {
         status: vehicle.status || "available",
         postedBy: "admin",
         numberPlate: vehicle.numberPlate || "N/A",
-        vehicle_images: vehicle.rentVehicleImages || [], // Update this reference too
+        vehicle_images: vehicle.rentVehicleImages || [],
       }));
 
       setVehicles(transformedVehicles);
@@ -168,16 +163,10 @@ export default function AdminRentalVehicles() {
       );
       setIsDeleteModalOpen(false);
       setVehicleToDelete(null);
-      toast.success("Vehicle deleted successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-      }); // Updated toast message
+      toast.success("Vehicle deleted successfully!");
     } catch (error) {
       console.error("Error deleting vehicle:", error);
-      toast.error("Failed to delete vehicle. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-      }); // Updated toast message
+      toast.error("Failed to delete vehicle. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -233,16 +222,10 @@ export default function AdminRentalVehicles() {
         )
       );
       setIsEditModalOpen(false);
-      toast.success("Vehicle updated successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-      }); // Updated toast message
+      toast.success("Vehicle updated successfully!");
     } catch (error) {
       console.error("Error updating vehicle:", error);
-      toast.error("Failed to update vehicle. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-      }); // Updated toast message
+      toast.error("Failed to update vehicle. Please try again.");
     }
   };
 
@@ -308,23 +291,9 @@ export default function AdminRentalVehicles() {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const FilterButton = ({ active, onClick, children }) => (
-    <button
-      onClick={onClick}
-      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-        active
-          ? "bg-indigo-600 text-white"
-          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-      }`}
-    >
-      {children}
-    </button>
-  );
-
   return (
     <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
       <ToastContainer />
-      {/* Ensure ToastContainer is included */}
       <div className="p-4 sm:p-6 md:p-8">
         <div className="mb-6 md:mb-8">
           <div className="border-l-4 border-orange-500 pl-4">
@@ -337,66 +306,92 @@ export default function AdminRentalVehicles() {
           </div>
         </div>
 
-        <div className="mb-6">
-          <div className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center sm:items-start justify-between">
+        {/* Simplified Search and Filter UI */}
+        <div className="mb-6 bg-white rounded-xl shadow-sm">
+          <div className="p-4 flex flex-col sm:flex-row gap-4 items-center">
+            {/* Search Bar */}
             <div className="relative w-full sm:w-auto flex-1 max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
+                <Search className="h-4 w-4 text-gray-400" />
               </div>
               <input
                 type="text"
-                placeholder="Search vehicles by make, model, year or plate..."
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                placeholder="Search vehicles..."
+                className="pl-9 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500 text-sm"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <select
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full sm:w-auto"
-              >
-                <option value="all">All Dates</option>
-                <option value="lastMonth">Added Last Month</option>
-                <option value="lastYear">Added Last Year</option>
-                <option value="custom">Custom Range</option>
-              </select>
-              {dateFilter === "custom" && (
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <input
-                    type="date"
-                    value={customDateRange.start}
-                    onChange={(e) =>
-                      setCustomDateRange({
-                        ...customDateRange,
-                        start: e.target.value,
-                      })
-                    }
-                    className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full sm:w-auto"
-                  />
-                  <input
-                    type="date"
-                    value={customDateRange.end}
-                    onChange={(e) =>
-                      setCustomDateRange({
-                        ...customDateRange,
-                        end: e.target.value,
-                      })
-                    }
-                    className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full sm:w-auto"
-                  />
-                </div>
-              )}
+            {/* Filter Dropdowns */}
+            <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+              {/* Date Filter */}
+              <div className="relative">
+                <select
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="appearance-none pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  <option value="all">All Dates</option>
+                  <option value="lastMonth">Last Month</option>
+                  <option value="lastYear">Last Year</option>
+                  <option value="custom">Custom Range</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
+              </div>
+
+              {/* Sort Filter */}
+              <div className="relative">
+                <select
+                  value={sortByFilter}
+                  onChange={(e) => setSortByFilter(e.target.value)}
+                  className="appearance-none pl-3 pr-8 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                >
+                  <option value="default">Sort By</option>
+                  <option value="date-latest">Newest First</option>
+                  <option value="date-oldest">Oldest First</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="price-low">Price: Low to High</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
+              </div>
             </div>
 
+            {/* Custom Date Range (conditionally rendered) */}
+            {dateFilter === "custom" && (
+              <div className="flex gap-2 w-full sm:w-auto">
+                <input
+                  type="date"
+                  value={customDateRange.start}
+                  onChange={(e) =>
+                    setCustomDateRange({
+                      ...customDateRange,
+                      start: e.target.value,
+                    })
+                  }
+                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                />
+                <input
+                  type="date"
+                  value={customDateRange.end}
+                  onChange={(e) =>
+                    setCustomDateRange({
+                      ...customDateRange,
+                      end: e.target.value,
+                    })
+                  }
+                  className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-orange-500 focus:border-orange-500"
+                />
+              </div>
+            )}
+
+            {/* Add Vehicle Button */}
             <button
               onClick={handleAddNew}
-              className="flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors w-full sm:w-auto"
+              className="flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors text-sm font-medium ml-auto"
             >
-              <Plus className="h-5 w-5 mr-2" />
-              <span>Add Vehicle</span>
+              <Plus className="h-4 w-4 mr-1.5" />
+              Add Vehicle
             </button>
           </div>
         </div>
@@ -437,7 +432,7 @@ export default function AdminRentalVehicles() {
             </p>
             <button
               onClick={handleAddNew}
-              className="inline-flex items-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
             >
               <Plus className="h-5 w-5 mr-2" />
               <span>Add Vehicle</span>
@@ -448,7 +443,7 @@ export default function AdminRentalVehicles() {
             {currentVehicles.map((vehicle) => (
               <div
                 key={vehicle._id}
-                className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer"
+                className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer flex flex-col"
                 onClick={() => handleView(vehicle)}
               >
                 <div className="relative h-48 overflow-hidden bg-gray-200">
@@ -480,7 +475,7 @@ export default function AdminRentalVehicles() {
                   )}
                 </div>
 
-                <div className="p-5">
+                <div className="p-5 flex flex-col flex-grow">
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <h3 className="text-lg font-bold text-gray-900">
@@ -521,7 +516,7 @@ export default function AdminRentalVehicles() {
                     </div>
                   </div>
 
-                  <div className="flex justify-between pt-4 border-t border-gray-100">
+                  <div className="mt-auto flex justify-between pt-4 border-t border-gray-100">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
