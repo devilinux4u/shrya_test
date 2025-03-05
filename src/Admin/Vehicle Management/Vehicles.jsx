@@ -68,7 +68,9 @@ export default function Vehicles() {
 
         // Simulating API response with sample data
 
-        const response = await fetch("http://localhost:3000/vehicles/admin/all"); // replace with your backend URL
+        const response = await fetch(
+          "http://localhost:3000/vehicles/admin/all"
+        ); // replace with your backend URL
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -614,37 +616,24 @@ export default function Vehicles() {
                       >
                         View Details
                       </button>
-                      <button
-                        onClick={() => handleEditVehicle(vehicle)}
-                        disabled={vehicle.status === "sold"}
-                        className={`p-2 rounded-lg transition-colors ${
-                          vehicle.status === "sold"
-                            ? "text-gray-400 cursor-not-allowed"
-                            : "text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100"
-                        }`}
-                        title="Edit Vehicle"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => handleStatusChange(vehicle)}
-                        className={`p-2 ${
-                          vehicle.status === "available"
-                            ? "text-gray-600 hover:text-blue-600"
-                            : "text-gray-600 hover:text-green-600"
-                        } hover:bg-gray-100 rounded-lg transition-colors`}
-                        title={
-                          vehicle.status === "available"
-                            ? "Mark as Sold"
-                            : "Mark as Available"
-                        }
-                      >
-                        {vehicle.status === "available" ? (
-                          <CheckCircle className="w-5 h-5" />
-                        ) : (
-                          <Check className="w-5 h-5" />
-                        )}
-                      </button>
+                      {vehicle.status === "available" && (
+                        <>
+                          <button
+                            onClick={() => handleEditVehicle(vehicle)}
+                            className="p-2 text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100 rounded-lg transition-colors"
+                            title="Edit Vehicle"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => handleStatusChange(vehicle)}
+                            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
+                            title="Mark as Sold"
+                          >
+                            <CheckCircle className="w-5 h-5" />
+                          </button>
+                        </>
+                      )}
                       <button
                         onClick={() => handleDeleteVehicle(vehicle)}
                         className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors"

@@ -456,13 +456,15 @@ export default function ViewDetails() {
 
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            className="flex-1 bg-[#4F46E5] text-white px-6 py-3 rounded-lg hover:bg-[#4338CA] transition-colors flex items-center justify-center gap-2"
-            onClick={handleEditClick}
-          >
-            <Edit className="w-5 h-5" />
-            Edit Vehicle
-          </button>
+          {vehicle.status === "available" && (
+            <button
+              className="flex-1 bg-[#4F46E5] text-white px-6 py-3 rounded-lg hover:bg-[#4338CA] transition-colors flex items-center justify-center gap-2"
+              onClick={handleEditClick}
+            >
+              <Edit className="w-5 h-5" />
+              Edit Vehicle
+            </button>
+          )}
           <button
             className="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
             onClick={handleDeleteClick}
