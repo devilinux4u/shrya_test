@@ -1,10 +1,10 @@
 const multer = require('multer');
 const path = require('path');
-const { vehicles, v_img } = require('../../db/sequelize');
+const { RentalAllVehicles, RentalAllVehicleImages } = require('../../db/sequelize');
 const fs = require('fs');
 
 // Configure upload directory
-const uploadDir = path.join(__dirname, '../../uploads/vehicles');
+const uploadDir = path.join(__dirname, '../../uploads/rental-vehicles');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
-    cb(null, `vehicle-${Date.now()}${ext}`);
+    cb(null, `rental-vehicle-${Date.now()}${ext}`);
   }
 });
 
@@ -40,7 +40,6 @@ const upload = multer({
   }
 }).array('images', 10);
 
-// Move the validateVehicleData function here (before the controller)
 const validateVehicleData = (data) => {
   const errors = [];
   
@@ -54,7 +53,10 @@ const validateVehicleData = (data) => {
     seats: 'Seat count is required',
     doors: 'Door count is required',
     transmission: 'Transmission type is required',
-    fuel: 'Fuel type is required'
+    fuel: 'Fuel type is required',
+    engine: 'Engine info is required',
+    power: 'Power is required',
+    mileage: 'Mileage is required'
   };
 
   for (const [field, message] of Object.entries(requiredFields)) {
@@ -69,7 +71,7 @@ const validateVehicleData = (data) => {
   }
 
   // Validate prices
-  const priceFields = ['day', 'hour', 'week', 'month'];
+  const priceFields = ['hour', 'day', 'week', 'month'];
   for (const field of priceFields) {
     const price = data[`price_${field}`];
     if (!price || isNaN(price)) {
@@ -82,7 +84,6 @@ const validateVehicleData = (data) => {
   return errors;
 };
 
-// Main controller function
 const addVehicle = async (req, res) => {
   upload(req, res, async (err) => {
     try {
@@ -113,10 +114,6 @@ const addVehicle = async (req, res) => {
         });
       }
 
-      // Log received data for debugging
-      console.log('Received body:', req.body);
-      console.log('Received files:', req.files);
-
       // Validate input data
       const validationErrors = validateVehicleData(req.body);
       if (validationErrors.length > 0) {
@@ -128,23 +125,25 @@ const addVehicle = async (req, res) => {
       }
 
       // Process and save vehicle data
-      const vehicle = await vehicles.create({
-        uid: req.user?.id || 1,
+      const vehicle = await RentalAllVehicles.create({
         make: req.body.make,
         model: req.body.model,
         year: parseInt(req.body.year),
-        color: req.body.color || 'DefaultColor',
-        km: req.body.mileage ? parseInt(req.body.mileage) : 0,
-        fuel: req.body.fuel,
-        trans: req.body.transmission,
-        price: parseFloat(req.body.price_day),
-        des: `${req.body.description}\n\nFeatures: ${req.body.features || 'None'}`,
-        own: 'Rental',
-        mile: req.body.mileage || '',
-        seat: req.body.seats,
-        cc: req.body.engine || '',
-        status: 'available',
-        numberPlate: req.body.numberPlate
+        numberPlate: req.body.numberPlate,
+        priceHour: parseFloat(req.body.price_hour),
+        priceDay: parseFloat(req.body.price_day),
+        priceWeek: parseFloat(req.body.price_week),
+        priceMonth: parseFloat(req.body.price_month),
+        seats: parseInt(req.body.seats),
+        doors: parseInt(req.body.doors),
+        transmission: req.body.transmission,
+        fuelType: req.body.fuel,
+        mileage: parseInt(req.body.mileage),
+        engine: req.body.engine,
+        power: parseInt(req.body.power),
+        features: req.body.features,
+        description: req.body.description,
+        status: 'available'
       });
 
       // Save images
@@ -152,9 +151,9 @@ const addVehicle = async (req, res) => {
       if (req.files && req.files.length > 0) {
         savedImages = await Promise.all(
           req.files.map(file => 
-            v_img.create({
+            RentalAllVehicleImages.create({
               vehicleId: vehicle.id,
-              image: `/uploads/vehicles/${file.filename}`
+              image: `/uploads/rental-vehicles/${file.filename}`
             })
           )
         );
@@ -163,7 +162,7 @@ const addVehicle = async (req, res) => {
       // Successful response
       return res.status(201).json({
         success: true,
-        message: 'Vehicle added successfully',
+        message: 'Rental vehicle added successfully',
         data: {
           id: vehicle.id,
           make: vehicle.make,

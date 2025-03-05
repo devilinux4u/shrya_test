@@ -350,7 +350,6 @@ module.exports.LostAndFoundImage = (sequelize, DataTypes) => {
 };
 
 //added Rental vehicles
-// Rental All Vehicles Model
 module.exports.rentalAllVehicles = (sequelize, DataTypes) => {
     const Vehicle = sequelize.define('rentVehicle', {
         make: {
@@ -368,52 +367,72 @@ module.exports.rentalAllVehicles = (sequelize, DataTypes) => {
             allowNull: false,
             validate: { notEmpty: true }
         },
-        color: {
+        numberPlate: {
             type: DataTypes.STRING,
             allowNull: false,
-            validate: { notEmpty: true }
+            validate: { notEmpty: true },
+            unique: true
         },
-        km: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        fuel: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        trans: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        price: {
+        priceHour: {
             type: DataTypes.FLOAT,
             allowNull: false,
             validate: { notEmpty: true }
         },
-        des: {
-            type: DataTypes.TEXT,
+        priceDay: {
+            type: DataTypes.FLOAT,
             allowNull: false,
             validate: { notEmpty: true }
         },
-        own: {
-            type: DataTypes.TEXT,
+        priceWeek: {
+            type: DataTypes.FLOAT,
             allowNull: false,
             validate: { notEmpty: true }
         },
-        mile: {
-            type: DataTypes.TEXT,
+        priceMonth: {
+            type: DataTypes.FLOAT,
             allowNull: false,
             validate: { notEmpty: true }
         },
-        seat: {
-            type: DataTypes.TEXT,
+        seats: {
+            type: DataTypes.INTEGER,
             allowNull: false,
             validate: { notEmpty: true }
         },
-        cc: {
+        doors: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        transmission: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        fuelType: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        mileage: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        engine: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        power: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        features: {
+            type: DataTypes.TEXT,
+            allowNull: true
+        },
+        description: {
             type: DataTypes.TEXT,
             allowNull: false,
             validate: { notEmpty: true }
@@ -424,7 +443,6 @@ module.exports.rentalAllVehicles = (sequelize, DataTypes) => {
             defaultValue: "available",
         },
     });
-    
 
     return Vehicle;
 };
