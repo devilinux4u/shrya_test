@@ -11,9 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  DollarSign,
   Calendar,
-  Clock,
   User,
   Fuel,
   Settings,
@@ -379,10 +377,12 @@ export default function MySales() {
 
         console.log(data.data);
 
-        setVehicles(data.data);
+        // Ensure vehicles is always an array
+        setVehicles(Array.isArray(data.data) ? data.data : []);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
-        // Removed toast.error for no vehicles
+        // Initialize with empty array on error
+        setVehicles([]);
       } finally {
         setIsLoading(false);
       }
@@ -510,25 +510,28 @@ export default function MySales() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
 
-  // Filter vehicles based on current sfilters and search query
-  const filteredVehicles = vehicles.filter((vehicle) => {
-    // Filter by status
-    if (statusFilter !== "all" && vehicle.status !== statusFilter) {
-      return false;
-    }
+  // Filter vehicles based on current filters and search query
+  // Ensure vehicles is an array before filtering
+  const filteredVehicles = Array.isArray(vehicles)
+    ? vehicles.filter((vehicle) => {
+        // Filter by status
+        if (statusFilter !== "all" && vehicle.status !== statusFilter) {
+          return false;
+        }
 
-    // Filter by search query
-    if (searchTerm) {
-      const query = searchTerm.toLowerCase();
-      return (
-        (vehicle.make && vehicle.make.toLowerCase().includes(query)) ||
-        (vehicle.model && vehicle.model.toLowerCase().includes(query)) ||
-        (vehicle.year && vehicle.year.toString().includes(query))
-      );
-    }
+        // Filter by search query
+        if (searchTerm) {
+          const query = searchTerm.toLowerCase();
+          return (
+            (vehicle.make && vehicle.make.toLowerCase().includes(query)) ||
+            (vehicle.model && vehicle.model.toLowerCase().includes(query)) ||
+            (vehicle.year && vehicle.year.toString().includes(query))
+          );
+        }
 
-    return true;
-  });
+        return true;
+      })
+    : [];
 
   // Apply sorting
   const sortedVehicles = [...filteredVehicles].sort((a, b) => {
@@ -564,6 +567,17 @@ export default function MySales() {
     setSearchTerm("");
     setCurrentPage(1);
   };
+
+  useEffect(() => {
+    if (Array.isArray(vehicles) && vehicles.length > 0) {
+      console.log(
+        "Vehicle statuses:",
+        vehicles.map((v) => v.status)
+      );
+      console.log("Current status filter:", statusFilter);
+      console.log("Filtered count:", filteredVehicles.length);
+    }
+  }, [vehicles, statusFilter, filteredVehicles.length]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -620,14 +634,14 @@ export default function MySales() {
                   All
                 </button>
                 <button
-                  onClick={() => setStatusFilter("active")}
+                  onClick={() => setStatusFilter("available")}
                   className={`px-4 py-2 rounded-full transition-colors ${
-                    statusFilter === "active"
+                    statusFilter === "available"
                       ? "bg-green-500 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
-                  Active
+                  Available
                 </button>
                 <button
                   onClick={() => setStatusFilter("sold")}
@@ -933,6 +947,7 @@ export default function MySales() {
             <SellVehicleForm
               isOpen={isSellVehicleFormOpen}
               onClose={closeSellVehicleForm}
+              onAddVehicle={handleAddVehicle}
             />
           )}
         </>
