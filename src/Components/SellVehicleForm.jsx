@@ -88,6 +88,12 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`
       }
     })
+
+    // Check if images are uploaded
+    if (vehicle.images.length === 0) {
+      newErrors.images = "Please upload at least one image"
+    }
+
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -113,7 +119,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
 
         formData.append("id", Cookies.get("sauto").split("-")[0])
 
-        console.log(formData);
+        console.log(formData)
 
         // Simulate API call to submit the form
         const response = await fetch("http://127.0.0.1:3000/addVehicle", {
@@ -173,6 +179,11 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         stepErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
       }
     })
+
+    // Check for images in step 3
+    if (step === 3 && vehicle.images.length === 0) {
+      stepErrors.images = "Please upload at least one image"
+    }
 
     setErrors(stepErrors)
     return Object.keys(stepErrors).length === 0
@@ -389,6 +400,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                   </div>
                 ))}
               </div>
+              {errors.images && <p className="mt-2 text-sm text-red-500">{errors.images}</p>}
             </div>
           </div>
         )
