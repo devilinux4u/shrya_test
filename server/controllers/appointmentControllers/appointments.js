@@ -87,6 +87,7 @@ router.get("/user/:userId", async (req, res) => {
           attributes: ["id", "fname", "email", "num"],
         },
       ],
+      order: [["createdAt", "DESC"]], // Sort by creation date
     });
 
     // Fetch appointments as seller
@@ -103,6 +104,7 @@ router.get("/user/:userId", async (req, res) => {
           attributes: ["id", "fname", "email", "num"],
         },
       ],
+      order: [["createdAt", "DESC"]], // Sort by creation date
     });
 
     console.log("Appointments fetched successfully:", { asBuyer, asSeller }); // Debug log

@@ -44,6 +44,9 @@ export default function UserAppointments() {
     bookingId: null,
     role: null,
   });
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [appointmentToCancel, setAppointmentToCancel] = useState(null);
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -83,6 +86,11 @@ export default function UserAppointments() {
             buyer: app.User || {}, // Use User object for buyer details
           })),
         ];
+
+        // Sort appointments by creation date in descending order
+        combinedAppointments.sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
 
         console.log(combinedAppointments);
 
@@ -306,6 +314,47 @@ export default function UserAppointments() {
 
   const isUserSeller = (appointment) => {
     return appointment.role === "seller";
+  };
+
+  const handleCancelClick = (appointment, role) => {
+    setAppointmentToCancel({ id: appointment.id, role });
+    setIsCancelModalOpen(true);
+  };
+
+  const confirmCancellation = async () => {
+    if (!appointmentToCancel) return;
+
+    try {
+      await fetch(
+        `http://localhost:3000/api/appointments/${appointmentToCancel.id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: "cancelled",
+            role: appointmentToCancel.role,
+            reason: cancelReason,
+          }),
+        }
+      );
+
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((appointment) =>
+          appointment.id === appointmentToCancel.id
+            ? { ...appointment, status: "cancelled" }
+            : appointment
+        )
+      );
+
+      toast.success("Appointment cancelled successfully");
+      setIsCancelModalOpen(false);
+      setCancelReason("");
+    } catch (error) {
+      console.error("Error cancelling appointment:", error);
+      toast.error("Failed to cancel appointment. Please try again.");
+    }
   };
 
   const filteredAppointments = appointments.filter((appointment) => {
@@ -658,8 +707,8 @@ export default function UserAppointments() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent triggering the card click event
-                            cancelAppointment(
-                              appointment.id,
+                            handleCancelClick(
+                              appointment,
                               isUserBuyer(appointment) ? "buyer" : "seller"
                             );
                           }}
@@ -1141,6 +1190,65 @@ export default function UserAppointments() {
                   }}
                 >
                   Go Back
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancellation Modal */}
+      {isCancelModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Cancel Appointment
+                </h2>
+                <button
+                  onClick={() => setIsCancelModalOpen(false)}
+                  className="p-2 rounded-full hover:bg-gray-100"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-600 mb-4">
+                  Are you sure you want to cancel this appointment?
+                </p>
+
+                <div className="mb-4">
+                  <label
+                    htmlFor="cancelReason"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Reason for cancellation (optional)
+                  </label>
+                  <textarea
+                    id="cancelReason"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    rows="3"
+                    className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition-colors"
+                    placeholder="Please provide a reason for cancellation..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsCancelModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Keep Appointment
+                </button>
+                <button
+                  onClick={confirmCancellation}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Confirm Cancellation
                 </button>
               </div>
             </div>
