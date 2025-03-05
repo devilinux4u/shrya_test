@@ -5,6 +5,6 @@ module.exports = {
         database: 'shreya_auto',
         host: 'localhost',
         dialect: 'mysql',
-        port: 3306
+        port: 3307
     },
 };

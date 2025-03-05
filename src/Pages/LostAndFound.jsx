@@ -4,7 +4,7 @@ import { useState } from "react"
 import { MapPin, Calendar, ChevronLeft, ChevronRight, Search, ChevronDown } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import Purse from "../assets/Purse.png"
-import LostAndFoundForm from "../components/LostAndFoundForm"
+import LostAndFoundForm from "../Components/LostAndFoundForm"
 
 const items = [
   {
