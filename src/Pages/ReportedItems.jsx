@@ -18,6 +18,7 @@ import {
   Edit,
 } from "lucide-react";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 const ReportedItems = () => {
   const [items, setItems] = useState([]);
@@ -30,7 +31,14 @@ const ReportedItems = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isViewing, setIsViewing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
+  const [updatedData, setUpdatedData] = useState({
+    title: "",
+    description: "",
+    location: "",
+    date: "",
+  });
   const itemsPerPage = 6;
 
   // Fetch data from API
@@ -207,8 +215,49 @@ const ReportedItems = () => {
   };
 
   const handleUpdateData = async (itemId) => {
-    console.log(selectedItem);
-    console.log(itemId);
+    if (!updatedData) {
+      toast.error("No item selected");
+      return;
+    }
+    if (!itemId) {
+      toast.error("No item ID provided");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/lost-and-found/edit/${itemId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: updatedData.title,
+            description: updatedData.description,
+            location: updatedData.location,
+            date: updatedData.date,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update item");
+      }
+
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === itemId ? { ...item, ...updatedData } : item
+        )
+      );
+
+      toast.success("Item updated successfully");
+      setUpdatedData(null);
+    } catch (error) {
+      toast.error(error.message || "Error updating item");
+    }
   };
 
   return (
@@ -405,7 +454,13 @@ const ReportedItems = () => {
                         <button
                           onClick={() => {
                             setIsEditing(true);
-                            setSelectedItem(item);
+                            setSelectedItemId(item.id);
+                            setUpdatedData({
+                              title: item.title,
+                              description: item.description,
+                              location: item.location,
+                              date: item.createdAt,
+                            });
                           }}
                           className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 justify-end"
                         >
@@ -470,6 +525,7 @@ const ReportedItems = () => {
           </>
         )}
       </div>
+
       {/* Item Detail Modal */}
       {isViewing && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -588,7 +644,7 @@ const ReportedItems = () => {
         </div>
       )}
       {/* Edit modal */}
-      {isEditing && (
+      {isEditing && updatedData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
@@ -596,7 +652,12 @@ const ReportedItems = () => {
               <button
                 onClick={() => {
                   setIsEditing(false);
-                  setSelectedItem(null);
+                  setUpdatedData({
+                    title: "",
+                    description: "",
+                    location: "",
+                    date: "",
+                  });
                 }}
                 className="p-1 rounded-full hover:bg-gray-100"
               >
@@ -615,10 +676,10 @@ const ReportedItems = () => {
                 type="text"
                 id="title"
                 name="title"
-                value={selectedItem.title}
+                value={updatedData.title}
                 className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 onChange={(e) => {
-                  setSelectedItem((prev) => ({
+                  setUpdatedData((prev) => ({
                     ...prev,
                     title: e.target.value,
                   }));
@@ -636,9 +697,9 @@ const ReportedItems = () => {
               <textarea
                 id="description"
                 name="description"
-                value={selectedItem.description}
+                value={updatedData.description}
                 onChange={(e) => {
-                  setSelectedItem((prev) => ({
+                  setUpdatedData((prev) => ({
                     ...prev,
                     description: e.target.value,
                   }));
@@ -658,9 +719,9 @@ const ReportedItems = () => {
               <input
                 type="text"
                 id="location"
-                value={selectedItem.location}
+                value={updatedData.location}
                 onChange={(e) => {
-                  setSelectedItem((prev) => ({
+                  setUpdatedData((prev) => ({
                     ...prev,
                     location: e.target.value,
                   }));
@@ -682,16 +743,14 @@ const ReportedItems = () => {
                 id="date"
                 name="date"
                 onChange={(e) => {
-                  setSelectedItem((prev) => ({
+                  setUpdatedData((prev) => ({
                     ...prev,
-                    createdAt: new Date(e.target.value).toISOString(),
+                    date: new Date(e.target.value).toISOString(),
                   }));
                 }}
                 value={
-                  selectedItem.createdAt
-                    ? new Date(selectedItem.createdAt)
-                        .toISOString()
-                        .split("T")[0]
+                  updatedData.date
+                    ? new Date(updatedData.date).toISOString().split("T")[0]
                     : ""
                 }
                 className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
@@ -699,7 +758,7 @@ const ReportedItems = () => {
             </div>
             <div className="mb-4">
               <button
-                onClick={() => handleUpdateData(selectedItem.id)}
+                onClick={() => handleUpdateData(selectedItemId)}
                 className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
               >
                 <CheckCircle className="w-4 h-4 mr-1" />
