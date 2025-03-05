@@ -21,150 +21,6 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-// Dummy data for active rentals
-const dummyRentals = [
-  {
-    _id: "r1",
-    vehicle: {
-      _id: "v1",
-      make: "Toyota",
-      model: "Corolla",
-      year: 2022,
-      imageUrl: "/placeholder.svg?height=400&width=600",
-      numberPlate: "KA-01-AB-1234",
-    },
-    user: {
-      _id: "u1",
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "+91 9876543210",
-      profileImage: "/placeholder.svg?height=200&width=200",
-    },
-    rentalPeriod: {
-      type: "day", // hour, day, week, month
-      startDate: "2025-03-25T10:00:00Z",
-      endDate: "2025-03-29T10:00:00Z",
-      totalHours: 96,
-      hoursRemaining: 48,
-    },
-    totalAmount: 10000,
-    paymentStatus: "paid",
-    status: "active",
-  },
-  {
-    _id: "r2",
-    vehicle: {
-      _id: "v2",
-      make: "Honda",
-      model: "Civic",
-      year: 2021,
-      imageUrl: "/placeholder.svg?height=400&width=600",
-      numberPlate: "KA-02-CD-5678",
-    },
-    user: {
-      _id: "u2",
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      phone: "+91 9876543211",
-      profileImage: "/placeholder.svg?height=200&width=200",
-    },
-    rentalPeriod: {
-      type: "week",
-      startDate: "2025-03-20T14:00:00Z",
-      endDate: "2025-04-03T14:00:00Z",
-      totalHours: 336,
-      hoursRemaining: 120,
-    },
-    totalAmount: 16000,
-    paymentStatus: "paid",
-    status: "active",
-  },
-  {
-    _id: "r3",
-    vehicle: {
-      _id: "v3",
-      make: "Suzuki",
-      model: "Swift",
-      year: 2023,
-      imageUrl: "/placeholder.svg?height=400&width=600",
-      numberPlate: "KA-03-EF-9012",
-    },
-    user: {
-      _id: "u3",
-      name: "Robert Johnson",
-      email: "robert.johnson@example.com",
-      phone: "+91 9876543212",
-      profileImage: "/placeholder.svg?height=200&width=200",
-    },
-    rentalPeriod: {
-      type: "day",
-      startDate: "2025-03-28T09:00:00Z",
-      endDate: "2025-03-30T09:00:00Z",
-      totalHours: 48,
-      hoursRemaining: 36,
-    },
-    totalAmount: 4000,
-    paymentStatus: "paid",
-    status: "active",
-  },
-  {
-    _id: "r4",
-    vehicle: {
-      _id: "v4",
-      make: "Hyundai",
-      model: "Tucson",
-      year: 2022,
-      imageUrl: "/placeholder.svg?height=400&width=600",
-      numberPlate: "KA-04-GH-3456",
-    },
-    user: {
-      _id: "u4",
-      name: "Emily Davis",
-      email: "emily.davis@example.com",
-      phone: "+91 9876543213",
-      profileImage: "/placeholder.svg?height=200&width=200",
-    },
-    rentalPeriod: {
-      type: "hour",
-      startDate: "2025-03-29T13:00:00Z",
-      endDate: "2025-03-29T19:00:00Z",
-      totalHours: 6,
-      hoursRemaining: 4,
-    },
-    totalAmount: 3000,
-    paymentStatus: "paid",
-    status: "active",
-  },
-  {
-    _id: "r5",
-    vehicle: {
-      _id: "v5",
-      make: "Kia",
-      model: "Sportage",
-      year: 2023,
-      imageUrl: "/placeholder.svg?height=400&width=600",
-      numberPlate: "KA-05-IJ-7890",
-    },
-    user: {
-      _id: "u5",
-      name: "Michael Wilson",
-      email: "michael.wilson@example.com",
-      phone: "+91 9876543214",
-      profileImage: "/placeholder.svg?height=200&width=200",
-    },
-    rentalPeriod: {
-      type: "month",
-      startDate: "2025-03-01T12:00:00Z",
-      endDate: "2025-04-01T12:00:00Z",
-      totalHours: 744,
-      hoursRemaining: 72,
-    },
-    totalAmount: 75000,
-    paymentStatus: "paid",
-    status: "active",
-  },
-];
-
 export default function ActiveRentals() {
   const navigate = useNavigate();
   const [rentals, setRentals] = useState([]);
@@ -176,20 +32,41 @@ export default function ActiveRentals() {
   const [itemsPerPage] = useState(6);
 
   useEffect(() => {
-    // Simulate API call with dummy data
-    setTimeout(() => {
-      setRentals(dummyRentals);
-      setLoading(false);
-    }, 1000);
+    const fetchRentals = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("https://api.example.com/rentals/active"); // Replace with your API endpoint
+        if (!response.ok) {
+          throw new Error("Failed to fetch rentals data");
+        }
+        const data = await response.json();
+        setRentals(data);
+        setError(null);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRentals();
   }, []);
 
   const fetchRentals = async () => {
-    // For demo purposes, just reset to dummy data
     setLoading(true);
-    setTimeout(() => {
-      setRentals(dummyRentals);
+    try {
+      const response = await fetch("https://api.example.com/rentals/active"); // Replace with your API endpoint
+      if (!response.ok) {
+        throw new Error("Failed to fetch rentals data");
+      }
+      const data = await response.json();
+      setRentals(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const handleViewDetails = (id) => {

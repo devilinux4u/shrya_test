@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Edit,
@@ -359,77 +359,29 @@ function VehicleDetailsModal({
 export default function MySales() {
   const navigate = useNavigate();
 
-  const [vehicles, setVehicles] = useState([
-    {
-      id: 1,
-      make: "Toyota",
-      model: "Corolla",
-      year: 2020,
-      mile: 15000,
-      price: 2000000,
-      status: "active",
-      fuel: "Petrol",
-      trans: "Automatic",
-      own: "First Owner",
-      color: "White",
-      seat: "5",
-      cc: "1800 cc",
-      des: "Well maintained Toyota Corolla with all service records. The car is in excellent condition with no mechanical issues. Features include power windows, central locking, airbags, and a premium sound system.",
-      createdAt: "2023-05-15",
-      images: [{ image: "/images/toyota-corolla.jpg" }],
-      user: {
-        fname: "John Doe",
-        num: "+1234567890",
-        email: "john@example.com",
-      },
-    },
-    {
-      id: 2,
-      make: "Honda",
-      model: "Civic",
-      year: 2019,
-      mile: 25000,
-      price: 1800000,
-      status: "sold",
-      fuel: "Petrol",
-      trans: "Manual",
-      own: "Second Owner",
-      color: "Silver",
-      seat: "5",
-      cc: "1500 cc",
-      des: "Honda Civic in good condition. Regular maintenance done at authorized service center. Features include alloy wheels, rear camera, and touchscreen infotainment system.",
-      createdAt: "2023-03-10",
-      images: [{ image: "/images/honda-civic.jpg" }],
-      user: {
-        fname: "John Doe",
-        num: "+1234567890",
-        email: "john@example.com",
-      },
-    },
-    {
-      id: 3,
-      make: "Ford",
-      model: "Focus",
-      year: 2021,
-      mile: 10000,
-      price: 2200000,
-      status: "active",
-      fuel: "Diesel",
-      trans: "Automatic",
-      own: "First Owner",
-      color: "Blue",
-      seat: "5",
-      cc: "2000 cc",
-      des: "Nearly new Ford Focus with very low mileage. Still under manufacturer warranty. Premium features include leather seats, panoramic sunroof, and advanced driver assistance systems.",
-      createdAt: "2023-06-22",
-      images: [{ image: "/images/ford-focus.jpg" }],
-      user: {
-        fname: "John Doe",
-        num: "+1234567890",
-        email: "john@example.com",
-      },
-    },
-  ]);
+  const [vehicles, setVehicles] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await fetch("/api/vehicles"); // Replace with your API endpoint
+        if (!response.ok) {
+          throw new Error("Failed to fetch vehicles");
+        }
+        const data = await response.json();
+        setVehicles(data);
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        toast.error("Failed to load vehicles. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
+
   const [isEditing, setIsEditing] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [updatedData, setUpdatedData] = useState({
@@ -608,362 +560,373 @@ export default function MySales() {
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer position="top-right" autoClose={3000} />
 
-      {/* Header */}
-      <div className="mt-12 max-w-7xl mx-auto flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">My Sales</h1>
-        <button
-          onClick={handleSellVehicleClick}
-          className="bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors shadow-md flex items-center gap-2"
-        >
-          <Plus className="w-5 h-5" />
-          Sell Vehicle
-        </button>
-      </div>
-
-      {/* Search Bar and Filter Options */}
-      <div className="mb-6 max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center gap-4">
-        {/* Search Bar */}
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search for vehicles..."
-            className="w-full pl-10 pr-4 py-3 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* Show loading spinner while fetching data */}
+      {isLoading ? (
+        <div className="flex justify-center items-center h-screen">
+          <div className="loader"></div> {/* Add a loader component or CSS */}
         </div>
-
-        {/* Filter Options */}
-        <div className="p-4 flex flex-wrap items-center gap-3">
-          <div className="flex items-center text-gray-700 font-medium">
-            <Filter className="w-5 h-5 mr-2" />
-            Filter by:
-          </div>
-          <div className="flex flex-wrap gap-3">
+      ) : (
+        <>
+          {/* Header */}
+          <div className="mt-12 max-w-7xl mx-auto flex justify-between items-center">
+            <h1 className="text-3xl font-bold text-gray-900">My Sales</h1>
             <button
-              onClick={() => setStatusFilter("all")}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                statusFilter === "all"
-                  ? "bg-indigo-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              onClick={handleSellVehicleClick}
+              className="bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors shadow-md flex items-center gap-2"
             >
-              All
-            </button>
-            <button
-              onClick={() => setStatusFilter("active")}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                statusFilter === "active"
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Active
-            </button>
-            <button
-              onClick={() => setStatusFilter("sold")}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                statusFilter === "sold"
-                  ? "bg-red-500 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Sold
+              <Plus className="w-5 h-5" />
+              Sell Vehicle
             </button>
           </div>
-        </div>
-      </div>
 
-      {/* Vehicles Grid */}
-      <div className="mb-8 max-w-7xl mx-auto">
-        {sortedVehicles.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {currentItems.map((vehicle) => (
-              <VehicleCard
-                key={vehicle.id}
-                vehicle={vehicle}
-                onEdit={handleEditVehicle}
-                onDelete={handleDeleteVehicle}
-                onMarkAsSold={handleMarkAsSold}
-                onViewDetails={handleViewDetails}
+          {/* Search Bar and Filter Options */}
+          <div className="mb-6 max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center gap-4">
+            {/* Search Bar */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search for vehicles..."
+                className="w-full pl-10 pr-4 py-3 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-            ))}
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-            <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <Filter className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
-              No vehicles found
-            </h3>
-            <p className="text-gray-500">
-              {searchTerm || statusFilter !== "all" || sortBy
-                ? "Try adjusting your filters or search terms"
-                : "You haven't listed any vehicles for sale yet"}
-            </p>
-            {(searchTerm || statusFilter !== "all" || sortBy) && (
-              <button
-                onClick={clearAllFilters}
-                className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
-              >
-                Clear All Filters
-              </button>
-            )}
-            {!searchTerm && statusFilter === "all" && !sortBy && (
-              <button
-                onClick={() => setIsSellVehicleFormOpen(true)}
-                className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors flex items-center gap-2 mx-auto"
-              >
-                <Plus className="w-4 h-4" />
-                Sell Vehicle
-              </button>
+
+            {/* Filter Options */}
+            <div className="p-4 flex flex-wrap items-center gap-3">
+              <div className="flex items-center text-gray-700 font-medium">
+                <Filter className="w-5 h-5 mr-2" />
+                Filter by:
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() => setStatusFilter("all")}
+                  className={`px-4 py-2 rounded-full transition-colors ${
+                    statusFilter === "all"
+                      ? "bg-indigo-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setStatusFilter("active")}
+                  className={`px-4 py-2 rounded-full transition-colors ${
+                    statusFilter === "active"
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Active
+                </button>
+                <button
+                  onClick={() => setStatusFilter("sold")}
+                  className={`px-4 py-2 rounded-full transition-colors ${
+                    statusFilter === "sold"
+                      ? "bg-red-500 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Sold
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Vehicles Grid */}
+          <div className="mb-8 max-w-7xl mx-auto">
+            {sortedVehicles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {currentItems.map((vehicle) => (
+                  <VehicleCard
+                    key={vehicle.id}
+                    vehicle={vehicle}
+                    onEdit={handleEditVehicle}
+                    onDelete={handleDeleteVehicle}
+                    onMarkAsSold={handleMarkAsSold}
+                    onViewDetails={handleViewDetails}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+                <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                  <Filter className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-1">
+                  No vehicles found
+                </h3>
+                <p className="text-gray-500">
+                  {searchTerm || statusFilter !== "all" || sortBy
+                    ? "Try adjusting your filters or search terms"
+                    : "You haven't listed any vehicles for sale yet"}
+                </p>
+                {(searchTerm || statusFilter !== "all" || sortBy) && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
+                  >
+                    Clear All Filters
+                  </button>
+                )}
+                {!searchTerm && statusFilter === "all" && !sortBy && (
+                  <button
+                    onClick={() => setIsSellVehicleFormOpen(true)}
+                    className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors flex items-center gap-2 mx-auto"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Sell Vehicle
+                  </button>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      {/* Pagination */}
-      {sortedVehicles.length > 0 && totalPages > 1 && (
-        <div className="flex justify-center mt-10">
-          <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
-            <button
-              onClick={() => paginate(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-4 py-2 border-r border-gray-200 flex items-center ${
-                currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-              (number) => (
+          {/* Pagination */}
+          {sortedVehicles.length > 0 && totalPages > 1 && (
+            <div className="flex justify-center mt-10">
+              <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
                 <button
-                  key={number}
-                  onClick={() => paginate(number)}
-                  className={`px-4 py-2 border-r border-gray-200 ${
-                    currentPage === number
-                      ? "bg-indigo-500 text-white font-medium"
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                    currentPage === 1
+                      ? "text-gray-400 cursor-not-allowed"
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  {number}
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
-              )
-            )}
 
-            <button
-              onClick={() => paginate(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className={`px-4 py-2 flex items-center ${
-                currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Vehicle Modal */}
-      {isEditing && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
-                Edit Vehicle
-              </h2>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="p-1 rounded-full hover:bg-gray-100"
-              >
-                <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                { label: "Make", field: "make" },
-                { label: "Model", field: "model" },
-                { label: "Year", field: "year" },
-                { label: "Color", field: "color" },
-                { label: "Price", field: "price" },
-                {
-                  label: "Fuel Type",
-                  field: "fuel",
-                  isDropdown: true,
-                  options: ["Petrol", "Diesel", "Electric", "Hybrid"],
-                },
-                {
-                  label: "Transmission",
-                  field: "trans",
-                  isDropdown: true,
-                  options: ["Manual", "Automatic"],
-                },
-                {
-                  label: "Ownership",
-                  field: "own",
-                  isDropdown: true,
-                  options: ["First", "Second", "Third", "Other"],
-                },
-                { label: "KM", field: "km" },
-                { label: "Mileage", field: "mile" },
-                { label: "Seats", field: "seat" },
-                { label: "Engine CC", field: "cc" },
-                {
-                  label: "Description",
-                  field: "des",
-                  isTextarea: true,
-                  fullWidth: true,
-                },
-              ].map(
-                ({
-                  label,
-                  field,
-                  isTextarea,
-                  isDropdown,
-                  options,
-                  fullWidth,
-                }) => (
-                  <div
-                    key={field}
-                    className={`mb-2 ${
-                      fullWidth ? "col-span-1 sm:col-span-2 lg:col-span-3" : ""
-                    }`}
-                  >
-                    <label
-                      htmlFor={field}
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (number) => (
+                    <button
+                      key={number}
+                      onClick={() => paginate(number)}
+                      className={`px-4 py-2 border-r border-gray-200 ${
+                        currentPage === number
+                          ? "bg-indigo-500 text-white font-medium"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
                     >
-                      {label}
-                    </label>
-                    {isDropdown ? (
-                      <select
-                        id={field}
-                        value={updatedData[field]}
-                        onChange={(e) =>
-                          setUpdatedData((prev) => ({
-                            ...prev,
-                            [field]: e.target.value,
-                          }))
-                        }
-                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                      {number}
+                    </button>
+                  )
+                )}
+
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 flex items-center ${
+                    currentPage === totalPages
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Vehicle Modal */}
+          {isEditing && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                    Edit Vehicle
+                  </h2>
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="p-1 rounded-full hover:bg-gray-100"
+                  >
+                    <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[
+                    { label: "Make", field: "make" },
+                    { label: "Model", field: "model" },
+                    { label: "Year", field: "year" },
+                    { label: "Color", field: "color" },
+                    { label: "Price", field: "price" },
+                    {
+                      label: "Fuel Type",
+                      field: "fuel",
+                      isDropdown: true,
+                      options: ["Petrol", "Diesel", "Electric", "Hybrid"],
+                    },
+                    {
+                      label: "Transmission",
+                      field: "trans",
+                      isDropdown: true,
+                      options: ["Manual", "Automatic"],
+                    },
+                    {
+                      label: "Ownership",
+                      field: "own",
+                      isDropdown: true,
+                      options: ["First", "Second", "Third", "Other"],
+                    },
+                    { label: "KM", field: "km" },
+                    { label: "Mileage", field: "mile" },
+                    { label: "Seats", field: "seat" },
+                    { label: "Engine CC", field: "cc" },
+                    {
+                      label: "Description",
+                      field: "des",
+                      isTextarea: true,
+                      fullWidth: true,
+                    },
+                  ].map(
+                    ({
+                      label,
+                      field,
+                      isTextarea,
+                      isDropdown,
+                      options,
+                      fullWidth,
+                    }) => (
+                      <div
+                        key={field}
+                        className={`mb-2 ${
+                          fullWidth
+                            ? "col-span-1 sm:col-span-2 lg:col-span-3"
+                            : ""
+                        }`}
                       >
-                        <option value="">Select {label}</option>
-                        {options.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    ) : isTextarea ? (
-                      <textarea
-                        id={field}
-                        value={updatedData[field]}
-                        onChange={(e) =>
-                          setUpdatedData((prev) => ({
-                            ...prev,
-                            [field]: e.target.value,
-                          }))
-                        }
-                        rows="3"
-                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
-                      ></textarea>
-                    ) : (
-                      <input
-                        type="text"
-                        id={field}
-                        value={updatedData[field]}
-                        onChange={(e) =>
-                          setUpdatedData((prev) => ({
-                            ...prev,
-                            [field]: e.target.value,
-                          }))
-                        }
-                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
-                      />
-                    )}
+                        <label
+                          htmlFor={field}
+                          className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                          {label}
+                        </label>
+                        {isDropdown ? (
+                          <select
+                            id={field}
+                            value={updatedData[field]}
+                            onChange={(e) =>
+                              setUpdatedData((prev) => ({
+                                ...prev,
+                                [field]: e.target.value,
+                              }))
+                            }
+                            className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                          >
+                            <option value="">Select {label}</option>
+                            {options.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        ) : isTextarea ? (
+                          <textarea
+                            id={field}
+                            value={updatedData[field]}
+                            onChange={(e) =>
+                              setUpdatedData((prev) => ({
+                                ...prev,
+                                [field]: e.target.value,
+                              }))
+                            }
+                            rows="3"
+                            className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                          ></textarea>
+                        ) : (
+                          <input
+                            type="text"
+                            id={field}
+                            value={updatedData[field]}
+                            onChange={(e) =>
+                              setUpdatedData((prev) => ({
+                                ...prev,
+                                [field]: e.target.value,
+                              }))
+                            }
+                            className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                          />
+                        )}
+                      </div>
+                    )
+                  )}
+                </div>
+                <div className="flex justify-end space-x-3 mt-6">
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdateData}
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Delete Confirmation Modal */}
+          {isDeleteModalOpen && selectedVehicle && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div className="bg-white rounded-xl overflow-hidden w-full max-w-md shadow-2xl">
+                <div className="bg-red-50 p-6 text-center">
+                  <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                    <Trash2 className="h-8 w-8 text-red-600" />
                   </div>
-                )
-              )}
-            </div>
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={() => setIsEditing(false)}
-                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpdateData}
-                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {isDeleteModalOpen && selectedVehicle && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl overflow-hidden w-full max-w-md shadow-2xl">
-            <div className="bg-red-50 p-6 text-center">
-              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                <Trash2 className="h-8 w-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                Delete Vehicle
-              </h3>
-              <p className="text-gray-600 mb-1">
-                Are you sure you want to delete this vehicle?
-              </p>
-              <p className="text-lg font-medium text-red-600 mb-6">
-                {selectedVehicle.make} {selectedVehicle.model} (
-                {selectedVehicle.year})
-              </p>
-              <div className="flex gap-3 justify-center">
-                <button
-                  onClick={() => setIsDeleteModalOpen(false)}
-                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-600 rounded-lg text-white font-medium hover:bg-red-700 transition-colors"
-                >
-                  Delete
-                </button>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Delete Vehicle
+                  </h3>
+                  <p className="text-gray-600 mb-1">
+                    Are you sure you want to delete this vehicle?
+                  </p>
+                  <p className="text-lg font-medium text-red-600 mb-6">
+                    {selectedVehicle.make} {selectedVehicle.model} (
+                    {selectedVehicle.year})
+                  </p>
+                  <div className="flex gap-3 justify-center">
+                    <button
+                      onClick={() => setIsDeleteModalOpen(false)}
+                      className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={confirmDelete}
+                      className="px-4 py-2 bg-red-600 rounded-lg text-white font-medium hover:bg-red-700 transition-colors"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* Vehicle Details Modal */}
-      {isViewingDetails && viewedVehicle && (
-        <VehicleDetailsModal
-          vehicle={viewedVehicle}
-          onClose={closeDetailsView}
-          onEdit={handleEditVehicle}
-          onDelete={handleDeleteVehicle}
-          onMarkAsSold={handleMarkAsSold}
-        />
-      )}
+          {/* Vehicle Details Modal */}
+          {isViewingDetails && viewedVehicle && (
+            <VehicleDetailsModal
+              vehicle={viewedVehicle}
+              onClose={closeDetailsView}
+              onEdit={handleEditVehicle}
+              onDelete={handleDeleteVehicle}
+              onMarkAsSold={handleMarkAsSold}
+            />
+          )}
 
-      {/* Sell Vehicle Form Modal */}
-      {isSellVehicleFormOpen && (
-        <SellVehicleForm
-          isOpen={isSellVehicleFormOpen}
-          onClose={closeSellVehicleForm}
-        />
+          {/* Sell Vehicle Form Modal */}
+          {isSellVehicleFormOpen && (
+            <SellVehicleForm
+              isOpen={isSellVehicleFormOpen}
+              onClose={closeSellVehicleForm}
+            />
+          )}
+        </>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   Car,
@@ -17,81 +17,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-// Mock data for rental history
-const initialRentals = [
-  {
-    id: "RNT-2024-001",
-    customer: {
-      name: "John Smith",
-      email: "john.smith@email.com",
-      phone: "+1 (555) 123-4567",
-    },
-    vehicle: {
-      name: "Tesla Model 3",
-      plate: "ABC 123",
-      color: "Red",
-    },
-    startDate: "2024-01-15",
-    endDate: "2024-01-25",
-    returnDate: "2024-01-25",
-    status: "completed",
-    totalAmount: 750,
-    deposit: 500,
-    depositReturned: true,
-    rating: 5,
-    review: "Excellent service and vehicle condition.",
-    damageReport: null,
-  },
-  {
-    id: "RNT-2024-002",
-    customer: {
-      name: "Sarah Johnson",
-      email: "sarah.j@email.com",
-      phone: "+1 (555) 234-5678",
-    },
-    vehicle: {
-      name: "BMW X5",
-      plate: "XYZ 789",
-      color: "Black",
-    },
-    startDate: "2024-01-18",
-    endDate: "2024-01-28",
-    returnDate: "2024-01-29",
-    status: "completed_late",
-    totalAmount: 900,
-    deposit: 600,
-    depositReturned: false,
-    rating: 3,
-    review: "Good car but had some issues with cleanliness.",
-    damageReport: "Minor scratch on rear bumper",
-  },
-  {
-    id: "RNT-2024-003",
-    customer: {
-      name: "Mike Wilson",
-      email: "mike.w@email.com",
-      phone: "+1 (555) 345-6789",
-    },
-    vehicle: {
-      name: "Mercedes C-Class",
-      plate: "DEF 456",
-      color: "Silver",
-    },
-    startDate: "2024-01-20",
-    endDate: "2024-01-23",
-    returnDate: "2024-01-23",
-    status: "cancelled",
-    totalAmount: 450,
-    deposit: 400,
-    depositReturned: true,
-    rating: null,
-    review: null,
-    damageReport: null,
-  },
-];
-
 export default function RentalHistory() {
-  const [rentals, setRentals] = useState(initialRentals);
+  const [rentals, setRentals] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedRental, setSelectedRental] = useState(null);
@@ -101,6 +28,23 @@ export default function RentalHistory() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
+
+  useEffect(() => {
+    const fetchRentals = async () => {
+      try {
+        const response = await fetch("/api/rentals"); // Replace with your API endpoint
+        if (!response.ok) {
+          throw new Error("Failed to fetch rental data");
+        }
+        const data = await response.json();
+        setRentals(data);
+      } catch (error) {
+        console.error("Error fetching rental data:", error);
+      }
+    };
+
+    fetchRentals();
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {

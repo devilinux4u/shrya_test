@@ -92,6 +92,29 @@ const RentalBookingForm = ({ vehicleId }) => {
     bookingData.driveOption,
   ]);
 
+  useEffect(() => {
+    const fetchVehicleData = async () => {
+      try {
+        setVerifyingVehicle(true);
+        const response = await fetch(
+          `http://localhost:3000/api/vehicles/${vehicleId}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch vehicle data");
+        }
+        const data = await response.json();
+        setVehicle(data);
+      } catch (error) {
+        console.error("Error fetching vehicle data:", error);
+        toast.error("Unable to load vehicle data. Please try again later.");
+      } finally {
+        setVerifyingVehicle(false);
+      }
+    };
+
+    fetchVehicleData();
+  }, [vehicleId]);
+
   const calculateTotal = (duration = rentalDuration) => {
     let basePrice = 0;
     const calculatedDuration = duration || 1;

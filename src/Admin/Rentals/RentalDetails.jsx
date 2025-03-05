@@ -100,12 +100,13 @@ export default function RentalDetails() {
   const fetchRentalDetails = async () => {
     try {
       setLoading(true);
-
-      // Simulate API call with dummy data
-      setTimeout(() => {
-        setRental(dummyRental);
-        setLoading(false);
-      }, 1000);
+      const response = await fetch(`/api/rentals/${id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch rental details");
+      }
+      const data = await response.json();
+      setRental(data);
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching rental details:", error);
       setError("Failed to fetch rental details");
