@@ -18,6 +18,7 @@ import {
   XCircle,
   Clock,
   MoreHorizontal,
+  X,
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -33,6 +34,10 @@ export default function ActiveRentals() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
   const [showStatusMenu, setShowStatusMenu] = useState(null);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [selectedRental, setSelectedRental] = useState(null);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const fetchRentals = async () => {
     setLoading(true);
@@ -164,16 +169,24 @@ export default function ActiveRentals() {
   };
 
   // Cancel rental
-  const cancelRental = async (rentalId) => {
-    if (!window.confirm("Are you sure you want to cancel this rental?")) {
-      return;
-    }
+  const cancelRental = (rental) => {
+    setSelectedRental(rental);
+    setIsCancelModalOpen(true);
+  };
+
+  // Confirm cancellation
+  const confirmCancellation = async () => {
+    if (!selectedRental) return;
 
     try {
-      setLoading(true);
+      setIsCancelling(true);
       // In a real application, you would make an API call here
-      // const response = await fetch(`http://localhost:3000/api/rentals/${rentalId}/cancel`, {
+      // const response = await fetch(`http://localhost:3000/api/rentals/${selectedRental.id}/cancel`, {
       //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ reason: cancelReason }),
       // });
 
       // if (!response.ok) {
@@ -183,15 +196,19 @@ export default function ActiveRentals() {
       // For demo purposes, we'll just update the state directly
       setRentals((prevRentals) =>
         prevRentals.map((rental) =>
-          rental.id === rentalId ? { ...rental, status: "cancelled" } : rental
+          rental.id === selectedRental.id
+            ? { ...rental, status: "cancelled" }
+            : rental
         )
       );
 
-      toast.success("Rental has been cancelled");
+      setIsCancelModalOpen(false);
+      setCancelReason("");
+      toast.success("Rental has been cancelled successfully");
     } catch (err) {
       toast.error(`Failed to cancel rental: ${err.message}`);
     } finally {
-      setLoading(false);
+      setIsCancelling(false);
     }
   };
 
@@ -642,7 +659,7 @@ export default function ActiveRentals() {
                                 rental.status !== "completed" &&
                                 rental.status !== "completed-late" && (
                                   <button
-                                    onClick={() => cancelRental(rental.id)}
+                                    onClick={() => cancelRental(rental)}
                                     className="w-full flex items-center justify-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                                   >
                                     <XCircle className="h-4 w-4 mr-2" />
@@ -717,6 +734,94 @@ export default function ActiveRentals() {
           )}
         </div>
       </div>
+      {/* Cancel Booking Modal */}
+      {isCancelModalOpen && selectedRental && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Cancel Rental
+                </h2>
+                <button
+                  onClick={() => setIsCancelModalOpen(false)}
+                  className="p-2 rounded-full hover:bg-gray-100"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                  <div className="flex items-start">
+                    <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5 mr-2" />
+                    <div>
+                      <h3 className="text-sm font-medium text-yellow-800">
+                        Cancellation Policy
+                      </h3>
+                      <p className="mt-1 text-sm text-yellow-700">
+                        Cancelling a rental may affect the customer's experience
+                        and future bookings. Please ensure you have a valid
+                        reason for cancellation and have communicated with the
+                        customer if possible.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-gray-600 mb-4">
+                  Are you sure you want to cancel the rental for
+                  <span className="font-medium">
+                    {selectedRental.rentVehicle.make}{" "}
+                    {selectedRental.rentVehicle.model}
+                  </span>
+                  ?
+                </p>
+
+                <div className="mb-4">
+                  <label
+                    htmlFor="cancelReason"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Reason for cancellation
+                  </label>
+                  <textarea
+                    id="cancelReason"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    rows="3"
+                    className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] transition-colors"
+                    placeholder="Please provide a reason for cancellation..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsCancelModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Keep Rental
+                </button>
+                <button
+                  onClick={confirmCancellation}
+                  disabled={isCancelling}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center"
+                >
+                  {isCancelling ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    "Confirm Cancellation"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

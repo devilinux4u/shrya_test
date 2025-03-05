@@ -41,13 +41,17 @@ const UserBookings = () => {
     const fetchBookings = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`http://localhost:3000/api/vehicles/active/user/all/${Cookies.get("sauto").split("-")[0]}`);
+        const response = await fetch(
+          `http://localhost:3000/api/vehicles/active/user/all/${
+            Cookies.get("sauto").split("-")[0]
+          }`
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch bookings");
         }
         const data = await response.json();
 
-        console.log(data.data)
+        console.log(data.data);
 
         setBookings(data.data.length > 0 ? data.data : []); // Ensure empty array if no bookings
       } catch (err) {
@@ -131,14 +135,18 @@ const UserBookings = () => {
   // Get status badge color
   const getStatusBadge = (status) => {
     switch (status) {
-      case "confirmed":
+      case "active":
         return "bg-green-100 text-green-800";
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "completed":
         return "bg-blue-100 text-blue-800";
+      case "late":
+        return "bg-orange-100 text-orange-800";
       case "cancelled":
         return "bg-red-100 text-red-800";
+      case "completed_late":
+        return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -147,14 +155,18 @@ const UserBookings = () => {
   // Get status icon
   const getStatusIcon = (status) => {
     switch (status) {
-      case "confirmed":
+      case "active":
         return <CheckCircle className="w-4 h-4 mr-1" />;
       case "pending":
         return <Clock className="w-4 h-4 mr-1" />;
       case "completed":
         return <CheckCircle className="w-4 h-4 mr-1" />;
+      case "late":
+        return <Clock className="w-4 h-4 mr-1" />;
       case "cancelled":
         return <X className="w-4 h-4 mr-1" />;
+      case "completed_late":
+        return <CheckCircle className="w-4 h-4 mr-1" />;
       default:
         return null;
     }
@@ -174,13 +186,16 @@ const UserBookings = () => {
 
     try {
       // In a real app, you would call your API
-      await fetch(`http://localhost:3000/api/vehicles/cancel/${selectedBooking.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ reason: cancelReason, data: selectedBooking  }),
-      })
+      await fetch(
+        `http://localhost:3000/api/vehicles/cancel/${selectedBooking.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reason: cancelReason, data: selectedBooking }),
+        }
+      );
 
       // Update local state
       setBookings((prevBookings) =>
@@ -217,7 +232,7 @@ const UserBookings = () => {
   };
 
   return (
-    <div className=" min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer position="top-right" autoClose={3000} />
 
       {/* Header */}
@@ -244,7 +259,7 @@ const UserBookings = () => {
           </div>
 
           {/* Filter By Section */}
-          <div className=" p-4 flex items-center gap-2">
+          <div className="p-4 flex items-center gap-2">
             <Filter className="w-5 h-5 text-[#ff6b00]" />
             <span className="text-lg font-medium text-gray-700">
               Filter By:
@@ -262,17 +277,6 @@ const UserBookings = () => {
                 All
               </button>
               <button
-                onClick={() => setStatusFilter("active")}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
-                  statusFilter === "confirmed"
-                    ? "bg-green-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <CheckCircle className="w-4 h-4" />
-                Confirmed
-              </button>
-              <button
                 onClick={() => setStatusFilter("pending")}
                 className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
                   statusFilter === "pending"
@@ -282,6 +286,17 @@ const UserBookings = () => {
               >
                 <Clock className="w-4 h-4" />
                 Pending
+              </button>
+              <button
+                onClick={() => setStatusFilter("active")}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                  statusFilter === "active"
+                    ? "bg-green-500 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                <CheckCircle className="w-4 h-4" />
+                Active
               </button>
               <button
                 onClick={() => setStatusFilter("completed")}
@@ -295,6 +310,17 @@ const UserBookings = () => {
                 Completed
               </button>
               <button
+                onClick={() => setStatusFilter("late")}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                  statusFilter === "late"
+                    ? "bg-orange-500 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                <Clock className="w-4 h-4" />
+                Late
+              </button>
+              <button
                 onClick={() => setStatusFilter("cancelled")}
                 className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
                   statusFilter === "cancelled"
@@ -304,6 +330,17 @@ const UserBookings = () => {
               >
                 <X className="w-4 h-4" />
                 Cancelled
+              </button>
+              <button
+                onClick={() => setStatusFilter("completed_late")}
+                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                  statusFilter === "completed_late"
+                    ? "bg-purple-500 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                <CheckCircle className="w-4 h-4" />
+                Completed Late
               </button>
             </div>
           </div>
@@ -398,7 +435,10 @@ const UserBookings = () => {
                     {/* Vehicle Image */}
                     <div className="w-full md:w-1/4 h-48 bg-gray-100 rounded-lg overflow-hidden">
                       <img
-                        src={`../../server${booking.rentVehicle.rentVehicleImages[0].image}` || "/placeholder.svg"}
+                        src={
+                          `../../server${booking.rentVehicle.rentVehicleImages[0].image}` ||
+                          "/placeholder.svg"
+                        }
                         alt={booking.vehicleName}
                         className="w-full h-full object-cover"
                       />
@@ -411,9 +451,8 @@ const UserBookings = () => {
                           {booking.rentVehicle.make}
                         </h3>
                         <p className="text-gray-600">
-                          {booking.rentVehicle.make}{" "}
-                          {booking.rentVehicle.model} (
-                          {booking.rentVehicle.year})
+                          {booking.rentVehicle.make} {booking.rentVehicle.model}{" "}
+                          ({booking.rentVehicle.year})
                         </p>
                       </div>
 
@@ -539,94 +578,94 @@ const UserBookings = () => {
             )}
           </div>
         )}
-      </div>
 
-      {/* Cancel Booking Modal */}
-      {isCancelModalOpen && selectedBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl w-full max-w-md">
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Cancel Booking
-                </h2>
-                <button
-                  onClick={() => setIsCancelModalOpen(false)}
-                  className="p-2 rounded-full hover:bg-gray-100"
-                >
-                  <X className="w-5 h-5 text-gray-500" />
-                </button>
-              </div>
+        {/* Cancel Booking Modal */}
+        {isCancelModalOpen && selectedBooking && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div className="bg-white rounded-xl w-full max-w-md">
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <h2 className="text-xl font-bold text-gray-900">
+                    Cancel Booking
+                  </h2>
+                  <button
+                    onClick={() => setIsCancelModalOpen(false)}
+                    className="p-2 rounded-full hover:bg-gray-100"
+                  >
+                    <X className="w-5 h-5 text-gray-500" />
+                  </button>
+                </div>
 
-              <div className="mb-6">
-                <div className="bg-yellow-50 p-4 rounded-lg mb-4">
-                  <div className="flex items-start">
-                    <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5 mr-2" />
-                    <div>
-                      <h3 className="text-sm font-medium text-yellow-800">
-                        Cancellation Policy
-                      </h3>
-                      <p className="mt-1 text-sm text-yellow-700">
-                        Cancellations made at least 24 hours before the pickup
-                        time will receive a full refund. Cancellations made
-                        within 24 hours may be subject to a cancellation fee.
-                      </p>
+                <div className="mb-6">
+                  <div className="bg-yellow-50 p-4 rounded-lg mb-4">
+                    <div className="flex items-start">
+                      <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5 mr-2" />
+                      <div>
+                        <h3 className="text-sm font-medium text-yellow-800">
+                          Cancellation Policy
+                        </h3>
+                        <p className="mt-1 text-sm text-yellow-700">
+                          Cancellations made at least 24 hours before the pickup
+                          time will receive a full refund. Cancellations made
+                          within 24 hours may be subject to a cancellation fee.
+                        </p>
+                      </div>
                     </div>
+                  </div>
+
+                  <p className="text-gray-600 mb-4">
+                    Are you sure you want to cancel your booking for{" "}
+                    <span className="font-medium">
+                      {selectedBooking.vehicleName}
+                    </span>
+                    ?
+                  </p>
+
+                  <div className="mb-4">
+                    <label
+                      htmlFor="cancelReason"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Reason for cancellation (optional)
+                    </label>
+                    <textarea
+                      id="cancelReason"
+                      value={cancelReason}
+                      onChange={(e) => setCancelReason(e.target.value)}
+                      rows="3"
+                      className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] transition-colors"
+                      placeholder="Please provide a reason for cancellation..."
+                    ></textarea>
                   </div>
                 </div>
 
-                <p className="text-gray-600 mb-4">
-                  Are you sure you want to cancel your booking for{" "}
-                  <span className="font-medium">
-                    {selectedBooking.vehicleName}
-                  </span>
-                  ?
-                </p>
-
-                <div className="mb-4">
-                  <label
-                    htmlFor="cancelReason"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsCancelModalOpen(false)}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    Reason for cancellation (optional)
-                  </label>
-                  <textarea
-                    id="cancelReason"
-                    value={cancelReason}
-                    onChange={(e) => setCancelReason(e.target.value)}
-                    rows="3"
-                    className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] transition-colors"
-                    placeholder="Please provide a reason for cancellation..."
-                  ></textarea>
+                    Keep Booking
+                  </button>
+                  <button
+                    onClick={confirmCancellation}
+                    disabled={isCancelling}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center"
+                  >
+                    {isCancelling ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                        Processing...
+                      </>
+                    ) : (
+                      "Confirm Cancellation"
+                    )}
+                  </button>
                 </div>
-              </div>
-
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setIsCancelModalOpen(false)}
-                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Keep Booking
-                </button>
-                <button
-                  onClick={confirmCancellation}
-                  disabled={isCancelling}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center"
-                >
-                  {isCancelling ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                      Processing...
-                    </>
-                  ) : (
-                    "Confirm Cancellation"
-                  )}
-                </button>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
