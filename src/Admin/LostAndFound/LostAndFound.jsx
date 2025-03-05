@@ -352,7 +352,7 @@ export default function LostAndFound() {
   // Permission helpers
   const canEdit = (item) =>
     currentUserRole === "Admin" && item.status !== "resolved";
-  const canContact = (item) => item.user.fname === "User" && item.user.num;
+  const canContact = (item) => item.user.num; // Updated to check if the reporter has a contact number
 
   // Reset filters
   const resetFilters = () => {

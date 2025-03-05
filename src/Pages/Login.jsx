@@ -236,12 +236,6 @@ export default function Login({ onLogin }) {
                 </div>
               </div>
 
-              <div className="text-center mb-4">
-                <h3 className="text-lg font-medium text-gray-700">
-                  Login with Google
-                </h3>
-              </div>
-
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

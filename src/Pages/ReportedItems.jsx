@@ -488,17 +488,16 @@ const ReportedItems = () => {
                         </span>
                       </div>
                     </div>
-                    <div className="p-5">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                    <div className="p-5 space-y-4">
+                      <div className="flex justify-between items-start">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">
                           {item.title}
                         </h3>
                         <span className="text-sm font-medium text-gray-500">
                           #{item.id}
                         </span>
                       </div>
-
-                      <div className="space-y-2 mb-4">
+                      <div className="space-y-2">
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                           <span>{item.location}</span>
@@ -512,13 +511,11 @@ const ReportedItems = () => {
                             </span>
                           </div>
                         )}
-                        <p className="text-sm text-gray-600 line-clamp-2 mt-2">
+                        <p className="text-sm text-gray-600 line-clamp-2">
                           {item.description}
                         </p>
                       </div>
-
-                      <div className="relative pt-3 border-t border-gray-100 pb-4">
-                        {/* Edit Button - Left */}
+                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
                         {item.status !== "resolved" && (
                           <button
                             onClick={(e) => {
@@ -535,33 +532,31 @@ const ReportedItems = () => {
                                 numberPlate: item.nplate || "",
                               });
                             }}
-                            className="absolute left-0 flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                            className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                           >
                             <Edit className="w-4 h-4 mr-1" />
                             Edit
                           </button>
                         )}
-                        {/* Resolve Button - Center */}
                         {item.status !== "resolved" && (
                           <button
                             onClick={(e) => {
                               e.stopPropagation(); // Prevent card click event
                               handleStatusChange(item.id);
                             }}
-                            className="absolute left-1/2 transform -translate-x-1/2 flex items-center text-green-600 hover:text-green-800 transition-colors"
+                            className="flex items-center text-green-600 hover:text-green-800 transition-colors"
                           >
                             <CheckCircle className="w-4 h-4 mr-1" />
                             Resolve
                           </button>
                         )}
-                        {/* Delete Button - Right */}
                         <button
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent card click event
                             handleDeleteItem(item.id);
                           }}
                           disabled={isDeleting}
-                          className={`absolute right-0 flex items-center text-red-600 hover:text-red-800 transition-colors ${
+                          className={`flex items-center text-red-600 hover:text-red-800 transition-colors ${
                             isDeleting ? "opacity-70 cursor-not-allowed" : ""
                           }`}
                         >

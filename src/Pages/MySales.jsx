@@ -24,6 +24,7 @@ import "react-toastify/dist/ReactToastify.css";
 import SellVehicleForm from "../Components/SellVehicleForm";
 import Cookies from "js-cookie";
 
+// Replace the VehicleCard component with this improved version
 function VehicleCard({
   vehicle,
   onEdit,
@@ -33,10 +34,10 @@ function VehicleCard({
 }) {
   return (
     <div
-      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col overflow-hidden cursor-pointer"
+      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col h-full overflow-hidden cursor-pointer"
       onClick={() => onViewDetails(vehicle)}
     >
-      <div className="relative aspect-video">
+      <div className="relative h-48 bg-gray-100">
         <img
           src={
             (vehicle.images &&
@@ -47,74 +48,93 @@ function VehicleCard({
             "/placeholder.svg"
           }
           alt={`${vehicle.make || "Unknown"} ${vehicle.model || ""}`}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-cover object-center"
           onError={(e) => {
             e.target.src = "/placeholder.svg";
           }}
         />
-        <div className="absolute top-4 right-4">
-          <span
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              vehicle.status === "available"
-                ? "bg-green-100 text-green-800"
-                : vehicle.status === "sold"
-                ? "bg-red-100 text-red-800"
-                : "bg-yellow-100 text-yellow-800"
-            }`}
-          >
-            {vehicle.status}
-          </span>
+        <div
+          className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${
+            vehicle.status === "available"
+              ? "bg-green-100 text-green-800"
+              : vehicle.status === "sold"
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800"
+          }`}
+        >
+          {vehicle.status}
         </div>
       </div>
 
       <div className="p-4 flex-1 flex flex-col">
-        <h3 className="text-red-600 font-medium">
+        <h3 className="text-lg font-medium text-red-600 mb-1">
           {vehicle.make || "Unknown"} {vehicle.model || "Model N/A"}
         </h3>
-        <p className="text-gray-600">Year: {vehicle.year || "Year N/A"}</p>
-        <p className="text-gray-600">
-          Total Run:{" "}
-          {vehicle.mile ? vehicle.km.toLocaleString() : "Mileage N/A"} km
-        </p>
-        <p className="mt-2 font-semibold">
-          Rs. {vehicle.price ? vehicle.price.toLocaleString() : "Price N/A"}
-        </p>
 
-        <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
-          {vehicle.status === "available" && (
+        <div className="space-y-1 mb-3 flex-1">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600">Year:</p>
+            <p className="text-sm font-medium">{vehicle.year || "Year N/A"}</p>
+          </div>
+
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600">Total Run:</p>
+            <p className="text-sm font-medium">
+              {vehicle.km ? vehicle.km.toLocaleString() : "N/A"} km
+            </p>
+          </div>
+
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-sm text-gray-600">Price:</p>
+            <p className="text-base font-semibold text-orange-600">
+              Rs. {vehicle.price ? vehicle.price.toLocaleString() : "N/A"}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex justify-between w-full pt-3 mt-2 border-t border-gray-100">
+          <div className="flex-1 text-left">
+            {vehicle.status === "available" && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(vehicle);
+                }}
+                className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+              >
+                <Edit className="w-4 h-4 mr-1" />
+                Edit
+              </button>
+            )}
+          </div>
+
+          <div className="flex-1 text-center">
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onEdit(vehicle);
+                onDelete(vehicle);
               }}
-              className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+              className="flex items-center text-red-600 hover:text-red-800 transition-colors mx-auto"
             >
-              <Edit className="w-4 h-4 mr-1" />
-              Edit
+              <Trash2 className="w-4 h-4 mr-1" />
+              Delete
             </button>
-          )}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete(vehicle);
-            }}
-            className="flex items-center text-red-600 hover:text-red-800 transition-colors"
-          >
-            <Trash2 className="w-4 h-4 mr-1" />
-            Delete
-          </button>
-          {vehicle.status !== "sold" && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onMarkAsSold(vehicle);
-              }}
-              className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              <CheckCircle className="w-4 h-4 mr-1" />
-              Mark as Sold
-            </button>
-          )}
+          </div>
+
+          <div className="flex-1 text-right">
+            {vehicle.status !== "sold" && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onMarkAsSold(vehicle);
+                }}
+                className="flex items-center text-blue-600 hover:text-blue-800 transition-colors ml-auto"
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                Mark as Sold
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

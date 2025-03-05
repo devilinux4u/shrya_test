@@ -11,30 +11,45 @@ function VehicleCard({ vehicle }) {
         const vehicleParams = new URLSearchParams(vehicle);
         navigate(`/BuyVehiclesDesc?${vehicleParams}`);
       }}
-      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col items-center text-center cursor-pointer"
+      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col h-full overflow-hidden cursor-pointer"
     >
-      <img
-        src={
-          (vehicle.images &&
-            vehicle.images.length > 0 &&
-            `../../server/controllers${vehicle.images[0].image}`) ||
-          "/placeholder.svg"
-        }
-        alt={`${vehicle.model || "Unknown"} ${vehicle.type || ""}`}
-        className="w-full h-48 object-contain"
-      />
-      <div className="p-4">
-        <h3 className="text-red-600 font-medium">
+      <div className="relative h-48 bg-gray-100">
+        <img
+          src={
+            (vehicle.images &&
+              vehicle.images.length > 0 &&
+              `../../server/controllers${vehicle.images[0].image}`) ||
+            "/placeholder.svg"
+          }
+          alt={`${vehicle.make || "Unknown"} ${vehicle.model || ""}`}
+          className="w-full h-full object-cover object-center"
+          onError={(e) => {
+            e.target.src = "/placeholder.svg";
+          }}
+        />
+      </div>
+      <div className="p-4 flex-1 flex flex-col">
+        <h3 className="text-lg font-medium text-red-600 mb-1">
           {vehicle.make || "Unknown"} {vehicle.model || "Model N/A"}
         </h3>
-        <p className="text-gray-600">Year: {vehicle.year || "Year N/A"}</p>
-        <p className="text-gray-600">
-          Total Km Run:{" "}
-          {vehicle.km ? vehicle.km.toLocaleString() : "Mileage N/A"} km
-        </p>
-        <p className="mt-2 font-semibold">
-          Rs. {vehicle.price ? vehicle.price.toLocaleString() : "Price N/A"}
-        </p>
+        <div className="space-y-1 mb-3 flex-1">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600">Year:</p>
+            <p className="text-sm font-medium">{vehicle.year || "Year N/A"}</p>
+          </div>
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-gray-600">Total Run:</p>
+            <p className="text-sm font-medium">
+              {vehicle.km ? vehicle.km.toLocaleString() : "N/A"} km
+            </p>
+          </div>
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-sm text-gray-600">Price:</p>
+            <p className="text-base font-semibold text-orange-600">
+              Rs. {vehicle.price ? vehicle.price.toLocaleString() : "N/A"}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
