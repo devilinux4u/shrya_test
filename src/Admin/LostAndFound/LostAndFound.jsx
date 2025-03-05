@@ -508,7 +508,8 @@ export default function LostAndFound() {
           {currentItems.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+              onClick={() => setSelectedItem(item)}
             >
               <div className="aspect-w-16 aspect-h-9 bg-gray-100">
                 <img
@@ -545,62 +546,7 @@ export default function LostAndFound() {
                       </span>
                     </span>
                   </div>
-                  <div className="flex gap-1 sm:gap-2">
-                    <button
-                      onClick={() => setSelectedItem(item)}
-                      className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
-                      title="View Details"
-                    >
-                      <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                    </button>
-
-                    {canEdit(item) && (
-                      <button
-                        onClick={() => {
-                          setIsEditing(true);
-                          setSelectedItemId(item.id);
-                          setUpdatedData({
-                            title: item.title,
-                            description: item.description,
-                            location: item.location,
-                            date: item.date,
-                            vehicleMake: item.make,
-                            vehicleModel: item.model,
-                            numberPlate: item.nplate,
-                          });
-                        }}
-                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
-                        title="Edit Item"
-                      >
-                        <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                      </button>
-                    )}
-
-                    {canEdit(item) && (
-                      <button
-                        onClick={() => {
-                          setItemToDelete(item);
-                          setShowDeleteConfirm(true);
-                        }}
-                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
-                        title="Delete Item"
-                      >
-                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                      </button>
-                    )}
-
-                    {item.status === "active" && (
-                      <button
-                        onClick={() => updateStatus(item.id, "resolved")}
-                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
-                        title="Mark as Resolved"
-                      >
-                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                      </button>
-                    )}
-                  </div>
                 </div>
-
                 <div className="space-y-2 text-sm sm:text-base">
                   <div className="flex items-center text-gray-600">
                     <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
@@ -618,6 +564,62 @@ export default function LostAndFound() {
                   <div className="flex items-center text-gray-600">
                     <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                     <span>Posted by: {item.user.fname}</span>
+                  </div>
+                  <hr className="my-4 border-gray-200" />
+                  <div className="flex justify-between items-center gap-4 mt-4">
+                    {item.status === "active" && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updateStatus(item.id, "resolved");
+                        }}
+                        className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                        title="Mark as Resolved"
+                      >
+                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-1" />
+                        Resolve
+                      </button>
+                    )}
+                    {canEdit(item) && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsEditing(true);
+                          setSelectedItemId(item.id);
+                          setUpdatedData({
+                            title: item.title,
+                            description: item.description,
+                            location: item.location,
+                            date: item.date,
+                            vehicleMake: item.make,
+                            vehicleModel: item.model,
+                            numberPlate: item.nplate,
+                          });
+                        }}
+                        className={`flex items-center text-green-600 hover:text-green-800 transition-colors ${
+                          item.status === "resolved"
+                            ? "text-gray-400 cursor-not-allowed"
+                            : ""
+                        }`}
+                        disabled={item.status === "resolved"}
+                        title="Edit Item"
+                      >
+                        <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 mr-1" />
+                        Edit
+                      </button>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setItemToDelete(item);
+                        setShowDeleteConfirm(true);
+                      }}
+                      className="flex items-center text-red-600 hover:text-red-800 transition-colors"
+                      title="Delete Item"
+                    >
+                      <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 mr-1" />
+                      Delete
+                    </button>
                   </div>
                 </div>
               </div>

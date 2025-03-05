@@ -416,7 +416,8 @@ export default function AdminRentalVehicles() {
             {currentVehicles.map((vehicle) => (
               <div
                 key={vehicle._id}
-                className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
+                className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => handleView(vehicle)}
               >
                 <div className="relative h-48 overflow-hidden bg-gray-200">
                   {vehicle.vehicle_images && vehicle.vehicle_images[0] ? (
@@ -490,22 +491,24 @@ export default function AdminRentalVehicles() {
 
                   <div className="flex justify-between pt-4 border-t border-gray-100">
                     <button
-                      onClick={() => handleView(vehicle)}
-                      className="text-gray-600 hover:text-[#ff6b00] transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(vehicle);
+                      }}
+                      className="flex items-center text-green-600 hover:text-green-800 transition-colors"
                     >
-                      <Eye className="h-5 w-5" />
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
                     </button>
                     <button
-                      onClick={() => handleEdit(vehicle)}
-                      className="text-gray-600 hover:text-blue-600 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(vehicle._id);
+                      }}
+                      className="flex items-center text-red-600 hover:text-red-800 transition-colors"
                     >
-                      <Edit className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(vehicle._id)}
-                      className="text-gray-600 hover:text-red-600 transition-colors"
-                    >
-                      <Trash2 className="h-5 w-5" />
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Delete
                     </button>
                   </div>
                 </div>

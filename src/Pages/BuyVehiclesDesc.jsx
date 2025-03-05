@@ -8,7 +8,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import BuyNowForm from "../Components/BuyNowForm";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function BuyVehiclesDesc() {
@@ -22,6 +22,7 @@ export default function BuyVehiclesDesc() {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const vehicleId = params.get("id"); // Get the vehicle ID from URL params
+  const navigate = useNavigate(); // Add navigate hook
 
   // Move useScroll here with layoutEffect: false
   const { scrollYProgress } = useScroll({
@@ -60,6 +61,7 @@ export default function BuyVehiclesDesc() {
     console.log("Booking Details:", bookingDetails);
     // Add logic to handle booking submission
     setShowBookNowForm(false);
+    navigate("/UserAppointments"); // Redirect to UserAppointments page
   };
 
   useEffect(() => {

@@ -32,7 +32,10 @@ function VehicleCard({
   onViewDetails,
 }) {
   return (
-    <div className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col overflow-hidden">
+    <div
+      className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col overflow-hidden cursor-pointer"
+      onClick={() => onViewDetails(vehicle)}
+    >
       <div className="relative aspect-video">
         <img
           src={
@@ -77,35 +80,31 @@ function VehicleCard({
           Rs. {vehicle.price ? vehicle.price.toLocaleString() : "Price N/A"}
         </p>
 
-        <div className="flex gap-2 mt-4">
-          <button
-            onClick={() => onViewDetails(vehicle)}
-            className="flex-1 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
-          >
-            View Details
-          </button>
+        <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onEdit(vehicle);
             }}
             disabled={vehicle.status === "sold"}
-            className={`p-2 rounded-lg transition-colors ${
+            className={`flex items-center text-green-600 hover:text-green-800 transition-colors ${
               vehicle.status === "sold"
                 ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-600 hover:text-blue-500 hover:bg-gray-100"
+                : ""
             }`}
           >
-            <Edit className="w-5 h-5" />
+            <Edit className="w-4 h-4 mr-1" />
+            Edit
           </button>
           <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete(vehicle);
             }}
-            className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center text-red-600 hover:text-red-800 transition-colors"
           >
-            <Trash2 className="w-5 h-5" />
+            <Trash2 className="w-4 h-4 mr-1" />
+            Delete
           </button>
           {vehicle.status !== "sold" && (
             <button
@@ -113,9 +112,10 @@ function VehicleCard({
                 e.stopPropagation();
                 onMarkAsSold(vehicle);
               }}
-              className="p-2 text-gray-600 hover:text-green-600 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
             >
-              <CheckCircle className="w-5 h-5" />
+              <CheckCircle className="w-4 h-4 mr-1" />
+              Mark as Sold
             </button>
           )}
         </div>

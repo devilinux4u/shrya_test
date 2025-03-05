@@ -193,7 +193,11 @@ const UserBookings = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ reason: cancelReason, data: selectedBooking, isAdmin: false }),
+          body: JSON.stringify({
+            reason: cancelReason,
+            data: selectedBooking,
+            isAdmin: false,
+          }),
         }
       );
 
@@ -257,92 +261,89 @@ const UserBookings = () => {
               className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent shadow-sm"
             />
           </div>
+        </div>
 
-          {/* Filter By Section */}
-          <div className="p-4 flex items-center gap-2">
-            <Filter className="w-5 h-5 text-[#ff6b00]" />
-            <span className="text-lg font-medium text-gray-700">
-              Filter By:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setStatusFilter("all")}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
-                  statusFilter === "all"
-                    ? "bg-[#ff6b00] text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <Car className="w-4 h-4" />
-                All
-              </button>
-              <button
-                onClick={() => setStatusFilter("pending")}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
-                  statusFilter === "pending"
-                    ? "bg-yellow-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <Clock className="w-4 h-4" />
-                Pending
-              </button>
-              <button
-                onClick={() => setStatusFilter("active")}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
-                  statusFilter === "active"
-                    ? "bg-green-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <CheckCircle className="w-4 h-4" />
-                Active
-              </button>
-              <button
-                onClick={() => setStatusFilter("completed")}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
-                  statusFilter === "completed"
-                    ? "bg-blue-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <CheckCircle className="w-4 h-4" />
-                Completed
-              </button>
-              <button
-                onClick={() => setStatusFilter("late")}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
-                  statusFilter === "late"
-                    ? "bg-orange-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <Clock className="w-4 h-4" />
-                Late
-              </button>
-              <button
-                onClick={() => setStatusFilter("cancelled")}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
-                  statusFilter === "cancelled"
-                    ? "bg-red-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <X className="w-4 h-4" />
-                Cancelled
-              </button>
-              <button
-                onClick={() => setStatusFilter("completed_late")}
-                className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
-                  statusFilter === "completed_late"
-                    ? "bg-purple-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <CheckCircle className="w-4 h-4" />
-                Completed Late
-              </button>
-            </div>
+        <div className="p-4 flex items-center gap-2">
+          <Filter className="w-5 h-5 text-[#ff6b00]" />
+          <span className="text-lg font-medium text-gray-700">Filter By:</span>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setStatusFilter("all")}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                statusFilter === "all"
+                  ? "bg-[#ff6b00] text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Car className="w-4 h-4" />
+              All
+            </button>
+            <button
+              onClick={() => setStatusFilter("pending")}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                statusFilter === "pending"
+                  ? "bg-yellow-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              Pending
+            </button>
+            <button
+              onClick={() => setStatusFilter("active")}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                statusFilter === "active"
+                  ? "bg-green-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <CheckCircle className="w-4 h-4" />
+              Active
+            </button>
+            <button
+              onClick={() => setStatusFilter("completed")}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                statusFilter === "completed"
+                  ? "bg-blue-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <CheckCircle className="w-4 h-4" />
+              Completed
+            </button>
+            <button
+              onClick={() => setStatusFilter("late")}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                statusFilter === "late"
+                  ? "bg-orange-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              Late
+            </button>
+            <button
+              onClick={() => setStatusFilter("cancelled")}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                statusFilter === "cancelled"
+                  ? "bg-red-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <X className="w-4 h-4" />
+              Cancelled
+            </button>
+            <button
+              onClick={() => setStatusFilter("completed_late")}
+              className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
+                statusFilter === "completed_late"
+                  ? "bg-purple-500 text-white shadow-md"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              <CheckCircle className="w-4 h-4" />
+              Completed Late
+            </button>
           </div>
         </div>
 
@@ -451,8 +452,9 @@ const UserBookings = () => {
                           {booking.RentalVehicle.make}
                         </h3>
                         <p className="text-gray-600">
-                          {booking.RentalVehicle.make} {booking.RentalVehicle.model}{" "}
-                          ({booking.RentalVehicle.year})
+                          {booking.RentalVehicle.make}{" "}
+                          {booking.RentalVehicle.model} (
+                          {booking.RentalVehicle.year})
                         </p>
                       </div>
 
@@ -531,7 +533,6 @@ const UserBookings = () => {
             {totalPages > 1 && (
               <div className="flex justify-center mt-8">
                 <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
-                  {/* Previous Button */}
                   <button
                     onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1}
@@ -544,7 +545,6 @@ const UserBookings = () => {
                     <ChevronLeft className="w-5 h-5" />
                   </button>
 
-                  {/* Page Numbers */}
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                     (number) => (
                       <button
@@ -561,7 +561,6 @@ const UserBookings = () => {
                     )
                   )}
 
-                  {/* Next Button */}
                   <button
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}

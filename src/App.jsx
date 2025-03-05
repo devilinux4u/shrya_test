@@ -41,6 +41,7 @@ import Feedback from "./Admin/Feedback/Feedback";
 import GoogleAuth from "./Pages/LoginGoogle";
 import PaymentVerify from "./Pages/PaymentSuccess";
 import Appointments from "./Admin/Vehicle Management/Appointments";
+import UserAppointments from "./Pages/UserAppointments";
 
 function App() {
   const location = useLocation();
@@ -85,6 +86,8 @@ function App() {
         <Route path="/ReportedItems" element={<ReportedItems />} />
         <Route path="/History" element={<History />} />
         <Route path="/payment-verify" element={<PaymentVerify />} />
+        <Route path="/UserAppointments" element={<UserAppointments />} />
+
         <Route
           path="/WishlistVehicleDetail/:id"
           element={<WishlistVehicleDetail />}

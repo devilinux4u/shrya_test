@@ -3,8 +3,6 @@
 import { useState, useEffect } from "react";
 import {
   Search,
-  Filter,
-  Eye,
   Check,
   X,
   Car,
@@ -296,128 +294,65 @@ export default function AdminWishlist() {
         </p>
       </div>
 
-      {/* Search Bar */}
-      <div className="mb-8">
-        <div className="relative">
+      <div className="mb-8 flex flex-col sm:flex-row items-center gap-4">
+        {/* Search Bar */}
+        <div className="relative w-full sm:w-1/3">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by vehicle, model, or customer name..."
+            placeholder="Search by vehicle, model, or customer..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent shadow-sm"
+            className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
           />
         </div>
-      </div>
 
-      {/* Enhanced Filter Section */}
-      <div className="bg-white rounded-xl shadow-sm p-5 mb-8">
-        <div className="flex items-center text-gray-700 font-medium mb-4">
-          <Filter className="w-5 h-5 mr-2 text-[#ff6b00]" />
-          <span className="text-lg">Filters</span>
+        {/* Simple Filter Buttons */}
+        <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => setFilterStatus("all")}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              filterStatus === "all"
+                ? "bg-[#ff6b00] text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setFilterStatus("pending")}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
+              filterStatus === "pending"
+                ? "bg-yellow-500 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <Clock className="w-4 h-4 mr-1" />
+            Pending
+          </button>
+          <button
+            onClick={() => setFilterStatus("available")}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
+              filterStatus === "available"
+                ? "bg-green-500 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <Check className="w-4 h-4 mr-1" />
+            Available
+          </button>
+          <button
+            onClick={() => setFilterStatus("cancelled")}
+            className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
+              filterStatus === "cancelled"
+                ? "bg-red-500 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <X className="w-4 h-4 mr-1" />
+            Cancelled
+          </button>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Status Filters */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-500 mb-3">Status</h3>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setFilterStatus("all")}
-                className={`px-4 py-2 rounded-md transition-all duration-200 ${
-                  filterStatus === "all"
-                    ? "bg-[#ff6b00] text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                All Status
-              </button>
-              <button
-                onClick={() => setFilterStatus("pending")}
-                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
-                  filterStatus === "pending"
-                    ? "bg-yellow-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <Clock
-                  className={`w-4 h-4 mr-1 ${
-                    filterStatus === "pending"
-                      ? "text-white"
-                      : "text-yellow-500"
-                  }`}
-                />
-                Pending
-              </button>
-              <button
-                onClick={() => setFilterStatus("available")}
-                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
-                  filterStatus === "available"
-                    ? "bg-green-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <Check
-                  className={`w-4 h-4 mr-1 ${
-                    filterStatus === "available"
-                      ? "text-white"
-                      : "text-green-500"
-                  }`}
-                />
-                Available
-              </button>
-              <button
-                onClick={() => setFilterStatus("fulfilled")}
-                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
-                  filterStatus === "fulfilled"
-                    ? "bg-blue-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <Check
-                  className={`w-4 h-4 mr-1 ${
-                    filterStatus === "fulfilled"
-                      ? "text-white"
-                      : "text-blue-500"
-                  }`}
-                />
-                Fulfilled
-              </button>
-              <button
-                onClick={() => setFilterStatus("cancelled")}
-                className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
-                  filterStatus === "cancelled"
-                    ? "bg-red-500 text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                <X
-                  className={`w-4 h-4 mr-1 ${
-                    filterStatus === "cancelled" ? "text-white" : "text-red-500"
-                  }`}
-                />
-                Cancelled
-              </button>
-            </div>
-          </div>
-
-          {/* Purpose Filters */}
-        </div>
-
-        {/* Clear Filters Button */}
-        {filterStatus !== "all" && (
-          <div className="mt-4 flex justify-end">
-            <button
-              onClick={() => {
-                setFilterStatus("all");
-              }}
-              className="text-sm text-[#ff6b00] hover:text-[#ff8533] flex items-center"
-            >
-              <X className="w-4 h-4 mr-1" />
-              Clear filter
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Wishlist Items - Card Layout */}
@@ -440,13 +375,11 @@ export default function AdminWishlist() {
           {currentItems.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => handleViewClick(item)}
             >
               {/* Card Header */}
               <div className="relative h-48 bg-blue-50">
-                <div className="absolute top-3 left-3 bg-purple-100 text-purple-800 px-4 py-1 rounded-full font-medium">
-                  Buy Request
-                </div>
                 <div className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 px-4 py-1 rounded-full font-medium flex items-center">
                   <Clock className="w-4 h-4 mr-1" />
                   {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
@@ -505,32 +438,27 @@ export default function AdminWishlist() {
 
                 <div className="flex justify-between items-center">
                   <button
-                    onClick={() => handleViewClick(item)}
-                    className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering card click
+                      handleEditClick(item);
+                    }}
+                    className="flex items-center text-green-600 hover:text-green-800 transition-colors"
                   >
-                    <Eye className="w-4 h-4" />
-                    <span>View</span>
+                    <Edit3 className="w-4 h-4 mr-1" />
+                    Edit
                   </button>
-
-                  <div className="flex gap-2">
-                    {item.status === "pending" && (
-                      <button
-                        onClick={() => handleStatusChange(item.id, "available")}
-                        className="flex items-center gap-1 bg-green-600 text-white px-3 py-1.5 rounded-md hover:bg-green-700 text-sm"
-                      >
-                        <Check className="w-3 h-3" />
-                        Available
-                      </button>
-                    )}
-
+                  {item.status === "pending" && (
                     <button
-                      onClick={() => handleEditClick(item)}
-                      className="flex items-center gap-1 bg-indigo-600 text-white px-3 py-1.5 rounded-md hover:bg-indigo-700 text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering card click
+                        handleStatusChange(item.id, "available");
+                      }}
+                      className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                     >
-                      <Edit3 className="w-3 h-3" />
-                      Edit
+                      <Check className="w-4 h-4 mr-1" />
+                      Mark as Available
                     </button>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>

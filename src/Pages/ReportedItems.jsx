@@ -441,7 +441,11 @@ const ReportedItems = () => {
                 return (
                   <div
                     key={item.id}
-                    className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300"
+                    className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300 cursor-pointer"
+                    onClick={() => {
+                      setIsViewing(true);
+                      setSelectedItem(item);
+                    }}
                   >
                     <div className="relative">
                       <img
@@ -497,68 +501,61 @@ const ReportedItems = () => {
                         </p>
                       </div>
 
-                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                        <div className="flex space-x-2">
+                      <div className="relative pt-3 border-t border-gray-100 pb-4">
+                        {/* Edit Button - Left */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent card click event
+                            setIsEditing(true);
+                            setSelectedItemId(item.id);
+                            setUpdatedData({
+                              title: item.title,
+                              description: item.description,
+                              location: item.location,
+                              date: item.createdAt,
+                              vehicleMake: item.make || "",
+                              vehicleModel: item.model || "",
+                              numberPlate: item.nplate || "",
+                            });
+                          }}
+                          className="absolute left-0 flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                        >
+                          <Edit className="w-4 h-4 mr-1" />
+                          Edit
+                        </button>
+
+                        {/* Resolve Button - Center */}
+                        {item.status !== "resolved" && (
                           <button
-                            onClick={() => {
-                              setIsViewing(true);
-                              setSelectedItem(item);
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent card click event
+                              handleStatusChange(item.id);
                             }}
-                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                            className="absolute left-1/2 transform -translate-x-1/2 flex items-center text-green-600 hover:text-green-800 transition-colors"
                           >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Resolve
                           </button>
+                        )}
 
-                          {item.status !== "resolved" && (
-                            <button
-                              onClick={() => handleStatusChange(item.id)}
-                              className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
-                            >
-                              <CheckCircle className="w-4 h-4 mr-1" />
-                              Resolve
-                            </button>
+                        {/* Delete Button - Right */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent card click event
+                            handleDeleteItem(item.id);
+                          }}
+                          disabled={isDeleting}
+                          className={`absolute right-0 flex items-center text-red-600 hover:text-red-800 transition-colors ${
+                            isDeleting ? "opacity-70 cursor-not-allowed" : ""
+                          }`}
+                        >
+                          {isDeleting ? (
+                            <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-4 h-4 mr-1" />
                           )}
-                        </div>
-
-                        <div className="flex space-x-2">
-                          {/* Only show Edit button if status is not resolved */}
-                          {item.status !== "resolved" && (
-                            <button
-                              onClick={() => {
-                                setIsEditing(true);
-                                setSelectedItemId(item.id);
-                                setUpdatedData({
-                                  title: item.title,
-                                  description: item.description,
-                                  location: item.location,
-                                  date: item.createdAt,
-                                  vehicleMake: item.make || "",
-                                  vehicleModel: item.model || "",
-                                  numberPlate: item.nplate || "",
-                                });
-                              }}
-                              className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                            >
-                              <Edit className="w-4 h-4 mr-1" />
-                              Edit
-                            </button>
-                          )}
-                          <button
-                            onClick={() => handleDeleteItem(item.id)}
-                            disabled={isDeleting}
-                            className={`inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 ${
-                              isDeleting ? "opacity-70 cursor-not-allowed" : ""
-                            }`}
-                          >
-                            {isDeleting ? (
-                              <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
-                            ) : (
-                              <Trash2 className="w-4 h-4 mr-1" />
-                            )}
-                            {isDeleting ? "Deleting..." : "Delete"}
-                          </button>
-                        </div>
+                          {isDeleting ? "Deleting..." : "Delete"}
+                        </button>
                       </div>
                     </div>
                   </div>

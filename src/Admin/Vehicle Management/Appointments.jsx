@@ -18,6 +18,8 @@ import {
   Check,
   X,
   Eye,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export default function Appointments() {
@@ -29,6 +31,8 @@ export default function Appointments() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const bookingsPerPage = 5;
 
   useEffect(() => {
     // Fetch bookings data from your API
@@ -147,6 +151,12 @@ export default function Appointments() {
     }
   };
 
+  const totalPages = Math.ceil(filteredBookings.length / bookingsPerPage);
+  const paginatedBookings = filteredBookings.slice(
+    (currentPage - 1) * bookingsPerPage,
+    currentPage * bookingsPerPage
+  );
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -156,10 +166,10 @@ export default function Appointments() {
   }
 
   return (
-    <div className="pl-64 min-h-screen bg-gray-50">
+    <div className="pl-0 md:pl-64 min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             Appointment Management
           </h1>
           <p className="mt-2 text-sm text-gray-600">
@@ -214,13 +224,13 @@ export default function Appointments() {
 
         {/* Bookings List */}
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-          {filteredBookings.length === 0 ? (
+          {paginatedBookings.length === 0 ? (
             <div className="py-12 text-center">
               <p className="text-gray-500 text-lg">No bookings found</p>
             </div>
           ) : (
             <ul className="divide-y divide-gray-200">
-              {filteredBookings.map((booking) => (
+              {paginatedBookings.map((booking) => (
                 <li key={booking._id} className="hover:bg-gray-50">
                   <div className="px-4 py-4 sm:px-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -280,6 +290,52 @@ export default function Appointments() {
             </ul>
           )}
         </div>
+
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-8">
+            <nav className="flex items-center space-x-2">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`p-2 rounded-md ${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === i + 1
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className={`p-2 rounded-md ${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </nav>
+          </div>
+        )}
       </div>
 
       {/* Detailed View Modal */}

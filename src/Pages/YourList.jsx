@@ -13,7 +13,7 @@ import {
   Filter,
   Loader2,
   Edit,
-  X,
+  XCircle,
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -180,17 +180,6 @@ const YourList = () => {
     setStatusFilter(status);
     setDropdownOpen(null);
     setCurrentPage(1);
-
-    let message = "";
-    if (status === "all") {
-      message = "Showing all vehicles";
-    } else {
-      message = `Showing ${
-        status === "available" ? "Arrived" : "Pending"
-      } vehicles`;
-    }
-
-    toast.info(message);
   };
 
   // Add click outside handler to close dropdown
@@ -380,7 +369,8 @@ const YourList = () => {
               {currentItems.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                  className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => navigate(`/WishlistVehicleDetail/${item.id}`)}
                 >
                   <div className="relative">
                     <img
@@ -446,43 +436,37 @@ const YourList = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-500">
-                        Added: {new Date(item.createdAt).toLocaleDateString()}
-                      </span>
-                      {item.status === "available" && (
-                        <button
-                          onClick={() => handleBook(item.id)}
-                          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                        >
-                          Book Now
-                        </button>
-                      )}
-                    </div>
-
                     <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
                       <button
-                        onClick={() =>
-                          navigate(`/WishlistVehicleDetail/${item.id}`)
-                        }
-                        className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </button>
-                      <button
-                        onClick={() => handleEditClick(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditClick(item);
+                        }}
                         className="flex items-center text-green-600 hover:text-green-800 transition-colors"
                       >
                         <Edit className="w-4 h-4 mr-1" />
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDeleteClick(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(item);
+                          toast.info("Delete action initiated.");
+                        }}
                         className="flex items-center text-red-600 hover:text-red-800 transition-colors"
                       >
                         <Trash2 className="w-4 h-4 mr-1" />
                         Delete
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toast.info("Edit action canceled.");
+                        }}
+                        className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+                      >
+                        <XCircle className="w-4 h-4 mr-1" />
+                        Cancel
                       </button>
                     </div>
                   </div>

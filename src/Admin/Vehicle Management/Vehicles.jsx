@@ -561,7 +561,8 @@ export default function Vehicles() {
               {currentItems.map((vehicle) => (
                 <div
                   key={vehicle.id}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col h-full overflow-hidden"
+                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col h-full overflow-hidden cursor-pointer"
+                  onClick={() => handleViewDetails(vehicle)}
                 >
                   {/* Image Container - Fixed Height */}
                   <div className="relative h-48 overflow-hidden">
@@ -616,38 +617,44 @@ export default function Vehicles() {
                       </p>
                     </div>
 
-                    <div className="flex gap-2 mt-auto pt-3 border-t border-gray-100">
+                    <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
                       <button
-                        onClick={() => handleViewDetails(vehicle)}
-                        className="flex-1 bg-[#4F46E5] text-white px-3 py-2 rounded-lg hover:bg-[#4338CA] transition-colors text-sm font-medium"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditVehicle(vehicle);
+                        }}
+                        disabled={vehicle.status === "sold"}
+                        className={`flex items-center text-green-600 hover:text-green-800 transition-colors ${
+                          vehicle.status === "sold"
+                            ? "text-gray-400 cursor-not-allowed"
+                            : ""
+                        }`}
                       >
-                        View Details
+                        <Edit className="w-4 h-4 mr-1" />
+                        Edit
                       </button>
-                      {vehicle.status === "available" && (
-                        <>
-                          <button
-                            onClick={() => handleEditVehicle(vehicle)}
-                            className="p-2 text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100 rounded-lg transition-colors"
-                            title="Edit Vehicle"
-                          >
-                            <Edit className="w-5 h-5" />
-                          </button>
-                          <button
-                            onClick={() => handleStatusChange(vehicle)}
-                            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
-                            title="Mark as Sold"
-                          >
-                            <CheckCircle className="w-5 h-5" />
-                          </button>
-                        </>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteVehicle(vehicle);
+                        }}
+                        className="flex items-center text-red-600 hover:text-red-800 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Delete
+                      </button>
+                      {vehicle.status !== "sold" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleStatusChange(vehicle);
+                          }}
+                          className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Mark as Sold
+                        </button>
                       )}
-                      <button
-                        onClick={() => handleDeleteVehicle(vehicle)}
-                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors"
-                        title="Delete Vehicle"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
                     </div>
                   </div>
                 </div>

@@ -459,30 +459,39 @@ export default function ViewDetails() {
         </div>
 
         {/* Action buttons */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          {vehicle.status === "available" && (
+        <div className="flex flex-wrap gap-3 mt-6">
+          {vehicle.status !== "sold" && (
             <button
-              className="flex-1 bg-[#4F46E5] text-white px-6 py-3 rounded-lg hover:bg-[#4338CA] transition-colors flex items-center justify-center gap-2"
-              onClick={handleEditClick}
+              onClick={() => {
+                onClose();
+                handleEditClick();
+              }}
+              className="flex-1 min-w-[120px] bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
             >
               <Edit className="w-5 h-5" />
-              Edit Vehicle
+              Edit
             </button>
           )}
           <button
-            className="flex-1 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2"
-            onClick={handleDeleteClick}
+            onClick={() => {
+              onClose();
+              handleDeleteClick();
+            }}
+            className="flex-1 min-w-[120px] bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
           >
             <Trash2 className="w-5 h-5" />
-            Delete Vehicle
+            Delete
           </button>
-          {vehicle.user.uname !== "ShreyaAuto" && (
+          {vehicle.status !== "sold" && (
             <button
-              className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
-              onClick={handleBookNow}
+              onClick={() => {
+                onClose();
+                handleStatusChange(vehicle);
+              }}
+              className="flex-1 min-w-[120px] bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
             >
               <CheckCircle className="w-5 h-5" />
-              Book Now
+              Mark as Sold
             </button>
           )}
         </div>

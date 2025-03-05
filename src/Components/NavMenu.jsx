@@ -239,14 +239,7 @@ const NavMenu = () => {
                           >
                             My Bookings
                           </Link>
-                          <Link
-                            to="/ReportedItems"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                            role="menuitem"
-                            onClick={closeMenu}
-                          >
-                            Reported Items
-                          </Link>
+
                           <Link
                             to="/MySales"
                             className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
@@ -262,6 +255,22 @@ const NavMenu = () => {
                             onClick={closeMenu}
                           >
                             My Wishlist
+                          </Link>
+                          <Link
+                            to="/UserAppointments"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                            role="menuitem"
+                            onClick={closeMenu}
+                          >
+                            Appointments
+                          </Link>
+                          <Link
+                            to="/ReportedItems"
+                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                            role="menuitem"
+                            onClick={closeMenu}
+                          >
+                            Reported Items
                           </Link>
 
                           <Link
@@ -423,14 +432,6 @@ const NavMenu = () => {
               >
                 My Bookings
               </NavLink>
-              <NavLink
-                to="/ReportedItems"
-                mobile
-                onClick={closeMenu}
-                isScrolled={isScrolled}
-              >
-                Items Reported
-              </NavLink>
 
               <NavLink
                 to="/MySales"
@@ -440,7 +441,6 @@ const NavMenu = () => {
               >
                 My Sales
               </NavLink>
-
               <NavLink
                 to="/YourList"
                 mobile
@@ -448,6 +448,22 @@ const NavMenu = () => {
                 isScrolled={isScrolled}
               >
                 My Wishlist
+              </NavLink>
+              <Link
+                to="/UserAppointments"
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+                role="menuitem"
+                onClick={closeMenu}
+              >
+                Appointments
+              </Link>
+              <NavLink
+                to="/ReportedItems"
+                mobile
+                onClick={closeMenu}
+                isScrolled={isScrolled}
+              >
+                Items Reported
               </NavLink>
 
               <NavLink

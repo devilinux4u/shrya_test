@@ -424,7 +424,7 @@ const History = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center py-4 border-t border-gray-200">
+              <div className="flex justify-center mt-8">
                 <nav className="flex items-center space-x-2">
                   <button
                     onClick={() =>
