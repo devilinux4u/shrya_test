@@ -7,19 +7,19 @@ const confirmEmail = require("../../helpers/appointmentConfirmMsg");
 router.post("/", async (req, res) => {
   const { userId, vehicleId, date, time, location, description } = req.body;
 
-  console.log("Incoming request payload:", req.body); // Debug log
+  console.log("Incoming request payload:", req.body);
 
   try {
     const user = await users.findByPk(userId);
     const vehicle = await vehicles.findByPk(vehicleId);
 
     if (!user) {
-      console.error("User not found with ID:", userId); // Debug log
+      console.error("User not found with ID:", userId);
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
     if (!vehicle) {
-      console.error("Vehicle not found with ID:", vehicleId); // Debug log
+      console.error("Vehicle not found with ID:", vehicleId);
       return res.status(404).json({ success: false, message: "Vehicle not found" });
     }
     const sellVehicle = await vehicles.findOne({ where: { id: vehicleId } });
@@ -34,15 +34,10 @@ router.post("/", async (req, res) => {
       status: "pending",
     });
 
-    // Include vehicle details in the appointment object
-    appointment.vehicleMake = vehicle.make;
-    appointment.vehicleModel = vehicle.model;
-    appointment.vehicleYear = vehicle.year;
-
-    console.log("Appointment created successfully:", appointment); // Debug log
+    console.log("Appointment created successfully:", appointment);
     res.status(201).json({ success: true, message: "Appointment created", data: appointment });
   } catch (error) {
-    console.error("Error creating appointment:", error); // Debug log
+    console.error("Error creating appointment:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
@@ -61,27 +56,27 @@ router.get("/", async (req, res) => {
             },
             {
               model: users,
-              as: "Seller", // Define alias for seller
+              as: "Seller",
               attributes: ["id", "fname", "email", "num"]
             }
           ]
         },
         {
           model: users,
-          as: "Buyer", // Define alias for buyer
+          as: "Buyer",
           attributes: ["id", "fname", "email", "num"]
         }
       ]
     });
 
-    console.log("Appointments fetched successfully:", appointments); // Debug log
+    console.log("Appointments fetched successfully:", appointments);
     res.status(200).json({
       success: true,
       message: "Appointments fetched successfully",
       data: appointments,
     });
   } catch (error) {
-    console.error("Error fetching appointments:", error); // Debug log
+    console.error("Error fetching appointments:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
@@ -90,7 +85,6 @@ router.get("/user/:userId", async (req, res) => {
   const { userId } = req.params;
 
   try {
-    // Fetch appointments as buyer
     const asBuyer = await Appointment.findAll({
       where: { userId },
       include: [
@@ -100,14 +94,13 @@ router.get("/user/:userId", async (req, res) => {
           include: [{ model: v_img, attributes: ["id", "image"] }],
         },
         {
-          model: users,// Ensure this matches the alias defined in the association
+          model: users,
           attributes: ["id", "fname", "email", "num"],
         },
       ],
-      order: [["createdAt", "DESC"]], // Sort by creation date
+      order: [["createdAt", "DESC"]],
     });
 
-    // Fetch appointments as seller
     const asSeller = await Appointment.findAll({
       where: { SelleruserId: userId },
       include: [
@@ -117,21 +110,21 @@ router.get("/user/:userId", async (req, res) => {
           include: [{ model: v_img, attributes: ["id", "image"] }],
         },
         {
-          model: users,// Ensure this matches the alias defined in the association
+          model: users,
           attributes: ["id", "fname", "email", "num"],
         },
       ],
-      order: [["createdAt", "DESC"]], // Sort by creation date
+      order: [["createdAt", "DESC"]],
     });
 
-    console.log("Appointments fetched successfully:", { asBuyer, asSeller }); // Debug log
+    console.log("Appointments fetched successfully:", { asBuyer, asSeller });
     res.status(200).json({
       success: true,
       message: "Appointments fetched successfully",
       data: { asBuyer, asSeller },
     });
   } catch (error) {
-    console.error("Error fetching appointments:", error); // Debug log
+    console.error("Error fetching appointments:", error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
@@ -139,9 +132,8 @@ router.get("/user/:userId", async (req, res) => {
 router.patch("/:id/status", async (req, res) => {
   const { id } = req.params;
   const { status, role, reason } = req.body;
-  // console.log(req.body) // Debug log
 
-  console.log(`Updating status for appointment ID: ${id}`); // Debug log
+  console.log(`Updating status for appointment ID: ${id}`);
 
   try {
     const appointment = await Appointment.findByPk(id, {
@@ -163,7 +155,7 @@ router.patch("/:id/status", async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Appointment not found",
-        receivedId: id // Send back the ID we received for debugging
+        receivedId: id
       });
     }
 
@@ -183,14 +175,14 @@ router.patch("/:id/status", async (req, res) => {
 
       const userEmail = await users.findOne({ where: { id: eid } });
 
-      // Pass vehicle details to the cancellation email
-      cancelEmail(userEmail, {
+      await cancelEmail(userEmail, {
         ...appointment.dataValues,
+        date: appointment.date,
+        time: appointment.time,
         vehicleMake: appointment.SellVehicle.make,
         vehicleModel: appointment.SellVehicle.model,
         vehicleYear: appointment.SellVehicle.year,
-        location: appointment.location,
-        time: appointment.time,
+        location: appointment.location
       }, reason);
     }
 
@@ -207,9 +199,10 @@ router.patch("/:id/status", async (req, res) => {
 
       const userEmail = await users.findOne({ where: { id: eid } });
 
-      // Pass vehicle details to the confirmation email
-      confirmEmail(userEmail, {
+      await confirmEmail(userEmail, {
         ...appointment.dataValues,
+        date: appointment.date,
+        time: appointment.time,
         vehicleMake: appointment.SellVehicle.make,
         vehicleModel: appointment.SellVehicle.model,
         vehicleYear: appointment.SellVehicle.year,

@@ -3,11 +3,16 @@ const nodemailer = require('nodemailer');
 
 /**
  * Formats a date string with ordinal suffixes (1st, 2nd, 3rd, etc.)
- * @param {string} dateString - ISO date string to format
+ * @param {string} dateStr - Date string (YYYY-MM-DD)
+ * @param {string} timeStr - Time string (HH:MM)
  * @return {string} Formatted date and time
  */
-const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
+const formatDateTimeWithTime = (dateStr, timeStr) => {
+    const [year, month, day] = dateStr.split('-');
+    const [hours, minutes] = timeStr.split(':');
+    
+    const date = new Date(year, month - 1, day, hours, minutes);
+    
     const options = {
         year: 'numeric',
         month: 'long',
@@ -16,6 +21,7 @@ const formatDateTime = (dateString) => {
         minute: 'numeric',
         hour12: true
     };
+    
     return date.toLocaleString('en-US', options).replace(/(\d+)(?=\s)/, (match) => {
         const num = parseInt(match, 10);
         if ([11, 12, 13].includes(num % 100)) return `${num}th`;
@@ -45,8 +51,8 @@ const sendCancellationEmail = async (userData, appointmentData, message) => {
         },
     });
 
-    // Format the appointment date/time for better readability
-    const formattedDateTime = formatDateTime(appointmentData.date);
+    // Format the appointment date and time
+    const formattedDateTime = formatDateTimeWithTime(appointmentData.date, appointmentData.time);
 
     const mailOptions = {
         from: `"Shreya Auto" <${process.env.EMAIL_USER}>`,
@@ -60,7 +66,7 @@ const sendCancellationEmail = async (userData, appointmentData, message) => {
                 
                 <p style="margin-bottom: 15px;">Dear ${userData.fname},</p>
                 
-                <p style="margin-bottom: 15px;">We regret to inform you that your appointment scheduled for <strong>${formattedDateTime}</strong> for  <strong>${appointmentData.vehicleMake} ${appointmentData.vehicleModel} (${appointmentData.vehicleYear})</strong> at <strong>${appointmentData.location || 'Shreya Auto Service Center'}</strong> has been cancelled.</p>
+                <p style="margin-bottom: 15px;">We regret to inform you that your appointment scheduled for <strong>${formattedDateTime}</strong> for <strong>${appointmentData.vehicleMake} ${appointmentData.vehicleModel} (${appointmentData.vehicleYear})</strong> at <strong>${appointmentData.location || 'Shreya Auto Service Center'}</strong> has been cancelled.</p>
                 
                 <div style="background-color: #f7f7f7; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
                     <p style="margin: 0 0 10px 0;"><strong>Cancelled Appointment Details:</strong></p>
@@ -79,7 +85,6 @@ const sendCancellationEmail = async (userData, appointmentData, message) => {
                 </div>
             </div>
         `,
-        // Plain text version as fallback
         text: `Dear ${userData.fname},
 
 We regret to inform you that your appointment at Shreya Auto scheduled for ${formattedDateTime} for your ${appointmentData.vehicleMake} ${appointmentData.vehicleModel} (${appointmentData.vehicleYear}) at ${appointmentData.location || 'Shreya Auto Service Center'} has been cancelled.
@@ -109,5 +114,4 @@ www.shreyaauto.com`,
     }
 };
 
-// Export the function
 module.exports = sendCancellationEmail;
