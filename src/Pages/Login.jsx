@@ -1,35 +1,43 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { FaUser, FaLock, FaGoogle, FaExclamationTriangle } from "react-icons/fa"
-import { motion, AnimatePresence } from "framer-motion"
-import { useGoogleLogin } from "@react-oauth/google"
-import Cookies from "js-cookie"
-import { useNavigate } from "react-router-dom"
-import { ToastContainer, toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+import { useState } from "react";
+import {
+  FaUser,
+  FaLock,
+  FaGoogle,
+  FaExclamationTriangle,
+  FaEye,
+  FaEyeSlash,
+} from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import { useGoogleLogin } from "@react-oauth/google";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Login({ onLogin }) {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-  })
-  const [error, setError] = useState("") // State for managing error message
-  const navigate = useNavigate() // Initialize navigate
+  });
+  const [error, setError] = useState(""); // State for managing error message
+  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const navigate = useNavigate(); // Initialize navigate
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const user = formData.username
-    const pass = formData.password
+    const user = formData.username;
+    const pass = formData.password;
 
     try {
       const response = await fetch("http://127.0.0.1:3000/login", {
@@ -38,52 +46,47 @@ export default function Login({ onLogin }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ user, pass }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        if (data.msg == 'itsadmin') {
-          toast.success("Admin Logged in!")
-          Cookies.set("sauto", data.cok, { expires: 10 })
-          navigate("/admin/dashboard")
-        }
-        else if (data.msg == 'pending') {
-          
+        if (data.msg == "itsadmin") {
+          toast.success("Admin Logged in!");
+          Cookies.set("sauto", data.cok, { expires: 10 });
+          navigate("/admin/dashboard");
+        } else if (data.msg == "pending") {
           sessionStorage.setItem(
             "pendingVerification",
             JSON.stringify({
               userId: data.dd.id,
-              email: data.dd.email
-            }),
-          )
-  
+              email: data.dd.email,
+            })
+          );
+
           // Navigate to verification page instead of login
-          toast.error("Please verify your account.")
-  
+          toast.error("Please verify your account.");
+
           setTimeout(() => {
             navigate("/UserVerification");
           }, 1000);
-
-        }
-        else { 
-          Cookies.set("sauto", data.cok, { expires: 10 })
-          setError("")
-          onLogin({ username: user, password: pass }) // Call onLogin with credentials
-          toast.success("Login successful!")
-          navigate("/")
+        } else {
+          Cookies.set("sauto", data.cok, { expires: 10 });
+          setError("");
+          onLogin({ username: user, password: pass }); // Call onLogin with credentials
+          toast.success("Login successful!");
+          navigate("/");
           window.location.reload();
-
         }
       } else {
-        setError(data.msg)
-        toast.error(data.msg)
+        setError(data.msg);
+        toast.error(data.msg);
       }
     } catch (err) {
-      setError("An error occurred while logging in. Please try again.")
-      toast.error("An error occurred while logging in. Please try again.")
+      setError("An error occurred while logging in. Please try again.");
+      toast.error("An error occurred while logging in. Please try again.");
     }
-  }
+  };
 
   const pageVariants = {
     initial: {
@@ -98,18 +101,18 @@ export default function Login({ onLogin }) {
       opacity: 0,
       x: 200,
     },
-  }
+  };
 
   const errorVariants = {
     initial: { opacity: 0, y: -10 },
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -10 },
-  }
+  };
 
   const handleRegisterClick = (e) => {
-    e.preventDefault()
-    navigate("/Register")
-  }
+    e.preventDefault();
+    navigate("/Register");
+  };
 
   const googleLogin = useGoogleLogin({
     onSuccess: async (response) => {
@@ -123,7 +126,9 @@ export default function Login({ onLogin }) {
         });
 
         if (res.status === 404) {
-          toast.error("Google login endpoint not found. Please check the server.");
+          toast.error(
+            "Google login endpoint not found. Please check the server."
+          );
           return;
         }
 
@@ -138,7 +143,9 @@ export default function Login({ onLogin }) {
           toast.error(data.msg);
         }
       } catch (error) {
-        toast.error("An error occurred while logging in with Google. Please try again.");
+        toast.error(
+          "An error occurred while logging in with Google. Please try again."
+        );
       }
     },
     onError: (error) => {
@@ -146,7 +153,11 @@ export default function Login({ onLogin }) {
       toast.error("Google login failed. Please try again.");
     },
     flow: "implicit",
-  })
+  });
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   return (
     <>
@@ -205,17 +216,27 @@ export default function Login({ onLogin }) {
                 <div className="relative">
                   <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"} // Toggle input type
                     name="password"
                     placeholder="Password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6B7CFF]"
+                    className="w-full pl-10 pr-12 py-3 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6B7CFF]"
                     required
                   />
+                  <button
+                    type="button"
+                    onClick={togglePasswordVisibility}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </button>
                 </div>
                 <div className="text-right">
-                  <a href="#" className="text-sm text-[#6B7CFF] hover:underline">
+                  <a
+                    href="#"
+                    className="text-sm text-[#6B7CFF] hover:underline"
+                  >
                     Forgot password?
                   </a>
                 </div>
@@ -264,12 +285,13 @@ export default function Login({ onLogin }) {
                 }}
                 className="w-full py-3 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-300"
               >
-                <FaGoogle className="w-5 h-5 mr-2 text-red-500" /> Login with Google
+                <FaGoogle className="w-5 h-5 mr-2 text-red-500" /> Login with
+                Google
               </motion.button>
             </form>
           </motion.div>
         </div>
       </motion.div>
     </>
-  )
+  );
 }
