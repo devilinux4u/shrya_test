@@ -6,7 +6,6 @@ import {
   Search,
   Filter,
   ChevronDown,
-  ChevronUp,
   Calendar,
   Clock,
   MapPin,
@@ -21,6 +20,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Appointments() {
   const [bookings, setBookings] = useState([]);
@@ -33,6 +34,12 @@ export default function Appointments() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const bookingsPerPage = 5;
+  const [confirmationDialog, setConfirmationDialog] = useState({
+    isOpen: false,
+    action: null,
+    bookingId: null,
+    status: null,
+  });
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -189,6 +196,7 @@ export default function Appointments() {
 
   const closeDetailsModal = () => {
     setShowDetailsModal(false);
+    setSelectedBooking(null);
   };
 
   const updateBookingStatus = async (id, status) => {
@@ -205,29 +213,49 @@ export default function Appointments() {
       );
 
       if (!response.ok) {
-        throw new Error(`Failed to update status: ${response.statusText}`);
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        throw new Error(
+          errorData.message ||
+            `Failed to update booking: ${response.statusText}`
+        );
       }
 
       const updatedBooking = await response.json();
+      console.log("Updated booking:", updatedBooking);
 
-      // Update local state with the updated booking
-      setBookings((prevBookings) =>
-        prevBookings.map((booking) =>
-          booking._id === id
-            ? { ...booking, status: updatedBooking.status }
-            : booking
+      // Update local state
+      setBookings((prev) =>
+        prev.map((booking) =>
+          booking._id === id ? { ...booking, status: status } : booking
         )
       );
 
-      // Update selected booking if it matches the updated one
-      if (selectedBooking && selectedBooking._id === id) {
-        setSelectedBooking((prevSelected) => ({
-          ...prevSelected,
-          status: updatedBooking.status,
-        }));
+      // Dispatch event to update other components
+      window.dispatchEvent(
+        new CustomEvent("appointmentStatusUpdated", {
+          detail: { id, status, updatedBooking },
+        })
+      );
+
+      // Show toast notification
+      if (status === "confirmed") {
+        toast.success("Booking confirmed successfully!");
+      } else if (status === "cancelled") {
+        toast.success("Booking has been cancelled.");
       }
+
+      // Close the modal and reset confirmation dialog
+      closeDetailsModal();
+      setConfirmationDialog({
+        isOpen: false,
+        action: null,
+        bookingId: null,
+        status: null,
+      });
     } catch (error) {
-      console.error("Error updating booking status:", error);
+      console.error("Error updating booking:", error);
+      toast.error(`Failed to update booking: ${error.message}`);
     }
   };
 
@@ -345,7 +373,6 @@ export default function Appointments() {
                 <option value="pending">Pending</option>
                 <option value="confirmed">Confirmed</option>
                 <option value="cancelled">Cancelled</option>
-                <option value="completed">Completed</option>
               </select>
             </div>
           </div>
@@ -500,7 +527,7 @@ export default function Appointments() {
                   <X className="h-4 w-4" aria-hidden="true" />
                 </button>
 
-                <div className="w-full grid grid-cols-1 gap-y-4 gap-x-3 items-start sm:grid-cols-12 lg:gap-x-4">
+                <div className="w-full max-h-[70vh] overflow-y-auto grid grid-cols-1 gap-y-4 gap-x-3 items-start sm:grid-cols-12 lg:gap-x-4">
                   <div className="sm:col-span-12">
                     <h2 className="text-lg font-bold text-gray-900 sm:pr-8">
                       Booking Details
@@ -585,9 +612,7 @@ export default function Appointments() {
                             <div className="relative">
                               <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                                 <img
-                                  src={`../../server/controllers${selectedBooking.vehicle.images[
-                                    currentImageIndex
-                                  ]}`}
+                                  src={`../../server/controllers${selectedBooking.vehicle.images[currentImageIndex]}`}
                                   alt={`${selectedBooking.vehicle.make} ${selectedBooking.vehicle.model}`}
                                   className="absolute inset-0 h-full w-full object-cover"
                                 />
@@ -740,52 +765,39 @@ export default function Appointments() {
                     </div>
 
                     <div className="mt-6 flex flex-wrap justify-end gap-3">
-                      {selectedBooking.status === "pending" && (
-                        <>
+                      {selectedBooking.status === "pending" &&
+                        selectedBooking.user.name !== "Shreya Auto" && (
                           <button
                             type="button"
                             onClick={() => {
-                              updateBookingStatus(
-                                selectedBooking._id,
-                                "confirmed"
-                              );
-                              closeDetailsModal();
+                              setConfirmationDialog({
+                                isOpen: true,
+                                action: "confirm",
+                                bookingId: selectedBooking._id,
+                                status: "confirmed",
+                              });
                             }}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                           >
                             <Check className="mr-2 h-4 w-4" />
                             Confirm Booking
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              updateBookingStatus(
-                                selectedBooking._id,
-                                "cancelled"
-                              );
-                              closeDetailsModal();
-                            }}
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                          >
-                            <X className="mr-2 h-4 w-4" />
-                            Cancel Booking
-                          </button>
-                        </>
-                      )}
-                      {selectedBooking.status === "confirmed" && (
+                        )}
+                      {selectedBooking.status === "pending" && (
                         <button
                           type="button"
                           onClick={() => {
-                            updateBookingStatus(
-                              selectedBooking._id,
-                              "completed"
-                            );
-                            closeDetailsModal();
+                            setConfirmationDialog({
+                              isOpen: true,
+                              action: "cancel",
+                              bookingId: selectedBooking._id,
+                              status: "cancelled",
+                            });
                           }}
-                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >
-                          <Check className="mr-2 h-4 w-4" />
-                          Mark as Completed
+                          <X className="mr-2 h-4 w-4" />
+                          Cancel Booking
                         </button>
                       )}
                       <button
@@ -803,6 +815,108 @@ export default function Appointments() {
           </div>
         </div>
       )}
+      {/* Confirmation Dialog */}
+      {confirmationDialog.isOpen && (
+        <div className="fixed inset-0 z-20 overflow-y-auto">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity"
+              aria-hidden="true"
+            >
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span
+              className="hidden sm:inline-block sm:align-middle sm:h-screen"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div
+                    className={`mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full ${
+                      confirmationDialog.action === "confirm"
+                        ? "bg-green-100"
+                        : "bg-red-100"
+                    } sm:mx-0 sm:h-10 sm:w-10`}
+                  >
+                    {confirmationDialog.action === "confirm" ? (
+                      <Check className={`h-6 w-6 text-green-600`} />
+                    ) : (
+                      <X className={`h-6 w-6 text-red-600`} />
+                    )}
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      {confirmationDialog.action === "confirm"
+                        ? "Confirm Booking"
+                        : "Cancel Booking"}
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        {confirmationDialog.action === "confirm"
+                          ? "Are you sure you want to confirm this booking? This action cannot be undone."
+                          : "Are you sure you want to cancel this booking? This action cannot be undone."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${
+                    confirmationDialog.action === "confirm"
+                      ? "bg-green-600 hover:bg-green-700"
+                      : "bg-red-600 hover:bg-red-700"
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    confirmationDialog.action === "confirm"
+                      ? "focus:ring-green-500"
+                      : "focus:ring-red-500"
+                  } sm:ml-3 sm:w-auto sm:text-sm`}
+                  onClick={() => {
+                    updateBookingStatus(
+                      confirmationDialog.bookingId,
+                      confirmationDialog.status
+                    );
+                  }}
+                >
+                  {confirmationDialog.action === "confirm"
+                    ? "Confirm"
+                    : "Cancel Booking"}
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={() =>
+                    setConfirmationDialog({
+                      isOpen: false,
+                      action: null,
+                      bookingId: null,
+                      status: null,
+                    })
+                  }
+                >
+                  Go Back
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }

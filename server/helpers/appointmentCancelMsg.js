@@ -17,10 +17,9 @@ const formatDateTime = (dateString) => {
     });
 };
 
-// Function to send OTP via email
+// Function to send cancellation email notification
 const cancelEmail = async (udata, adata) => {
-
-    console.log(udata)
+    console.log(udata);
 
     // Configure the email transporter
     const transporter = nodemailer.createTransport({
@@ -33,20 +32,54 @@ const cancelEmail = async (udata, adata) => {
         },
     });
 
-    mailOptions = {
-        from: process.env.EMAIL_USER, // Sender email
+    // Format the appointment date/time for better readability
+    const formattedDateTime = formatDateTime(adata.date);
+
+    const mailOptions = {
+        from: `"Shreya Auto" <${process.env.EMAIL_USER}>`, // Sender name and email
         to: udata.email, // Recipient email
-        subject: 'Appointment Cancellation Notification',
-        text: `Dear ${udata.fname}, \n\n Your appointment for buy/sell vechile on ${adata.date} has been canceled. \n\n Shreya Auto\n Thank you!`,
+        subject: 'Appointment Cancellation Notification - Shreya Auto',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h2 style="color: #333;">Appointment Cancellation</h2>
+                </div>
+                
+                <p style="margin-bottom: 15px;">Dear ${udata.fname},</p>
+                
+                <p style="margin-bottom: 15px;">We're writing to inform you that your vehicle appointment scheduled for <strong>${formattedDateTime}</strong> has been canceled.</p>
+                
+                <p style="margin-bottom: 15px;">If you would like to reschedule your appointment or have any questions, please contact our customer service team at <a href="tel:+1234567890">(123) 456-7890</a> or reply to this email.</p>
+                
+                <p style="margin-bottom: 5px;">Thank you for your understanding.</p>
+                
+                <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                    <p style="margin: 0; font-weight: bold;">Shreya Auto</p>
+                    <p style="margin: 5px 0 0; color: #666; font-size: 14px;">Your trusted partner for vehicle transactions</p>
+                    <p style="margin: 5px 0 0; color: #666; font-size: 14px;"><a href="https://www.shreyaauto.com" style="color: #0066cc; text-decoration: none;">www.shreyaauto.com</a></p>
+                </div>
+            </div>
+        `,
+        // Plain text version as fallback
+        text: `Dear ${udata.fname},
+
+We're writing to inform you that your vehicle appointment scheduled for ${formattedDateTime} has been canceled.
+
+If you would like to reschedule your appointment or have any questions, please contact our customer service team at (123) 456-7890 or reply to this email.
+
+Thank you for your understanding.
+
+Shreya Auto
+Your trusted partner for vehicle transactions
+www.shreyaauto.com`,
     };
-
-
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`Notification sent for appointment cancellation`);
+        console.log(`Cancellation notification sent successfully to ${udata.email}`);
+        return true;
     } catch (error) {
-        console.error('Error sending notification:', error);
+        console.error('Error sending cancellation notification:', error);
         throw error;
     }
 };

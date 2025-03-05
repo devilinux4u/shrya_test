@@ -19,10 +19,12 @@ import {
   User,
   Mail,
   Phone,
-  MessageCircle,
   UserCheck,
   Tag,
 } from "lucide-react";
+
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function UserAppointments() {
   const [appointments, setAppointments] = useState([]);
@@ -36,6 +38,12 @@ export default function UserAppointments() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState("all"); // "all", "buyer", "seller"
   const [currentUserId, setCurrentUserId] = useState("user123"); // This would come from auth
+  const [confirmationDialog, setConfirmationDialog] = useState({
+    isOpen: false,
+    action: null,
+    bookingId: null,
+    role: null,
+  });
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -136,54 +144,35 @@ export default function UserAppointments() {
 
   const cancelAppointment = async (id, roles) => {
     try {
-      // Log the ID being sent
-      console.log("Cancelling appointment with ID:", id);
-
-      const response = await fetch(
-        `http://localhost:3000/api/appointments/${id}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: "cancelled", role: roles }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Error response:", errorData);
-        throw new Error(
-          errorData.message ||
-            `Failed to cancel appointment: ${response.statusText}`
-        );
-      }
-
-      const updatedAppointment = await response.json();
-      console.log("Updated appointment:", updatedAppointment);
-
-      // Update local state
-      setAppointments((prev) =>
-        prev.map((app) =>
-          app.id === id ? { ...app, status: "cancelled" } : app
-        )
-      );
-
-      // Dispatch event to update other components
-      window.dispatchEvent(
-        new CustomEvent("appointmentStatusUpdated", {
-          detail: { id, status: "cancelled", updatedAppointment },
-        })
-      );
-
-      alert("Appointment successfully canceled.");
+      // Set confirmation dialog state instead of using window.confirm
+      setConfirmationDialog({
+        isOpen: true,
+        action: "cancel",
+        bookingId: id,
+        role: roles,
+      });
     } catch (error) {
       console.error("Error cancelling appointment:", error);
-      alert(`Failed to cancel appointment: ${error.message}`);
+      toast.error(`Failed to cancel appointment: ${error.message}`);
     }
   };
 
   const approveAppointment = async (id) => {
+    try {
+      // Set confirmation dialog state
+      setConfirmationDialog({
+        isOpen: true,
+        action: "confirm",
+        bookingId: id,
+        role: null,
+      });
+    } catch (error) {
+      console.error("Error approving appointment:", error);
+      toast.error("Failed to approve appointment");
+    }
+  };
+
+  const handleConfirmedStatusUpdate = async (id, status, role) => {
     try {
       const response = await fetch(
         `http://localhost:3000/api/appointments/${id}/status`,
@@ -192,25 +181,56 @@ export default function UserAppointments() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status: "confirmed" }),
+          body: JSON.stringify({ status, role }),
         }
       );
 
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
         throw new Error(
-          `Failed to approve appointment: ${response.statusText}`
+          errorData.message ||
+            `Failed to update appointment: ${response.statusText}`
         );
       }
 
-      setAppointments((prevAppointments) =>
-        prevAppointments.map((appointment) =>
-          appointment.id === id
-            ? { ...appointment, status: "confirmed" }
-            : appointment
-        )
+      const updatedAppointment = await response.json();
+      console.log("Updated appointment:", updatedAppointment);
+
+      // Update local state
+      setAppointments((prev) =>
+        prev.map((app) => (app.id === id ? { ...app, status: status } : app))
       );
+
+      // Dispatch event to update other components
+      window.dispatchEvent(
+        new CustomEvent("appointmentStatusUpdated", {
+          detail: { id, status, updatedAppointment },
+        })
+      );
+
+      // Show toast notification
+      if (status === "confirmed") {
+        toast.success("Appointment successfully confirmed!");
+      } else if (status === "cancelled") {
+        toast.success("Appointment has been cancelled.");
+      }
+
+      // Close the modal if it's open
+      if (showDetailsModal) {
+        closeDetailsModal();
+      }
     } catch (error) {
-      console.error("Error approving appointment:", error);
+      console.error("Error updating appointment:", error);
+      toast.error(`Failed to update appointment: ${error.message}`);
+    } finally {
+      // Reset confirmation dialog
+      setConfirmationDialog({
+        isOpen: false,
+        action: null,
+        bookingId: null,
+        role: null,
+      });
     }
   };
 
@@ -624,7 +644,10 @@ export default function UserAppointments() {
                       {isUserSeller(appointment) &&
                         appointment.status === "pending" && (
                           <button
-                            onClick={() => approveAppointment(appointment.id)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent triggering the card click event
+                              approveAppointment(appointment.id);
+                            }}
                             className="flex items-center text-green-600 hover:text-green-800 transition-colors"
                           >
                             <CheckCircle className="w-4 h-4 mr-1" />
@@ -633,28 +656,19 @@ export default function UserAppointments() {
                         )}
                       {appointment.status === "pending" && (
                         <button
-                          onClick={() =>
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent triggering the card click event
                             cancelAppointment(
                               appointment.id,
                               isUserBuyer(appointment) ? "buyer" : "seller"
-                            )
-                          }
+                            );
+                          }}
                           className="flex items-center text-red-600 hover:text-red-800 transition-colors"
                         >
                           <XCircle className="w-4 h-4 mr-1" />
                           Cancel
                         </button>
                       )}
-                      {isUserSeller(appointment) &&
-                        appointment.status === "confirmed" && (
-                          <button
-                            onClick={() => completeAppointment(appointment.id)}
-                            className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-1" />
-                            Complete
-                          </button>
-                        )}
                     </div>
                   </div>
                 </div>
@@ -838,14 +852,6 @@ export default function UserAppointments() {
                           {selectedAppointment.User.fname}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-gray-500">Listing Date</p>
-                        <p className="font-medium">
-                          {new Date(
-                            selectedAppointment.vehicle.listedDate
-                          ).toLocaleDateString()}
-                        </p>
-                      </div>
                     </div>
                   </div>
 
@@ -969,7 +975,9 @@ export default function UserAppointments() {
                           onClick={() => {
                             cancelAppointment(
                               selectedAppointment.id,
-                              isUserBuyer(appointment) ? "buyer" : "seller"
+                              isUserBuyer(selectedAppointment)
+                                ? "buyer"
+                                : "seller"
                             );
                           }}
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
@@ -998,7 +1006,9 @@ export default function UserAppointments() {
                             onClick={() => {
                               cancelAppointment(
                                 selectedAppointment.id,
-                                isUserBuyer(appointment) ? "buyer" : "seller"
+                                isUserBuyer(selectedAppointment)
+                                  ? "buyer"
+                                  : "seller"
                               );
                             }}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
@@ -1009,21 +1019,6 @@ export default function UserAppointments() {
                         </>
                       )}
 
-                    {/* Seller Actions for Confirmed Appointments */}
-                    {isUserSeller(selectedAppointment) &&
-                      selectedAppointment.status === "confirmed" && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            completeAppointment(selectedAppointment.id);
-                          }}
-                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          Mark as Completed
-                        </button>
-                      )}
-
                     {/* Buyer Actions for Confirmed Appointments */}
                     {isUserBuyer(selectedAppointment) &&
                       selectedAppointment.status === "confirmed" && (
@@ -1032,7 +1027,9 @@ export default function UserAppointments() {
                           onClick={() => {
                             cancelAppointment(
                               selectedAppointment.id,
-                              isUserBuyer(appointment) ? "buyer" : "seller"
+                              isUserBuyer(selectedAppointment)
+                                ? "buyer"
+                                : "seller"
                             );
                           }}
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
@@ -1041,17 +1038,6 @@ export default function UserAppointments() {
                           Cancel Booking
                         </button>
                       )}
-
-                    {/* Contact Button (visible for confirmed appointments) */}
-                    {selectedAppointment.status === "confirmed" && (
-                      <button
-                        type="button"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
-                      >
-                        <MessageCircle className="mr-2 h-4 w-4" />
-                        Send Message
-                      </button>
-                    )}
 
                     <button
                       type="button"
@@ -1067,188 +1053,113 @@ export default function UserAppointments() {
           </div>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      {confirmationDialog.isOpen && (
+        <div className="fixed inset-0 z-20 overflow-y-auto">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity"
+              aria-hidden="true"
+            >
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span
+              className="hidden sm:inline-block sm:align-middle sm:h-screen"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div
+                    className={`mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full ${
+                      confirmationDialog.action === "confirm"
+                        ? "bg-green-100"
+                        : "bg-red-100"
+                    } sm:mx-0 sm:h-10 sm:w-10`}
+                  >
+                    {confirmationDialog.action === "confirm" ? (
+                      <CheckCircle className="h-6 w-6 text-green-600" />
+                    ) : (
+                      <XCircle className="h-6 w-6 text-red-600" />
+                    )}
+                  </div>
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      {confirmationDialog.action === "confirm"
+                        ? "Confirm Appointment"
+                        : "Cancel Appointment"}
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        {confirmationDialog.action === "confirm"
+                          ? "Are you sure you want to confirm this appointment? This action cannot be undone."
+                          : "Are you sure you want to cancel this appointment? This action cannot be undone."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${
+                    confirmationDialog.action === "confirm"
+                      ? "bg-green-600 hover:bg-green-700"
+                      : "bg-red-600 hover:bg-red-700"
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    confirmationDialog.action === "confirm"
+                      ? "focus:ring-green-500"
+                      : "focus:ring-red-500"
+                  } sm:ml-3 sm:w-auto sm:text-sm`}
+                  onClick={() => {
+                    handleConfirmedStatusUpdate(
+                      confirmationDialog.bookingId,
+                      confirmationDialog.action === "confirm"
+                        ? "confirmed"
+                        : "cancelled",
+                      confirmationDialog.role
+                    );
+                  }}
+                >
+                  {confirmationDialog.action === "confirm"
+                    ? "Confirm"
+                    : "Cancel"}
+                </button>
+                <button
+                  type="button"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={() => {
+                    setConfirmationDialog({
+                      isOpen: false,
+                      action: null,
+                      bookingId: null,
+                      role: null,
+                    });
+                  }}
+                >
+                  Go Back
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 }
-
-// Mock data for preview purposes
-const mockAppointments = [
-  {
-    id: "a1001",
-    date: "2023-04-20",
-    time: "10:00 AM",
-    location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
-    description:
-      "I would like to test drive the vehicle before making a decision.",
-    status: "pending",
-    createdAt: "2023-04-15T10:30:00Z",
-    buyer: {
-      id: "user123",
-      name: "Rajesh Kumar",
-      email: "rajesh.kumar@example.com",
-      phone: "+977 9801234567",
-    },
-    seller: {
-      id: "seller456",
-      name: "Shreya Auto",
-      email: "support@shreyaauto.com",
-      phone: "+977 9812345678",
-    },
-    vehicle: {
-      make: "Toyota",
-      model: "Fortuner",
-      year: 2021,
-      price: "8,500,000",
-      color: "White",
-      listedDate: "2023-04-10T10:30:00Z",
-      images: [
-        `https://source.unsplash.com/random/800x600?suv,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?toyota,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?fortuner,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?fortuner,${Math.random()}`,
-    },
-  },
-  {
-    id: "a1002",
-    date: "2023-04-21",
-    time: "2:30 PM",
-    location: "Kathmandu Auto Gallery, New Baneshwor",
-    description: "Looking for financing options. Will bring documents.",
-    status: "confirmed",
-    createdAt: "2023-04-16T14:20:00Z",
-    buyer: {
-      id: "user123",
-      name: "Rajesh Kumar",
-      email: "rajesh.kumar@example.com",
-      phone: "+977 9801234567",
-    },
-    seller: {
-      id: "seller789",
-      name: "Kathmandu Auto Gallery",
-      email: "info@kathmanduauto.com",
-      phone: "+977 9847654321",
-    },
-    vehicle: {
-      make: "Honda",
-      model: "City",
-      year: 2022,
-      price: "4,200,000",
-      color: "Silver",
-      listedDate: "2023-04-12T14:20:00Z",
-      images: [
-        `https://source.unsplash.com/random/800x600?honda,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?city,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?sedan,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?honda,${Math.random()}`,
-    },
-  },
-  {
-    id: "a1003",
-    date: "2023-04-18",
-    time: "11:15 AM",
-    location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
-    description: "Need to check the vehicle's condition and service history.",
-    status: "completed",
-    createdAt: "2023-04-14T09:45:00Z",
-    buyer: {
-      id: "buyer321",
-      name: "Anil Thapa",
-      email: "anil.thapa@example.com",
-      phone: "+977 9812345678",
-    },
-    seller: {
-      id: "user123",
-      name: "Rajesh Kumar",
-      email: "rajesh.kumar@example.com",
-      phone: "+977 9801234567",
-    },
-    vehicle: {
-      make: "Hyundai",
-      model: "Creta",
-      year: 2020,
-      price: "3,800,000",
-      color: "Blue",
-      listedDate: "2023-04-05T09:45:00Z",
-      images: [
-        `https://source.unsplash.com/random/800x600?hyundai,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?creta,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?suv,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?creta,${Math.random()}`,
-    },
-  },
-  {
-    id: "a1004",
-    date: "2023-04-22",
-    time: "4:00 PM",
-    location: "Premium Motors, Tinkune, Kathmandu",
-    description: "Requested home visit to inspect the vehicle.",
-    status: "cancelled",
-    createdAt: "2023-04-17T16:10:00Z",
-    buyer: {
-      id: "buyer456",
-      name: "Sunita Rai",
-      email: "sunita.rai@example.com",
-      phone: "+977 9861234567",
-    },
-    seller: {
-      id: "user123",
-      name: "Rajesh Kumar",
-      email: "rajesh.kumar@example.com",
-      phone: "+977 9801234567",
-    },
-    vehicle: {
-      make: "Kia",
-      model: "Seltos",
-      year: 2021,
-      price: "4,500,000",
-      color: "Red",
-      listedDate: "2023-04-10T16:10:00Z",
-      images: [
-        `https://source.unsplash.com/random/800x600?kia,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?seltos,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?suv,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?kia,${Math.random()}`,
-    },
-  },
-  {
-    id: "a1005",
-    date: "2023-04-23",
-    time: "1:00 PM",
-    location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
-    description: "Interested in the vehicle's off-road capabilities.",
-    status: "pending",
-    createdAt: "2023-04-18T11:30:00Z",
-    buyer: {
-      id: "buyer789",
-      name: "Bikash Shrestha",
-      email: "bikash.shrestha@example.com",
-      phone: "+977 9823456789",
-    },
-    seller: {
-      id: "user123",
-      name: "Rajesh Kumar",
-      email: "rajesh.kumar@example.com",
-      phone: "+977 9801234567",
-    },
-    vehicle: {
-      make: "Mahindra",
-      model: "Thar",
-      year: 2022,
-      price: "5,600,000",
-      color: "Black",
-      listedDate: "2023-04-15T11:30:00Z",
-      images: [
-        `https://source.unsplash.com/random/800x600?mahindra,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?thar,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?offroad,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?jeep,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?thar,${Math.random()}`,
-    },
-  },
-];
