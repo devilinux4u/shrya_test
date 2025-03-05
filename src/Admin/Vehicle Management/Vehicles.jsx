@@ -75,6 +75,7 @@ export default function Vehicles() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        console.log(data);
         if (data.success) {
           setVehicles(data.msg); // Assuming the response contains vehicles in `msg` field
           setDisplayedVehicles(data.msg);
@@ -112,14 +113,14 @@ export default function Vehicles() {
           (vehicle) =>
             vehicle.user &&
             vehicle.user.uname &&
-            vehicle.user.uname.toLowerCase() === "shreya auto"
+            vehicle.user.uname.toLowerCase() === "shreyaauto"
         );
       } else if (userFilter.toLowerCase() === "user") {
         filtered = filtered.filter(
           (vehicle) =>
             !vehicle.user ||
             !vehicle.user.uname ||
-            vehicle.user.uname.toLowerCase() !== "shreya auto"
+            vehicle.user.uname.toLowerCase() !== "shreyaauto"
         );
       }
     }
