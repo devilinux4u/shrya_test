@@ -4,10 +4,8 @@ const multer = require("multer");
 const { sequelize, vehicles, v_img } = require('../../db/sequelize')
 const fs = require('fs')
 const path = require('path')
-
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-
 
 router.post('/addVehicle', upload.array('images'), async (req, res) => {
     try {

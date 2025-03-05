@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Camera, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { toast } from "react-toastify"

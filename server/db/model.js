@@ -1,4 +1,3 @@
-
 module.exports.user = (sequelize, DataTypes) => {
     const user = sequelize.define('user', {
         fname: {

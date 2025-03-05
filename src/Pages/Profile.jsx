@@ -2,13 +2,15 @@
 
 import { useState, useRef, useEffect } from "react"
 import { Mail, Phone, Calendar, Edit, Camera, Trash2, Upload, Save, X } from "lucide-react"
+import { ToastContainer, toast } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const Profile = () => {
   const [user, setUser] = useState({
-    name: "Kaluwa",
-    username: "Kalua23",
-    email: "Kalua@example.com",
-    phone: "+1 (555) 123-4567",
+    name: "Test",
+    username: "Test123",
+    email: "Test@gmail.com",
+    phone: "987654321",
     joinDate: "January 2022",
     avatar: "https://i.ibb.co/ZpGX4rRT/Screenshot-2025-03-05-at-5-39-55-PM.png",
   })
@@ -34,6 +36,16 @@ const Profile = () => {
 
   const handleEditToggle = () => {
     setIsEditing(!isEditing)
+    if (!isEditing) {
+      toast.info("You are now editing your profile", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      })
+    }
   }
 
   const handleInputChange = (e) => {
@@ -47,6 +59,14 @@ const Profile = () => {
   const handleSaveProfile = () => {
     console.log("Saving profile:", user)
     setIsEditing(false)
+    toast.success("Profile updated successfully!", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    })
   }
 
   const handleAvatarClick = () => {
@@ -62,6 +82,14 @@ const Profile = () => {
           ...prevUser,
           avatar: reader.result,
         }))
+        toast.success("Profile image uploaded successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        })
       }
       reader.readAsDataURL(file)
     }
@@ -74,6 +102,14 @@ const Profile = () => {
       avatar: "/placeholder.svg?height=200&width=200",
     }))
     setShowPhotoOptions(false)
+    toast.info("Profile image has been removed", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    })
   }
 
   const handleUploadPhoto = () => {
@@ -82,10 +118,19 @@ const Profile = () => {
 
   const handleCancelEdit = () => {
     setIsEditing(false)
+    toast.info("Profile editing cancelled", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    })
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <ToastContainer />
       <div className="mt-12 max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Profile Header with Background */}
         <div className="relative h-36 sm:h-48 bg-gradient-to-r from-blue-500 to-indigo-600">
