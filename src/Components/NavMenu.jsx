@@ -5,6 +5,7 @@ import { Link } from "react-router-dom"
 import Logo from "../assets/Logo.png"
 import { Menu, X, ChevronDown, User } from "lucide-react"
 import { useNavigate } from "react-router-dom"
+import Cookies from "js-cookie"
 
 const NavMenu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -44,10 +45,10 @@ const NavMenu = () => {
 
     // Check login status and user info
     const checkLoginStatus = () => {
-      const loggedIn = localStorage.getItem("isLoggedIn") === "true"
+      const loggedIn = Cookies.get('sauto') ? true : false;
       setIsLoggedIn(loggedIn)
       if (loggedIn) {
-        const fullName = localStorage.getItem("userFullName")
+        const fullName = Cookies.get('sauto').split('-')[2]
         setUserFullName(fullName || "")
       }
     }

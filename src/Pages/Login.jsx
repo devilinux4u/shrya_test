@@ -34,7 +34,6 @@ export default function Login({ onLogin }) {
     try {
       const response = await fetch("http://127.0.0.1:3000/login", {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -43,14 +42,22 @@ export default function Login({ onLogin }) {
 
       const data = await response.json()
 
-      if (data.value) {
-        Cookies.set("sauto", data.cok, { expires: 7 })
-        console.log("Login successful: ", Cookies.get("sauto"))
-        setError("") // Clear error message on successful login
-        onLogin({ username: user, password: pass }) // Call onLogin with credentials
-        toast.success("Login successful!")
+      if (data.success) {
+        if (data.msg == 'itsadmin') {
+          toast.success("Admin Logged in!")
+          navigate("/admin/dashboard")
+        }
+        else {
+          Cookies.set("sauto", data.cok, { expires: 10 })
+          setError("")
+          onLogin({ username: user, password: pass }) // Call onLogin with credentials
+          toast.success("Login successful!")
+          navigate("/RentalVehicles")
+          window.location.reload();
+
+        }
       } else {
-        toast.error("Invalid username or password. Please try again.")
+        toast.error(data.msg)
       }
     } catch (err) {
       toast.error("An error occurred while logging in. Please try again.")

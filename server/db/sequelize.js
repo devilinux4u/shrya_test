@@ -5,6 +5,7 @@ const sequelize = new Sequelize(config.db_con);
 const model = require('./model');
 const user = model.user(sequelize, DataTypes);
 const contact = model.contact(sequelize, DataTypes);
+const vehicle = model.vehicle(sequelize, DataTypes);
 
 try {
     sequelize.sync();
@@ -17,5 +18,6 @@ try {
 module.exports = {
     sequelize,
     users: user,
-    contacts: contact
+    contacts: contact,
+    vehicles: vehicle
 }
