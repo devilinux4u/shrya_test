@@ -139,7 +139,7 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "return_url": "http://localhost:5173/payment-verify",
+          "return_url": "http://localhost:5173/PaymentSuccess",
           "website_url": "http://localhost:5173/",
           "amount": rentalData.totalAmount * 100,
           "purchase_order_id": `vid-${rentalData.vehicleId}`,

@@ -470,7 +470,7 @@ module.exports.Booking = (sequelize, DataTypes) => {
             allowNull: true
         },
         paymentMethod: {
-            type: DataTypes.ENUM('creditCard', 'payLater'),
+            type: DataTypes.ENUM('khalti', 'payLater'),
             allowNull: false
         },
         totalAmount: {

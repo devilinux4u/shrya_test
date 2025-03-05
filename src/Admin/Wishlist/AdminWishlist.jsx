@@ -531,18 +531,19 @@ export default function AdminWishlist() {
                 </p>
 
                 <div className="flex justify-between items-center">
-                  {item.status !== "available" && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering card click
-                        handleEditClick(item);
-                      }}
-                      className="flex items-center text-green-600 hover:text-green-800 transition-colors"
-                    >
-                      <Edit3 className="w-4 h-4 mr-1" />
-                      Edit
-                    </button>
-                  )}
+                  {item.status !== "cancelled" &&
+                    item.status !== "available" && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent triggering card click
+                          handleEditClick(item);
+                        }}
+                        className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+                      >
+                        <Edit3 className="w-4 h-4 mr-1" />
+                        Edit
+                      </button>
+                    )}
                   {item.status === "pending" && (
                     <button
                       onClick={(e) => {
@@ -555,7 +556,8 @@ export default function AdminWishlist() {
                       Mark as Available
                     </button>
                   )}
-                  {item.status === "available" && (
+                  {(item.status === "cancelled" ||
+                    item.status === "available") && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent triggering card click
