@@ -23,7 +23,7 @@ import {
   Tag,
 } from "lucide-react";
 
-export default function Appointments() {
+export default function UserAppointments() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedAppointment, setExpandedAppointment] = useState(null);
@@ -321,7 +321,7 @@ export default function Appointments() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       {/* Header */}
-      <div className="max-w-6xl mx-auto mb-8">
+      <div className="mt-12 max-w-6xl mx-auto mb-8">
         <h1 className="text-4xl font-bold mb-4 text-left">
           <span className="text-purple-600">My</span> Appointments
         </h1>
