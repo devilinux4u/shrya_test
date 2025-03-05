@@ -25,65 +25,6 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-// Dummy data for a single rental
-const dummyRental = {
-  _id: "r1",
-  vehicle: {
-    _id: "v1",
-    make: "Toyota",
-    model: "Corolla",
-    year: 2022,
-    imageUrls: [
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
-    ],
-    licensePlate: "KA-01-AB-1234",
-    specs: {
-      seats: 5,
-      doors: 4,
-      transmission: "automatic",
-      fuel: "petrol",
-      mileage: 18,
-      engine: "1.8L",
-      power: 140,
-    },
-  },
-  user: {
-    _id: "u1",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+91 9876543210",
-    profileImage: "/placeholder.svg?height=200&width=200",
-    address: "123 Main Street, Bangalore, Karnataka",
-    drivingLicense: "KA0120210012345",
-  },
-  rentalPeriod: {
-    type: "day", // hour, day, week, month
-    startDate: "2025-03-25T10:00:00Z",
-    endDate: "2025-03-29T10:00:00Z",
-    totalHours: 96,
-    hoursRemaining: 48,
-  },
-  pickupLocation: "Koramangala Branch, Bangalore",
-  dropoffLocation: "Koramangala Branch, Bangalore",
-  totalAmount: 10000,
-  paymentDetails: {
-    method: "Credit Card",
-    status: "paid",
-    transactionId: "txn_123456789",
-    date: "2025-03-24T15:30:00Z",
-  },
-  additionalServices: [
-    { name: "Insurance", price: 1000 },
-    { name: "GPS Navigation", price: 500 },
-  ],
-  status: "active",
-  notes:
-    "Customer requested child seat. Vehicle has been thoroughly cleaned and sanitized before handover.",
-  driverOption: "self-drive", // or "hire-driver"
-};
-
 export default function RentalDetails() {
   const { id } = useParams();
   const navigate = useNavigate();

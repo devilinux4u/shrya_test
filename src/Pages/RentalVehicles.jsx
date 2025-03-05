@@ -32,29 +32,29 @@ function RentalVehicles() {
           {/* Brand and Model */}
           <div>
             <h2 className="text-[#E94A35] font-semibold text-3xl lg:text-4xl">
-              {carData.make.toUpperCase()}
+              {carData?.make?.toUpperCase() || "Unknown Make"}
             </h2>
             <h1 className="text-black text-5xl lg:text-6xl font-extrabold tracking-wider">
-              {carData.model.toUpperCase()}
+              {carData?.model?.toUpperCase() || "Unknown Model"}
             </h1>
           </div>
 
           {/* Description */}
           <p className="text-gray-600 text-base lg:text-lg leading-relaxed max-w-lg">
-            {carData.description}
+            {carData?.description || "No description available."}
           </p>
 
           {/* Price */}
           <div className="flex items-baseline space-x-2">
             <span className="text-[#E94A35] text-3xl lg:text-4xl font-bold">
-              Rs. {carData.priceHour}
+              Rs. {carData?.priceHour || "N/A"}
             </span>
             <span className="text-gray-600 text-lg">/hr</span>
           </div>
 
           {/* Rent Now Button */}
           <button
-            onClick={() =>handleRentNow(carData)}
+            onClick={() => handleRentNow(carData)}
             className="bg-[#5B5FDD] text-white px-8 py-3 rounded-md text-lg font-medium hover:bg-[#4A4EC9] transition-colors"
           >
             Rent Now
@@ -64,8 +64,12 @@ function RentalVehicles() {
         {/* Car Image */}
         <div className="relative">
           <img
-            src={`../../server${carData.rentVehicleImages[0].image}`}
-            alt={`${carData.make} ${carData.model}`}
+            src={
+              carData?.rentVehicleImages?.[0]?.image
+                ? `../../server${carData.rentVehicleImages[0].image}`
+                : "placeholder.jpg"
+            }
+            alt={`${carData?.make || "Car"} ${carData?.model || "Image"}`}
             className="w-full h-auto max-w-full object-contain"
           />
         </div>
