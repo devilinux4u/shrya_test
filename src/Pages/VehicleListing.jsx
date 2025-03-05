@@ -13,6 +13,10 @@ export default function VehicleListing() {
 
   const navigate = useNavigate(); // Initialize navigate
 
+  const handleCarClick = () => {
+    navigate("/BuyVehiclesDesc"); // Correct route name
+  }
+
   // Fetch vehicles data from backend on component mount
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -38,11 +42,25 @@ export default function VehicleListing() {
     fetchVehicles();
   }, []);
 
+  // Apply filters to vehicles
+  const filteredVehicles = vehicles.filter((vehicle) => {
+    const matchesMake = filters.make
+      ? vehicle.make.toLowerCase().includes(filters.make.toLowerCase())
+      : true;
+    const matchesModel = filters.model
+      ? vehicle.model.toLowerCase().includes(filters.model.toLowerCase())
+      : true;
+    const matchesPrice =
+      vehicle.price >= minPrice && vehicle.price <= maxPrice;
+
+    return matchesMake && matchesModel && matchesPrice;
+  });
+
   const itemsPerPage = 9;
-  const totalPages = Math.ceil(vehicles.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredVehicles.length / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const displayedVehicles = vehicles.slice(startIndex, startIndex + itemsPerPage);
+  const displayedVehicles = filteredVehicles.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -74,7 +92,29 @@ export default function VehicleListing() {
               </div>
             </div>
 
-            <Filter filters={filters} setFilters={setFilters} />
+            {/* Make Filter */}
+            <div className="mb-6">
+              <h3 className="text-sm font-medium mb-2">Make</h3>
+              <input
+                type="text"
+                className="w-full p-2 border rounded"
+                placeholder="Enter make"
+                value={filters.make}
+                onChange={(e) => setFilters({ ...filters, make: e.target.value })}
+              />
+            </div>
+
+            {/* Model Filter */}
+            <div className="mb-6">
+              <h3 className="text-sm font-medium mb-2">Model</h3>
+              <input
+                type="text"
+                className="w-full p-2 border rounded"
+                placeholder="Enter model"
+                value={filters.model}
+                onChange={(e) => setFilters({ ...filters, model: e.target.value })}
+              />
+            </div>
           </div>
         </div>
 
@@ -89,7 +129,8 @@ export default function VehicleListing() {
               {displayedVehicles.map((vehicle, index) => (
                 <div
                   key={index}
-                  onClick={() => navigate(`/BuyVehiclesDesc`, { state: { vehicle } })} // Correct route name
+                  onClick={handleCarClick} //
+                 Correct route name
                   className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col items-center text-center cursor-pointer"
                 >
                   <img
