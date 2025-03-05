@@ -1,5 +1,5 @@
-module.exports.user = (sequelize, DataTypes) => {
-    const user = sequelize.define('user', {
+module.exports.User = (sequelize, DataTypes) => {
+    const User = sequelize.define('User', {
         fname: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -52,21 +52,19 @@ module.exports.user = (sequelize, DataTypes) => {
             defaultValue: false,
         }
     })
-    return user;
+    return User;
 }
 
-
-
-module.exports.vehicle = (sequelize, DataTypes) => {
-    const Vehicle = sequelize.define('vehicles', {
+module.exports.SellVehicle = (sequelize, DataTypes) => {
+    const SellVehicle = sequelize.define('SellVehicle', {
         uid: {
-            type: DataTypes.INTEGER, // Change type to INTEGER to match the users table's id column
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'users', // Reference the users table
-                key: 'id' // Reference the id column in the users table
+                model: 'Users',
+                key: 'id'
             },
-            onDelete: 'CASCADE', // Update to CASCADE for proper deletion behavior
+            onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         },
         make: {
@@ -141,16 +139,16 @@ module.exports.vehicle = (sequelize, DataTypes) => {
         },
     });
 
-    return Vehicle;
+    return SellVehicle;
 };
 
-module.exports.vimg = (sequelize, DataTypes) => {
-    const VehicleImage = sequelize.define('vehicle_image', {
+module.exports.SellVehicleImage = (sequelize, DataTypes) => {
+    const SellVehicleImage = sequelize.define('SellVehicleImage', {
         vehicleId: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'vehicles',
+                model: 'SellVehicles',
                 key: 'id'
             },
             onDelete: 'CASCADE'
@@ -161,26 +159,19 @@ module.exports.vimg = (sequelize, DataTypes) => {
         }
     })
 
-    return VehicleImage;
+    return SellVehicleImage;
 }
 
-
-// VehicleWishlist model
-module.exports.VehicleWishlist = (sequelize, DataTypes) => {
-    const VehicleWishlist = sequelize.define("VehicleWishlist", {
-        // uid: {
-        //     type: DataTypes.STRING,
-        //     allowNull: false,
-        //     validate: { notEmpty: true }
-        // },
+module.exports.Wishlist = (sequelize, DataTypes) => {
+    const Wishlist = sequelize.define("Wishlist", {
         uid: {
-            type: DataTypes.INTEGER, // Change type to INTEGER to match the users table's id column
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'users', // Reference the users table
-                key: 'id' // Reference the id column in the users table
+                model: 'Users',
+                key: 'id'
             },
-            onDelete: 'CASCADE', // Update to CASCADE for proper deletion behavior
+            onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         },
         purpose: {
@@ -234,19 +225,17 @@ module.exports.VehicleWishlist = (sequelize, DataTypes) => {
         },
     });
 
-    VehicleWishlist.associate = (models) => {
-        VehicleWishlist.hasMany(models.WishlistImage, {
+    Wishlist.associate = (models) => {
+        Wishlist.hasMany(models.WishlistImage, {
             foreignKey: "wishlistId",
             as: "images",
             onDelete: "CASCADE",
         });
     };
 
-
-    return VehicleWishlist;
+    return Wishlist;
 };
 
-// WishlistImage model
 module.exports.WishlistImage = (sequelize, DataTypes) => {
     const WishlistImage = sequelize.define("WishlistImage", {
         imageUrl: {
@@ -260,7 +249,7 @@ module.exports.WishlistImage = (sequelize, DataTypes) => {
     });
 
     WishlistImage.associate = (models) => {
-        WishlistImage.belongsTo(models.VehicleWishlist, {
+        WishlistImage.belongsTo(models.Wishlist, {
             foreignKey: "wishlistId",
             as: "wishlist",
             onDelete: "CASCADE",
@@ -270,17 +259,16 @@ module.exports.WishlistImage = (sequelize, DataTypes) => {
     return WishlistImage;
 };
 
-// LostAndFound Model
 module.exports.LostAndFound = (sequelize, DataTypes) => {
     const LostAndFound = sequelize.define("LostAndFound", {
         uid: {
-            type: DataTypes.INTEGER, // Change type to INTEGER to match the users table's id column
+            type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'users', // Reference the users table
-                key: 'id' // Reference the id column in the users table
+                model: 'Users',
+                key: 'id'
             },
-            onDelete: 'CASCADE', // Update to CASCADE for proper deletion behavior
+            onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         },
         type: { type: DataTypes.STRING, allowNull: false },
@@ -297,7 +285,6 @@ module.exports.LostAndFound = (sequelize, DataTypes) => {
     return LostAndFound;
 };
 
-// LostAndFoundImage Model
 module.exports.LostAndFoundImage = (sequelize, DataTypes) => {
     const LostAndFoundImage = sequelize.define("LostAndFoundImage", {
         imageUrl: {
@@ -308,7 +295,7 @@ module.exports.LostAndFoundImage = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: "LostAndFounds", // Sequelize auto-pluralizes table names by default
+                model: "LostAndFounds",
                 key: "id"
             },
             onDelete: "CASCADE"
@@ -318,9 +305,8 @@ module.exports.LostAndFoundImage = (sequelize, DataTypes) => {
     return LostAndFoundImage;
 };
 
-//added Rental vehicles
-module.exports.rentalAllVehicles = (sequelize, DataTypes) => {
-    const Vehicle = sequelize.define('rentVehicle', {
+module.exports.RentalVehicle = (sequelize, DataTypes) => {
+    const RentalVehicle = sequelize.define('RentalVehicle', {
         make: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -413,36 +399,33 @@ module.exports.rentalAllVehicles = (sequelize, DataTypes) => {
         },
     });
 
-    return Vehicle;
+    return RentalVehicle;
 };
 
-// Rental All Vehicle Images Model
-module.exports.rentalAllVehicleImages = (sequelize, DataTypes) => {
-    const RentVehicleImages = sequelize.define("rentVehicleImages", {
+module.exports.RentalVehicleImage = (sequelize, DataTypes) => {
+    const RentalVehicleImage = sequelize.define("RentalVehicleImage", {
         id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
         vehicleId: { type: DataTypes.INTEGER, allowNull: false },
         image: { type: DataTypes.STRING },
       });
     
-      RentVehicleImages.associate = (models) => {
-        RentVehicleImages.belongsTo(models.rentVehicle, {
+    RentalVehicleImage.associate = (models) => {
+        RentalVehicleImage.belongsTo(models.RentalVehicle, {
           foreignKey: "vehicleId",
           onDelete: "CASCADE",
         });
       };
 
-    return RentVehicleImages;
+    return RentalVehicleImage;
 };
 
-
-// rental model
-module.exports.rental = (sequelize, DataTypes) => {
-    const Rental = sequelize.define('rental', {
+module.exports.Booking = (sequelize, DataTypes) => {
+    const Booking = sequelize.define('Booking', {
         userId: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'users',
+                model: 'Users',
                 key: 'id'
             },
             onDelete: 'CASCADE'
@@ -451,7 +434,7 @@ module.exports.rental = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'rentVehicles',
+                model: 'RentalVehicles',
                 key: 'id'
             },
             onDelete: 'CASCADE'
@@ -510,16 +493,16 @@ module.exports.rental = (sequelize, DataTypes) => {
         }
     });
 
-    Rental.associate = (models) => {
-        Rental.belongsTo(models.user, { foreignKey: 'userId' });
-        Rental.belongsTo(models.rentVehicle, { foreignKey: 'vehicleId' });
+    Booking.associate = (models) => {
+        Booking.belongsTo(models.User, { foreignKey: 'userId' });
+        Booking.belongsTo(models.RentalVehicle, { foreignKey: 'vehicleId' });
     };
 
-    return Rental;
+    return Booking;
 };
 
-module.exports.contact = (sequelize, DataTypes) => {
-  const Contact = sequelize.define('contact', {
+module.exports.Contact = (sequelize, DataTypes) => {
+  const Contact = sequelize.define('Contact', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -539,12 +522,12 @@ module.exports.contact = (sequelize, DataTypes) => {
     date: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW, // Automatically set to the current date
+      defaultValue: DataTypes.NOW,
     },
     status: {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "new", // Default value for the status column
+      defaultValue: "new",
     },
   });
 

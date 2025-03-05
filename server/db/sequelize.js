@@ -4,18 +4,20 @@ const sequelize = new Sequelize(config.db_con);
 
 const model = require('./model');
 
-// Initialize models
-const user = model.user(sequelize, DataTypes);
-const contact = model.contact(sequelize, DataTypes);
-const Vehicle = model.vehicle(sequelize, DataTypes);
-const VehicleImage = model.vimg(sequelize, DataTypes);
-const VehicleWishlist = model.VehicleWishlist(sequelize, DataTypes);
-const LostAndFound = model.LostAndFound(sequelize, DataTypes); // Initialize LostAndFound model
+
+
+
+const user = model.User(sequelize, DataTypes);
+const contact = model.Contact(sequelize, DataTypes);
+const Vehicle = model.SellVehicle(sequelize, DataTypes);
+const VehicleImage = model.SellVehicleImage(sequelize, DataTypes);
+const VehicleWishlist = model.Wishlist(sequelize, DataTypes);
 const WishlistImage = model.WishlistImage(sequelize, DataTypes);
+const LostAndFound = model.LostAndFound(sequelize, DataTypes);
 const LostAndFoundImage = model.LostAndFoundImage(sequelize, DataTypes);
-const rental = model.rental(sequelize, DataTypes);
-const RentalAllVehicles = model.rentalAllVehicles(sequelize, DataTypes);
-const RentalAllVehicleImages = model.rentalAllVehicleImages(sequelize, DataTypes);
+const RentalAllVehicles = model.RentalVehicle(sequelize, DataTypes);
+const RentalAllVehicleImages = model.RentalVehicleImage(sequelize, DataTypes);
+const rental = model.Booking(sequelize, DataTypes);
 
 
 Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
@@ -43,6 +45,7 @@ VehicleWishlist.belongsTo(user, { foreignKey: "uid", as: "user" });
 
 // RentalAllVehicles associations
 RentalAllVehicles.hasMany(RentalAllVehicleImages, {
+  as: 'RentalVehicleImages', 
   foreignKey: 'vehicleId',
   onDelete: 'CASCADE'
 });
@@ -79,3 +82,4 @@ module.exports = {
   RentalAllVehicles,
   RentalAllVehicleImages,
 };
+

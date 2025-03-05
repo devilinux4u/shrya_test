@@ -89,7 +89,7 @@ router.get("/vehicles/random", async (req, res) => {
         // Convert BLOBs to Base64
         const formattedVehicle = {
             ...vehicless.toJSON(),
-            images: vehicless.vehicle_images.map(img => ({
+            images: vehicless.SellVehicleImages.map(img => ({
                 id: img.id,
                 image: img.image
             }))
@@ -120,7 +120,7 @@ router.get("/vehicles/three", async (req, res) => {
         // Convert BLOBs to Base64
         const formattedVehicles = vehicless.map(vehicle => ({
             ...vehicle.toJSON(),
-            images: vehicle.vehicle_images.map(img => ({
+            images: vehicle.SellVehicleImages.map(img => ({
                 id: img.id,
                 image: img.image
             }))
@@ -158,7 +158,7 @@ router.get("/vehicles/all", async (req, res) => {
         // Convert BLOBs to Base64
         const formattedVehicles = vehicless.map(vehicle => ({
             ...vehicle.toJSON(),
-            images: vehicle.vehicle_images.map(img => ({
+            images: vehicle.SellVehicleImages.map(img => ({
                 id: img.id,
                 image: img.image
             }))
@@ -196,7 +196,7 @@ router.get("/vehicles/admin/all", async (req, res) => {
         // Convert BLOBs to Base64
         const formattedVehicles = vehicless.map(vehicle => ({
             ...vehicle.toJSON(),
-            images: vehicle.vehicle_images.map(img => ({
+            images: vehicle.SellVehicleImages.map(img => ({
                 id: img.id,
                 image: img.image
             }))
@@ -237,7 +237,7 @@ router.get("/vehicles/one/:vid", async (req, res) => {
 
         const formattedVehicle = {
             ...vehicle.toJSON(),
-            images: vehicle.vehicle_images.map(img => ({
+            images: vehicle.SellVehicleImages.map(img => ({
                 id: img.id,
                 image: img.image
             }))
@@ -349,7 +349,7 @@ router.get("/vehicles/user/all/:uid", async (req, res) => {
 
         const formattedVehicle = {
             ...vehicle.toJSON(),
-            images: vehicle.vehicle_images.map(img => ({
+            images: vehicle.SellVehicleImages.map(img => ({
                 id: img.id,
                 image: img.image
             }))
