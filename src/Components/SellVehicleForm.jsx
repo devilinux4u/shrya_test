@@ -21,6 +21,8 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     images: [],
   })
 
+  const [errors, setErrors] = useState({})
+
   // Close modal with escape key
   useEffect(() => {
     const handleEsc = (e) => {
@@ -45,8 +47,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
   const handleChange = (e) => {
     const { name, value } = e.target
     setVehicle((prev) => ({ ...prev, [name]: value }))
-    // Clear the error for this field when the user starts typing
-    setErrors((prev) => ({ ...prev, [name]: "" }))
     // Clear the error for this field when the user starts typing
     setErrors((prev) => ({ ...prev, [name]: "" }))
   }
@@ -75,24 +75,42 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     return Object.keys(newErrors).length === 0
   }
 
-
   const handleSubmit = (e) => {
     e.preventDefault()
     if (validateForm()) {
-      if (validateForm()) {
       console.log("Submitting vehicle:", vehicle)
       toast.success("Vehicle listed successfully!")
-        toast.success("Vehicle listed successfully!")
       onClose()
-      } else {
-      toast.error("Please fill in all required fields")
-    }
-  } else {
+    } else {
       toast.error("Please fill in all required fields")
     }
   }
 
-  const nextStep = () => setStep(step + 1)
+  const nextStep = () => {
+    if (validateStep()) {
+      setStep(step + 1)
+    } else {
+      toast.error("Please fill in all required fields for this step")
+    }
+  }
+
+  const validateStep = () => {
+    const stepFields = {
+      1: ["title", "make", "model", "year"],
+      2: ["type", "color", "totalKm", "fuelType", "transmission", "price"],
+      3: ["description"],
+    }
+    const currentStepFields = stepFields[step]
+    const stepErrors = {}
+    currentStepFields.forEach((field) => {
+      if (!vehicle[field]) {
+        stepErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+      }
+    })
+    setErrors(stepErrors)
+    return Object.keys(stepErrors).length === 0
+  }
+
   const prevStep = () => setStep(step - 1)
 
   if (!isOpen) return null
@@ -110,6 +128,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 value={vehicle.title}
                 onChange={handleChange}
                 placeholder="e.g., 2023 Toyota Camry Hybrid XLE"
+                error={errors.title}
               />
               <InputField
                 label="Make"
@@ -117,6 +136,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 value={vehicle.make}
                 onChange={handleChange}
                 placeholder="e.g., Toyota"
+                error={errors.make}
               />
               <InputField
                 label="Model"
@@ -124,6 +144,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 value={vehicle.model}
                 onChange={handleChange}
                 placeholder="e.g., Camry"
+                error={errors.model}
               />
               <InputField
                 label="Year"
@@ -132,6 +153,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 value={vehicle.year}
                 onChange={handleChange}
                 placeholder="e.g., 2023"
+                error={errors.year}
               />
             </div>
           </div>
@@ -155,6 +177,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                   { value: "wagon", label: "Wagon" },
                   { value: "convertible", label: "Convertible" },
                 ]}
+                error={errors.type}
               />
               <InputField
                 label="Color"
@@ -162,6 +185,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 value={vehicle.color}
                 onChange={handleChange}
                 placeholder="e.g., Red"
+                error={errors.color}
               />
               <InputField
                 label="Total Kilometers Run"
@@ -171,6 +195,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 onChange={handleChange}
                 placeholder="e.g., 50000"
                 suffix="km"
+                error={errors.totalKm}
               />
               <SelectField
                 label="Fuel Type"
@@ -183,6 +208,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                   { value: "electric", label: "Electric" },
                   { value: "hybrid", label: "Hybrid" },
                 ]}
+                error={errors.fuelType}
               />
               <SelectField
                 label="Transmission"
@@ -193,6 +219,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                   { value: "automatic", label: "Automatic" },
                   { value: "manual", label: "Manual" },
                 ]}
+                error={errors.transmission}
               />
               <InputField
                 label="Price (Rs.)"
@@ -202,6 +229,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 onChange={handleChange}
                 placeholder="e.g., 2500000"
                 prefix="Rs."
+                error={errors.price}
               />
             </div>
           </div>
@@ -220,9 +248,12 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 rows="4"
                 value={vehicle.description}
                 onChange={handleChange}
-                className="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+                className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] ${
+                  errors.description ? "border-red-500" : ""
+                }`}
                 placeholder="Provide a detailed description of your vehicle..."
               ></textarea>
+              {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Images</label>
@@ -343,7 +374,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
   )
 }
 
-const InputField = ({ label, name, type = "text", value, onChange, placeholder, prefix, suffix }) => (
+const InputField = ({ label, name, type = "text", value, onChange, placeholder, prefix, suffix, error }) => (
   <div>
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
       {label}
@@ -360,8 +391,9 @@ const InputField = ({ label, name, type = "text", value, onChange, placeholder, 
         name={name}
         value={value}
         onChange={onChange}
-        required
-        className={`w-full rounded-lg border border-gray-300 focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors ${
+        className={`w-full rounded-lg border ${
+          error ? "border-red-500" : "border-gray-300"
+        } focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors ${
           prefix ? "pl-7" : "pl-4"
         } ${suffix ? "pr-12" : "pr-4"} py-2`}
         placeholder={placeholder}
@@ -372,10 +404,11 @@ const InputField = ({ label, name, type = "text", value, onChange, placeholder, 
         </div>
       )}
     </div>
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
 
-const SelectField = ({ label, name, value, onChange, options }) => (
+const SelectField = ({ label, name, value, onChange, options, error }) => (
   <div>
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
       {label}
@@ -385,8 +418,9 @@ const SelectField = ({ label, name, value, onChange, options }) => (
       name={name}
       value={value}
       onChange={onChange}
-      required
-      className="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]"
+      className={`w-full rounded-lg ${
+        error ? "border-red-500" : "border-gray-300"
+      } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]`}
     >
       <option value="">Select {label.toLowerCase()}</option>
       {options.map((option) => (
@@ -395,6 +429,7 @@ const SelectField = ({ label, name, value, onChange, options }) => (
         </option>
       ))}
     </select>
+    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
 

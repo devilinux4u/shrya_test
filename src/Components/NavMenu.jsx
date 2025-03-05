@@ -165,9 +165,9 @@ const NavMenu = () => {
               <NavLink to="/LostAndFound" mobile onClick={handleMenuItemClick}>Lost and Found</NavLink>
             </div>
           )}
-          <NavLink to="/about" mobile onClick={handleMenuItemClick}>About</NavLink>
-          <NavLink to="/contact" mobile onClick={handleMenuItemClick}>Contact</NavLink>
-          <NavLink to="/faq" mobile onClick={handleMenuItemClick}>FAQ</NavLink>
+          <NavLink to="/AboutUs" mobile onClick={handleMenuItemClick}>About</NavLink>
+          <NavLink to="/Contact" mobile onClick={handleMenuItemClick}>Contact</NavLink>
+          <NavLink to="/FAQ" mobile onClick={handleMenuItemClick}>FAQ</NavLink>
         </div>
         <div className="pt-4 pb-3 border-t border-gray-200 bg-white">
           <div className="px-4">
