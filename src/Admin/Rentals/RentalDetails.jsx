@@ -49,55 +49,52 @@ export default function RentalDetails() {
       }
       const data = await response.json();
 
-      // console.log(data.data[0]);
-
-      if (!data.data) {
+      if (!data.data || data.data.length === 0) {
         throw new Error("No rental data found");
       }
 
+      const rentalData = data.data[0];
+
       // Map the API response to our expected structure
       const mappedRental = {
-        ...data.data,
-        rentVehicle: {
-          ...data.data.RentalVehicle,
-          seats: data.data.RentalVehicle?.seats || 5,
-          fuelType: data.data.RentalVehicle?.fuelType || "petrol",
-          transmission: data.data.RentalVehicle?.transmission || "manual",
-          engine: data.data.RentalVehicle?.engine || "N/A",
-          rentVehicleImages: data.data[0].RentalVehicle?.rentVehicleImages || [],
+        ...rentalData,
+        RentalVehicle: {
+          ...rentalData.RentalVehicle,
+          seats: rentalData.RentalVehicle?.seats || 5,
+          fuelType: rentalData.RentalVehicle?.fuelType || "petrol",
+          transmission: rentalData.RentalVehicle?.transmission || "manual",
+          engine: rentalData.RentalVehicle?.engine || "N/A",
+          rentVehicleImages: rentalData.RentalVehicle?.rentVehicleImages || [],
         },
         user: {
-          ...data.data[0].User,
+          ...rentalData.User,
         },
         paymentDetails: {
-          method: data.data.paymentMethod || "payLater",
-          status: "paid", // Assuming payment is completed for active rentals
-          transactionId: "N/A", // Add if available in API
-          date: data.data.createdAt || new Date().toISOString(),
+          method: rentalData.paymentMethod || "payLater",
+          status: rentalData.paymentMethod === "payLater" ? "pending" : "paid",
+          transactionId: rentalData.transactionId || "N/A",
+          date: rentalData.createdAt || new Date().toISOString(),
         },
         rentalPeriod: {
-          startDate: data.data.pickupDate,
-          endDate: data.data.returnDate,
+          startDate: rentalData.pickupDate,
+          endDate: rentalData.returnDate,
           hoursRemaining: calculateHoursRemaining(
-            data.data.returnDate,
-            data.data.returnTime
+            rentalData.returnDate,
+            rentalData.returnTime
           ),
           totalHours: calculateTotalHours(
-            data.data.pickupDate,
-            data.data.pickupTime,
-            data.data.returnDate,
-            data.data.returnTime
+            rentalData.pickupDate,
+            rentalData.pickupTime,
+            rentalData.returnDate,
+            rentalData.returnTime
           ),
-          type: data.data.rentalType || "hour",
+          type: rentalData.rentalType || "hour",
         },
-        driverOption:
-          data.data.driveOption === "selfDrive" ? "self-drive" : "hire-driver",
+        driverOption: rentalData.driveOption,
         additionalServices: [], // Add if available in API
       };
 
-      console.log(mappedRental[0])
-
-      setRental(mappedRental[0]);
+      setRental(mappedRental);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching rental details:", error);
@@ -216,7 +213,7 @@ export default function RentalDetails() {
               The requested rental could not be found.
             </p>
             <button
-              onClick={() => navigate("/admin/active-rentals")}
+              onClick={() => navigate("/admin/activerentals")}
               className="mt-3 text-sm font-medium text-yellow-800 hover:text-yellow-900"
             >
               Back to active rentals
@@ -260,7 +257,8 @@ export default function RentalDetails() {
                   {rental.RentalVehicle?.rentVehicleImages?.length > 0 ? (
                     <img
                       src={
-                        `../../server${rental.RentalVehicle.rentVehicleImages[activeImage].image}` || "/placeholder.svg"
+                        `../../server${rental.RentalVehicle.rentVehicleImages[activeImage].image}` ||
+                        "/placeholder.svg"
                       }
                       alt={`${rental.RentalVehicle?.make} ${rental.RentalVehicle?.model}`}
                       className="w-full h-full object-contain"
@@ -311,7 +309,8 @@ export default function RentalDetails() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        {rental.RentalVehicle?.make} {rental.RentalVehicle?.model} (
+                        {rental.RentalVehicle?.make}{" "}
+                        {rental.RentalVehicle?.model} (
                         {rental.RentalVehicle?.year})
                       </h3>
                       <p className="text-gray-600 mb-4">
@@ -392,7 +391,11 @@ export default function RentalDetails() {
                         </h4>
                         <p className="font-medium text-gray-900 flex items-center mt-1">
                           <CreditCard className="h-4 w-4 mr-2 text-[#ff6b00]" />
-                          {rental.paymentMethod || "N/A"}
+                          {rental.paymentMethod === "payLater"
+                            ? "Pay Later"
+                            : rental.paymentMethod === "creditCard"
+                            ? "Credit Card"
+                            : "N/A"}
                         </p>
                       </div>
 
@@ -401,7 +404,7 @@ export default function RentalDetails() {
                           Payment Date
                         </h4>
                         <p className="font-medium text-gray-900 mt-1">
-                          {formatDate(rental.pickupDate) || "N/A"}
+                          {formatDate(rental.createdAt) || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -460,7 +463,9 @@ export default function RentalDetails() {
                           )}
                           {rental.paymentDetails?.status === "paid"
                             ? "Payment Completed"
-                            : "Payment Pending"}
+                            : rental.paymentMethod === "payLater"
+                            ? "Payment Pending (Pay Later)"
+                            : "Payment Status Unknown"}
                         </div>
                       </div>
                     </div>
@@ -500,7 +505,7 @@ export default function RentalDetails() {
                       <div>
                         <p className="text-gray-600">Phone</p>
                         <p className="font-medium text-gray-900">
-                          {rental.User.num || "N/A"}
+                          {rental.user?.num || rental.user?.phone || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -599,9 +604,11 @@ export default function RentalDetails() {
                         Driver Option
                       </p>
                       <p className="font-medium text-gray-900 capitalize">
-                        {rental.driverOption === "self-drive"
+                        {rental.driverOption === "selfDrive"
                           ? "Self Drive"
-                          : "Hire a Driver"}
+                          : rental.driverOption === "hireDriver"
+                          ? "Hire a Driver"
+                          : "N/A"}
                       </p>
                     </div>
 
@@ -679,7 +686,9 @@ export default function RentalDetails() {
             </div>
             <div className="p-4 flex items-center justify-center">
               <img
-                src={rental.licenseImageUrl || "/placeholder.svg"}
+                src={
+                  `../../server${rental.licenseImageUrl}` || "/placeholder.svg"
+                }
                 alt="Driving License"
                 className="max-w-full max-h-[70vh] object-contain"
               />

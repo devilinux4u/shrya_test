@@ -50,61 +50,64 @@ export default function ActiveRentals() {
       }
       const data = await response.json();
 
-      console.log(data);
-
-      // Check if data.data exists and is an array
       if (!data.data || !Array.isArray(data.data)) {
         throw new Error("Invalid data format received from API");
       }
 
-      // Map API response to required structure
-      const mappedRentals = data.data.map((rental) => ({
-        id: rental.id,
-        status: rental.status || "pending", // Default to pending if status is not provided
-        rentalType: rental.rentalType,
-        rentalDuration: rental.rentalDuration,
-        totalAmount: rental.totalAmount,
-        pickupLocation: rental.pickupLocation,
-        dropoffLocation: rental.dropoffLocation,
-        pickupDate: rental.pickupDate,
-        pickupTime: rental.pickupTime,
-        returnDate: rental.returnDate,
-        returnTime: rental.returnTime,
-        driveOption: rental.driveOption,
-        RentalVehicle: {
-          id: rental.RentalVehicle?.id || "",
-          make: rental.RentalVehicle?.make || "",
-          model: rental.RentalVehicle?.model || "",
-          year: rental.RentalVehicle?.year || "",
-          numberPlate: rental.RentalVehicle?.numberPlate || "",
-          fuelType: rental.RentalVehicle?.fuelType || "",
-          transmission: rental.RentalVehicle?.transmission || "",
-          mileage: rental.RentalVehicle?.mileage || "",
-          seats: rental.RentalVehicle?.seats || "",
-          doors: rental.RentalVehicle?.doors || "",
-          engine: rental.RentalVehicle?.engine || "",
-          priceHour: rental.RentalVehicle?.priceHour || 0,
-          priceDay: rental.RentalVehicle?.priceDay || 0,
-          priceWeek: rental.RentalVehicle?.priceWeek || 0,
-          priceMonth: rental.RentalVehicle?.priceMonth || 0,
-          status: rental.RentalVehicle?.status || "",
-          description: rental.RentalVehicle?.description || "",
-          rentVehicleImages: rental.RentalVehicle?.rentVehicleImages || [],
-        },
-        user: {
-          id: rental.user?.id || "",
-          fname: rental.user?.fname || "",
-          lname: rental.user?.lname || "",
-          uname: rental.user?.uname || "",
-          email: rental.user?.email || "",
-          phone: rental.user?.num || "",
-        },
-      }));
+      // Map API response to required structure with proper user data handling
+      const mappedRentals = data.data.map((rental) => {
+        // Handle both user and User fields from API
+        const userData = rental.user || rental.User || {};
+
+        return {
+          id: rental.id,
+          status: rental.status || "pending",
+          rentalType: rental.rentalType,
+          rentalDuration: rental.rentalDuration,
+          totalAmount: rental.totalAmount,
+          pickupLocation: rental.pickupLocation,
+          dropoffLocation: rental.dropoffLocation,
+          pickupDate: rental.pickupDate,
+          pickupTime: rental.pickupTime,
+          returnDate: rental.returnDate,
+          returnTime: rental.returnTime,
+          driveOption: rental.driveOption,
+          RentalVehicle: {
+            id: rental.RentalVehicle?.id || "",
+            make: rental.RentalVehicle?.make || "",
+            model: rental.RentalVehicle?.model || "",
+            year: rental.RentalVehicle?.year || "",
+            numberPlate: rental.RentalVehicle?.numberPlate || "",
+            fuelType: rental.RentalVehicle?.fuelType || "",
+            transmission: rental.RentalVehicle?.transmission || "",
+            mileage: rental.RentalVehicle?.mileage || "",
+            seats: rental.RentalVehicle?.seats || "",
+            doors: rental.RentalVehicle?.doors || "",
+            engine: rental.RentalVehicle?.engine || "",
+            priceHour: rental.RentalVehicle?.priceHour || 0,
+            priceDay: rental.RentalVehicle?.priceDay || 0,
+            priceWeek: rental.RentalVehicle?.priceWeek || 0,
+            priceMonth: rental.RentalVehicle?.priceMonth || 0,
+            status: rental.RentalVehicle?.status || "",
+            description: rental.RentalVehicle?.description || "",
+            rentVehicleImages: rental.RentalVehicle?.rentVehicleImages || [],
+          },
+          user: {
+            id: userData.id || "",
+            fname: userData.fname || "",
+            lname: userData.lname || "",
+            uname: userData.uname || "",
+            email: userData.email || "",
+            phone: userData.num || userData.phone || "",
+          },
+        };
+      });
 
       setRentals(mappedRentals);
       setError(null);
     } catch (err) {
       setError(err.message);
+      toast.error(`Error fetching rentals: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -118,7 +121,6 @@ export default function ActiveRentals() {
     navigate(`/admin/rental-details/${id}`);
   };
 
-  // Format date to readable format
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const options = {
@@ -129,30 +131,30 @@ export default function ActiveRentals() {
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
-  // Format time to readable format
   const formatTime = (timeString) => {
     if (!timeString) return "N/A";
-    return timeString.slice(0, 5); // Assuming time is in HH:MM format
+    return timeString.slice(0, 5);
   };
 
-  // Update rental status
   const updateRentalStatus = async (rentalId, newStatus) => {
     try {
       setLoading(true);
 
-      const response = await fetch(`http://localhost:3000/api/vehicles/update/${rentalId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/vehicles/update/${rentalId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to update rental status');
+        throw new Error("Failed to update rental status");
       }
 
-      // For demo purposes, we'll just update the state directly
       setRentals((prevRentals) =>
         prevRentals.map((rental) =>
           rental.id === rentalId ? { ...rental, status: newStatus } : rental
@@ -168,13 +170,11 @@ export default function ActiveRentals() {
     }
   };
 
-  // Cancel rental
   const cancelRental = (rental) => {
     setSelectedRental(rental);
     setIsCancelModalOpen(true);
   };
 
-  // Confirm cancellation
   const confirmCancellation = async () => {
     if (!selectedRental) return;
 
@@ -188,15 +188,18 @@ export default function ActiveRentals() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ reason: cancelReason, data: selectedRental, isAdmin: true }),
+          body: JSON.stringify({
+            reason: cancelReason,
+            data: selectedRental,
+            isAdmin: true,
+          }),
         }
       );
 
       if (!response.ok) {
-        throw new Error('Failed to cancel rental');
+        throw new Error("Failed to cancel rental");
       }
 
-      // For demo purposes, we'll just update the state directly
       setRentals((prevRentals) =>
         prevRentals.map((rental) =>
           rental.id === selectedRental.id
@@ -215,7 +218,6 @@ export default function ActiveRentals() {
     }
   };
 
-  // Get status color and icon
   const getStatusInfo = (status) => {
     switch (status) {
       case "pending":
@@ -263,9 +265,7 @@ export default function ActiveRentals() {
     }
   };
 
-  // Filter rentals based on search term and status
   const filteredRentals = rentals.filter((rental) => {
-    // Filter by search term
     const searchMatch =
       rental.RentalVehicle.make
         .toLowerCase()
@@ -273,21 +273,19 @@ export default function ActiveRentals() {
       rental.RentalVehicle.model
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      `${rental.user.fname} ${rental.user.lname}`
+      `${rental.user?.fname || ""} ${rental.user?.lname || ""}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       rental.RentalVehicle.numberPlate
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
-    // Filter by status
     const statusMatch =
       statusFilter === "all" || rental.status === statusFilter;
 
     return searchMatch && statusMatch;
   });
 
-  // Calculate pagination values
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredRentals.slice(indexOfFirstItem, indexOfLastItem);
@@ -299,14 +297,14 @@ export default function ActiveRentals() {
     }
   };
 
-  // Filter button component
   const FilterButton = ({ value, label, active, onClick }) => (
     <button
       onClick={() => onClick(value)}
-      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${active
+      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+        active
           ? "bg-[#ff6b00] text-white"
           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-        }`}
+      }`}
     >
       {label}
     </button>
@@ -328,10 +326,8 @@ export default function ActiveRentals() {
             </div>
           </div>
 
-          {/* Search Bar and Filters Section */}
           <div className="mb-6 p-5 bg-white rounded-xl shadow-sm">
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-              {/* Search Bar */}
               <div className="relative w-full sm:w-auto flex-1 max-w-md">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className="h-5 w-5 text-gray-400" />
@@ -345,7 +341,6 @@ export default function ActiveRentals() {
                 />
               </div>
 
-              {/* Filter by Status */}
               <div className="flex items-center">
                 <Filter className="h-5 w-5 text-gray-500 mr-2" />
                 <span className="text-sm font-medium text-gray-700 mr-3">
@@ -381,7 +376,6 @@ export default function ActiveRentals() {
             </div>
           </div>
 
-          {/* Rentals List */}
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Loader2 className="h-8 w-8 text-[#ff6b00] animate-spin" />
@@ -428,16 +422,16 @@ export default function ActiveRentals() {
                     className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
-                      {/* Vehicle Image and Info */}
                       <div className="md:col-span-1 relative">
                         <div className="h-full">
                           <img
                             src={
                               (rental.RentalVehicle.rentVehicleImages &&
                                 rental.RentalVehicle.rentVehicleImages.length >
-                                0 &&
-                                `../../server${rental.RentalVehicle.rentVehicleImages[0]
-                                  .image || "/placeholder.svg"
+                                  0 &&
+                                `../../server${
+                                  rental.RentalVehicle.rentVehicleImages[0]
+                                    .image || "/placeholder.svg"
                                 }`) ||
                               "/placeholder.svg"
                             }
@@ -455,10 +449,8 @@ export default function ActiveRentals() {
                         </div>
                       </div>
 
-                      {/* Rental Details */}
                       <div className="p-5 md:col-span-2 lg:col-span-3">
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                          {/* Vehicle Info */}
                           <div>
                             <div className="flex justify-between items-start">
                               <h3 className="text-lg font-bold text-gray-900 mb-1">
@@ -483,36 +475,40 @@ export default function ActiveRentals() {
                               </div>
                               <div>
                                 <p className="font-medium text-gray-900">
-                                  {rental.user.fname} {rental.user.lname}
+                                  {rental.user?.fname || "N/A"}{" "}
+                                  {rental.user?.lname || ""}
                                 </p>
-                                <div className="flex items-center text-sm text-gray-600">
-                                  <User className="h-3 w-3 mr-1" />
-                                  <span>Renter</span>
-                                </div>
                               </div>
                             </div>
 
                             <div className="space-y-1 text-sm">
                               <div className="flex items-center text-gray-600">
                                 <Phone className="h-4 w-4 mr-2" />
-                                <span>{rental.user.phone || "N/A"}</span>
+                                <div>
+                                  <p className="font-medium text-gray-900">
+                                    {rental.user?.phone || "N/A"}
+                                  </p>
+                                </div>
                               </div>
                               <div className="flex items-center text-gray-600">
                                 <Mail className="h-4 w-4 mr-2" />
-                                <span>{rental.user.email}</span>
+                                <p className="font-medium text-gray-900">
+                                  {rental.user?.email || "N/A"}
+                                </p>
                               </div>
                               <div className="flex items-center text-gray-600">
                                 <User className="h-4 w-4 mr-2" />
-                                <span>
-                                  {rental.driveOption === "self-drive"
+                                <p className="font-medium text-gray-900 capitalize">
+                                  {rental.driveOption === "selfDrive"
                                     ? "Self Drive"
-                                    : "Hire a Driver"}
-                                </span>
+                                    : rental.driveOption === "hireDriver"
+                                    ? "Hire a Driver"
+                                    : "N/A"}
+                                </p>
                               </div>
                             </div>
                           </div>
 
-                          {/* Rental Period */}
                           <div>
                             <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                               <Calendar className="h-4 w-4 mr-2 text-[#ff6b00]" />
@@ -558,7 +554,6 @@ export default function ActiveRentals() {
                             </div>
                           </div>
 
-                          {/* Actions */}
                           <div>
                             <h4 className="font-medium text-gray-900 mb-3 flex items-center">
                               <CheckCircle className="h-4 w-4 mr-2 text-[#ff6b00]" />
@@ -566,7 +561,6 @@ export default function ActiveRentals() {
                             </h4>
 
                             <div className="space-y-3">
-                              {/* Status Update Button */}
                               <div className="relative">
                                 <button
                                   onClick={() =>
@@ -655,7 +649,6 @@ export default function ActiveRentals() {
                                 )}
                               </div>
 
-                              {/* Cancel Button - Only show if not already cancelled or completed */}
                               {rental.status !== "cancelled" &&
                                 rental.status !== "completed" &&
                                 rental.status !== "completed-late" && (
@@ -668,7 +661,6 @@ export default function ActiveRentals() {
                                   </button>
                                 )}
 
-                              {/* View Details Button */}
                               <button
                                 onClick={() => handleViewDetails(rental.id)}
                                 className="w-full flex items-center justify-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
@@ -687,17 +679,17 @@ export default function ActiveRentals() {
             </div>
           )}
 
-          {/* Pagination */}
           {filteredRentals.length > itemsPerPage && (
             <div className="flex justify-center mt-10">
               <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
                 <button
                   onClick={() => paginate(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${currentPage === 1
+                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                    currentPage === 1
                       ? "text-gray-400 cursor-not-allowed"
                       : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                  }`}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -707,10 +699,11 @@ export default function ActiveRentals() {
                     <button
                       key={number}
                       onClick={() => paginate(number)}
-                      className={`px-4 py-2 border-r border-gray-200 ${currentPage === number
+                      className={`px-4 py-2 border-r border-gray-200 ${
+                        currentPage === number
                           ? "bg-orange-500 text-white font-medium"
                           : "text-gray-700 hover:bg-gray-50"
-                        }`}
+                      }`}
                     >
                       {number}
                     </button>
@@ -720,10 +713,11 @@ export default function ActiveRentals() {
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 flex items-center ${currentPage === totalPages
+                  className={`px-4 py-2 flex items-center ${
+                    currentPage === totalPages
                       ? "text-gray-400 cursor-not-allowed"
                       : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                  }`}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -732,7 +726,7 @@ export default function ActiveRentals() {
           )}
         </div>
       </div>
-      {/* Cancel Booking Modal */}
+
       {isCancelModalOpen && selectedRental && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
           <div className="bg-white rounded-xl w-full max-w-md">
@@ -768,7 +762,7 @@ export default function ActiveRentals() {
                 </div>
 
                 <p className="text-gray-600 mb-4">
-                  Are you sure you want to cancel the rental for
+                  Are you sure you want to cancel the rental for{" "}
                   <span className="font-medium">
                     {selectedRental.RentalVehicle.make}{" "}
                     {selectedRental.RentalVehicle.model}
