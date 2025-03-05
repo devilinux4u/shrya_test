@@ -30,7 +30,6 @@ const YourList = () => {
   const [items, setItems] = useState([]);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
-  const [currentFilter, setCurrentFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,11 +37,10 @@ const YourList = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [updatedData, setUpdatedData] = useState({
-    vehicleName: "",
+    make: "",
     model: "",
     kmRun: "",
     fuelType: "",
-    ownership: "",
     year: "",
     color: "",
     budget: "",
@@ -84,12 +82,9 @@ const YourList = () => {
     fetchWishlistItems();
   }, []);
 
-  // Filter items based on current filters and search query
+  // Filter items based on status filter and search query
   const filteredItems = items.filter((item) => {
-    // Filter by purpose (buy/rent)
-    if (currentFilter !== "all" && item.purpose !== currentFilter) {
-      return false;
-    }
+    // All items are now "buy" purpose
 
     // Filter by status (arrived/pending)
     if (statusFilter !== "all" && item.status !== statusFilter) {
@@ -99,7 +94,7 @@ const YourList = () => {
     // Filter by search query
     if (
       searchQuery &&
-      !item.vehicleName.toLowerCase().includes(searchQuery.toLowerCase())
+      !item.make?.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       return false;
     }
@@ -130,10 +125,6 @@ const YourList = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // const handleView = () => {
-  //   navigate('/WishlistVehicleDetail')
-  // }
-
   const handleDeleteClick = (item) => {
     setItemToDelete(item);
     setIsDeleteModalOpen(true);
@@ -162,7 +153,9 @@ const YourList = () => {
 
         // Show toast notification
         toast.error(
-          `${itemToDelete.vehicleName} has been removed from your wishlist`,
+          `${
+            itemToDelete.make || itemToDelete.vehicleName
+          } has been removed from your wishlist`,
           {
             icon: "🗑️",
           }
@@ -182,26 +175,6 @@ const YourList = () => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
     }
-  };
-
-  const handleFilterChange = (filter) => {
-    setCurrentFilter(filter);
-    setCurrentPage(1); // Reset to first page when filter changes
-
-    // Show toast notification for filter change
-    let message = "";
-    if (filter === "all") {
-      message = `Showing all ${items.length} vehicles`;
-    } else {
-      const count = items.filter((item) => item.purpose === filter).length;
-      message = `Showing ${count} ${
-        filter === "buy" ? "vehicles for purchase" : "vehicles for rent"
-      }`;
-    }
-
-    toast.info(message, {
-      icon: "🔍",
-    });
   };
 
   const handleStatusFilterChange = (status) => {
@@ -266,7 +239,7 @@ const YourList = () => {
 
       // Show success toast
       toast.success(
-        `${addedItem.vehicleName || "New vehicle"} added to your wishlist!`,
+        `${addedItem.make || "New vehicle"} added to your wishlist!`,
         {
           icon: "➕",
         }
@@ -282,15 +255,14 @@ const YourList = () => {
   const handleEditClick = (item) => {
     setSelectedItem(item);
     setUpdatedData({
-      vehicleName: item.vehicleName,
-      model: item.model,
-      kmRun: item.kmRun,
-      fuelType: item.fuelType,
-      ownership: item.ownership,
-      year: item.year,
-      color: item.color,
-      budget: item.budget,
-      description: item.description,
+      make: item.make || item.vehicleName || "",
+      model: item.model || "",
+      kmRun: item.kmRun || "",
+      fuelType: item.fuelType || "",
+      year: item.year || "",
+      color: item.color || "",
+      budget: item.budget || "",
+      description: item.description || "",
     });
     setIsEditing(true);
   };
@@ -367,12 +339,12 @@ const YourList = () => {
 
       {/* Filter Options */}
       <div className="mb-8 max-w-6xl mx-auto">
-        <div className=" p-4 flex flex-wrap items-center gap-4">
+        <div className="p-4 flex flex-wrap items-center gap-4">
           {/* Search Bar */}
           <div className="flex-grow">
             <input
               type="text"
-              placeholder="Search by vehicle name..."
+              placeholder="Search by make..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm"
@@ -386,7 +358,6 @@ const YourList = () => {
             </div>
             <button
               onClick={() => {
-                setCurrentFilter("all");
                 setStatusFilter("all");
                 setDropdownOpen(null);
                 toast.info(`Showing all ${items.length} vehicles`, {
@@ -394,7 +365,7 @@ const YourList = () => {
                 });
               }}
               className={`px-4 py-2 rounded-full transition-colors ${
-                currentFilter === "all"
+                statusFilter === "all"
                   ? "bg-orange-500 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
@@ -406,44 +377,35 @@ const YourList = () => {
             <div className="relative filter-dropdown">
               <button
                 onClick={() => {
-                  if (dropdownOpen === "buy") {
+                  if (dropdownOpen === "status") {
                     setDropdownOpen(null);
                   } else {
-                    setCurrentFilter("buy");
-                    setDropdownOpen("buy");
-                    if (statusFilter === "all") {
-                      const count = items.filter(
-                        (item) => item.purpose === "buy"
-                      ).length;
-                      toast.info(`Showing ${count} vehicles for purchase`, {
-                        icon: "🔍",
-                      });
-                    }
+                    setDropdownOpen("status");
                   }
                 }}
                 className={`px-4 py-2 rounded-full transition-colors flex items-center ${
-                  currentFilter === "buy"
+                  statusFilter !== "all"
                     ? "bg-blue-500 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
                 disabled={isLoading}
               >
-                Buy
+                Status
                 <ChevronLeft
                   className={`w-4 h-4 ml-1 transform transition-transform ${
-                    dropdownOpen === "buy" ? "rotate-90" : "-rotate-90"
+                    dropdownOpen === "status" ? "rotate-90" : "-rotate-90"
                   }`}
                 />
               </button>
 
-              {dropdownOpen === "buy" && (
+              {dropdownOpen === "status" && (
                 <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-md z-10 w-40 py-2 border border-gray-100">
                   <button
                     onClick={() => {
                       handleStatusFilterChange("all");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
-                      statusFilter === "all" && currentFilter === "buy"
+                      statusFilter === "all"
                         ? "bg-blue-50 text-blue-700 font-medium"
                         : ""
                     }`}
@@ -455,7 +417,7 @@ const YourList = () => {
                       handleStatusFilterChange("available");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
-                      statusFilter === "available" && currentFilter === "buy"
+                      statusFilter === "available"
                         ? "bg-blue-50 text-blue-700 font-medium"
                         : ""
                     }`}
@@ -468,85 +430,8 @@ const YourList = () => {
                       handleStatusFilterChange("pending");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
-                      statusFilter === "pending" && currentFilter === "buy"
+                      statusFilter === "pending"
                         ? "bg-blue-50 text-blue-700 font-medium"
-                        : ""
-                    }`}
-                  >
-                    <Clock className="w-4 h-4 mr-2" />
-                    Pending
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <div className="relative filter-dropdown">
-              <button
-                onClick={() => {
-                  if (dropdownOpen === "rent") {
-                    setDropdownOpen(null);
-                  } else {
-                    setCurrentFilter("rent");
-                    setDropdownOpen("rent");
-                    if (statusFilter === "all") {
-                      const count = items.filter(
-                        (item) => item.purpose === "rent"
-                      ).length;
-                      toast.info(`Showing ${count} vehicles for rent`, {
-                        icon: "🔍",
-                      });
-                    }
-                  }
-                }}
-                className={`px-4 py-2 rounded-full transition-colors flex items-center ${
-                  currentFilter === "rent"
-                    ? "bg-purple-500 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-                disabled={isLoading}
-              >
-                Rent
-                <ChevronLeft
-                  className={`w-4 h-4 ml-1 transform transition-transform ${
-                    dropdownOpen === "rent" ? "rotate-90" : "-rotate-90"
-                  }`}
-                />
-              </button>
-
-              {dropdownOpen === "rent" && (
-                <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-md z-10 w-40 py-2 border border-gray-100">
-                  <button
-                    onClick={() => {
-                      handleStatusFilterChange("all");
-                    }}
-                    className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
-                      statusFilter === "all" && currentFilter === "rent"
-                        ? "bg-purple-50 text-purple-700 font-medium"
-                        : ""
-                    }`}
-                  >
-                    All Status
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleStatusFilterChange("available");
-                    }}
-                    className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
-                      statusFilter === "available" && currentFilter === "rent"
-                        ? "bg-purple-50 text-purple-700 font-medium"
-                        : ""
-                    }`}
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Arrived
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleStatusFilterChange("pending");
-                    }}
-                    className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
-                      statusFilter === "pending" && currentFilter === "rent"
-                        ? "bg-purple-50 text-purple-700 font-medium"
                         : ""
                     }`}
                   >
@@ -601,7 +486,7 @@ const YourList = () => {
                         ? `../../server${item.images[0].imageUrl}`
                         : "/placeholder.svg"
                     }
-                    alt={item.vehicleName}
+                    alt={item.make || item.vehicleName}
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-4 right-4">
@@ -618,14 +503,8 @@ const YourList = () => {
                     )}
                   </div>
                   <div className="absolute top-4 left-4">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        item.purpose === "buy"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-purple-100 text-purple-800"
-                      }`}
-                    >
-                      {item.purpose === "buy" ? "Buy" : "Rent"}
+                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      Buy
                     </span>
                   </div>
                 </div>
@@ -633,7 +512,7 @@ const YourList = () => {
                 <div className="p-6">
                   <div className="mb-4">
                     <h3 className="text-xl font-semibold mb-2">
-                      {item.vehicleName}
+                      {item.make || item.vehicleName}
                     </h3>
                     <p className="text-gray-600">{item.model}</p>
                   </div>
@@ -796,7 +675,9 @@ const YourList = () => {
             <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
             <p className="mb-6">
               Are you sure you want to remove{" "}
-              <span className="font-semibold">{itemToDelete.vehicleName}</span>{" "}
+              <span className="font-semibold">
+                {itemToDelete.make || itemToDelete.vehicleName}
+              </span>{" "}
               from your wishlist?
             </p>
 
@@ -839,23 +720,17 @@ const YourList = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
                 {
-                  label: "Vehicle Name",
-                  field: "vehicleName",
+                  label: "Make",
+                  field: "make",
                   fullWidth: true,
                 },
                 { label: "Model", field: "model" },
-                { label: "KM Run", field: "kmRun" },
+                { label: "Average Km Run", field: "kmRun" },
                 {
                   label: "Fuel Type",
                   field: "fuelType",
                   isDropdown: true,
                   options: ["Petrol", "Diesel", "Electric", "Hybrid"],
-                },
-                {
-                  label: "Ownership",
-                  field: "ownership",
-                  isDropdown: true,
-                  options: ["First", "Second", "Third", "Other"],
                 },
                 { label: "Year", field: "year" },
                 { label: "Color", field: "color" },
