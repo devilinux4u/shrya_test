@@ -144,6 +144,14 @@ module.exports.SellVehicle = (sequelize, DataTypes) => {
         },
     });
 
+    SellVehicle.associate = (models) => {
+        SellVehicle.hasMany(models.SellVehicleImage, {
+            foreignKey: "vehicleId",
+            as: "images", // Alias for vehicle images
+            onDelete: "CASCADE",
+        });
+    };
+
     return SellVehicle;
 };
 
@@ -563,5 +571,65 @@ module.exports.Contact = (sequelize, DataTypes) => {
   });
 
   return Contact;
+};
+
+module.exports.Appointment = (sequelize, DataTypes) => {
+  const Appointment = sequelize.define("Appointment", {
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "Users",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+    },
+     SelleruserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "Users",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+    },
+    vehicleId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "SellVehicles",
+        key: "id",
+      },
+      onDelete: "CASCADE",
+    },
+    date: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+    },
+    time: {
+      type: DataTypes.TIME,
+      allowNull: false,
+    },
+    location: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    status: {
+      type: DataTypes.ENUM("pending", "confirmed", "cancelled"),
+      defaultValue: "pending",
+    },
+  });
+
+  Appointment.associate = (models) => {
+    Appointment.belongsTo(models.User, { foreignKey: "userId", as: "Buyer" }); // Alias: Buyer
+    Appointment.belongsTo(models.User, { foreignKey: "SelleruserId", as: "Seller" }); // Alias: Seller
+    Appointment.belongsTo(models.SellVehicle, { foreignKey: "vehicleId", as: "SellVehicle" }); // Alias: SellVehicle
+  };
+
+  return Appointment;
 };
 

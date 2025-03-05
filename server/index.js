@@ -22,6 +22,7 @@ const addVehicle = require('./controllers/rentControllers/addVehicles.js');
 const vehiclesRouter = require('./controllers/rentControllers/vehicles');
 const khaltiVerify = require('./controllers/khaltiVerify');
 const transaction = require('./controllers/transaction');
+const appointment = require('./controllers/appointmentControllers/Appointments');
 
 app.use('/uploads', express.static(path.join(__dirname, 'controllers/uploads')));
 
@@ -35,6 +36,8 @@ app.use('/api/lost-and-found', lostAndFound);
 app.use('/api/rentals', rentalRoute);
 app.use('/api/add-vehicle', addVehicle);
 app.use('/api/vehicles', vehiclesRouter);
+app.use('/api/appointments', appointment);
+
 
 const rentVehiclesController = require('./controllers/rentControllers/rentVehiclesController');
 app.use('/rent', rentVehiclesController);

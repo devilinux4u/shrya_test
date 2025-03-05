@@ -10,6 +10,7 @@ import {
 import BuyNowForm from "../Components/BuyNowForm";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Cookies from "js-cookie";
 
 export default function BuyVehiclesDesc() {
   const [activeSection, setActiveSection] = useState("hero");
@@ -59,22 +60,39 @@ export default function BuyVehiclesDesc() {
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     try {
+      const userId = Cookies.get("sauto").split("-")[0]; // Replace "userId" with the actual key used to store the user ID in cookies
+      const payload = {
+        userId,
+        vehicleId: vehicle?.id, // Ensure vehicle ID exists
+        ...bookingDetails,
+      };
+
+      console.log("Submitting booking with payload:", payload); // Debug log
+
       const response = await fetch("http://localhost:3000/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: 1, // Replace with actual user ID from auth
-          vehicleId: vehicle.id,
-          ...bookingDetails,
-        }),
+        body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error("Failed to create appointment");
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Failed to create appointment:", errorData); // Log error response
+        throw new Error(
+          `Failed to create appointment: ${
+            errorData.message || "Unknown error"
+          }`
+        );
+      }
+
       const data = await response.json();
-      console.log("Appointment created:", data);
+      console.log("Appointment created successfully:", data); // Debug log
+
       setShowBookNowForm(false);
       navigate("/UserAppointments");
     } catch (error) {
-      console.error("Error submitting booking:", error);
+      console.error("Error submitting booking:", error.message); // Log error message
+      alert(`Error: ${error.message}`); // Show user-friendly error message
     }
   };
 

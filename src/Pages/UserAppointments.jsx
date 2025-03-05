@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 import {
   Calendar,
   Clock,
@@ -39,16 +40,43 @@ export default function UserAppointments() {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/appointments");
-        if (!response.ok) throw new Error("Failed to fetch appointments");
+        const response = await fetch(
+          "http://localhost:3000/api/appointments/user/" +
+            Cookies.get("sauto").split("-")[0]
+        ); // Replace 'user123' with dynamic user ID
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        setAppointments(
-          data.appointments.map((app) => ({
+        console.log(data);
+
+        // Combine asBuyer and asSeller into a single array with role information
+        const combinedAppointments = [
+          ...data.data.asBuyer.map((app) => ({
             ...app,
-            buyer: app.user || {}, // Fallback to an empty object if user is undefined
-            seller: app.vehicle?.user || {}, // Fallback to an empty object if vehicle.user is undefined
-          }))
-        );
+            role: "buyer",
+            vehicle: {
+              ...app.SellVehicle,
+              images:
+                app.SellVehicle?.SellVehicleImages?.map((img) => img.image) ||
+                [],
+            },
+            seller: app.User || {}, // Use User object for seller details
+          })),
+          ...data.data.asSeller.map((app) => ({
+            ...app,
+            role: "seller",
+            vehicle: {
+              ...app.SellVehicle,
+              images:
+                app.SellVehicle?.SellVehicleImages?.map((img) => img.image) ||
+                [],
+            },
+            buyer: app.User || {}, // Use User object for buyer details
+          })),
+        ];
+
+        setAppointments(combinedAppointments);
       } catch (error) {
         console.error("Error fetching appointments:", error);
       } finally {
@@ -192,12 +220,18 @@ export default function UserAppointments() {
     }
   };
 
+  const isUserBuyer = (appointment) => {
+    return appointment.role === "buyer";
+  };
+
+  const isUserSeller = (appointment) => {
+    return appointment.role === "seller";
+  };
+
   const filteredAppointments = appointments.filter((appointment) => {
     // Filter by role (buyer/seller)
-    if (viewMode === "buyer" && appointment.buyer.id !== currentUserId)
-      return false;
-    if (viewMode === "seller" && appointment.seller.id !== currentUserId)
-      return false;
+    if (viewMode === "buyer" && !isUserBuyer(appointment)) return false;
+    if (viewMode === "seller" && !isUserSeller(appointment)) return false;
 
     // Filter by status
     if (activeFilter !== "all" && appointment.status !== activeFilter) {
@@ -213,8 +247,6 @@ export default function UserAppointments() {
         appointment.location.toLowerCase().includes(query) ||
         (appointment.description &&
           appointment.description.toLowerCase().includes(query)) ||
-        (appointment.buyer.name &&
-          appointment.buyer.name.toLowerCase().includes(query)) ||
         (appointment.seller.name &&
           appointment.seller.name.toLowerCase().includes(query))
       );
@@ -289,14 +321,6 @@ export default function UserAppointments() {
       day: "numeric",
     };
     return new Date(dateString).toLocaleDateString("en-US", options);
-  };
-
-  const isUserBuyer = (appointment) => {
-    return appointment.buyer.id === currentUserId;
-  };
-
-  const isUserSeller = (appointment) => {
-    return appointment.seller.id === currentUserId;
   };
 
   const getAppointmentRole = (appointment) => {
@@ -456,7 +480,7 @@ export default function UserAppointments() {
               >
                 <div className="relative">
                   <img
-                    src={appointment.vehicle.image || "/placeholder-image.jpg"}
+                    src={`../../server/controllers${appointment.vehicle.SellVehicleImages[0].image}`}
                     alt={`${appointment.vehicle.make} ${appointment.vehicle.model}`}
                     className="w-full h-48 object-cover"
                   />
@@ -684,10 +708,7 @@ export default function UserAppointments() {
 
                     <div className="flex items-center mb-4">
                       <img
-                        src={
-                          selectedAppointment.vehicle.image ||
-                          "/placeholder-image.jpg"
-                        }
+                        src={`../../server/controllers${selectedAppointment.vehicle.SellVehicleImages[0].image}`}
                         alt={`${selectedAppointment.vehicle.make} ${selectedAppointment.vehicle.model}`}
                         className="h-24 w-24 rounded-lg object-cover mr-4"
                       />
@@ -707,21 +728,22 @@ export default function UserAppointments() {
                     </div>
 
                     {/* Vehicle Images Gallery */}
-                    {selectedAppointment.vehicle.images &&
-                      selectedAppointment.vehicle.images.length > 0 && (
+                    {selectedAppointment.vehicle.SellVehicleImages &&
+                      selectedAppointment.vehicle.SellVehicleImages.length >
+                        0 && (
                         <div className="mb-4">
                           <h4 className="text-sm font-medium text-gray-500 mb-2">
                             Vehicle Images
                           </h4>
                           <div className="flex space-x-2 overflow-x-auto pb-2">
-                            {selectedAppointment.vehicle.images.map(
+                            {selectedAppointment.vehicle.SellVehicleImages?.map(
                               (image, index) => (
                                 <div
                                   key={index}
                                   className="relative flex-shrink-0 w-32 h-24 overflow-hidden rounded-lg"
                                 >
                                   <img
-                                    src={image || "/placeholder.svg"}
+                                    src={`../../server/controllers/${image.image}`}
                                     alt={`${selectedAppointment.vehicle.make} ${
                                       selectedAppointment.vehicle.model
                                     } - ${index + 1}`}
