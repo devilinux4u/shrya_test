@@ -231,7 +231,7 @@ export default function RentalDetails() {
         <div className="p-4 sm:p-6 md:p-8">
           <div className="mb-6">
             <button
-              onClick={() => navigate("/admin/active-rentals")}
+              onClick={() => navigate("/admin/activerentals")}
               className="flex items-center text-gray-600 hover:text-[#ff6b00] mb-4 transition-colors"
             >
               <ChevronLeft className="w-5 h-5 mr-2" />

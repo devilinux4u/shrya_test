@@ -13,6 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import DatePicker from "react-datepicker"; // Correct import for DatePicker
+import "react-datepicker/dist/react-datepicker.css"; // Ensure styles are imported
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -24,6 +26,8 @@ export default function Transactions() {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const transactionsPerPage = 5;
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -54,10 +58,6 @@ export default function Transactions() {
         return "bg-green-100 text-green-800";
       case "pending":
         return "bg-yellow-100 text-yellow-800";
-      case "failed":
-        return "bg-red-100 text-red-800";
-      case "refunded":
-        return "bg-purple-100 text-purple-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -68,16 +68,30 @@ export default function Transactions() {
       case "khalti":
         return <CreditCard className="w-5 h-5" />;
       case "paypal":
-        return <DollarSign className="w-5 h-5" />;
+        return <span className="font-bold">Rs.</span>;
       case "bank_transfer":
         return <ArrowUpRight className="w-5 h-5" />;
       default:
-        return <DollarSign className="w-5 h-5" />;
+        return <span className="font-bold">Rs.</span>;
+    }
+  };
+
+  const getPaymentMethodStyle = (method) => {
+    switch (method) {
+      case "cash":
+        return "bg-green-100 text-green-800";
+      case "khalti":
+        return "bg-purple-100 text-purple-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   // Calculate total amounts
-  const totalAmount = transactions.reduce((sum, trx) => sum + (trx.amount || 0), 0);
+  const totalAmount = transactions.reduce(
+    (sum, trx) => sum + (trx.amount || 0),
+    0
+  );
   const completedAmount = transactions
     .filter((trx) => trx.status === "paid")
     .reduce((sum, trx) => sum + (trx.amount || 0), 0);
@@ -85,18 +99,21 @@ export default function Transactions() {
     .filter((trx) => trx.status === "pending")
     .reduce((sum, trx) => sum + (trx.amount || 0), 0);
 
-
   const filteredTransactions = transactions.filter((transaction) => {
     const customer = transaction.user?.fname?.toLowerCase() || "";
     const matchesSearch = customer.includes(searchTerm.toLowerCase());
 
-    const matchesType =
-      filterType === "all" || transaction.type === filterType;
+    const matchesType = filterType === "all" || transaction.type === filterType;
 
     const matchesStatus =
       filterStatus === "all" || transaction.status === filterStatus;
 
-    return matchesSearch && matchesType && matchesStatus;
+    const transactionDate = new Date(transaction.createdAt);
+    const matchesDate =
+      (!startDate || transactionDate >= startDate) &&
+      (!endDate || transactionDate <= endDate);
+
+    return matchesSearch && matchesType && matchesStatus && matchesDate;
   });
 
   // Pagination logic
@@ -111,6 +128,17 @@ export default function Transactions() {
   );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const formatDateTime = (dateTime) => {
+    const date = new Date(dateTime);
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    const ss = String(date.getSeconds()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}, ${hh}:${min}:${ss}`;
+  };
 
   if (loading) {
     return <div className="text-center mt-10">Loading...</div>;
@@ -153,40 +181,10 @@ export default function Transactions() {
                 {transactions.length} transactions
               </div>
             </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-gray-500">Completed</h3>
-                <div className="p-3 bg-green-100 rounded-full">
-                  <ArrowUpRight className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold mt-2">
-                Rs. {completedAmount.toLocaleString()}
-              </p>
-              <div className="mt-2 text-sm text-green-600">
-                Successfully processed
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-gray-500">Pending</h3>
-                <div className="p-3 bg-yellow-100 rounded-full">
-                  <ArrowDownRight className="w-6 h-6 text-yellow-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold mt-2">
-                Rs. {pendingAmount.toLocaleString()}
-              </p>
-              <div className="mt-2 text-sm text-yellow-600">
-                Awaiting completion
-              </div>
-            </div>
           </div>
 
           {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-grow">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
@@ -197,29 +195,18 @@ export default function Transactions() {
                 className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
               />
             </div>
-            <div className="flex gap-4">
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
-              >
-                <option value="all">All Types</option>
-                <option value="purchase">Purchase</option>
-                <option value="rental">Rental</option>
-                <option value="rental_deposit">Rental Deposit</option>
-              </select>
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="pending">Pending</option>
-                <option value="failed">Failed</option>
-                <option value="refunded">Refunded</option>
-              </select>
-            </div>
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              placeholderText="Start Date"
+              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
+            />
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              placeholderText="End Date"
+              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
+            />
           </div>
         </div>
 
@@ -265,7 +252,7 @@ export default function Transactions() {
                         {transaction.Booking.User.fname}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {transaction.Booking.User.uname}
+                        {transaction.Booking.User.email}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -283,18 +270,21 @@ export default function Transactions() {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-sm text-gray-900">
+                      <div
+                        className={`flex items-center text-sm px-2 py-1 rounded-full ${getPaymentMethodStyle(
+                          transaction.method
+                        )}`}
+                      >
                         {getPaymentMethodIcon(transaction.method)}
                         <span className="ml-2">
-                          {transaction.method
-                          }
+                          {transaction.method}
                           {transaction.cardLast4 &&
                             ` (*${transaction.cardLast4})`}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {transaction.createdAt}
+                      {formatDateTime(transaction.createdAt)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
@@ -325,10 +315,11 @@ export default function Transactions() {
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 border-r border-gray-200 flex items-center ${currentPage === 1
+                className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                  currentPage === 1
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                }`}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -338,10 +329,11 @@ export default function Transactions() {
                   <button
                     key={number}
                     onClick={() => paginate(number)}
-                    className={`px-4 py-2 border-r border-gray-200 ${currentPage === number
+                    className={`px-4 py-2 border-r border-gray-200 ${
+                      currentPage === number
                         ? "bg-orange-500 text-white font-medium"
                         : "text-gray-700 hover:bg-gray-50"
-                      }`}
+                    }`}
                   >
                     {number}
                   </button>
@@ -351,10 +343,11 @@ export default function Transactions() {
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-4 py-2 flex items-center ${currentPage === totalPages
+                className={`px-4 py-2 flex items-center ${
+                  currentPage === totalPages
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                }`}
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -437,8 +430,7 @@ export default function Transactions() {
                     <div className="flex items-center mt-1">
                       {getPaymentMethodIcon(selectedTransaction.method)}
                       <span className="ml-2 text-gray-900">
-                        {selectedTransaction.method
-                          }
+                        {selectedTransaction.method}
                         {selectedTransaction.cardLast4 &&
                           ` (*${selectedTransaction.cardLast4})`}
                       </span>
@@ -447,7 +439,7 @@ export default function Transactions() {
                   <div>
                     <h3 className="text-sm font-medium text-gray-500">Date</h3>
                     <p className="text-lg font-medium text-gray-900">
-                      {selectedTransaction.createdAt}
+                      {formatDateTime(selectedTransaction.createdAt)}
                     </p>
                   </div>
                 </div>

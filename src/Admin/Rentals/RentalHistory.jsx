@@ -19,6 +19,7 @@ import {
   Mail,
   Phone,
 } from "lucide-react";
+import { toast } from "react-toastify"; // Import toast for notifications
 
 export default function RentalHistory() {
   const [rentals, setRentals] = useState([]);
@@ -46,45 +47,47 @@ export default function RentalHistory() {
         }
         const data = await response.json();
 
-        // Check if data.data exists and is an array
         if (!data.data || !Array.isArray(data.data)) {
           throw new Error("Invalid data format received from API");
         }
 
-        // Map API response to required structure
         const mappedRentals = data.data.map((rental) => ({
           id: rental.id,
           status: rental.status,
           rentalType: rental.rentalType,
           rentalDuration: rental.rentalDuration,
           totalAmount: rental.totalAmount,
-          pickupLocation: rental.pickupLocation,
-          dropoffLocation: rental.dropoffLocation,
+          pickupLocation: rental.pickupLocation || "N/A",
+          dropoffLocation: rental.dropoffLocation || "N/A",
           pickupDate: rental.pickupDate,
           pickupTime: rental.pickupTime,
           returnDate: rental.returnDate,
           returnTime: rental.returnTime,
-          driveOption: rental.driveOption,
+          driveOption: rental.driveOption || "self-drive", // Default to self-drive if not specified
           deposit: rental.deposit || 0,
           depositReturned: rental.depositReturned || false,
           review: rental.review || null,
           damageReport: rental.damageReport || null,
           rentVehicle: {
-            id: rental.rentVehicle?.id || "",
-            make: rental.rentVehicle?.make || "",
-            model: rental.rentVehicle?.model || "",
-            year: rental.rentVehicle?.year || "",
-            numberPlate: rental.rentVehicle?.numberPlate || "",
-            fuelType: rental.rentVehicle?.fuelType || "",
-            transmission: rental.rentVehicle?.transmission || "",
+            id: rental.RentalAllVehicles?.id || "",
+            make: rental.RentalAllVehicles?.make || "",
+            model: rental.RentalAllVehicles?.model || "",
+            year: rental.RentalAllVehicles?.year || "",
+            numberPlate: rental.RentalAllVehicles?.numberPlate || "",
+            fuelType: rental.RentalAllVehicles?.fuelType || "",
+            transmission: rental.RentalAllVehicles?.transmission || "",
           },
           user: {
-            id: rental.user?.id || "",
-            fname: rental.user?.fname || "",
-            lname: rental.user?.lname || "",
-            uname: rental.user?.uname || "",
-            email: rental.user?.email || "",
-            phone: rental.user?.phone || "N/A",
+            id: rental.user?.id || rental.User?.id || "N/A",
+            fname: rental.user?.fname || rental.User?.fname || "Unknown",
+            uname: rental.user?.uname || rental.User?.uname || "N/A",
+            email: rental.user?.email || rental.User?.email || "N/A",
+            phone:
+              rental.user?.phone ||
+              rental.User?.phone ||
+              rental.user?.num ||
+              rental.User?.num ||
+              "N/A",
           },
         }));
 
@@ -92,6 +95,7 @@ export default function RentalHistory() {
         setError(null);
       } catch (error) {
         setError(error.message);
+        toast.error("Error fetching rental data: " + error.message); // Show toast notification
         console.error("Error fetching rental data:", error);
       } finally {
         setLoading(false);
@@ -168,11 +172,11 @@ export default function RentalHistory() {
   const filteredAndSortedRentals = rentals
     .filter((rental) => {
       const matchesSearch =
-        rental.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) || // Convert rental.id to string
-        `${rental.user.fname} ${rental.user.lname}`
+        rental.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+        `${rental.user.fname || ""} ${rental.user.lname || ""}`
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
-        `${rental.rentVehicle.make} ${rental.rentVehicle.model}`
+        `${rental.rentVehicle.make || ""} ${rental.rentVehicle.model || ""}`
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         rental.rentVehicle.numberPlate
@@ -552,13 +556,20 @@ export default function RentalHistory() {
                           {selectedRental.rentVehicle.numberPlate}
                         </p>
                       </div>
-
                       <div>
                         <p className="text-sm font-medium text-gray-500">
                           Transmission
                         </p>
                         <p className="text-gray-900">
                           {selectedRental.rentVehicle.transmission}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-500">
+                          Drive Option
+                        </p>
+                        <p className="text-gray-900">
+                          {selectedRental.driveOption}
                         </p>
                       </div>
                     </div>
@@ -598,9 +609,7 @@ export default function RentalHistory() {
                           Drive Option
                         </p>
                         <p className="text-gray-900">
-                          {selectedRental.driveOption === "self-drive"
-                            ? "Self Drive"
-                            : "With Driver"}
+                          {selectedRental.driveOption}
                         </p>
                       </div>
                     </div>
