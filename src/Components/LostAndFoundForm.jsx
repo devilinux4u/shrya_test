@@ -157,6 +157,7 @@ const LostAndFoundForm = ({ isOpen, onClose }) => {
         // Close the form after a short delay to allow the toast to display
         setTimeout(() => {
           onClose();
+          window.location.reload();
         }, 2000); // Adjust the delay as needed
       } else {
         console.error("Failed to submit the report. Server response:", data);
