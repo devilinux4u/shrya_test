@@ -72,7 +72,6 @@ export default function LostAndFound() {
 
         setItems(processedItems || []);
         setFilteredItems(processedItems || []);
-        toast.success("Items loaded successfully!");
       } catch (err) {
         console.error("Error fetching lost and found items:", err);
         setError(err.message);
