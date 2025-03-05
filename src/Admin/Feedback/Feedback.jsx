@@ -32,24 +32,29 @@ const Feedback = () => {
     fetchFeedbacks();
   }, []);
 
-  const handleFeedbackClick = (feedback) => {
+  const handleFeedbackClick = async (feedback) => {
+    if (feedback.status === "new") {
+      try {
+        await fetch(`http://localhost:3000/contact/${feedback.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "read" }),
+        });
+
+        setFeedbacks(
+          feedbacks.map((fb) =>
+            fb.id === feedback.id ? { ...fb, status: "read" } : fb
+          )
+        );
+      } catch (err) {
+        console.error("Failed to update feedback status:", err);
+      }
+    }
     setSelectedFeedback(feedback);
   };
 
   const handleCloseDetails = () => {
     setSelectedFeedback(null);
-  };
-
-  const handleMarkAsRead = (id) => {
-    setFeedbacks(
-      feedbacks.map((feedback) =>
-        feedback.id === id ? { ...feedback, status: "read" } : feedback
-      )
-    );
-
-    if (selectedFeedback && selectedFeedback.id === id) {
-      setSelectedFeedback({ ...selectedFeedback, status: "read" });
-    }
   };
 
   const handleDelete = (id) => {
@@ -82,8 +87,10 @@ const Feedback = () => {
 
   const filteredFeedbacks =
     filter === "all"
-      ? feedbacks
-      : feedbacks.filter((feedback) => feedback.status === filter);
+      ? feedbacks.sort((a, b) => new Date(b.date) - new Date(a.date))
+      : feedbacks
+          .filter((feedback) => feedback.status === filter)
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
 
   if (loading)
     return (
@@ -227,14 +234,6 @@ const Feedback = () => {
                     <p>{selectedFeedback.msg}</p>
                   </div>
                   <div className="flex justify-end gap-3 mt-5 flex-wrap">
-                    {selectedFeedback.status === "new" && (
-                      <button
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm"
-                        onClick={() => handleMarkAsRead(selectedFeedback.id)}
-                      >
-                        Mark as Read
-                      </button>
-                    )}
                     <button
                       className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
                       onClick={() => handleDelete(selectedFeedback.id)}
