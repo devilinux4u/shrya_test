@@ -41,68 +41,129 @@ export default function RentalDetails() {
   const fetchRentalDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3000/api/vehicles/active/one${id}`);
+      const response = await fetch(
+        `http://localhost:3000/api/vehicles/active/one/${id}`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch rental details");
       }
       const data = await response.json();
-      setRental(data.data);
+      console.log("API Response:", data);
+
+      if (!data.data) {
+        throw new Error("No rental data found");
+      }
+
+      // Map the API response to our expected structure
+      const mappedRental = {
+        ...data.data,
+        rentVehicle: {
+          ...data.data.rentVehicle,
+          seats: data.data.rentVehicle?.seats || 5,
+          fuelType: data.data.rentVehicle?.fuelType || "petrol",
+          transmission: data.data.rentVehicle?.transmission || "manual",
+          engine: data.data.rentVehicle?.engine || "N/A",
+          rentVehicleImages: data.data.rentVehicle?.rentVehicleImages || [],
+        },
+        user: {
+          ...data.data.user,
+          phone: data.data.user?.phone || "N/A",
+          address: data.data.user?.address || "N/A",
+        },
+        paymentDetails: {
+          method: data.data.paymentMethod || "payLater",
+          status: "paid", // Assuming payment is completed for active rentals
+          transactionId: "N/A", // Add if available in API
+          date: data.data.createdAt || new Date().toISOString(),
+        },
+        rentalPeriod: {
+          startDate: data.data.pickupDate,
+          endDate: data.data.returnDate,
+          hoursRemaining: calculateHoursRemaining(
+            data.data.returnDate,
+            data.data.returnTime
+          ),
+          totalHours: calculateTotalHours(
+            data.data.pickupDate,
+            data.data.pickupTime,
+            data.data.returnDate,
+            data.data.returnTime
+          ),
+          type: data.data.rentalType || "hour",
+        },
+        driverOption:
+          data.data.driveOption === "selfDrive" ? "self-drive" : "hire-driver",
+        additionalServices: [], // Add if available in API
+      };
+
+      setRental(mappedRental);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching rental details:", error);
-      setError("Failed to fetch rental details");
+      setError(error.message);
       toast.error("Failed to fetch rental details");
       setLoading(false);
     }
   };
 
+  // Calculate hours remaining until return
+  const calculateHoursRemaining = (returnDate, returnTime) => {
+    if (!returnDate || !returnTime) return 0;
+
+    const returnDateTime = new Date(
+      `${returnDate.split("T")[0]}T${returnTime}`
+    );
+    const now = new Date();
+    const diffMs = returnDateTime - now;
+
+    if (diffMs <= 0) return 0;
+    return Math.round(diffMs / (1000 * 60 * 60));
+  };
+
+  // Calculate total rental hours
+  const calculateTotalHours = (
+    pickupDate,
+    pickupTime,
+    returnDate,
+    returnTime
+  ) => {
+    if (!pickupDate || !returnDate) return 0;
+
+    const pickupDateTime = new Date(
+      `${pickupDate.split("T")[0]}T${pickupTime}`
+    );
+    const returnDateTime = new Date(
+      `${returnDate.split("T")[0]}T${returnTime}`
+    );
+    const diffMs = returnDateTime - pickupDateTime;
+
+    return Math.round(diffMs / (1000 * 60 * 60));
+  };
+
   // Format date to readable format
   const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
     const options = {
       year: "numeric",
       month: "short",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     };
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
-  // Calculate percentage of time elapsed
-  const calculateTimeProgress = (rental) => {
-    const { totalHours, hoursRemaining } = rental.rentalPeriod;
-    const hoursElapsed = totalHours - hoursRemaining;
-    return Math.round((hoursElapsed / totalHours) * 100);
-  };
-
-  // Format rental duration
-  const formatDuration = (rental) => {
-    const { type } = rental.rentalPeriod;
-    switch (type) {
-      case "hour":
-        return `${rental.rentalPeriod.totalHours} hours`;
-      case "day":
-        return `${rental.rentalPeriod.totalHours / 24} days`;
-      case "week":
-        return `${rental.rentalPeriod.totalHours / 168} weeks`;
-      case "month":
-        return `${rental.rentalPeriod.totalHours / 720} months`;
-      default:
-        return `${rental.rentalPeriod.totalHours} hours`;
-    }
+  // Format time to readable format
+  const formatTime = (timeString) => {
+    if (!timeString) return "N/A";
+    return timeString.slice(0, 5); // Assuming time is in HH:MM format
   };
 
   // Format time remaining
   const formatTimeRemaining = (hours) => {
-    if (hours < 1) {
-      return "Less than 1 hour";
-    }
-    if (hours < 24) {
-      return `${Math.round(hours)} hours`;
-    }
-    if (hours < 168) {
+    if (hours <= 0) return "Completed";
+    if (hours < 1) return "Less than 1 hour";
+    if (hours < 24) return `${Math.round(hours)} hours`;
+    if (hours < 168)
       return `${Math.round(hours / 24)} days, ${Math.round(hours % 24)} hours`;
-    }
     return `${Math.floor(hours / 24)} days`;
   };
 
@@ -183,8 +244,8 @@ export default function RentalDetails() {
                 Rental Details
               </h1>
               <p className="mt-2 text-gray-600">
-                {rental.vehicle.make} {rental.vehicle.model} •{" "}
-                {formatDate(rental.rentalPeriod.startDate)}
+                {rental.rentVehicle?.make} {rental.rentVehicle?.model} •{" "}
+                {formatDate(rental.pickupDate)}
               </p>
             </div>
           </div>
@@ -195,15 +256,13 @@ export default function RentalDetails() {
               {/* Vehicle Images */}
               <div className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="relative h-64 sm:h-80 md:h-96 bg-gray-100">
-                  {rental.vehicle.imageUrls &&
-                  rental.vehicle.imageUrls.length > 0 ? (
+                  {rental.rentVehicle?.rentVehicleImages?.length > 0 ? (
                     <img
                       src={
-                        rental.vehicle.imageUrls[activeImage] ||
-                        "/placeholder.svg" ||
-                        "/placeholder.svg"
+                        rental.rentVehicle.rentVehicleImages[activeImage]
+                          ?.image || "/placeholder.svg"
                       }
-                      alt={`${rental.vehicle.make} ${rental.vehicle.model}`}
+                      alt={`${rental.rentVehicle?.make} ${rental.rentVehicle?.model}`}
                       className="w-full h-full object-contain"
                     />
                   ) : (
@@ -213,11 +272,11 @@ export default function RentalDetails() {
                   )}
                 </div>
 
-                {rental.vehicle.imageUrls &&
-                  rental.vehicle.imageUrls.length > 1 && (
-                    <div className="p-4 overflow-x-auto">
-                      <div className="flex space-x-2">
-                        {rental.vehicle.imageUrls.map((url, index) => (
+                {rental.rentVehicle?.rentVehicleImages?.length > 1 && (
+                  <div className="p-4 overflow-x-auto">
+                    <div className="flex space-x-2">
+                      {rental.rentVehicle.rentVehicleImages.map(
+                        (image, index) => (
                           <button
                             key={index}
                             onClick={() => setActiveImage(index)}
@@ -228,15 +287,16 @@ export default function RentalDetails() {
                             }`}
                           >
                             <img
-                              src={url || "/placeholder.svg"}
+                              src={image.image || "/placeholder.svg"}
                               alt={`Thumbnail ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
                           </button>
-                        ))}
-                      </div>
+                        )
+                      )}
                     </div>
-                  )}
+                  </div>
+                )}
               </div>
 
               {/* Vehicle Details */}
@@ -251,11 +311,11 @@ export default function RentalDetails() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        {rental.vehicle.make} {rental.vehicle.model} (
-                        {rental.vehicle.year})
+                        {rental.rentVehicle?.make} {rental.rentVehicle?.model} (
+                        {rental.rentVehicle?.year})
                       </h3>
                       <p className="text-gray-600 mb-4">
-                        License Plate: {rental.vehicle.licensePlate}
+                        License Plate: {rental.rentVehicle?.numberPlate}
                       </p>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -263,28 +323,28 @@ export default function RentalDetails() {
                           <Users className="h-4 w-4 mr-2 text-[#ff6b00]" />
                           <span className="font-medium">Seats:</span>
                           <span className="ml-1">
-                            {rental.vehicle.specs.seats}
+                            {rental.rentVehicle?.seats || "N/A"}
                           </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <Fuel className="h-4 w-4 mr-2 text-[#ff6b00]" />
                           <span className="font-medium">Fuel:</span>
                           <span className="ml-1">
-                            {rental.vehicle.specs.fuel}
+                            {rental.rentVehicle?.fuelType || "N/A"}
                           </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <Settings className="h-4 w-4 mr-2 text-[#ff6b00]" />
                           <span className="font-medium">Trans:</span>
                           <span className="ml-1">
-                            {rental.vehicle.specs.transmission}
+                            {rental.rentVehicle?.transmission || "N/A"}
                           </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <Settings className="h-4 w-4 mr-2 text-[#ff6b00]" />
                           <span className="font-medium">Engine:</span>
                           <span className="ml-1">
-                            {rental.vehicle.specs.engine}
+                            {rental.rentVehicle?.engine || "N/A"}
                           </span>
                         </div>
                       </div>
@@ -297,7 +357,7 @@ export default function RentalDetails() {
                         </h4>
                         <p className="font-medium text-gray-900 flex items-start mt-1">
                           <MapPin className="h-4 w-4 mr-2 text-[#ff6b00] mt-1 flex-shrink-0" />
-                          {rental.pickupLocation}
+                          {rental.pickupLocation || "N/A"}
                         </p>
                       </div>
 
@@ -307,7 +367,7 @@ export default function RentalDetails() {
                         </h4>
                         <p className="font-medium text-gray-900 flex items-start mt-1">
                           <MapPin className="h-4 w-4 mr-2 text-[#ff6b00] mt-1 flex-shrink-0" />
-                          {rental.dropoffLocation}
+                          {rental.dropoffLocation || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -332,25 +392,16 @@ export default function RentalDetails() {
                         </h4>
                         <p className="font-medium text-gray-900 flex items-center mt-1">
                           <CreditCard className="h-4 w-4 mr-2 text-[#ff6b00]" />
-                          {rental.paymentDetails.method}
+                          {rental.paymentDetails?.method || "N/A"}
                         </p>
                       </div>
 
                       <div className="mb-4">
                         <h4 className="text-sm font-medium text-gray-600">
-                          Transaction ID
-                        </h4>
-                        <p className="font-medium text-gray-900 mt-1">
-                          {rental.paymentDetails.transactionId}
-                        </p>
-                      </div>
-
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-600">
                           Payment Date
                         </h4>
                         <p className="font-medium text-gray-900 mt-1">
-                          {formatDate(rental.paymentDetails.date)}
+                          {formatDate(rental.paymentDetails?.date) || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -363,44 +414,26 @@ export default function RentalDetails() {
                       <div className="space-y-2 mb-4">
                         <div className="flex justify-between text-sm">
                           <span className="text-gray-600">
-                            Base Rental ({formatDuration(rental)})
+                            Base Rental ({rental.rentalType || "hour"})
                           </span>
                           <span className="font-medium text-gray-900">
-                            Rs.{" "}
-                            {(
-                              rental.totalAmount -
-                              rental.additionalServices.reduce(
-                                (sum, service) => sum + service.price,
-                                0
-                              ) -
-                              (rental.driverOption === "hire-driver" ? 2000 : 0)
-                            ) // Assuming driver's amount is Rs. 2000
-                              .toLocaleString()}
+                            Rs. {rental.totalAmount?.toLocaleString() || "0"}
                           </span>
                         </div>
 
-                        {rental.additionalServices.map((service, index) => (
+                        {rental.additionalServices?.map((service, index) => (
                           <div
                             key={index}
                             className="flex justify-between text-sm"
                           >
                             <span className="text-gray-600">
-                              {service.name}
+                              {service.name || "Additional service"}
                             </span>
                             <span className="font-medium text-gray-900">
-                              Rs. {service.price.toLocaleString()}
+                              Rs. {service.price?.toLocaleString() || "0"}
                             </span>
                           </div>
                         ))}
-
-                        {rental.driverOption === "hire-driver" && (
-                          <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Driver Fee</span>
-                            <span className="font-medium text-gray-900">
-                              Rs. 2000
-                            </span>
-                          </div>
-                        )}
                       </div>
 
                       <div className="border-t border-gray-200 pt-3 flex justify-between">
@@ -408,28 +441,24 @@ export default function RentalDetails() {
                           Total Amount
                         </span>
                         <span className="font-bold text-gray-900">
-                          Rs.{" "}
-                          {(
-                            rental.totalAmount +
-                            (rental.driverOption === "hire-driver" ? 2000 : 0)
-                          ).toLocaleString()}
+                          Rs. {rental.totalAmount?.toLocaleString() || "0"}
                         </span>
                       </div>
 
                       <div className="mt-4">
                         <div
                           className={`px-3 py-2 rounded-md text-sm font-medium ${
-                            rental.paymentDetails.status === "paid"
+                            rental.paymentDetails?.status === "paid"
                               ? "bg-green-100 text-green-800"
                               : "bg-yellow-100 text-yellow-800"
                           } flex items-center`}
                         >
-                          {rental.paymentDetails.status === "paid" ? (
+                          {rental.paymentDetails?.status === "paid" ? (
                             <CheckCircle className="h-4 w-4 mr-2" />
                           ) : (
                             <AlertTriangle className="h-4 w-4 mr-2" />
                           )}
-                          {rental.paymentDetails.status === "paid"
+                          {rental.paymentDetails?.status === "paid"
                             ? "Payment Completed"
                             : "Payment Pending"}
                         </div>
@@ -452,19 +481,15 @@ export default function RentalDetails() {
                 </div>
                 <div className="p-6">
                   <div className="flex items-center mb-4">
-                    <div className="h-16 w-16 rounded-full bg-gray-100 overflow-hidden mr-4">
-                      <img
-                        src={rental.user.profileImage || "/placeholder.svg"}
-                        alt={rental.user.name}
-                        className="h-full w-full object-cover"
-                      />
+                    <div className="h-16 w-16 rounded-full bg-gray-100 overflow-hidden mr-4 flex items-center justify-center">
+                      <User className="h-8 w-8 text-gray-400" />
                     </div>
                     <div>
                       <h3 className="text-lg font-bold text-gray-900">
-                        {rental.user.name}
+                        {rental.user?.fname || "N/A"}
                       </h3>
                       <p className="text-sm text-gray-600">
-                        Customer ID: {rental.user._id}
+                        Customer ID: {rental.user?.id || "N/A"}
                       </p>
                     </div>
                   </div>
@@ -475,7 +500,7 @@ export default function RentalDetails() {
                       <div>
                         <p className="text-gray-600">Phone</p>
                         <p className="font-medium text-gray-900">
-                          {rental.user.phone}
+                          {rental.user?.phone || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -485,17 +510,7 @@ export default function RentalDetails() {
                       <div>
                         <p className="text-gray-600">Email</p>
                         <p className="font-medium text-gray-900">
-                          {rental.user.email}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start text-sm">
-                      <MapPin className="h-4 w-4 mr-2 text-[#ff6b00] mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="text-gray-600">Address</p>
-                        <p className="font-medium text-gray-900">
-                          {rental.user.address}
+                          {rental.user?.email || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -505,7 +520,16 @@ export default function RentalDetails() {
                       <div>
                         <p className="text-gray-600">Driving License</p>
                         <p className="font-medium text-gray-900">
-                          {rental.user.drivingLicense}
+                          {rental.licenseImageUrl ? (
+                            <img
+                              src={rental.licenseImageUrl}
+                              alt="Driving License"
+                              className="h-32 w-32 object-cover rounded-md border cursor-pointer hover:opacity-90 transition-opacity"
+                              onClick={() => setIsLicensePreviewOpen(true)}
+                            />
+                          ) : (
+                            "No License Image"
+                          )}
                         </p>
                       </div>
                     </div>
@@ -534,19 +558,11 @@ export default function RentalDetails() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-gray-900">
-                          {
-                            formatDate(rental.rentalPeriod.startDate).split(
-                              ","
-                            )[0]
-                          }
+                          {formatDate(rental.pickupDate) || "N/A"}
                         </span>
                         <ArrowRight className="h-4 w-4 text-gray-400 mx-2" />
                         <span className="font-medium text-gray-900">
-                          {
-                            formatDate(rental.rentalPeriod.endDate).split(
-                              ","
-                            )[0]
-                          }
+                          {formatDate(rental.returnDate) || "N/A"}
                         </span>
                       </div>
                     </div>
@@ -556,7 +572,16 @@ export default function RentalDetails() {
                         Duration
                       </p>
                       <p className="font-medium text-gray-900">
-                        {formatDuration(rental)}
+                        {rental.rentalDuration}{" "}
+                        {rental.rentalType === "hour"
+                          ? "hours"
+                          : rental.rentalType === "day"
+                          ? "days"
+                          : rental.rentalType === "week"
+                          ? "weeks"
+                          : rental.rentalType === "month"
+                          ? "months"
+                          : "hours"}
                       </p>
                     </div>
 
@@ -565,7 +590,7 @@ export default function RentalDetails() {
                         Rental Type
                       </p>
                       <p className="font-medium text-gray-900 capitalize">
-                        {rental.rentalPeriod.type}
+                        {rental.rentalType || "hour"}
                       </p>
                     </div>
 
@@ -580,25 +605,6 @@ export default function RentalDetails() {
                       </p>
                     </div>
 
-                    {rental.driverOption === "self-drive" && (
-                      <div>
-                        <p className="text-sm font-medium text-gray-600">
-                          Driving License
-                        </p>
-                        <p className="font-medium text-gray-900">
-                          {rental.user.drivingLicense}
-                        </p>
-                        <div className="mt-2">
-                          <img
-                            src={rental.user.profileImage || "/placeholder.svg"}
-                            alt="Driving License"
-                            className="h-32 w-32 object-cover rounded-md border cursor-pointer hover:opacity-90 transition-opacity"
-                            onClick={() => setIsLicensePreviewOpen(true)}
-                          />
-                        </div>
-                      </div>
-                    )}
-
                     <div>
                       <p className="text-sm font-medium text-gray-600">
                         Time Remaining
@@ -607,7 +613,7 @@ export default function RentalDetails() {
                         <Clock className="h-4 w-4 mr-2 text-[#ff6b00]" />
                         <p className="font-medium text-gray-900">
                           {formatTimeRemaining(
-                            rental.rentalPeriod.hoursRemaining
+                            rental.rentalPeriod?.hoursRemaining || 0
                           )}
                         </p>
                       </div>
@@ -616,17 +622,17 @@ export default function RentalDetails() {
                     <div className="pt-3 border-t border-gray-200">
                       <div
                         className={`px-3 py-2 rounded-md text-sm font-medium ${
-                          rental.rentalPeriod.hoursRemaining < 12
+                          (rental.rentalPeriod?.hoursRemaining || 0) < 12
                             ? "bg-yellow-100 text-yellow-800"
                             : "bg-green-100 text-green-800"
                         } flex items-center justify-center`}
                       >
-                        {rental.rentalPeriod.hoursRemaining < 12 ? (
+                        {(rental.rentalPeriod?.hoursRemaining || 0) < 12 ? (
                           <AlertTriangle className="h-4 w-4 mr-2" />
                         ) : (
                           <CheckCircle className="h-4 w-4 mr-2" />
                         )}
-                        {rental.rentalPeriod.hoursRemaining < 12
+                        {(rental.rentalPeriod?.hoursRemaining || 0) < 12
                           ? "Ending Soon"
                           : "On Schedule"}
                       </div>
@@ -638,6 +644,7 @@ export default function RentalDetails() {
           </div>
         </div>
       </div>
+
       {/* License Image Preview Modal */}
       {isLicensePreviewOpen && (
         <div
@@ -672,7 +679,7 @@ export default function RentalDetails() {
             </div>
             <div className="p-4 flex items-center justify-center">
               <img
-                src={rental.user.profileImage || "/placeholder.svg"}
+                src={rental.licenseImageUrl || "/placeholder.svg"}
                 alt="Driving License"
                 className="max-w-full max-h-[70vh] object-contain"
               />

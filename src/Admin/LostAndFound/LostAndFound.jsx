@@ -13,13 +13,13 @@ import {
   Eye,
   Clock,
   Edit3,
-  Filter,
   Phone,
   MessageSquare,
   X,
   User,
   ChevronLeft,
   ChevronRight,
+  SlidersHorizontal,
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
@@ -49,6 +49,7 @@ export default function LostAndFound() {
   const [isFormOpen, setIsFormOpen] = useState(false); // State to manage form visibility
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch data from the API
   useEffect(() => {
@@ -310,6 +311,14 @@ export default function LostAndFound() {
   const canEdit = (item) => currentUserRole === "Admin";
   const canContact = (item) => item.user.fname === "User" && item.user.num;
 
+  // Reset filters
+  const resetFilters = () => {
+    setSearchTerm("");
+    setUserFilter("");
+    setStatusFilter("");
+    setShowFilters(false);
+  };
+
   return (
     <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
       <div className="p-4 sm:p-6 md:p-8">
@@ -321,8 +330,8 @@ export default function LostAndFound() {
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4">
+        {/* Search and Add Button - Always visible */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-4">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -333,44 +342,77 @@ export default function LostAndFound() {
               className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          <div className="flex gap-4">
-            <select
-              value={userFilter}
-              onChange={(e) => setUserFilter(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Filter by User Type</option>
-              <option value="Admin">Admin</option>
-              <option value="User">User</option>
-            </select>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Filter by Status</option>
-              <option value="lost">Lost</option>
-              <option value="found">Found</option>
-              <option value="resolved">Resolved</option>
-            </select>
+          <div className="flex gap-2">
             <button
-              onClick={() => setIsFormOpen(true)} // Open the form popup
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2 whitespace-nowrap"
+            >
+              <SlidersHorizontal className="w-5 h-5" />
+              <span className="hidden sm:inline">Filters</span>
+            </button>
+            <button
+              onClick={() => setIsFormOpen(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 whitespace-nowrap"
             >
               <Plus className="w-5 h-5" />
-              Add Item
+              <span className="hidden sm:inline">Add Item</span>
             </button>
           </div>
         </div>
+
+        {/* Filters - Collapsible on mobile */}
+        {showFilters && (
+          <div className="bg-white p-4 rounded-lg shadow-sm mb-6 animate-fadeIn">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  User Type
+                </label>
+                <select
+                  value={userFilter}
+                  onChange={(e) => setUserFilter(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Users</option>
+                  <option value="Admin">Admin</option>
+                  <option value="User">User</option>
+                </select>
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">All Status</option>
+                  <option value="lost">Lost</option>
+                  <option value="found">Found</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={resetFilters}
+                  className="w-full sm:w-auto px-4 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* LostAndFoundForm Popup */}
       <LostAndFoundForm
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)} // Close the form popup
+        onClose={() => setIsFormOpen(false)}
         onSubmit={(newItem) => {
-          setItems([...items, newItem]); // Add the new item to the list
-          setIsFormOpen(false); // Close the form popup
+          setItems([...items, newItem]);
+          setIsFormOpen(false);
         }}
       />
 
@@ -384,7 +426,7 @@ export default function LostAndFound() {
       {/* Error State */}
       {error && (
         <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6"
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 mx-4 sm:mx-6 md:mx-8"
           role="alert"
         >
           <strong className="font-bold">Error!</strong>
@@ -394,7 +436,7 @@ export default function LostAndFound() {
 
       {/* Empty State */}
       {!isLoading && !error && filteredItems.length === 0 && (
-        <div className="text-center py-12">
+        <div className="text-center py-12 px-4">
           <div className="text-gray-500 mb-4">
             <AlertTriangle className="w-12 h-12 mx-auto" />
           </div>
@@ -406,7 +448,7 @@ export default function LostAndFound() {
           </p>
           <div className="mt-6">
             <button
-              onClick={() => setShowAddItem(true)}
+              onClick={() => setIsFormOpen(true)}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
             >
               <Plus className="w-5 h-5 mr-2" />
@@ -418,7 +460,7 @@ export default function LostAndFound() {
 
       {/* Items Grid */}
       {!isLoading && !error && filteredItems.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 px-4 sm:px-6 md:px-8">
           {currentItems.map((item) => (
             <div
               key={item.id}
@@ -429,7 +471,9 @@ export default function LostAndFound() {
                   src={
                     (item.images &&
                       item.images[0] &&
-                      `../../server${item.images[0].imageUrl}`) ||
+                      `../../server${
+                        item.images[0].imageUrl || "/placeholder.svg"
+                      }`) ||
                     "/placeholder.svg"
                   }
                   alt={item.title}
@@ -439,10 +483,10 @@ export default function LostAndFound() {
                   }}
                 />
               </div>
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800">
+                    <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">
                       {item.title}
                     </h3>
                     <span
@@ -454,13 +498,13 @@ export default function LostAndFound() {
                       <span className="ml-1">{item.type.toUpperCase()}</span>
                     </span>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1 sm:gap-2">
                     <button
                       onClick={() => setSelectedItem(item)}
-                      className="p-2 hover:bg-gray-100 rounded-full"
+                      className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
                       title="View Details"
                     >
-                      <Eye className="w-5 h-5 text-gray-600" />
+                      <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                     </button>
 
                     {canEdit(item) && (
@@ -475,10 +519,10 @@ export default function LostAndFound() {
                             date: item.date,
                           });
                         }}
-                        className="p-2 hover:bg-gray-100 rounded-full"
+                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
                         title="Edit Item"
                       >
-                        <Edit3 className="w-5 h-5 text-gray-600" />
+                        <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                       </button>
                     )}
 
@@ -488,36 +532,36 @@ export default function LostAndFound() {
                           setItemToDelete(item);
                           setShowDeleteConfirm(true);
                         }}
-                        className="p-2 hover:bg-gray-100 rounded-full"
+                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
                         title="Delete Item"
                       >
-                        <Trash2 className="w-5 h-5 text-gray-600" />
+                        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                       </button>
                     )}
 
                     {item.status === "active" && (
                       <button
                         onClick={() => updateStatus(item.id, "resolved")}
-                        className="p-2 hover:bg-gray-100 rounded-full"
+                        className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
                         title="Mark as Resolved"
                       >
-                        <CheckCircle className="w-5 h-5 text-blue-600" />
+                        <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                       </button>
                     )}
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 text-sm sm:text-base">
                   <div className="flex items-center text-gray-600">
-                    <MapPin className="w-4 h-4 mr-2" />
-                    <span>{item.location}</span>
+                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
+                    <span className="truncate">{item.location}</span>
                   </div>
                   <div className="flex items-center text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2" />
+                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                     <span>{new Date(item.date).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center text-gray-600">
-                    <User className="w-4 h-4 mr-2" />
+                    <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                     <span>Posted by: {item.user.fname}</span>
                   </div>
                 </div>
@@ -527,59 +571,67 @@ export default function LostAndFound() {
         </div>
       )}
 
-      {/* Pagination */}
+      {/* Pagination - Responsive */}
       {filteredItems.length > 0 && (
-        <div className="flex justify-center mt-10">
+        <div className="flex justify-center mt-8 mb-8 px-4">
           <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
             <button
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+              className={`px-2 sm:px-4 py-2 border-r border-gray-200 flex items-center ${
                 currentPage === 1
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-gray-700 hover:bg-gray-50"
               }`}
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-              (number) => (
-                <button
-                  key={number}
-                  onClick={() => paginate(number)}
-                  className={`px-4 py-2 border-r border-gray-200 ${
-                    currentPage === number
-                      ? "bg-orange-500 text-white font-medium"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {number}
-                </button>
-              )
-            )}
+            <div className="hidden sm:flex">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (number) => (
+                  <button
+                    key={number}
+                    onClick={() => paginate(number)}
+                    className={`px-4 py-2 border-r border-gray-200 ${
+                      currentPage === number
+                        ? "bg-orange-500 text-white font-medium"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {number}
+                  </button>
+                )
+              )}
+            </div>
+
+            <div className="sm:hidden px-4 py-2 text-sm">
+              Page {currentPage} of {totalPages}
+            </div>
 
             <button
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`px-4 py-2 flex items-center ${
+              className={`px-2 sm:px-4 py-2 flex items-center ${
                 currentPage === totalPages
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-gray-700 hover:bg-gray-50"
               }`}
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
       )}
 
-      {/* Edit modal */}
+      {/* Edit modal - Responsive */}
       {isEditing && updatedData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Edit Item</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Edit Item
+              </h2>
               <button
                 onClick={() => {
                   setIsEditing(false);
@@ -592,7 +644,7 @@ export default function LostAndFound() {
                 }}
                 className="p-1 rounded-full hover:bg-gray-100"
               >
-                <X className="h-6 w-6 text-gray-500" />
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
               </button>
             </div>
 
@@ -700,32 +752,32 @@ export default function LostAndFound() {
         </div>
       )}
 
-      {/* Item Detail Modal */}
+      {/* Item Detail Modal - Responsive */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-4xl relative">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedItem(null)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               <X className="w-5 h-5 text-gray-500" />
             </button>
 
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mt-6 md:mt-0">
+              <div className="order-2 md:order-1">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4 sm:mb-6 pr-8 sm:pr-0">
                   {selectedItem.title}
                 </h2>
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <div>
                     <h3 className="text-gray-600 text-sm">Location</h3>
-                    <p className="text-xl font-medium">
+                    <p className="text-lg sm:text-xl font-medium">
                       {selectedItem.location}
                     </p>
                   </div>
                   <div>
                     <h3 className="text-gray-600 text-sm">Date</h3>
-                    <p className="text-xl font-medium">
+                    <p className="text-lg sm:text-xl font-medium">
                       {new Date(selectedItem.date).toLocaleDateString()}
                     </p>
                   </div>
@@ -760,17 +812,19 @@ export default function LostAndFound() {
                 </div>
               </div>
 
-              <div>
+              <div className="order-1 md:order-2">
                 <div className="relative bg-gray-100 rounded-lg">
                   <img
                     src={
                       (selectedItem.images &&
                         selectedItem.images[0] &&
-                        `../../server${selectedItem.images[0].imageUrl}`) ||
+                        `../../server${
+                          selectedItem.images[0].imageUrl || "/placeholder.svg"
+                        }`) ||
                       "/placeholder.svg"
                     }
                     alt={selectedItem.name}
-                    className="w-full h-[300px] md:h-[400px] object-contain rounded-lg"
+                    className="w-full h-[250px] sm:h-[300px] md:h-[350px] object-contain rounded-lg"
                     onError={(e) => {
                       e.target.src = "/placeholder.svg";
                     }}
@@ -779,25 +833,25 @@ export default function LostAndFound() {
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-4 mt-8 justify-end">
+            <div className="flex flex-wrap gap-3 mt-6 sm:mt-8 justify-center sm:justify-end">
               {canContact(selectedItem) && (
                 <>
                   <button
                     onClick={() =>
                       (window.location.href = `tel:${selectedItem.user.num}`)
                     }
-                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="flex items-center gap-2 bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
                   >
-                    <Phone className="w-5 h-5" />
+                    <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                     Call Reporter
                   </button>
                   <button
                     onClick={() =>
                       (window.location.href = `sms:${selectedItem.user.num}`)
                     }
-                    className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+                    className="flex items-center gap-2 bg-green-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base"
                   >
-                    <MessageSquare className="w-5 h-5" />
+                    <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
                     SMS Reporter
                   </button>
                 </>
@@ -816,16 +870,16 @@ export default function LostAndFound() {
                       date: selectedItem.date,
                     });
                   }}
-                  className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="flex items-center gap-2 bg-indigo-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
                 >
-                  <Edit3 className="w-5 h-5" />
+                  <Edit3 className="w-4 h-4 sm:w-5 sm:h-5" />
                   Edit Item
                 </button>
               )}
 
               <button
                 onClick={() => setSelectedItem(null)}
-                className="bg-gray-100 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors"
+                className="bg-gray-100 text-gray-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base"
               >
                 Close
               </button>
@@ -834,19 +888,19 @@ export default function LostAndFound() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* Delete Confirmation Modal - Responsive */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-sm">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-sm">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Confirm Delete
             </h2>
             <p className="text-gray-700 mb-4">
               Are you sure you want to delete "{itemToDelete?.title}"?
             </p>
-            <div className="flex justify-end gap-4">
+            <div className="flex justify-end gap-3 sm:gap-4">
               <button
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className="bg-red-500 hover:bg-red-700 text-white font-medium py-2 px-3 sm:px-4 rounded focus:outline-none focus:shadow-outline text-sm"
                 type="button"
                 onClick={deleteItem}
                 disabled={isLoading}
@@ -854,7 +908,7 @@ export default function LostAndFound() {
                 {isLoading ? "Deleting..." : "Delete"}
               </button>
               <button
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium py-2 px-3 sm:px-4 rounded focus:outline-none focus:shadow-outline text-sm"
                 type="button"
                 onClick={() => {
                   setShowDeleteConfirm(false);
