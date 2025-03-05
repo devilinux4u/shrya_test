@@ -38,19 +38,20 @@ export default function Register() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ fullName, user: username, email, phoneNumber, pass: password }),
+        body: JSON.stringify({ name: fullName, user: username, email, number: phoneNumber, pass: password }),
       })
 
       const data = await response.json()
 
-      if (data.value) {
+      if (data.success) {
         navigate("/Login")
-        toast.success("Registration successful!")
+        toast.success(data.msg)
       } else {
-        toast.error(data.message || "Registration failed. Please try again.")
+        toast.error(data.msg || "Registration failed. Please try again.")
       }
     } catch (err) {
-      toast.error("Registration failed: " + err.message)
+      console.log(err.message)
+      toast.error("An error occurred" )
     }
   }
 
