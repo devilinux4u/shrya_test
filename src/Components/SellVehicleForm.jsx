@@ -149,6 +149,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
           })
           setStep(1)
           onClose() // Close the form after successful submission
+          window.location.reload();
         } else {
           toast.error("Failed to list vehicle. Please try again.")
         }
@@ -160,7 +161,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
       toast.error("Please fill in all required fields")
     }
   }
-
+ 
   const validateStep = () => {
     const stepFields = {
       1: ["make", "model", "year", "color"],

@@ -20,6 +20,9 @@ const wishlist = require('./controllers/vehicleControllers/wishlist');
 const sell = require('./controllers/vehicleControllers/sellVechile');
 
 
+app.use('/uploads', express.static(path.join(__dirname, 'controllers/uploads')));
+
+
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))

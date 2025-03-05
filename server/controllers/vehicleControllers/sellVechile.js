@@ -4,12 +4,17 @@ const multer = require("multer");
 const { sequelize, vehicles, v_img } = require('../../db/sequelize')
 const fs = require('fs')
 const path = require('path')
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+// const upload = require('../uploads');
+
 
 router.post('/addVehicle', upload.array('images'), async (req, res) => {
     try {
         const { ownership, mileage, seats, engineCC, title, make, model, year, type, color, totalKm, fuelType, transmission, price, description, id } = req.body;
+
         // Create vehicle entry in the database
         const vehicle = await vehicles.create({
             uid: id,
@@ -29,39 +34,44 @@ router.post('/addVehicle', upload.array('images'), async (req, res) => {
             seat: seats,
             cc: engineCC,
         });
-     
+
         // Define the image folder path
-        const imageFolder = path.join(__dirname, '../uploads', id);
-     
+        const imageFolder = path.join(__dirname, '../uploads', vehicle.id.toString());
+
         // Create folder if it doesn't exist
         if (!fs.existsSync(imageFolder)) {
             fs.mkdirSync(imageFolder, { recursive: true });
         }
-     
+
+        let savedImages = [];
+        
         // Save images to local storage and database
         if (req.files) {
             for (let file of req.files) {
                 const imagePath = path.join(imageFolder, file.originalname);
-     
-                // Save image as a file
+                
+                // Move image to the folder
                 fs.writeFileSync(imagePath, file.buffer);
-     
-                // Save image reference in DB
+
+                // Store only the relative path in the DB
+                const relativePath = `/uploads/${vehicle.id}/${file.originalname}`;
+
                 await v_img.create({
                     vehicleId: vehicle.id,
-                    imagePath, // Store image path instead of binary data
+                    image: relativePath, // Store relative path
                 });
+
+                savedImages.push(relativePath);
             }
         }
-     
-        res.json({ success: true, msg: 'Vehicle added successfully!' });
-     } catch (error) {
+
+        res.json({ success: true, msg: 'Vehicle added successfully!', images: savedImages });
+    } catch (error) {
         console.error('Error during vehicle creation or image handling:', error);
         res.status(500).json({ success: false, msg: 'Server error', error: error.message });
-     }
-     
+    }
 });
-
+ 
 
 // Route to Fetch Vehicle with Images
 router.get("/vehicles/random", async (req, res) => {
@@ -80,7 +90,7 @@ router.get("/vehicles/random", async (req, res) => {
             ...vehicless.toJSON(),
             images: vehicless.vehicle_images.map(img => ({
                 id: img.id,
-                image: `data:image/jpeg;base64,${img.image.toString("base64")}`
+                image: img.image
             }))
         };
 
@@ -110,7 +120,7 @@ router.get("/vehicles/three", async (req, res) => {
             ...vehicle.toJSON(),
             images: vehicle.vehicle_images.map(img => ({
                 id: img.id,
-                image: `data:image/jpeg;base64,${img.image.toString("base64")}`
+                image: img.image
             }))
         }));
 
@@ -139,7 +149,7 @@ router.get("/vehicles/all", async (req, res) => {
             ...vehicle.toJSON(),
             images: vehicle.vehicle_images.map(img => ({
                 id: img.id,
-                image: `data:image/jpeg;base64,${img.image.toString("base64")}`
+                image: img.image
             }))
         }));
 
@@ -169,7 +179,7 @@ router.get("/vehicles/one/:vid", async (req, res) => {
             ...vehicle.toJSON(),
             images: vehicle.vehicle_images.map(img => ({
                 id: img.id,
-                image: `data:image/jpeg;base64,${img.image.toString("base64")}`
+                image: img.image
             }))
         };
 
