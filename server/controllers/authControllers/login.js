@@ -20,9 +20,10 @@ router.post('/login', async (req, res) => {
                 adminUser = await users.create({
                     fname: 'Shreya Auto',
                     uname: 'ShreyaAuto',
-                    email: 'shreyaauto.enterprises@gmail.com',
+                    email: 'noreply.shreyaauto@gmail.com',
                     num: '9841594067',
                     pass: 'ShreyaAuto', // Make sure to hash this in production!
+                    role: 'admin',
                     profile: null,
                     otp: 123,
                     verified: true

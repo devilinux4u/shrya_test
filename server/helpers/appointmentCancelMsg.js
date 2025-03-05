@@ -51,7 +51,7 @@ const cancelEmail = async (udata, adata, msg) => {
                 
                 <p style="margin-bottom: 15px;">If you would like to reschedule your appointment or have any questions, please contact our customer service team at <a href="tel:+1234567890">(123) 456-7890</a> or reply to this email.</p>
                 
-                <p style="margin-bottom: 5px;">Thank you for your understanding.</p>
+                <p style="margin-bottom: 5px;">Thank you for your understanding. Reason: ${msg ? msg : 'none'}</p>
                 
                 <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
                     <p style="margin: 0; font-weight: bold;">Shreya Auto</p>
@@ -69,7 +69,7 @@ If you would like to reschedule your appointment or have any questions, please c
 
 Thank you for your understanding.
 
-\n\n Reason: ${msg ? msg : 'none'}
+
 
 Shreya Auto
 Your trusted partner for vehicle transactions
