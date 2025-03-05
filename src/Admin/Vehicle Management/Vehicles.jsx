@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { Search, Plus, Edit, Trash2, Filter } from 'lucide-react'
 import { useNavigate } from "react-router-dom"
@@ -24,86 +22,23 @@ export default function Vehicles() {
         // Replace this with your actual API call
         // const response = await fetch('/api/vehicles')
         // const data = await response.json()
-        
+
         // Simulating API response with sample data
-        const data = [
-          {
-            id: 1,
-            make: "TOYOTA",
-            model: "LAND CRUISER PRADO",
-            year: "2023",
-            price: 10000000,
-            mile: 5000,
-            status: "Available",
-            location: "Kathmandu, Nepal",
-            postedBy: {
-              name: "John Doe",
-              role: "Admin",
-              contact: "+977 9812345678",
-              email: "john.doe@example.com"
-            },
-            postedAt: "2023-08-15T10:30:00Z",
-            images: [{ image: "/uploads/prado.jpg" }]
-          },
-          {
-            id: 2,
-            make: "TOYOTA",
-            model: "FORTUNER",
-            year: "2023",
-            price: 8500000,
-            mile: 7500,
-            status: "Sold",
-            location: "Pokhara, Nepal",
-            postedBy: {
-              name: "Jane Smith",
-              role: "User",
-              contact: "+977 9876543210",
-              email: "jane.smith@example.com"
-            },
-            postedAt: "2023-07-20T14:45:00Z",
-            images: [{ image: "/uploads/fortuner.jpg" }]
-          },
-          {
-            id: 3,
-            make: "HONDA",
-            model: "CIVIC",
-            year: "2022",
-            price: 5500000,
-            mile: 12000,
-            status: "Available",
-            location: "Lalitpur, Nepal",
-            postedBy: {
-              name: "Mike Johnson",
-              role: "User",
-              contact: "+977 9845678912",
-              email: "mike.johnson@example.com"
-            },
-            postedAt: "2023-08-05T09:15:00Z",
-            images: [{ image: "/uploads/civic.jpg" }]
-          },
-          {
-            id: 4,
-            make: "FORD",
-            model: "MUSTANG",
-            year: "2021",
-            price: 15000000,
-            mile: 3000,
-            status: "Sold",
-            location: "Bhaktapur, Nepal",
-            postedBy: {
-              name: "Sarah Williams",
-              role: "Admin",
-              contact: "+977 9812345678",
-              email: "sarah.williams@example.com"
-            },
-            postedAt: "2023-06-10T16:20:00Z",
-            images: [{ image: "/uploads/mustang.jpg" }]
-          }
-        ]
-        
-        setVehicles(data)
-        setDisplayedVehicles(data)
-        setLoading(false)
+
+        const response = await fetch("http://localhost:3000/vehicles/all"); // replace with your backend URL
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.success) {
+          setVehicles(data.msg); // Assuming the response contains vehicles in `msg` field
+          setDisplayedVehicles(data.msg)
+          setLoading(false)
+        } else {
+          console.error("Failed to fetch vehicles.");
+        }
+
+
       } catch (err) {
         console.error("Error fetching vehicles:", err)
         setError("Failed to load vehicles. Please try again later.")
@@ -117,29 +52,41 @@ export default function Vehicles() {
   // Filter and sort vehicles
   useEffect(() => {
     let filtered = [...vehicles]
-    
+
     // Apply search filter
     if (searchTerm) {
-      filtered = filtered.filter(vehicle => 
+      filtered = filtered.filter(vehicle =>
         vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
         vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
-    
+
     // Apply user/admin filter
+    // if (userFilter) {
+    //   filtered = filtered.filter(vehicle =>
+    //     vehicle.user.uname.toLowerCase() === userFilter.toLowerCase()
+    //   )
+    // }
+
     if (userFilter) {
-      filtered = filtered.filter(vehicle => 
-        vehicle.postedBy.role.toLowerCase() === userFilter.toLowerCase()
-      )
+      if (userFilter.toLowerCase() === 'admin') {
+        filtered = filtered.filter(vehicle =>
+          vehicle.user.uname.toLowerCase() === 'admin'
+        );
+      } else if (userFilter.toLowerCase() !== 'others') {
+        filtered = filtered.filter(vehicle =>
+          vehicle.user.uname.toLowerCase() !== 'admin'
+        );
+      }
     }
-    
+
     // Apply status filter
     if (statusFilter) {
-      filtered = filtered.filter(vehicle => 
+      filtered = filtered.filter(vehicle =>
         vehicle.status.toLowerCase() === statusFilter.toLowerCase()
       )
     }
-    
+
     // Apply sorting
     if (sortBy) {
       switch (sortBy) {
@@ -150,7 +97,7 @@ export default function Vehicles() {
           filtered.sort((a, b) => b.price - a.price)
           break
         case "newest":
-          filtered.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt))
+          filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           break
         case "oldest":
           filtered.sort((a, b) => new Date(a.postedAt) - new Date(b.postedAt))
@@ -159,7 +106,7 @@ export default function Vehicles() {
           break
       }
     }
-    
+
     setDisplayedVehicles(filtered)
   }, [vehicles, searchTerm, userFilter, statusFilter, sortBy])
 
@@ -167,11 +114,12 @@ export default function Vehicles() {
     navigate("/admin/addnewvehicles")
   }
 
-  const handleViewDetails = () => {
-    navigate("/admin/viewdetails")
-  }
 
-  
+  const handleViewDetails = (vehicle) => {
+    const vehicleParams = new URLSearchParams({ id: vehicle.id });
+    navigate(`/admin/viewdetails?${vehicleParams.toString()}`);
+}
+
 
   const handleDeleteVehicle = (vehicleId) => {
     // Add confirmation dialog
@@ -189,7 +137,7 @@ export default function Vehicles() {
       //   }
       // }
       // deleteVehicle()
-      
+
       // For now, just filter out the vehicle from the state
       setVehicles(vehicles.filter(v => v.id !== vehicleId))
     }
@@ -223,7 +171,7 @@ export default function Vehicles() {
           </div>
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <select 
+            <select
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
               value={userFilter}
               onChange={(e) => setUserFilter(e.target.value)}
@@ -234,7 +182,7 @@ export default function Vehicles() {
             </select>
           </div>
           <div className="relative">
-            <select 
+            <select
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -245,7 +193,7 @@ export default function Vehicles() {
             </select>
           </div>
           <div className="relative">
-            <select 
+            <select
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
@@ -273,57 +221,50 @@ export default function Vehicles() {
                   setStatusFilter("")
                   setSortBy("")
                 }}
-                className={`px-4 py-2 rounded-full transition-colors ${
-                  !userFilter && !statusFilter && !sortBy ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full transition-colors ${!userFilter && !statusFilter && !sortBy ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 All
               </button>
               <button
                 onClick={() => setUserFilter("admin")}
-                className={`px-4 py-2 rounded-full transition-colors ${
-                  userFilter === "admin" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full transition-colors ${userFilter === "admin" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 Admin
               </button>
               <button
                 onClick={() => setUserFilter("user")}
-                className={`px-4 py-2 rounded-full transition-colors ${
-                  userFilter === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full transition-colors ${userFilter === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 User
               </button>
               <button
                 onClick={() => setStatusFilter("available")}
-                className={`px-4 py-2 rounded-full transition-colors ${
-                  statusFilter === "available" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full transition-colors ${statusFilter === "available" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 Available
               </button>
               <button
                 onClick={() => setStatusFilter("sold")}
-                className={`px-4 py-2 rounded-full transition-colors ${
-                  statusFilter === "sold" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full transition-colors ${statusFilter === "sold" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 Sold
               </button>
               <button
                 onClick={() => setSortBy("newest")}
-                className={`px-4 py-2 rounded-full transition-colors ${
-                  sortBy === "newest" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full transition-colors ${sortBy === "newest" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 Date: Latest
               </button>
               <button
                 onClick={() => setSortBy("oldest")}
-                className={`px-4 py-2 rounded-full transition-colors ${
-                  sortBy === "oldest" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-4 py-2 rounded-full transition-colors ${sortBy === "oldest" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 Date: Oldest
               </button>
@@ -352,11 +293,10 @@ export default function Vehicles() {
                     />
                     <div className="absolute top-4 right-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          vehicle.status === "Available" ? "bg-green-100 text-green-800" : 
-                          vehicle.status === "Sold" ? "bg-red-100 text-red-800" : 
-                          "bg-yellow-100 text-yellow-800"
-                        }`}
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${vehicle.status === "Available" ? "bg-green-100 text-green-800" :
+                            vehicle.status === "Sold" ? "bg-red-100 text-red-800" :
+                              "bg-yellow-100 text-yellow-800"
+                          }`}
                       >
                         {vehicle.status}
                       </span>
@@ -367,21 +307,21 @@ export default function Vehicles() {
                     <p className="text-gray-600">Year: {vehicle.year}</p>
                     <p className="text-gray-600">Total Km Run: {vehicle.mile.toLocaleString()} km</p>
                     <p className="mt-2 font-semibold">Rs. {vehicle.price.toLocaleString()}</p>
-                    
+
                     <div className="flex gap-2 mt-4">
-                      <button 
+                      <button
                         onClick={() => handleViewDetails(vehicle)}
                         className="flex-1 bg-[#4F46E5] text-white px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors"
                       >
                         View Details
                       </button>
-                      <button 
-                       
+                      <button
+                        onClick={() => handleEditVehicle(vehicle)}
                         className="p-2 text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <Edit className="w-5 h-5" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDeleteVehicle(vehicle.id)}
                         className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors"
                       >
