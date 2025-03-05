@@ -217,12 +217,13 @@ router.get("/vehicles/one/:vid", async (req, res) => {
             include: [
                 {
                     model: v_img,
+                    as: "SellVehicleImages", // Ensure alias matches the Sequelize association
                     attributes: ["id", "image"]
                 },
                 {
                     model: users,
                     as: "user",
-                    attributes: ["id", "fname", "lname", "uname", "email", "num"] // Include lname
+                    attributes: ["id", "fname", "uname", "email", "num"] // Removed lname
                 }
             ]
         });
@@ -239,15 +240,11 @@ router.get("/vehicles/one/:vid", async (req, res) => {
             }))
         };
 
-
         res.json({ success: true, msg: formattedVehicle });
-
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, msg: "Server error" });
+        console.error("Error fetching vehicle data:", error);
+        res.status(500).json({ success: false, msg: "Server error", error: error.message });
     }
-
-
 });
 
 
