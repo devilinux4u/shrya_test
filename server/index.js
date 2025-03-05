@@ -22,7 +22,6 @@ const addVehicle = require('./controllers/rentControllers/addVehicles.js');
 const vehiclesRouter = require('./controllers/rentControllers/vehicles');
 const khaltiVerify = require('./controllers/khaltiVerify');
 const transaction = require('./controllers/transaction');
-const appointmentsController = require('./controllers/Appointments/Appointments');
 
 app.use('/uploads', express.static(path.join(__dirname, 'controllers/uploads')));
 
@@ -39,9 +38,6 @@ app.use('/api/vehicles', vehiclesRouter);
 
 const rentVehiclesController = require('./controllers/rentControllers/rentVehiclesController');
 app.use('/rent', rentVehiclesController);
-
-app.post('/api/appointments', appointmentsController.createAppointment);
-app.get('/api/appointments', appointmentsController.getAppointments);
 
 app.get('*', (req, res) => {
     res.send('404-error not found');
