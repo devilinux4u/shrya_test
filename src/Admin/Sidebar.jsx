@@ -59,7 +59,7 @@ const menuItems = [
   {
     title: "Wishlist",
     icon: Heart,
-    path: "/admin/wishlist",
+    path: "/admin/adminwishlist",
   },
   
 ]

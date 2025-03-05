@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Camera, X } from "lucide-react"
-import { toast } from "react-toastify"
+import { toast, ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 
 const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
@@ -11,12 +12,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
     description: "",
     location: "",
     date: "",
-    category: "",
-    name: "",
-    phone: "",
-    email: "",
     images: [],
-    lostInCar: "",
   })
 
   const [errors, setErrors] = useState({})
@@ -73,11 +69,6 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
     if (!formData.description.trim()) newErrors.description = "Description is required"
     if (!formData.location.trim()) newErrors.location = "Location is required"
     if (!formData.date) newErrors.date = "Date is required"
-    if (!formData.category) newErrors.category = "Category is required"
-    if (!formData.name.trim()) newErrors.name = "Name is required"
-    if (!formData.phone.trim()) newErrors.phone = "Phone number is required"
-    if (!formData.email.trim()) newErrors.email = "Email is required"
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email is invalid"
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -87,6 +78,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
     e.preventDefault()
     if (validateForm()) {
       try {
+        console.log("Form Data:", formData) // Log form data to the console
         await onSubmit(formData)
         toast.success("Report submitted successfully!")
         onClose()
@@ -94,154 +86,170 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
         toast.error("An error occurred while submitting the report. Please try again.")
       }
     } else {
-      toast.error("Please fill in all required fields correctly.")
+      // Display toast for each error
+      Object.values(errors).forEach((error) => {
+        toast.error(error)
+      })
     }
   }
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
-        {/* Close button */}
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
-          <X className="h-6 w-6" />
-        </button>
+    <>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
+          {/* Close button */}
+          <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
+            <X className="h-6 w-6" />
+          </button>
 
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">Report Lost/Found Item</h1>
-        </div>
+          {/* Header */}
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h1 className="text-2xl font-bold text-gray-900">Report Lost/Found Item</h1>
+          </div>
 
-        {/* Form content */}
-        <div className="px-6 py-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 180px)" }}>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <SelectField
-                label="Type"
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                options={[
-                  { value: "lost", label: "Lost Item" },
-                  { value: "found", label: "Found Item" },
-                ]}
-                error={errors.type}
-              />
-              <InputField
-                label="Title"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                placeholder="Brief title of the item"
-                error={errors.title}
-              />
-            </div>
+          {/* Form content */}
+          <div className="px-6 py-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 180px)" }}>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <SelectField
+                  label="Type"
+                  name="type"
+                  value={formData.type}
+                  onChange={handleChange}
+                  options={[
+                    { value: "lost", label: "Lost Item" },
+                    { value: "found", label: "Found Item" },
+                  ]}
+                  error={errors.type}
+                />
+                <InputField
+                  label="Title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="Brief title of the item"
+                  error={errors.title}
+                />
+              </div>
 
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                rows="4"
-                value={formData.description}
-                onChange={handleChange}
-                className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] ${
-                  errors.description ? "border-red-500" : ""
-                }`}
-                placeholder="Provide a detailed description of the item..."
-              ></textarea>
-              {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
-            </div>
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="4"
+                  value={formData.description}
+                  onChange={handleChange}
+                  className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] ${
+                    errors.description ? "border-red-500" : ""
+                  }`}
+                  placeholder="Provide a detailed description of the item..."
+                ></textarea>
+                {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
+              </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <InputField
-                label="Location"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                placeholder="Where was it lost/found?"
-                error={errors.location}
-              />
-              <InputField
-                label="Date"
-                name="date"
-                type="date"
-                value={formData.date}
-                onChange={handleChange}
-                error={errors.date}
-              />
-            </div>
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <InputField
+                  label="Location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  placeholder="Where was it lost/found?"
+                  error={errors.location}
+                />
+                <InputField
+                  label="Date"
+                  name="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                  error={errors.date}
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Item Images</label>
-              <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8">
-                <div className="text-center">
-                  <Camera className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="mt-4 flex text-sm text-gray-600">
-                    <label
-                      htmlFor="images"
-                      className="relative cursor-pointer rounded-md bg-white font-medium text-[#ff6b00] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#ff6b00] focus-within:ring-offset-2 hover:text-[#ff8533]"
-                    >
-                      <span>Upload images</span>
-                      <input
-                        id="images"
-                        name="images"
-                        type="file"
-                        className="sr-only"
-                        multiple
-                        onChange={handleImageUpload}
-                        accept="image/*"
-                      />
-                    </label>
-                    <p className="pl-1">or drag and drop</p>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Item Images</label>
+                <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8">
+                  <div className="text-center">
+                    <Camera className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mt-4 flex text-sm text-gray-600">
+                      <label
+                        htmlFor="images"
+                        className="relative cursor-pointer rounded-md bg-white font-medium text-[#ff6b00] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#ff6b00] focus-within:ring-offset-2 hover:text-[#ff8533]"
+                      >
+                        <span>Upload images</span>
+                        <input
+                          id="images"
+                          name="images"
+                          type="file"
+                          className="sr-only"
+                          multiple
+                          onChange={handleImageUpload}
+                          accept="image/*"
+                        />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to 10MB</p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to 10MB</p>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="relative group">
+                      <img
+                        src={image || "/placeholder.svg"}
+                        alt={`Item ${index + 1}`}
+                        className="h-24 w-full object-cover rounded-lg"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleImageRemove(index)}
+                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-white/80 text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-                {formData.images.map((image, index) => (
-                  <div key={index} className="relative group">
-                    <img
-                      src={image || "/placeholder.svg"}
-                      alt={`Item ${index + 1}`}
-                      className="h-24 w-full object-cover rounded-lg"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleImageRemove(index)}
-                      className="absolute top-1 right-1 h-6 w-6 rounded-full bg-white/80 text-red-600 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </form>
-        </div>
+            </form>
+          </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex justify-end space-x-4">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors"
-            >
-              Submit Report
-            </button>
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={onClose}
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors"
+              >
+                Submit Report
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -291,4 +299,3 @@ const SelectField = ({ label, name, value, onChange, options, error }) => (
 )
 
 export default LostAndFoundForm
-

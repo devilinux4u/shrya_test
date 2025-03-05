@@ -52,7 +52,7 @@ const initialData = {
   ],
 };
 
-export default function Wishlist() {
+export default function AdminWishlist() {
   const [dateRange, setDateRange] = useState("last30");
   const [data, setData] = useState(initialData);
 

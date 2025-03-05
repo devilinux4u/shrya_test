@@ -26,11 +26,14 @@ import ActiveRentals from './Admin/Rentals/ActiveRentals';
 import RentalHistory from './Admin/Rentals/RentalHistory';
 import Users from './Admin/User/Users';
 import AdminLostAndFound from './Admin/LostAndFound/LostAndFound';
-import Wishlist from './Admin/Wishlist/Wishlist';
+import AdminWishlist from './Admin/Wishlist/AdminWishlist';
 import Profile from './Pages/Profile';
 import UserBookings from './Pages/UserBookings';
 import ReportedItems from './Pages/ReportedItems';
 import History from './Pages/History'; 
+import UserVerification from './Pages/UserVerification';
+import WishlistVehicleDetail from './Pages/WishlistVehicleDetail';
+import VehicleBooking from './Pages/VehicleBooking';
 
 function App() {
   const location = useLocation();
@@ -58,6 +61,7 @@ function App() {
         <Route path="/RentalVehicles" element={<RentalVehicles />} />
         <Route path="/Login" element={<Login onLogin={handleLogin} />} />
         <Route path="/Register" element={<Register />} />
+        <Route path="/UserVerification" element={<UserVerification />} />
         <Route path="/RentalVehicleDesc" element={<RentalVehicleDesc />} />
         <Route path="/BuyVehicles" element={<BuyVehicles />} />
         <Route path="/VehicleListing" element={<VehicleListing />} />
@@ -73,6 +77,8 @@ function App() {
         <Route path="/UserBookings" element={<UserBookings />} />
         <Route path="/ReportedItems" element={<ReportedItems />} />
         <Route path="/History" element={<History />} />
+        <Route path="/WishlistVehicleDetail" element={<WishlistVehicleDetail />} />
+        <Route path="/VehicleBooking:id" element={<VehicleBooking />} />
         
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
@@ -83,7 +89,7 @@ function App() {
         <Route path="/admin/rentalhistory" element={<RentalHistory />} />
         <Route path="/admin/users" element={<Users />} />
         <Route path="/admin/lostandfound" element={<AdminLostAndFound />} />
-        <Route path="/admin/wishlist" element={<Wishlist />} />
+        <Route path="/admin/adminwishlist" element={<AdminWishlist />} />
       </Routes>
       {!isAuthRoute && !isAdminRoute && <Footer />} {/* Footer for non-auth and non-admin routes */}
     </>

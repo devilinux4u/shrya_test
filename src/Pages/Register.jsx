@@ -44,14 +44,25 @@ export default function Register() {
       const data = await response.json()
 
       if (data.success) {
-        navigate("/Login")
-        toast.success(data.msg)
+        // Store user data in localStorage or sessionStorage for verification page
+        sessionStorage.setItem(
+          "pendingVerification",
+          JSON.stringify({
+            userId: data.userId || "temp-id",
+            email,
+            phoneNumber,
+          }),
+        )
+
+        // Navigate to verification page instead of login
+        navigate("/UserVerification")
+        toast.success("Registration successful! Please verify your account.")
       } else {
         toast.error(data.msg || "Registration failed. Please try again.")
       }
     } catch (err) {
       console.log(err.message)
-      toast.error("An error occurred" )
+      toast.error("An error occurred")
     }
   }
 
@@ -229,3 +240,4 @@ export default function Register() {
     </>
   )
 }
+

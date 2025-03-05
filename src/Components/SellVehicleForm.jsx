@@ -132,7 +132,13 @@ export default function SellVehicleForm({ isOpen, onClose }) {
   }
 
   const prevStep = () => setStep(step - 1)
-  const nextStep = () => setStep(step + 1)
+  const nextStep = () => {
+    if (validateStep()) {
+      setStep(step + 1)
+    } else {
+      toast.error("Please fill in all required fields")
+    }
+  }
 
   if (!isOpen) return null
 
