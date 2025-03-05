@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import LostAndFoundForm from "../../Components/LostAndFoundForm"; // Import the form component
 
 export default function LostAndFound() {
   const [items, setItems] = useState([]);
@@ -43,6 +44,7 @@ export default function LostAndFound() {
     location: "",
     date: "",
   });
+  const [isFormOpen, setIsFormOpen] = useState(false); // State to manage form visibility
 
   // Fetch data from the API
   useEffect(() => {
@@ -333,7 +335,7 @@ export default function LostAndFound() {
               <option value="resolved">Resolved</option>
             </select>
             <button
-              onClick={() => setShowAddItem(true)}
+              onClick={() => setIsFormOpen(true)} // Open the form popup
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
@@ -342,6 +344,16 @@ export default function LostAndFound() {
           </div>
         </div>
       </div>
+
+      {/* LostAndFoundForm Popup */}
+      <LostAndFoundForm
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)} // Close the form popup
+        onSubmit={(newItem) => {
+          setItems([...items, newItem]); // Add the new item to the list
+          setIsFormOpen(false); // Close the form popup
+        }}
+      />
 
       {/* Loading State */}
       {isLoading && (

@@ -5,8 +5,7 @@ import { Camera, X } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import Cookies from "js-cookie"
-
+import Cookies from "js-cookie";
 
 const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   const navigate = useNavigate(); // ✅ Correct: Call useNavigate inside the component
@@ -26,31 +25,31 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   // Close modal with escape key
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === "Escape") onClose()
-    }
-    window.addEventListener("keydown", handleEsc)
-    return () => window.removeEventListener("keydown", handleEsc)
-  }, [onClose])
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "unset"
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = "unset"
-    }
-  }, [isOpen])
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
@@ -58,26 +57,27 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
       ...prevData,
       images: [...prevData.images, ...files], // Store actual File objects
     }));
-  }
+  };
 
   const handleImageRemove = (index) => {
     setFormData((prevData) => ({
       ...prevData,
       images: prevData.images.filter((_, i) => i !== index),
-    }))
-  }
+    }));
+  };
 
   const validateForm = () => {
-    const newErrors = {}
-    if (!formData.type) newErrors.type = "Type is required"
-    if (!formData.title.trim()) newErrors.title = "Title is required"
-    if (!formData.description.trim()) newErrors.description = "Description is required"
-    if (!formData.location.trim()) newErrors.location = "Location is required"
-    if (!formData.date) newErrors.date = "Date is required"
+    const newErrors = {};
+    if (!formData.type) newErrors.type = "Type is required";
+    if (!formData.title.trim()) newErrors.title = "Title is required";
+    if (!formData.description.trim())
+      newErrors.description = "Description is required";
+    if (!formData.location.trim()) newErrors.location = "Location is required";
+    if (!formData.date) newErrors.date = "Date is required";
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,7 +92,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
 
     try {
       // Retrieve uid from cookies
-      const uid = Cookies.get("sauto").split("-")[0]
+      const uid = Cookies.get("sauto").split("-")[0];
       if (!uid) {
         toast.error("User ID is missing. Please log in again.");
         return;
@@ -123,7 +123,9 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
       if (!response.ok) {
         const errorDetails = await response.text();
         console.error("HTTP error details:", errorDetails);
-        throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
+        throw new Error(
+          `HTTP error! Status: ${response.status}, Details: ${errorDetails}`
+        );
       }
 
       const data = await response.json();
@@ -131,6 +133,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
 
       // Handle the success response from the server
       if (data.success) {
+        const newItem = data.item; // Extract the newly added item
         console.log("Report submitted successfully!");
         toast.success("Lost and Found report submitted successfully!");
 
@@ -148,6 +151,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
 
         // Clear selected images and previews
         onClose(); // Close the form/modal
+        onSubmit(newItem); // Pass the new item to the parent component
 
         // Redirect to the lost and found page after a delay
         setTimeout(() => {
@@ -164,7 +168,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
     }
   };
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     <>
@@ -182,17 +186,25 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
       <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
         <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
           {/* Close button */}
-          <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
+          >
             <X className="h-6 w-6" />
           </button>
 
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-200">
-            <h1 className="text-2xl font-bold text-gray-900">Report Lost/Found Item</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Report Lost/Found Item
+            </h1>
           </div>
 
           {/* Form content */}
-          <div className="px-6 py-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 180px)" }}>
+          <div
+            className="px-6 py-6 overflow-y-auto"
+            style={{ maxHeight: "calc(90vh - 180px)" }}
+          >
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <SelectField
@@ -215,7 +227,10 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
               </div>
 
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Description
                 </label>
                 <textarea
@@ -247,7 +262,9 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Item Images</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Item Images
+                </label>
                 <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8">
                   <div className="text-center">
                     <Camera className="mx-auto h-12 w-12 text-gray-400" />
@@ -269,7 +286,9 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
                       </label>
                       <p className="pl-1">or drag and drop</p>
                     </div>
-                    <p className="text-xs text-gray-500 mt-2">PNG, JPG, GIF up to 10MB</p>
+                    <p className="text-xs text-gray-500 mt-2">
+                      PNG, JPG, GIF up to 10MB
+                    </p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
@@ -314,12 +333,22 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-const InputField = ({ label, name, type = "text", value, onChange, placeholder }) => (
+const InputField = ({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+}) => (
   <div>
-    <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 mb-1"
+    >
       {label}
     </label>
     <input
@@ -332,11 +361,14 @@ const InputField = ({ label, name, type = "text", value, onChange, placeholder }
       placeholder={placeholder}
     />
   </div>
-)
+);
 
 const SelectField = ({ label, name, value, onChange, options }) => (
   <div>
-    <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
+    <label
+      htmlFor={name}
+      className="block text-sm font-medium text-gray-700 mb-1"
+    >
       {label}
     </label>
     <select
@@ -354,6 +386,6 @@ const SelectField = ({ label, name, value, onChange, options }) => (
       ))}
     </select>
   </div>
-)
+);
 
-export default LostAndFoundForm
+export default LostAndFoundForm;
