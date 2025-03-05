@@ -366,14 +366,18 @@ export default function MySales() {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:3000/vehicles/user/all/${Cookies.get("sauto").split("-")[0]}`); // Replace with your API endpoint
+        const response = await fetch(
+          `http://127.0.0.1:3000/vehicles/user/all/${
+            Cookies.get("sauto").split("-")[0]
+          }`
+        ); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error("Failed to fetch vehicles");
         }
         const text = await response.text(); // Read response as text
         const data = JSON.parse(text); // Parse JSON manually
 
-        console.log(data.data)
+        console.log(data.data);
 
         setVehicles(data.data);
       } catch (error) {
