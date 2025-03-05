@@ -237,5 +237,27 @@ router.delete("/vehicles/delete/:id", async (req, res) => {
   });
   
 
+// PUT route to update a vehicle by ID
+router.put("/vehicles/edit/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedData = req.body;
+
+        // Find the vehicle by ID
+        const vehicle = await vehicles.findByPk(id);
+
+        if (!vehicle) {
+            return res.status(404).json({ success: false, message: "Vehicle not found" });
+        }
+
+        // Update the vehicle with new data
+        await vehicle.update(updatedData);
+
+        res.json({ success: true, message: "Vehicle updated successfully", data: vehicle });
+    } catch (error) {
+        console.error("Error updating vehicle:", error);
+        res.status(500).json({ success: false, message: "Failed to update vehicle", error: error.message });
+    }
+});
 
 module.exports = router;

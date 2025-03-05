@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
-import ItemBooking from "../Components/WishlistBookNow"
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import ItemBooking from "../Components/WishlistBookNow";
 import {
   Car,
   Calendar,
@@ -19,79 +19,87 @@ import {
   ShoppingBag,
   AlertCircle,
   X,
-} from "lucide-react"
-import { ToastContainer, toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+} from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const WishlistVehicleDetail = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [vehicle, setVehicle] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const [showBookingModal, setShowBookingModal] = useState(false) // State to control the visibility of the booking modal
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [vehicle, setVehicle] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showBookingModal, setShowBookingModal] = useState(false); // State to control the visibility of the booking modal
 
   // Fetch vehicle data based on ID in the URL
   useEffect(() => {
     const fetchVehicle = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
 
         // const location = useLocation();
         const searchParams = new URLSearchParams(location.search);
-        const vehicleId = searchParams.get('vid');
+        const vehicleId = searchParams.get("vid");
 
-        console.log(vehicleId)
+        console.log(vehicleId);
 
         // Replace the mock data with an actual API call
-        const response = await fetch(`http://127.0.0.1:3000/wishlist/one/${vehicleId}`)
+        const response = await fetch(
+          `http://127.0.0.1:3000/wishlist/one/${vehicleId}`
+        );
 
         if (!response.ok) {
-          throw new Error("Failed to fetch vehicle data")
+          throw new Error("Failed to fetch vehicle data");
         }
 
-        const vehicleData = await response.json()
-        setVehicle(vehicleData.data)
+        const vehicleData = await response.json();
+        setVehicle(vehicleData.data);
       } catch (error) {
-        console.error("Error fetching vehicle:", error)
-        toast.error("Failed to load vehicle details")
+        console.error("Error fetching vehicle:", error);
+        toast.error("Failed to load vehicle details");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchVehicle()
-  }, [location])
+    fetchVehicle();
+  }, [location]);
 
   const handleBook = () => {
-    setShowBookingModal(true) // Show the booking modal
-  }
+    setShowBookingModal(true); // Show the booking modal
+  };
 
   const nextImage = () => {
     if (vehicle && vehicle.images) {
-      setCurrentImageIndex((prevIndex) => (prevIndex === vehicle.images.length - 1 ? 0 : prevIndex + 1))
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === vehicle.images.length - 1 ? 0 : prevIndex + 1
+      );
     }
-  }
+  };
 
   const prevImage = () => {
     if (vehicle && vehicle.images) {
-      setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? vehicle.images.length - 1 : prevIndex - 1))
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0 ? vehicle.images.length - 1 : prevIndex - 1
+      );
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
       </div>
-    )
+    );
   }
 
   if (!vehicle) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <h2 className="text-2xl font-bold mb-4">Vehicle Not Found</h2>
-        <p className="text-gray-600 mb-6">The vehicle you're looking for doesn't exist or has been removed.</p>
+        <p className="text-gray-600 mb-6">
+          The vehicle you're looking for doesn't exist or has been removed.
+        </p>
         <button
           onClick={() => navigate("/YourList")}
           className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
@@ -99,7 +107,7 @@ const WishlistVehicleDetail = () => {
           Back to Your List
         </button>
       </div>
-    )
+    );
   }
 
   return (
@@ -134,8 +142,11 @@ const WishlistVehicleDetail = () => {
               <h1 className="text-3xl font-bold">{vehicle.vehicleName}</h1>
               <div className="flex items-center gap-3">
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${vehicle.purpose === "buy" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"
-                    }`}
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    vehicle.purpose === "buy"
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-purple-100 text-purple-800"
+                  }`}
                 >
                   {vehicle.purpose === "buy" ? "Buy" : "Rent"}
                 </span>
@@ -163,8 +174,14 @@ const WishlistVehicleDetail = () => {
               <>
                 <div className="relative h-[400px] w-full">
                   <img
-                    src={`../../server${vehicle.images[currentImageIndex].imageUrl}` || "/placeholder.svg"}
-                    alt={`${vehicle.vehicleName} - Image ${currentImageIndex + 1}`}
+                    src={
+                      vehicle.images && vehicle.images.length > 0
+                        ? `../../server${vehicle.images[currentImageIndex].imageUrl}`
+                        : "/placeholder.svg"
+                    }
+                    alt={`${vehicle.vehicleName} - Image ${
+                      currentImageIndex + 1
+                    }`}
                     className="w-full h-full object-cover"
                   />
 
@@ -199,11 +216,17 @@ const WishlistVehicleDetail = () => {
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border-2 transition-all ${currentImageIndex === index ? "border-orange-500 scale-105" : "border-transparent"
-                          }`}
+                        className={`w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border-2 transition-all ${
+                          currentImageIndex === index
+                            ? "border-orange-500 scale-105"
+                            : "border-transparent"
+                        }`}
                       >
                         <img
-                          src={`../../server${image.imageUrl}` || "/placeholder.svg"}
+                          src={
+                            `../../server${image.imageUrl}` ||
+                            "/placeholder.svg"
+                          }
                           alt={`Thumbnail ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
@@ -271,9 +294,13 @@ const WishlistVehicleDetail = () => {
                     <div className="flex items-center">
                       <span
                         className="w-4 h-4 rounded-full mr-2"
-                        style={{ backgroundColor: vehicle.color.toLowerCase() }}
+                        style={{
+                          backgroundColor: vehicle.color
+                            ? vehicle.color.toLowerCase()
+                            : "gray",
+                        }}
                       ></span>
-                      <p className="text-lg">{vehicle.color}</p>
+                      <p className="text-lg">{vehicle.color || "N/A"}</p>
                     </div>
                   </div>
                   <div>
@@ -281,7 +308,9 @@ const WishlistVehicleDetail = () => {
                       <User className="w-4 h-4 mr-2 text-gray-500" />
                       Ownership
                     </h3>
-                    <p className="text-lg">{vehicle.ownership || "Not specified"}</p>
+                    <p className="text-lg">
+                      {vehicle.ownership || "Not specified"}
+                    </p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
@@ -316,7 +345,8 @@ const WishlistVehicleDetail = () => {
                 <div className="bg-gray-50 p-4 rounded-lg mb-6">
                   <h3 className="font-medium mb-2">Request Details</h3>
                   <p className="text-sm text-gray-600">
-                    Requested on: {new Date(vehicle.createdAt).toLocaleDateString()}
+                    Requested on:{" "}
+                    {new Date(vehicle.createdAt).toLocaleDateString()}
                   </p>
                 </div>
 
@@ -350,8 +380,7 @@ const WishlistVehicleDetail = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default WishlistVehicleDetail
-
+export default WishlistVehicleDetail;

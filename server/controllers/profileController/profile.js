@@ -112,4 +112,30 @@ router.delete('/profile/:id/delete-avatar', async (req, res) => {
     }
   });
 
+router.put('/admin/user/edit/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { fname, uname, email, num } = req.body;
+
+    const user = await users.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    // Update user fields
+    user.fname = fname || user.fname;
+    user.uname = uname || user.uname;
+    user.email = email || user.email;
+    user.num = num || user.num;
+
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'User updated successfully', user });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 module.exports = router;

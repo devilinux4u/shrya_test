@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import {
   CheckCircle,
   Clock,
@@ -13,198 +13,225 @@ import {
   Trash2,
   Filter,
   Loader2,
-} from "lucide-react"
-import { ToastContainer, toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
-import WishlistForm from "../Components/WishlistForm"
-import { useNavigate } from "react-router-dom"
-import Cookies from "js-cookie"
+  Edit,
+  X,
+} from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import WishlistForm from "../Components/WishlistForm";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const YourList = () => {
-  const navigate = useNavigate()
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(6)
-  const [items, setItems] = useState([])
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [itemToDelete, setItemToDelete] = useState(null)
-  const [currentFilter, setCurrentFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [dropdownOpen, setDropdownOpen] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
+  const [items, setItems] = useState([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [currentFilter, setCurrentFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [dropdownOpen, setDropdownOpen] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [updatedData, setUpdatedData] = useState({
+    vehicleName: "",
+    model: "",
+    kmRun: "",
+    fuelType: "",
+    ownership: "",
+    year: "",
+    color: "",
+    budget: "",
+    description: "",
+  });
 
   // Fetch data from backend
   useEffect(() => {
     const fetchWishlistItems = async () => {
-      setIsLoading(true)
-      setError(null)
+      setIsLoading(true);
+      setError(null);
 
       try {
-        // Replace with your actual API endpoint
-        const response = await fetch(`http://localhost:3000/wishlist/${Cookies.get("sauto").split("-")[0]}`)
+        const response = await fetch(
+          `http://localhost:3000/wishlist/${
+            Cookies.get("sauto")?.split("-")[0]
+          }`
+        );
 
         if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`)
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
 
-        const data = await response.json()
+        const data = await response.json();
 
-        console.log(data.data)
+        console.log(data.data);
 
-        setItems(data.data)
+        setItems(data.data);
       } catch (err) {
-        console.error("Failed to fetch wishlist items:", err)
-        setError("Failed to load your wishlist. Please try again later.")
-        // Show error toast
-        toast.error("Failed to load your wishlist. Please try again later.")
+        console.error("Failed to fetch wishlist items:", err);
+        setError("Failed to load your wishlist. Please try again later.");
+        toast.error("Failed to load your wishlist. Please try again later.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchWishlistItems()
-  }, [])
+    fetchWishlistItems();
+  }, []);
 
   // Filter items based on current filters
   const filteredItems = items.filter((item) => {
     // Filter by purpose (buy/rent)
     if (currentFilter !== "all" && item.purpose !== currentFilter) {
-      return false
+      return false;
     }
 
     // Filter by status (arrived/pending)
     if (statusFilter !== "all" && item.status !== statusFilter) {
-      return false
+      return false;
     }
 
-    return true
-  })
+    return true;
+  });
 
   // Calculate pagination values
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem)
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage)
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   const handleBook = (id) => {
-    console.log("Booking vehicle with id:", id)
-    navigate("/VehicleBooking")
-  }
+    console.log("Booking vehicle with id:", id);
+    navigate("/VehicleBooking");
+  };
 
   const toggleModal = () => {
     // Check if the cookie exists
     if (!Cookies.get("sauto")) {
       // If cookie doesn't exist, navigate to login page
-      navigate("/login")
-      return
+      navigate("/login");
+      return;
     }
 
     // If cookie exists, open the modal
-    setIsModalOpen(!isModalOpen)
-  }
+    setIsModalOpen(!isModalOpen);
+  };
 
   // const handleView = () => {
   //   navigate('/WishlistVehicleDetail')
   // }
 
   const handleDeleteClick = (item) => {
-    setItemToDelete(item)
-    setIsDeleteModalOpen(true)
-  }
+    setItemToDelete(item);
+    setIsDeleteModalOpen(true);
+  };
 
   const confirmDelete = async () => {
     if (itemToDelete) {
-      setIsLoading(true)
+      setIsLoading(true);
 
       try {
         // Replace with your actual delete API endpoint
-        const response = await fetch(`http://127.0.0.1:3000/wishlist/delete/${itemToDelete.id}`, {
-          method: "DELETE",
-        })
+        const response = await fetch(
+          `http://127.0.0.1:3000/wishlist/delete/${itemToDelete.id}`,
+          {
+            method: "DELETE",
+          }
+        );
 
         if (!response.ok) {
-          throw new Error(`Error: ${response.status} ${response.statusText}`)
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
         }
 
         // Update local state after successful deletion
-        setItems(items.filter((item) => item.id !== itemToDelete.id))
-        setIsDeleteModalOpen(false)
+        setItems(items.filter((item) => item.id !== itemToDelete.id));
+        setIsDeleteModalOpen(false);
 
         // Show toast notification
-        toast.error(`${itemToDelete.vehicleName} has been removed from your wishlist`, {
-          icon: "🗑️",
-        })
+        toast.error(
+          `${itemToDelete.vehicleName} has been removed from your wishlist`,
+          {
+            icon: "🗑️",
+          }
+        );
 
-        setItemToDelete(null)
+        setItemToDelete(null);
       } catch (err) {
-        console.error("Failed to delete wishlist item:", err)
-        toast.error("Failed to delete item. Please try again later.")
+        console.error("Failed to delete wishlist item:", err);
+        toast.error("Failed to delete item. Please try again later.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
-  }
+  };
 
   const paginate = (pageNumber) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber)
+      setCurrentPage(pageNumber);
     }
-  }
+  };
 
   const handleFilterChange = (filter) => {
-    setCurrentFilter(filter)
-    setCurrentPage(1) // Reset to first page when filter changes
+    setCurrentFilter(filter);
+    setCurrentPage(1); // Reset to first page when filter changes
 
     // Show toast notification for filter change
-    let message = ""
+    let message = "";
     if (filter === "all") {
-      message = `Showing all ${items.length} vehicles`
+      message = `Showing all ${items.length} vehicles`;
     } else {
-      const count = items.filter((item) => item.purpose === filter).length
-      message = `Showing ${count} ${filter === "buy" ? "vehicles for purchase" : "vehicles for rent"}`
+      const count = items.filter((item) => item.purpose === filter).length;
+      message = `Showing ${count} ${
+        filter === "buy" ? "vehicles for purchase" : "vehicles for rent"
+      }`;
     }
 
     toast.info(message, {
       icon: "🔍",
-    })
-  }
+    });
+  };
 
   const handleStatusFilterChange = (status) => {
-    setStatusFilter(status)
-    setDropdownOpen(null)
-    setCurrentPage(1)
+    setStatusFilter(status);
+    setDropdownOpen(null);
+    setCurrentPage(1);
 
     // Show toast notification for status filter change
-    let message = ""
+    let message = "";
     if (status === "all") {
-      message = "Showing vehicles with all statuses"
+      message = "Showing vehicles with all statuses";
     } else {
-      message = `Showing ${status === "arrived" ? "arrived" : "pending"} vehicles`
+      message = `Showing ${
+        status === "arrived" ? "arrived" : "pending"
+      } vehicles`;
     }
 
     toast.info(message, {
       icon: status === "arrived" ? "✅" : "⏳",
-    })
-  }
+    });
+  };
 
   // Add click outside handler to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownOpen && !event.target.closest(".filter-dropdown")) {
-        setDropdownOpen(null)
+        setDropdownOpen(null);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [dropdownOpen])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownOpen]);
 
   // Function to handle adding a new wishlist item
   const handleAddWishlistItem = async (newItem) => {
-    setIsLoading(true)
+    setIsLoading(true);
 
     try {
       // Replace with your actual API endpoint for adding items
@@ -214,31 +241,87 @@ const YourList = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newItem),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Error: ${response.status} ${response.statusText}`)
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
 
-      const addedItem = await response.json()
+      const addedItem = await response.json();
 
       // Update local state with the new item
-      setItems([...items, addedItem])
+      setItems([...items, addedItem]);
 
       // Close modal
-      setIsModalOpen(false)
+      setIsModalOpen(false);
 
       // Show success toast
-      toast.success(`${addedItem.vehicleName || "New vehicle"} added to your wishlist!`, {
-        icon: "➕",
-      })
+      toast.success(
+        `${addedItem.vehicleName || "New vehicle"} added to your wishlist!`,
+        {
+          icon: "➕",
+        }
+      );
     } catch (err) {
-      console.error("Failed to add wishlist item:", err)
-      toast.error("Failed to add item to wishlist. Please try again later.")
+      console.error("Failed to add wishlist item:", err);
+      toast.error("Failed to add item to wishlist. Please try again later.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+
+  const handleEditClick = (item) => {
+    setSelectedItem(item);
+    setUpdatedData({
+      vehicleName: item.vehicleName,
+      model: item.model,
+      kmRun: item.kmRun,
+      fuelType: item.fuelType,
+      ownership: item.ownership,
+      year: item.year,
+      color: item.color,
+      budget: item.budget,
+      description: item.description,
+    });
+    setIsEditing(true);
+  };
+
+  const handleUpdateData = async () => {
+    if (!selectedItem) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/wishlist/edit/${selectedItem.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update item");
+      }
+
+      const updatedItem = await response.json();
+
+      // Update the local state with the edited item
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === selectedItem.id ? { ...item, ...updatedData } : item
+        )
+      );
+
+      toast.success("Item updated successfully!");
+      setIsEditing(false);
+      setSelectedItem(null);
+    } catch (error) {
+      console.error("Error updating item:", error);
+      toast.error("Failed to update item. Please try again.");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -283,15 +366,17 @@ const YourList = () => {
           <div className="flex flex-wrap gap-3 relative">
             <button
               onClick={() => {
-                setCurrentFilter("all")
-                setStatusFilter("all")
-                setDropdownOpen(null)
+                setCurrentFilter("all");
+                setStatusFilter("all");
+                setDropdownOpen(null);
                 toast.info(`Showing all ${items.length} vehicles`, {
                   icon: "🔍",
-                })
+                });
               }}
               className={`px-4 py-2 rounded-full transition-colors ${
-                currentFilter === "all" ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                currentFilter === "all"
+                  ? "bg-orange-500 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
               disabled={isLoading}
             >
@@ -302,26 +387,32 @@ const YourList = () => {
               <button
                 onClick={() => {
                   if (dropdownOpen === "buy") {
-                    setDropdownOpen(null)
+                    setDropdownOpen(null);
                   } else {
-                    setCurrentFilter("buy")
-                    setDropdownOpen("buy")
+                    setCurrentFilter("buy");
+                    setDropdownOpen("buy");
                     if (statusFilter === "all") {
-                      const count = items.filter((item) => item.purpose === "buy").length
+                      const count = items.filter(
+                        (item) => item.purpose === "buy"
+                      ).length;
                       toast.info(`Showing ${count} vehicles for purchase`, {
                         icon: "🔍",
-                      })
+                      });
                     }
                   }
                 }}
                 className={`px-4 py-2 rounded-full transition-colors flex items-center ${
-                  currentFilter === "buy" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  currentFilter === "buy"
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
                 disabled={isLoading}
               >
                 Buy
                 <ChevronLeft
-                  className={`w-4 h-4 ml-1 transform transition-transform ${dropdownOpen === "buy" ? "rotate-90" : "-rotate-90"}`}
+                  className={`w-4 h-4 ml-1 transform transition-transform ${
+                    dropdownOpen === "buy" ? "rotate-90" : "-rotate-90"
+                  }`}
                 />
               </button>
 
@@ -329,17 +420,19 @@ const YourList = () => {
                 <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-md z-10 w-40 py-2 border border-gray-100">
                   <button
                     onClick={() => {
-                      handleStatusFilterChange("all")
+                      handleStatusFilterChange("all");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
-                      statusFilter === "all" && currentFilter === "buy" ? "bg-blue-50 text-blue-700 font-medium" : ""
+                      statusFilter === "all" && currentFilter === "buy"
+                        ? "bg-blue-50 text-blue-700 font-medium"
+                        : ""
                     }`}
                   >
                     All Status
                   </button>
                   <button
                     onClick={() => {
-                      handleStatusFilterChange("arrived")
+                      handleStatusFilterChange("arrived");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
                       statusFilter === "arrived" && currentFilter === "buy"
@@ -352,7 +445,7 @@ const YourList = () => {
                   </button>
                   <button
                     onClick={() => {
-                      handleStatusFilterChange("pending")
+                      handleStatusFilterChange("pending");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
                       statusFilter === "pending" && currentFilter === "buy"
@@ -371,26 +464,32 @@ const YourList = () => {
               <button
                 onClick={() => {
                   if (dropdownOpen === "rent") {
-                    setDropdownOpen(null)
+                    setDropdownOpen(null);
                   } else {
-                    setCurrentFilter("rent")
-                    setDropdownOpen("rent")
+                    setCurrentFilter("rent");
+                    setDropdownOpen("rent");
                     if (statusFilter === "all") {
-                      const count = items.filter((item) => item.purpose === "rent").length
+                      const count = items.filter(
+                        (item) => item.purpose === "rent"
+                      ).length;
                       toast.info(`Showing ${count} vehicles for rent`, {
                         icon: "🔍",
-                      })
+                      });
                     }
                   }
                 }}
                 className={`px-4 py-2 rounded-full transition-colors flex items-center ${
-                  currentFilter === "rent" ? "bg-purple-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  currentFilter === "rent"
+                    ? "bg-purple-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
                 disabled={isLoading}
               >
                 Rent
                 <ChevronLeft
-                  className={`w-4 h-4 ml-1 transform transition-transform ${dropdownOpen === "rent" ? "rotate-90" : "-rotate-90"}`}
+                  className={`w-4 h-4 ml-1 transform transition-transform ${
+                    dropdownOpen === "rent" ? "rotate-90" : "-rotate-90"
+                  }`}
                 />
               </button>
 
@@ -398,7 +497,7 @@ const YourList = () => {
                 <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-md z-10 w-40 py-2 border border-gray-100">
                   <button
                     onClick={() => {
-                      handleStatusFilterChange("all")
+                      handleStatusFilterChange("all");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
                       statusFilter === "all" && currentFilter === "rent"
@@ -410,7 +509,7 @@ const YourList = () => {
                   </button>
                   <button
                     onClick={() => {
-                      handleStatusFilterChange("arrived")
+                      handleStatusFilterChange("arrived");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
                       statusFilter === "arrived" && currentFilter === "rent"
@@ -423,7 +522,7 @@ const YourList = () => {
                   </button>
                   <button
                     onClick={() => {
-                      handleStatusFilterChange("pending")
+                      handleStatusFilterChange("pending");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
                       statusFilter === "pending" && currentFilter === "rent"
@@ -442,9 +541,17 @@ const YourList = () => {
           <div className="ml-auto text-sm text-gray-500">
             {!isLoading && (
               <>
-                Showing {filteredItems.length} vehicle{filteredItems.length !== 1 ? "s" : ""}
-                {currentFilter !== "all" && <span> • {currentFilter === "buy" ? "Buy" : "Rent"}</span>}
-                {statusFilter !== "all" && <span> • {statusFilter === "arrived" ? "Arrived" : "Pending"}</span>}
+                Showing {filteredItems.length} vehicle
+                {filteredItems.length !== 1 ? "s" : ""}
+                {currentFilter !== "all" && (
+                  <span> • {currentFilter === "buy" ? "Buy" : "Rent"}</span>
+                )}
+                {statusFilter !== "all" && (
+                  <span>
+                    {" "}
+                    • {statusFilter === "arrived" ? "Arrived" : "Pending"}
+                  </span>
+                )}
               </>
             )}
           </div>
@@ -480,12 +587,16 @@ const YourList = () => {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {currentItems.map((item) => (
               <div
-                key={item.id}
+                key={item.id || Math.random()} // Ensure unique key for each item
                 className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
               >
                 <div className="relative">
                   <img
-                    src={`../../server${item.images[0].imageUrl}` || "/placeholder.svg"}
+                    src={
+                      item.images && item.images.length > 0
+                        ? `../../server${item.images[0].imageUrl}`
+                        : "/placeholder.svg"
+                    }
                     alt={item.vehicleName}
                     className="w-full h-48 object-cover"
                   />
@@ -505,7 +616,9 @@ const YourList = () => {
                   <div className="absolute top-4 left-4">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        item.purpose === "buy" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"
+                        item.purpose === "buy"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-purple-100 text-purple-800"
                       }`}
                     >
                       {item.purpose === "buy" ? "Buy" : "Rent"}
@@ -515,7 +628,9 @@ const YourList = () => {
 
                 <div className="p-6">
                   <div className="mb-4">
-                    <h3 className="text-xl font-semibold mb-2">{item.vehicleName}</h3>
+                    <h3 className="text-xl font-semibold mb-2">
+                      {item.vehicleName}
+                    </h3>
                     <p className="text-gray-600">{item.model}</p>
                   </div>
 
@@ -531,9 +646,13 @@ const YourList = () => {
                     <div className="flex items-center text-gray-600">
                       <span
                         className="w-3 h-3 rounded-full bg-gray-400 mr-2"
-                        style={{ backgroundColor: item.color.toLowerCase() }}
+                        style={{
+                          backgroundColor: item.color
+                            ? item.color.toLowerCase()
+                            : "gray",
+                        }}
                       />
-                      <span>{item.color}</span>
+                      <span>{item.color || "N/A"}</span>
                     </div>
                     <div className="flex items-center text-gray-600">
                       <DollarSign className="w-4 h-4 mr-2" />
@@ -543,7 +662,8 @@ const YourList = () => {
 
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-500">
-                      Requested on: {new Date(item.createdAt).toLocaleDateString()}
+                      Requested on:{" "}
+                      {new Date(item.createdAt).toLocaleDateString()}
                     </span>
                     {item.status === "arrived" && (
                       <button
@@ -559,12 +679,19 @@ const YourList = () => {
                   <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
                     <button
                       onClick={() => {
-                        navigate(`/WishlistVehicleDetail?vid=${item.id}`)
+                        navigate(`/WishlistVehicleDetail?vid=${item.id}`);
                       }}
                       className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                     >
                       <Eye className="w-4 h-4 mr-1" />
                       View
+                    </button>
+                    <button
+                      onClick={() => handleEditClick(item)}
+                      className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      Edit
                     </button>
                     <button
                       onClick={() => handleDeleteClick(item)}
@@ -581,14 +708,16 @@ const YourList = () => {
 
           {filteredItems.length === 0 && !isLoading && (
             <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-              <p className="text-gray-500">No vehicles match your current filter.</p>
+              <p className="text-gray-500">
+                No vehicles match your current filter.
+              </p>
               <button
                 onClick={() => {
-                  setCurrentFilter("all")
-                  setStatusFilter("all")
+                  setCurrentFilter("all");
+                  setStatusFilter("all");
                   toast.info(`Showing all ${items.length} vehicles`, {
                     icon: "🔍",
-                  })
+                  });
                 }}
                 className="mt-4 text-orange-500 hover:text-orange-600 font-medium"
               >
@@ -605,29 +734,37 @@ const YourList = () => {
                   onClick={() => paginate(currentPage - 1)}
                   disabled={currentPage === 1}
                   className={`px-4 py-2 border-r border-gray-200 flex items-center ${
-                    currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-50"
+                    currentPage === 1
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
 
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-                  <button
-                    key={number}
-                    onClick={() => paginate(number)}
-                    className={`px-4 py-2 border-r border-gray-200 ${
-                      currentPage === number ? "bg-orange-500 text-white font-medium" : "text-gray-700 hover:bg-gray-50"
-                    }`}
-                  >
-                    {number}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (number) => (
+                    <button
+                      key={number}
+                      onClick={() => paginate(number)}
+                      className={`px-4 py-2 border-r border-gray-200 ${
+                        currentPage === number
+                          ? "bg-orange-500 text-white font-medium"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {number}
+                    </button>
+                  )
+                )}
 
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className={`px-4 py-2 flex items-center ${
-                    currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-50"
+                    currentPage === totalPages
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
                   <ChevronRight className="w-5 h-5" />
@@ -639,19 +776,29 @@ const YourList = () => {
       )}
 
       {/* WishlistForm Modal */}
-      <WishlistForm isOpen={isModalOpen} onClose={toggleModal} onSubmit={handleAddWishlistItem} />
+      <WishlistForm
+        isOpen={isModalOpen}
+        onClose={toggleModal}
+        onSubmit={handleAddWishlistItem}
+      />
 
       {/* Delete Confirmation Modal */}
       {itemToDelete && (
         <div
-          className={`fixed inset-0 z-50 flex items-center justify-center ${isDeleteModalOpen ? "visible" : "invisible"}`}
+          className={`fixed inset-0 z-50 flex items-center justify-center ${
+            isDeleteModalOpen ? "visible" : "invisible"
+          }`}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsDeleteModalOpen(false)}></div>
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setIsDeleteModalOpen(false)}
+          ></div>
           <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 z-10 relative">
             <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
             <p className="mb-6">
-              Are you sure you want to remove <span className="font-semibold">{itemToDelete.vehicleName}</span> from
-              your wishlist?
+              Are you sure you want to remove{" "}
+              <span className="font-semibold">{itemToDelete.vehicleName}</span>{" "}
+              from your wishlist?
             </p>
 
             <div className="flex justify-end space-x-4">
@@ -674,9 +821,142 @@ const YourList = () => {
           </div>
         </div>
       )}
+
+      {/* Edit Vehicle Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Edit Vehicle
+              </h2>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="p-1 rounded-full hover:bg-gray-100"
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                {
+                  label: "Vehicle Name",
+                  field: "vehicleName",
+                  fullWidth: true,
+                },
+                { label: "Model", field: "model" },
+                { label: "KM Run", field: "kmRun" },
+                {
+                  label: "Fuel Type",
+                  field: "fuelType",
+                  isDropdown: true,
+                  options: ["Petrol", "Diesel", "Electric", "Hybrid"],
+                },
+                {
+                  label: "Ownership",
+                  field: "ownership",
+                  isDropdown: true,
+                  options: ["First", "Second", "Third", "Other"],
+                },
+                { label: "Year", field: "year" },
+                { label: "Color", field: "color" },
+                { label: "Budget", field: "budget" },
+                {
+                  label: "Description",
+                  field: "description",
+                  isTextarea: true,
+                  fullWidth: true,
+                },
+              ].map(
+                ({
+                  label,
+                  field,
+                  isTextarea,
+                  isDropdown,
+                  options,
+                  fullWidth,
+                }) => (
+                  <div
+                    className={`mb-2 ${
+                      fullWidth ? "col-span-1 sm:col-span-2" : ""
+                    }`}
+                    key={field}
+                  >
+                    <label
+                      htmlFor={field}
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      {label}
+                    </label>
+                    {isDropdown ? (
+                      <select
+                        id={field}
+                        value={updatedData[field]}
+                        onChange={(e) =>
+                          setUpdatedData((prev) => ({
+                            ...prev,
+                            [field]: e.target.value,
+                          }))
+                        }
+                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                      >
+                        <option value="">Select {label}</option>
+                        {options.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    ) : isTextarea ? (
+                      <textarea
+                        id={field}
+                        value={updatedData[field]}
+                        onChange={(e) =>
+                          setUpdatedData((prev) => ({
+                            ...prev,
+                            [field]: e.target.value,
+                          }))
+                        }
+                        rows="3"
+                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                      ></textarea>
+                    ) : (
+                      <input
+                        type="text"
+                        id={field}
+                        value={updatedData[field]}
+                        onChange={(e) =>
+                          setUpdatedData((prev) => ({
+                            ...prev,
+                            [field]: e.target.value,
+                          }))
+                        }
+                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                      />
+                    )}
+                  </div>
+                )
+              )}
+            </div>
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateData}
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default YourList
-
+export default YourList;

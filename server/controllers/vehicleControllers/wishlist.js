@@ -155,11 +155,13 @@ router.delete('/wishlist/delete/:wishlistId', async (req, res) => {
       }
 
       // Delete images from the file system
-      for (let image of wishlist.images) {
+      if (wishlist && wishlist.images && wishlist.images.length > 0) {
+        for (let image of wishlist.images) {
           const filePath = path.join(__dirname, '../../', image.imageUrl);
           if (fs.existsSync(filePath)) {
-              fs.unlinkSync(filePath);
+            fs.unlinkSync(filePath);
           }
+        }
       }
 
       // Delete wishlist + associated images from DB (due to CASCADE)
@@ -192,6 +194,56 @@ router.get('/wishlist/one/:wishlistId', async (req, res) => {
   }
 });
 
+// Route to update a wishlist item by ID
+router.put('/wishlist/edit/:wishlistId', async (req, res) => {
+  const { wishlistId } = req.params;
+  const {
+    vehicleName,
+    model,
+    kmRun,
+    fuelType,
+    ownership,
+    year,
+    color,
+    budget,
+    description,
+  } = req.body;
+
+  try {
+    // Find the wishlist item by ID
+    const wishlist = await vehicleWishlist.findByPk(wishlistId);
+
+    if (!wishlist) {
+      return res.status(404).json({ success: false, message: 'Wishlist item not found' });
+    }
+
+    // Update the wishlist item with new data
+    await wishlist.update({
+      vehicleName,
+      model,
+      kmRun: parseInt(kmRun),
+      fuelType,
+      ownership,
+      year: parseInt(year),
+      color,
+      budget: parseFloat(budget),
+      description,
+    });
+
+    return res.json({
+      success: true,
+      message: 'Wishlist item updated successfully',
+      data: wishlist,
+    });
+  } catch (error) {
+    console.error('Error updating wishlist item:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+});
 
 router.get('/admin/wishlist/all', async (req, res) => {
   
