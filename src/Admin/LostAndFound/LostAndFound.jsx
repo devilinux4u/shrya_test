@@ -5,7 +5,6 @@ import {
   Trash2,
   MapPin,
   CheckCircle,
-  XCircle,
   AlertTriangle,
   Eye,
   Clock,
@@ -19,7 +18,6 @@ import {
   SlidersHorizontal,
   Car,
 } from "lucide-react";
-import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import LostAndFoundForm from "../../Components/LostAndFoundForm";
 

@@ -10,6 +10,7 @@ const GoogleAuth = () => {
     "380619020993-45je5iuq0789kvuf6gifu0b4tl6ghrt4.apps.googleusercontent.com";
 
   const handleGoogleLoginSuccess = async (credentialResponse) => {
+    console.log("Google ID Token:", credentialResponse.credential);
     try {
       const response = await fetch("http://localhost:3000/google-login", {
         method: "POST",
