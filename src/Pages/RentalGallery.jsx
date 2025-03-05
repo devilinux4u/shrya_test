@@ -9,89 +9,9 @@ import {
   Gauge,
   Fuel,
 } from "lucide-react";
-import Swift from "../assets/Swift.png";
-import Polo from "../assets/Polo.png";
-import Prado from "../assets/Prado.png";
-import Defender from "../assets/Defender.png";
-import Brezza from "../assets/Brezza.png";
-import Creta from "../assets/Creta.png";
 
 const RentalGallery = () => {
-  const carsData = [
-    {
-      id: 1,
-      name: "Maruti Suzuki Swift",
-      badge: "Swift",
-      price: "1000",
-      seats: "5",
-      transmission: "Manual",
-      fuel: "Petrol",
-      features: ["AC", "Bluetooth", "Airbags"],
-      image: Swift,
-    },
-    {
-      id: 2,
-      name: "Hyundai Creta",
-      badge: "Creta",
-      price: "1500",
-      seats: "5",
-      transmission: "Automatic",
-      fuel: "Diesel",
-      features: ["AC", "Sunroof", "Cruise Control"],
-      image: Creta,
-    },
-    {
-      id: 3,
-      name: "Volkswagen Polo",
-      badge: "Polo",
-      price: "1200",
-      seats: "5",
-      transmission: "Manual",
-      fuel: "Petrol",
-      features: ["AC", "Bluetooth"],
-      image: Polo,
-    },
-    {
-      id: 4,
-      name: "Toyota Prado",
-      badge: "Prado",
-      price: "2500",
-      seats: "7",
-      transmission: "Automatic",
-      fuel: "Diesel",
-      features: ["AC", "Sunroof", "Cruise Control", "Airbags"],
-      image: Prado,
-    },
-    {
-      id: 5,
-      name: "Land Rover Defender",
-      badge: "Defender",
-      price: "3000",
-      seats: "5",
-      transmission: "Automatic",
-      fuel: "Diesel",
-      features: [
-        "AC",
-        "Sunroof",
-        "Cruise Control",
-        "Airbags",
-        "Parking Sensors",
-      ],
-      image: Defender,
-    },
-    {
-      id: 6,
-      name: "Maruti Suzuki Brezza",
-      badge: "Brezza",
-      price: "1300",
-      seats: "5",
-      transmission: "Manual",
-      fuel: "Petrol",
-      features: ["AC", "Bluetooth", "Airbags"],
-      image: Brezza,
-    },
-  ];
-
+  const [carsData, setCarsData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     transmission: "all",
@@ -101,7 +21,7 @@ const RentalGallery = () => {
     features: [],
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [filteredCars, setFilteredCars] = useState(carsData);
+  const [filteredCars, setFilteredCars] = useState([]);
   const carsPerPage = 4; // Changed to show 4 cars (2 rows of 2)
 
   const features = [
@@ -113,13 +33,30 @@ const RentalGallery = () => {
     "Parking Sensors",
   ];
 
-  const cars = useRef(carsData);
+  const cars = useRef([]);
+
+  useEffect(() => {
+    // Fetch car data from API
+    const fetchCars = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:3000/rent/all"); // Replace with your API endpoint
+        const data = await response.json();
+        setCarsData(data);
+        cars.current = data;
+        setFilteredCars(data);
+      } catch (error) {
+        console.error("Error fetching car data:", error);
+      }
+    };
+
+    fetchCars();
+  }, []);
 
   useEffect(() => {
     let result = cars.current.filter(
       (car) =>
-        car.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        car.badge.toLowerCase().includes(searchTerm.toLowerCase())
+        car.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        car.model.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     if (filters.transmission !== "all") {
@@ -129,7 +66,7 @@ const RentalGallery = () => {
     }
 
     if (filters.fuel !== "all") {
-      result = result.filter((car) => car.fuel === filters.fuel);
+      result = result.filter((car) => car.fuelType === filters.fuel);
     }
 
     if (filters.priceRange !== "all") {
@@ -285,20 +222,23 @@ const RentalGallery = () => {
               >
                 <div className="p-6 flex justify-center items-center bg-gray-50">
                   <img
-                    src={car.image || "/placeholder.svg"}
-                    alt={car.name}
+                    src={
+                      `../../server${car.rentVehicleImages[0].image}` ||
+                      "/placeholder.svg"
+                    }
+                    alt={car.make}
                     className="w-full h-40 object-contain"
                   />
                 </div>
                 <div className="p-4">
                   <div className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs mb-2 inline-block">
-                    {car.badge}
+                    {car.model}
                   </div>
                   <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    {car.name}
+                    {car.make}
                   </h3>
                   <p className="text-red-500 font-semibold text-base mb-4">
-                    Rs. {car.price}/-
+                    Rs. {car.priceHour}/-
                   </p>
                   <div className="flex justify-between items-center text-gray-500 text-sm mb-4">
                     <div className="flex items-center gap-2">
@@ -311,11 +251,11 @@ const RentalGallery = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Fuel className="w-5 h-5" />
-                      <span>{car.fuel}</span>
+                      <span>{car.fuelType}</span>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {car.features?.map((feature) => (
+                    {car.features.split(",").map((feature) => (
                       <span
                         key={feature}
                         className="bg-gray-50 text-gray-600 rounded-full px-2 py-1 text-xs border border-gray-100"
