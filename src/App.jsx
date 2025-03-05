@@ -27,6 +27,10 @@ import RentalHistory from './Admin/Rentals/RentalHistory';
 import Users from './Admin/User/Users';
 import AdminLostAndFound from './Admin/LostAndFound/LostAndFound';
 import Wishlist from './Admin/Wishlist/Wishlist';
+import Profile from './Pages/Profile';
+import UserBookings from './Pages/UserBookings';
+import ReportedItems from './Pages/ReportedItems';
+import History from './Pages/History'; 
 
 function App() {
   const location = useLocation();
@@ -65,6 +69,12 @@ function App() {
         <Route path="/Contact" element={<Contact />} />
         <Route path="/FAQ" element={<FAQ />} />
         <Route path="/RentalGallery" element={<RentalGallery />} />
+        <Route path="/Profile" element={<Profile />} />
+        <Route path="/UserBookings" element={<UserBookings />} />
+        <Route path="/ReportedItems" element={<ReportedItems />} />
+        <Route path="/History" element={<History />} />
+        
+        {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
         <Route path="/admin/vehicles" element={<Vehicles />} />
         <Route path="/admin/addnewvehicles" element={<AddNewVehicle />} />

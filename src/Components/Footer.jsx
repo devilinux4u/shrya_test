@@ -24,11 +24,11 @@ const Footer = () => {
           <div>
             <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Quick Links</h4>
             <ul className="space-y-2">
-              <FooterLink href="/about">About Us</FooterLink>
-              <FooterLink href="/contact">Contact Us</FooterLink>
-              <FooterLink href="/faq">FAQ</FooterLink>
-              <FooterLink href="/terms">Terms of Service</FooterLink>
-              <FooterLink href="/privacy">Privacy Policy</FooterLink>
+              <FooterLink href="/AboutUS">About</FooterLink>
+              <FooterLink href="/Contact">Contact</FooterLink>
+              <FooterLink href="/FAQ">FAQ</FooterLink>
+              <FooterLink href="/Terms of Service">Terms of Service</FooterLink>
+              <FooterLink href="/Privacy Policy">Privacy Policy</FooterLink>
             </ul>
           </div>
 
@@ -36,11 +36,11 @@ const Footer = () => {
           <div>
             <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Our Services</h4>
             <ul className="space-y-2">
-              <FooterLink href="/buy">Buy a Vehicle</FooterLink>
-              <FooterLink href="/sell">Sell Your Car</FooterLink>
-              <FooterLink href="/rent">Rent a Vehicle</FooterLink>
-              <FooterLink href="/lost-and-found">Lost and Found</FooterLink>
-              <FooterLink href="/wishlist">Wish List</FooterLink>
+              <FooterLink href="/VehicleListing">Buy a Vehicle</FooterLink>
+              <FooterLink href="/BuyVehicles">Sell Your Car</FooterLink>
+              <FooterLink href="/RentalGallery">Rent a Vehicle</FooterLink>
+              <FooterLink href="/LostAndFound">Lost and Found</FooterLink>
+              <FooterLink href="/Yourlist">Wish List</FooterLink>
             </ul>
           </div>
 
@@ -99,4 +99,3 @@ const FooterLink = ({ href, children }) => (
 )
 
 export default Footer
-

@@ -37,7 +37,7 @@ router.post('/addVehicle', upload.array("images", 5), async (req, res) => {
 
 
 // Route to Fetch Vehicle with Images
-app.get("/vehicles", async (req, res) => {
+router.get("/vehicles", async (req, res) => {
     try {
         const vehicless = await vehicles.findAll({
             include: [{ model: v_img, attributes: ["id", "image"] }]
