@@ -8,7 +8,6 @@ import {
   Check,
   X,
   Car,
-  DollarSign,
   User,
   Clock,
   Mail,
@@ -494,7 +493,6 @@ export default function AdminWishlist() {
                     <span className="text-gray-700">{item.color || "N/A"}</span>
                   </div>
                   <div className="flex items-center">
-                    <DollarSign className="w-5 h-5 text-gray-500 mr-2" />
                     <span className="text-gray-700">
                       Rs. {Number.parseInt(item.budget || 0).toLocaleString()}
                     </span>

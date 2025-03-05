@@ -1,15 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import {
-  Car,
-  DollarSign,
-  Camera,
-  X,
-  ArrowRight,
-  ArrowLeft,
-  Check,
-} from "lucide-react";
+import { Car, Camera, X, ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +14,6 @@ const WishlistForm = ({ isOpen, onClose }) => {
   const [previewImages, setPreviewImages] = useState([]);
   const fileInputRef = useRef(null);
   const [formData, setFormData] = useState({
-    purpose: "buy",
     model: "",
     make: "",
     year: "",
@@ -64,9 +55,28 @@ const WishlistForm = ({ isOpen, onClose }) => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    setSelectedImages((prev) => [...prev, ...files]);
+    if (files.length + selectedImages.length > 5) {
+      toast.error("You can upload a maximum of 5 images");
+      return;
+    }
 
-    const newPreviewImages = files.map((file) => URL.createObjectURL(file));
+    const validFiles = files.filter((file) => {
+      if (!file.type.startsWith("image/")) {
+        toast.error(`File ${file.name} is not an image`);
+        return false;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`File ${file.name} exceeds 5MB limit`);
+        return false;
+      }
+      return true;
+    });
+
+    setSelectedImages((prev) => [...prev, ...validFiles]);
+
+    const newPreviewImages = validFiles.map((file) =>
+      URL.createObjectURL(file)
+    );
     setPreviewImages((prev) => [...prev, ...newPreviewImages]);
   };
 
@@ -143,7 +153,7 @@ const WishlistForm = ({ isOpen, onClose }) => {
 
       if (selectedImages.length > 0) {
         selectedImages.forEach((image) => {
-          formDataToSubmit.append("images[]", image);
+          formDataToSubmit.append("images", image); // Changed from "images[]" to "images"
         });
       }
 
@@ -162,12 +172,10 @@ const WishlistForm = ({ isOpen, onClose }) => {
       }
 
       const data = await response.json();
-      console.log(data);
       if (data.success) {
         toast.success("Added to your wishlist.");
 
         setFormData({
-          purpose: "buy",
           model: "",
           make: "",
           year: "",
@@ -187,8 +195,6 @@ const WishlistForm = ({ isOpen, onClose }) => {
         setTimeout(() => {
           navigate("/YourList");
         }, 2000);
-
-        window.location.reload();
       } else {
         toast.error("Failed to list vehicle in Wishlist. Please try again.");
       }
@@ -376,17 +382,14 @@ const WishlistForm = ({ isOpen, onClose }) => {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Budget
                     </label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                      <input
-                        type="number"
-                        name="budget"
-                        value={formData.budget}
-                        onChange={handleChange}
-                        placeholder="Enter amount"
-                        className="w-full pl-9 p-2 border rounded-md"
-                      />
-                    </div>
+                    <input
+                      type="number"
+                      name="budget"
+                      value={formData.budget}
+                      onChange={handleChange}
+                      placeholder="Rs. Enter amount"
+                      className="w-full p-2 border rounded-md"
+                    />
                   </div>
                 </div>
               </div>
@@ -426,7 +429,7 @@ const WishlistForm = ({ isOpen, onClose }) => {
                       Click to upload or drag and drop
                     </p>
                     <p className="text-xs text-gray-500">
-                      PNG, JPG, JPEG up to 5MB
+                      PNG, JPG, JPEG up to 5MB (max 5 images)
                     </p>
                     <input
                       type="file"
