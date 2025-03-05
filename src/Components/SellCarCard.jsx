@@ -31,7 +31,7 @@ const vehicles = [
     image: SellSonata,
   },
 ];
-
+ 
 // Card component for displaying vehicle information
 function VehicleCard({ vehicle }) {
   const navigate = useNavigate(); // Define navigate inside VehicleCard
