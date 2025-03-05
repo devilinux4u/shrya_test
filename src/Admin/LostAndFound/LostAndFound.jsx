@@ -19,7 +19,6 @@ import {
   X,
   User,
 } from "lucide-react";
-import LostAndFoundForm from "../../Components/LostAndFoundForm";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 
@@ -36,6 +35,14 @@ export default function LostAndFound() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [currentUserRole, setCurrentUserRole] = useState("Admin");
   const [filteredItems, setFilteredItems] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState(null);
+  const [updatedData, setUpdatedData] = useState({
+    title: "",
+    description: "",
+    location: "",
+    date: "",
+  });
 
   // Fetch data from the API
   useEffect(() => {
@@ -233,6 +240,54 @@ export default function LostAndFound() {
     }
   };
 
+  // Handle update data
+  const handleUpdateData = async (itemId) => {
+    if (!updatedData) {
+      toast.error("No item selected");
+      return;
+    }
+    if (!itemId) {
+      toast.error("No item ID provided");
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/lost-and-found/edit/${itemId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            title: updatedData.title,
+            description: updatedData.description,
+            location: updatedData.location,
+            date: updatedData.date,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to update item");
+      }
+
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === itemId ? { ...item, ...updatedData } : item
+        )
+      );
+
+      toast.success("Item updated successfully");
+      setUpdatedData(null);
+      setIsEditing(false);
+    } catch (error) {
+      toast.error(error.message || "Error updating item");
+    }
+  };
+
   // Permission helpers
   const canEdit = (item) => currentUserRole === "Admin";
   const canContact = (item) => item.user.fname === "User" && item.user.num;
@@ -379,7 +434,16 @@ export default function LostAndFound() {
 
                     {canEdit(item) && (
                       <button
-                        onClick={() => setShowAddItem(true)}
+                        onClick={() => {
+                          setIsEditing(true);
+                          setSelectedItemId(item.id);
+                          setUpdatedData({
+                            title: item.title,
+                            description: item.description,
+                            location: item.location,
+                            date: item.date,
+                          });
+                        }}
                         className="p-2 hover:bg-gray-100 rounded-full"
                         title="Edit Item"
                       >
@@ -432,13 +496,130 @@ export default function LostAndFound() {
         </div>
       )}
 
-      {/* Add Item Modal */}
-      {showAddItem && (
-        <LostAndFoundForm
-          isOpen={showAddItem}
-          onClose={() => setShowAddItem(false)}
-          onSubmit={handleAddItemSubmit}
-        />
+      {/* Edit modal */}
+      {isEditing && updatedData && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Edit Item</h2>
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  setUpdatedData({
+                    title: "",
+                    description: "",
+                    location: "",
+                    date: "",
+                  });
+                }}
+                className="p-1 rounded-full hover:bg-gray-100"
+              >
+                <X className="h-6 w-6 text-gray-500" />
+              </button>
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="title"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Title
+              </label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                value={updatedData.title}
+                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                onChange={(e) => {
+                  setUpdatedData((prev) => ({
+                    ...prev,
+                    title: e.target.value,
+                  }));
+                }}
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Description
+              </label>
+              <textarea
+                id="description"
+                name="description"
+                value={updatedData.description}
+                onChange={(e) => {
+                  setUpdatedData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }));
+                }}
+                rows="3"
+                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              ></textarea>
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="location"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Location
+              </label>
+              <input
+                type="text"
+                id="location"
+                value={updatedData.location}
+                onChange={(e) => {
+                  setUpdatedData((prev) => ({
+                    ...prev,
+                    location: e.target.value,
+                  }));
+                }}
+                name="location"
+                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="date"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Date
+              </label>
+              <input
+                type="date"
+                id="date"
+                name="date"
+                onChange={(e) => {
+                  setUpdatedData((prev) => ({
+                    ...prev,
+                    date: new Date(e.target.value).toISOString(),
+                  }));
+                }}
+                value={
+                  updatedData.date
+                    ? new Date(updatedData.date).toISOString().split("T")[0]
+                    : ""
+                }
+                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              />
+            </div>
+            <div className="mb-4">
+              <button
+                onClick={() => handleUpdateData(selectedItemId)}
+                className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Item Detail Modal */}
@@ -548,7 +729,14 @@ export default function LostAndFound() {
                 <button
                   onClick={() => {
                     setSelectedItem(null);
-                    setShowAddItem(true);
+                    setIsEditing(true);
+                    setSelectedItemId(selectedItem.id);
+                    setUpdatedData({
+                      title: selectedItem.title,
+                      description: selectedItem.description,
+                      location: selectedItem.location,
+                      date: selectedItem.date,
+                    });
                   }}
                   className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
                 >

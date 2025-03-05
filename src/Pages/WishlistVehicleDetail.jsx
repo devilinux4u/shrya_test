@@ -125,16 +125,7 @@ const WishlistVehicleDetail = () => {
         theme="light"
       />
 
-      <div className="max-w-6xl mx-auto">
-        {/* Back button */}
-        <button
-          onClick={() => navigate("/YourList")}
-          className="flex items-center text-gray-700 mb-6 hover:text-orange-500 transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Your List
-        </button>
-
+      <div className="mt-12 max-w-6xl mx-auto">
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           {/* Header with status badge */}
           <div className="p-6 border-b border-gray-100">
