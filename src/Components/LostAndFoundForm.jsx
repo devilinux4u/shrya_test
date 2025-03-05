@@ -53,12 +53,11 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   }
 
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files)
-    const imageUrls = files.map((file) => URL.createObjectURL(file))
+    const files = Array.from(e.target.files);
     setFormData((prevData) => ({
       ...prevData,
-      images: [...prevData.images, ...imageUrls],
-    }))
+      images: [...prevData.images, ...files], // Store actual File objects
+    }));
   }
 
   const handleImageRemove = (index) => {
@@ -93,7 +92,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
 
     try {
       // Retrieve uid from cookies
-      const uid = Cookies.get("uid");
+      const uid = Cookies.get("sauto").split("-")[0]
       if (!uid) {
         toast.error("User ID is missing. Please log in again.");
         return;
@@ -103,8 +102,8 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
       const formDataToSubmit = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "images") {
-          value.forEach((image) => {
-            formDataToSubmit.append("images", image);
+          value.forEach((file) => {
+            formDataToSubmit.append("images", file); // Append actual File objects
           });
         } else {
           formDataToSubmit.append(key, value);
@@ -277,7 +276,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
                   {formData.images.map((image, index) => (
                     <div key={index} className="relative group">
                       <img
-                        src={image || "/placeholder.svg"}
+                        src={URL.createObjectURL(image) || "/placeholder.svg"}
                         alt={`Item ${index + 1}`}
                         className="h-24 w-full object-cover rounded-lg"
                       />
