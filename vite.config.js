@@ -10,6 +10,13 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
       'Cross-Origin-Embedder-Policy': 'require-corp',
     },
+    proxy: {
+      '/maps': {
+        target: 'https://www.google.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/maps/, ''), // Remove '/maps' prefix
+      },
+    },
   },
   resolve: {
     alias: {

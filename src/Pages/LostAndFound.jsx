@@ -24,6 +24,7 @@ const LostAndFound = () => {
     const fetchItems = async () => {
       try {
         const response = await fetch("/api/lost-and-found")
+        console.log(response)
         const data = await response.json()
         setItems(data)
       } catch (error) {

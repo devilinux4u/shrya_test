@@ -63,4 +63,17 @@ router.post("/", upload.array("images"), async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+  try {
+    const reports = await LostAndFound.findAll({
+      attributes: ['id', 'type', 'title', 'description', 'location', 'date', 'images'], // Specify fields to return
+      order: [['date', 'DESC']], // Sort by date in descending order
+    });
+    res.json({ success: true, data: reports });
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch reports", error: error.message });
+  }
+});
+
 module.exports = router;
