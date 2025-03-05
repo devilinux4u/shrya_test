@@ -13,6 +13,8 @@ import {
 import RentalBookingForm from "../Components/RentalBookingForm"; // Adjust the path as needed
 
 import { useParams, useLocation, useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify"; // Add this import
 
 const RentalVehicleDesc = ({ id }) => {
   const [vehicle, setVehicle] = useState(null);
@@ -26,6 +28,7 @@ const RentalVehicleDesc = ({ id }) => {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const vehicleId = params.get("id");
+  const navigate = useNavigate(); // Ensure navigate is defined here
 
   // Fetch vehicle data from API
   useEffect(() => {
@@ -182,6 +185,14 @@ const RentalVehicleDesc = ({ id }) => {
   };
 
   const handleBookNowClick = () => {
+    if (!Cookies.get("sauto")) {
+      toast.info("You must be registered to proceed.", {
+        position: "top-right", // Ensure toast appears on the right
+        autoClose: 3000,
+      });
+      navigate("/Login");
+      return;
+    }
     setIsBookingFormVisible(true);
   };
 

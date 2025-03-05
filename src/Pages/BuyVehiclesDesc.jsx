@@ -11,6 +11,7 @@ import {
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 export default function BuyVehiclesDesc() {
   const [activeSection, setActiveSection] = useState("hero");
@@ -174,6 +175,18 @@ export default function BuyVehiclesDesc() {
     }
   };
 
+  const handleBookNowClick = () => {
+    if (!Cookies.get("sauto")) {
+      toast.info("You must be registered to proceed.", {
+        position: "top-right", // Ensure toast appears on the right
+        autoClose: 3000,
+      });
+      navigate("/Login");
+      return;
+    }
+    setShowBookNowForm(true);
+  };
+
   if (!vehicle) {
     return <div>Loading...</div>;
   }
@@ -236,7 +249,7 @@ export default function BuyVehiclesDesc() {
 
             <div className="relative">
               <button
-                onClick={() => setShowBookNowForm(true)}
+                onClick={handleBookNowClick}
                 className={`bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors ${
                   isOwnVehicle ? "opacity-50 cursor-not-allowed" : ""
                 }`}
@@ -459,7 +472,7 @@ export default function BuyVehiclesDesc() {
             )}
             <div className="relative">
               <button
-                onClick={() => setShowBookNowForm(true)}
+                onClick={handleBookNowClick}
                 className={`w-full bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors ${
                   isOwnVehicle ? "opacity-50 cursor-not-allowed" : ""
                 }`}

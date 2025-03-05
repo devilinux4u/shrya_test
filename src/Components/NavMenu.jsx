@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo.png";
 import { Menu, X, ChevronDown, User } from "lucide-react";
 import Cookies from "js-cookie";
+import { toast } from "react-toastify";
 
 const NavMenu = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,6 +44,10 @@ const NavMenu = () => {
     if (Cookies.get("sauto")) {
       navigate(route);
     } else {
+      toast.info("You must be registered to access this feature.", {
+        position: "top-right", // Ensure toast appears on the right
+        autoClose: 3000,
+      });
       navigate("/Login");
     }
     closeMenu();
