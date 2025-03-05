@@ -60,16 +60,15 @@ const sendCancellationEmail = async (userData, appointmentData, message) => {
                 
                 <p style="margin-bottom: 15px;">Dear ${userData.fname},</p>
                 
-                <p style="margin-bottom: 15px;">We regret to inform you that your appointment at Shreya Auto scheduled for <strong>${formattedDateTime}</strong> has been cancelled.</p>
+                <p style="margin-bottom: 15px;">We regret to inform you that your appointment scheduled for <strong>${formattedDateTime}</strong> for  <strong>${appointmentData.vehicleMake} ${appointmentData.vehicleModel} (${appointmentData.vehicleYear})</strong> at <strong>${appointmentData.location || 'Shreya Auto Service Center'}</strong> has been cancelled.</p>
                 
                 <div style="background-color: #f7f7f7; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
                     <p style="margin: 0 0 10px 0;"><strong>Cancelled Appointment Details:</strong></p>
                     <p style="margin: 0 0 5px 0;">Date and Time: ${formattedDateTime}</p>
-                    <p style="margin: 0 0 5px 0;">Service Type: ${appointmentData.serviceType || 'Vehicle Service'}</p>
+                    <p style="margin: 0 0 5px 0;">Location: ${appointmentData.location || 'Shreya Auto Service Center'}</p>
                     ${message ? `<p style="margin: 10px 0 0 0;"><strong>Reason for cancellation:</strong> ${message}</p>` : ''}
                 </div>
-                
-                <p style="margin-bottom: 15px;">If you would like to reschedule your appointment or have any questions, please contact our customer service team at <a href="tel:+014541713">01-4541713</a> or <a href="tel:+9779841594067">9841594067</a>.</p>
+            
                 
                 <p style="margin-bottom: 5px;">We apologize for any inconvenience this may cause and appreciate your understanding.</p>
                 
@@ -83,11 +82,12 @@ const sendCancellationEmail = async (userData, appointmentData, message) => {
         // Plain text version as fallback
         text: `Dear ${userData.fname},
 
-We regret to inform you that your appointment at Shreya Auto scheduled for ${formattedDateTime} has been cancelled.
+We regret to inform you that your appointment at Shreya Auto scheduled for ${formattedDateTime} for your ${appointmentData.vehicleMake} ${appointmentData.vehicleModel} (${appointmentData.vehicleYear}) at ${appointmentData.location || 'Shreya Auto Service Center'} has been cancelled.
 
 Cancelled Appointment Details:
 - Date and Time: ${formattedDateTime}
-- Service Type: ${appointmentData.serviceType || 'Vehicle Service'}
+- Location: ${appointmentData.location || 'Shreya Auto Service Center'}
+- Vehicle: ${appointmentData.vehicleMake} ${appointmentData.vehicleModel} (${appointmentData.vehicleYear})
 ${message ? `- Reason for cancellation: ${message}` : ''}
 
 If you would like to reschedule your appointment or have any questions, please contact our customer service team at 01-4541713 or 9841594067.

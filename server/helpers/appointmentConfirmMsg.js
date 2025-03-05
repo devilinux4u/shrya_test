@@ -2,12 +2,16 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 /**
- * Formats a date string with ordinal suffixes (1st, 2nd, 3rd, etc.)
- * @param {string} dateString - ISO date string to format
+ * Formats a date and time string with ordinal suffixes (1st, 2nd, 3rd, etc.)
+ * @param {string} dateString - ISO date string
+ * @param {string} timeString - Time string in HH:mm format
  * @return {string} Formatted date and time
  */
-const formatDateTime = (dateString) => {
+const formatDateTimeWithTime = (dateString, timeString) => {
     const date = new Date(dateString);
+    const [hours, minutes] = timeString.split(":");
+    date.setHours(hours, minutes);
+
     const options = {
         year: 'numeric',
         month: 'long',
@@ -16,6 +20,7 @@ const formatDateTime = (dateString) => {
         minute: 'numeric',
         hour12: true
     };
+
     return date.toLocaleString('en-US', options).replace(/(\d+)(?=\s)/, (match) => {
         const num = parseInt(match, 10);
         if ([11, 12, 13].includes(num % 100)) return `${num}th`;
@@ -44,8 +49,8 @@ const sendConfirmationEmail = async (userData, appointmentData) => {
         },
     });
 
-    // Format the appointment date/time for better readability
-    const formattedDateTime = formatDateTime(appointmentData.date);
+    // Format the appointment date and time
+    const formattedDateTime = formatDateTimeWithTime(appointmentData.date, appointmentData.time);
 
     const mailOptions = {
         from: `"Shreya Auto" <${process.env.EMAIL_USER}>`,
@@ -59,12 +64,12 @@ const sendConfirmationEmail = async (userData, appointmentData) => {
                 
                 <p style="margin-bottom: 15px;">Dear ${userData.fname},</p>
                 
-                <p style="margin-bottom: 15px;">We're pleased to confirm your appointment at Shreya Auto scheduled for <strong>${formattedDateTime}</strong>.</p>
+                <p style="margin-bottom: 15px;">We're pleased to confirm your appointment at Shreya Auto scheduled for <strong>${formattedDateTime}</strong> for your <strong>${appointmentData.vehicleMake} ${appointmentData.vehicleModel} (${appointmentData.vehicleYear})</strong>.</p>
                 
                 <div style="background-color: #f7f7f7; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
                     <p style="margin: 0 0 10px 0;"><strong>Appointment Details:</strong></p>
                     <p style="margin: 0 0 5px 0;">Date and Time: ${formattedDateTime}</p>
-                    <p style="margin: 0;">Service Type: ${appointmentData.serviceType || 'Vehicle Service'}</p>
+                   <p style="margin: 0;">Location: ${appointmentData.location || 'Shreya Auto Service Center'}</p>
                 </div>
                 
                 <p style="margin-bottom: 15px;">If you need to reschedule or have any questions, please contact our customer service team at <a href="tel:+014541713">01-4541713</a> or <a href="tel:+9779841594067">9841594067</a>.</p>

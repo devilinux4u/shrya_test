@@ -34,6 +34,11 @@ router.post("/", async (req, res) => {
       status: "pending",
     });
 
+    // Include vehicle details in the appointment object
+    appointment.vehicleMake = vehicle.make;
+    appointment.vehicleModel = vehicle.model;
+    appointment.vehicleYear = vehicle.year;
+
     console.log("Appointment created successfully:", appointment); // Debug log
     res.status(201).json({ success: true, message: "Appointment created", data: appointment });
   } catch (error) {
@@ -178,8 +183,15 @@ router.patch("/:id/status", async (req, res) => {
 
       const userEmail = await users.findOne({ where: { id: eid } });
 
-      cancelEmail(userEmail, appointment, reason)
-
+      // Pass vehicle details to the cancellation email
+      cancelEmail(userEmail, {
+        ...appointment.dataValues,
+        vehicleMake: appointment.SellVehicle.make,
+        vehicleModel: appointment.SellVehicle.model,
+        vehicleYear: appointment.SellVehicle.year,
+        location: appointment.location,
+        time: appointment.time,
+      }, reason);
     }
 
     if (status === "confirmed") {
@@ -195,7 +207,13 @@ router.patch("/:id/status", async (req, res) => {
 
       const userEmail = await users.findOne({ where: { id: eid } });
 
-      confirmEmail(userEmail, appointment)
+      // Pass vehicle details to the confirmation email
+      confirmEmail(userEmail, {
+        ...appointment.dataValues,
+        vehicleMake: appointment.SellVehicle.make,
+        vehicleModel: appointment.SellVehicle.model,
+        vehicleYear: appointment.SellVehicle.year,
+      });
     }
 
     console.log(`Successfully updated appointment ${id} to status: ${status}`);
