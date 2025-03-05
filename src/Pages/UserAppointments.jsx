@@ -165,7 +165,7 @@ export default function UserAppointments() {
       // Update local state
       setAppointments((prev) =>
         prev.map((app) =>
-          app._id === id ? { ...app, status: "cancelled" } : app
+          app.id === id ? { ...app, status: "cancelled" } : app
         )
       );
 
@@ -204,7 +204,7 @@ export default function UserAppointments() {
 
       setAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
-          appointment._id === id
+          appointment.id === id
             ? { ...appointment, status: "confirmed" }
             : appointment
         )
@@ -235,7 +235,7 @@ export default function UserAppointments() {
 
       setAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
-          appointment._id === id
+          appointment.id === id
             ? { ...appointment, status: "completed" }
             : appointment
         )
@@ -267,7 +267,7 @@ export default function UserAppointments() {
       // Update local state with the updated appointment
       setAppointments((prevAppointments) =>
         prevAppointments.map((appointment) =>
-          appointment._id === id
+          appointment.id === id
             ? { ...appointment, status: updatedStatus.status }
             : appointment
         )
@@ -534,7 +534,7 @@ export default function UserAppointments() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {currentAppointments.map((appointment) => (
               <div
-                key={appointment._id}
+                key={appointment.id}
                 className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => openDetailsModal(appointment)}
               >
@@ -648,7 +648,7 @@ export default function UserAppointments() {
                       {isUserSeller(appointment) &&
                         appointment.status === "confirmed" && (
                           <button
-                            onClick={() => completeAppointment(appointment._id)}
+                            onClick={() => completeAppointment(appointment.id)}
                             className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                           >
                             <CheckCircle className="w-4 h-4 mr-1" />
@@ -866,8 +866,7 @@ export default function UserAppointments() {
                         <div>
                           <p className="font-medium text-gray-900">
                             {isUserBuyer(selectedAppointment)
-                              ? selectedAppointment.User.fname ||
-                                "Shreya Auto"
+                              ? selectedAppointment.User.fname || "Shreya Auto"
                               : selectedAppointment.User.fname}
                           </p>
                           <p className="text-sm text-gray-500">
@@ -987,7 +986,7 @@ export default function UserAppointments() {
                           <button
                             type="button"
                             onClick={() => {
-                              approveAppointment(selectedAppointment._id);
+                              approveAppointment(selectedAppointment.id);
                             }}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                           >
@@ -1016,7 +1015,7 @@ export default function UserAppointments() {
                         <button
                           type="button"
                           onClick={() => {
-                            completeAppointment(selectedAppointment._id);
+                            completeAppointment(selectedAppointment.id);
                           }}
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
@@ -1075,7 +1074,7 @@ export default function UserAppointments() {
 // Mock data for preview purposes
 const mockAppointments = [
   {
-    _id: "a1001",
+    id: "a1001",
     date: "2023-04-20",
     time: "10:00 AM",
     location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
@@ -1112,7 +1111,7 @@ const mockAppointments = [
     },
   },
   {
-    _id: "a1002",
+    id: "a1002",
     date: "2023-04-21",
     time: "2:30 PM",
     location: "Kathmandu Auto Gallery, New Baneshwor",
@@ -1147,7 +1146,7 @@ const mockAppointments = [
     },
   },
   {
-    _id: "a1003",
+    id: "a1003",
     date: "2023-04-18",
     time: "11:15 AM",
     location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
@@ -1182,7 +1181,7 @@ const mockAppointments = [
     },
   },
   {
-    _id: "a1004",
+    id: "a1004",
     date: "2023-04-22",
     time: "4:00 PM",
     location: "Premium Motors, Tinkune, Kathmandu",
@@ -1217,7 +1216,7 @@ const mockAppointments = [
     },
   },
   {
-    _id: "a1005",
+    id: "a1005",
     date: "2023-04-23",
     time: "1:00 PM",
     location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
