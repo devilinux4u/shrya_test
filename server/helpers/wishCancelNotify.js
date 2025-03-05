@@ -46,7 +46,7 @@ const sendWishlistCancelEmail = async (name, vehicle, msg) => {
                     <h3 style="margin-top: 0; color: #333;">Cancellation Details:</h3>
                     <p style="margin: 5px 0;"><strong>User:</strong> ${name || "Unknown User"}</p>
                     <p style="margin: 5px 0;"><strong>Vehicle:</strong> ${vehicleDescription}</p>
-                    <p style="margin: 5px 0;"><strong>Stock/VIN:</strong> ${vehicle.vin || vehicle.stock || "Not specified"}</p>
+    
                     <p style="margin: 5px 0;"><strong>Cancellation Time:</strong> ${currentDate}</p>
                     <p style="margin: 5px 0;"><strong>Reason Provided:</strong> ${msg ? msg : 'No reason provided'}</p>
                 </div>
@@ -69,7 +69,6 @@ This is an automated notification regarding a wishlist cancellation in the syste
 CANCELLATION DETAILS:
 User: ${name || "Unknown User"}
 Vehicle: ${vehicleDescription}
-Stock/VIN: ${vehicle.vin || vehicle.stock || "Not specified"}
 Cancellation Time: ${currentDate}
 Reason Provided: ${msg ? msg : 'No reason provided'}
 

@@ -85,7 +85,7 @@ router.get("/all", async (req, res) => {
         {
           model: users,
           as: "user",
-          attributes: ['fname', 'num','role'], // Only fetch name and contact
+          attributes: ['fname', 'num', 'id'], // Include user ID
         },
       ],
       order: [['createdAt', 'DESC']],
@@ -97,7 +97,6 @@ router.get("/all", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch reports", error: error.message });
   }
 });
-
 
 router.get("/admin/all", async (req, res) => {
   try {
@@ -110,7 +109,7 @@ router.get("/admin/all", async (req, res) => {
         {
           model: users,
           as: "user",
-          attributes: ['fname', 'num', 'role'], // Include the role field
+          attributes: ['fname', 'num', 'role'],
         },
       ],
       order: [['createdAt', 'DESC']],
@@ -122,8 +121,6 @@ router.get("/admin/all", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch reports", error: error.message });
   }
 });
-
-
 
 router.get("/all2/:id", async (req, res) => {
   try {
@@ -137,7 +134,7 @@ router.get("/all2/:id", async (req, res) => {
         {
           model: users,
           as: "user",
-          attributes: ['fname', 'num'], // Only fetch name and contact
+          attributes: ['fname', 'num'],
         },
       ],
       order: [['createdAt', 'DESC']],

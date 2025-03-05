@@ -506,16 +506,18 @@ const YourList = () => {
                     <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
                       {item.status !== "cancelled" && (
                         <>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleEditClick(item);
-                            }}
-                            className="flex items-center text-green-600 hover:text-green-800 transition-colors"
-                          >
-                            <Edit className="w-4 h-4 mr-1" />
-                            Edit
-                          </button>
+                          {item.status !== "available" && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditClick(item);
+                              }}
+                              className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              Edit
+                            </button>
+                          )}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();

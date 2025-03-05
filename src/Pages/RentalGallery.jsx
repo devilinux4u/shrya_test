@@ -9,6 +9,7 @@ import {
   Users,
   Gauge,
   Fuel,
+  Filter,
 } from "lucide-react";
 
 const RentalGallery = () => {
@@ -16,15 +17,12 @@ const RentalGallery = () => {
   const [carsData, setCarsData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
-    transmission: "all",
-    fuel: "all",
-    priceRange: "all",
+    model: "",
     passengers: "all",
-    features: [],
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredCars, setFilteredCars] = useState([]);
-  const carsPerPage = 4; // Changed to show 4 cars (2 rows of 2)
+  const carsPerPage = 6; // Changed to show 6 cars per page
 
   const features = [
     "AC",
@@ -61,32 +59,14 @@ const RentalGallery = () => {
         car.model.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (filters.transmission !== "all") {
-      result = result.filter(
-        (car) => car.transmission === filters.transmission
+    if (filters.model) {
+      result = result.filter((car) =>
+        car.model.toLowerCase().includes(filters.model.toLowerCase())
       );
-    }
-
-    if (filters.fuel !== "all") {
-      result = result.filter((car) => car.fuelType === filters.fuel);
-    }
-
-    if (filters.priceRange !== "all") {
-      const [min, max] = filters.priceRange.split("-").map(Number);
-      result = result.filter((car) => {
-        const price = Number(car.price);
-        return price >= min && (max ? price <= max : true);
-      });
     }
 
     if (filters.passengers !== "all") {
       result = result.filter((car) => car.seats === filters.passengers);
-    }
-
-    if (filters.features.length > 0) {
-      result = result.filter((car) =>
-        filters.features.every((feature) => car.features.includes(feature))
-      );
     }
 
     setFilteredCars(result);
@@ -110,145 +90,100 @@ const RentalGallery = () => {
   const handleFeatureToggle = (feature) => {
     setFilters((prev) => ({
       ...prev,
-      features: prev.features.includes(feature)
+      features: prev.features?.includes(feature)
         ? prev.features.filter((f) => f !== feature)
-        : [...prev.features, feature],
+        : [...(prev.features || []), feature],
     }));
   };
 
   return (
-    <section className="mt-12 p-4 md:p-10 max-w-[1400px] mx-auto min-h-screen">
-      <div className="text-center mb-10">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-          Explore our Top Deals
-        </h2>
-        <p className="text-lg text-gray-500">from Top Rated Dealers</p>
-      </div>
+    <section className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mt-12 max-w-7xl mx-auto">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-bold text-gray-900">
+            Explore our Top Deals
+          </h2>
+          <p className="text-lg text-gray-500">from Top Rated Dealers</p>
+        </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filters - Left Side */}
-        <div className="lg:w-64 space-y-4">
-          <div className="sticky top-4">
-            <div className="relative mb-6">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        {/* Search Bar and Filter Options - Matching VehicleListing style */}
+        <div className="mb-6 max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center gap-4">
+          {/* Search Bar */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search for vehicles..."
+              className="w-full pl-10 pr-4 py-3 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Filter Options */}
+          <div className="p-4 flex flex-wrap items-center gap-3">
+            <div className="flex items-center text-gray-700 font-medium">
+              <Filter className="w-5 h-5 mr-2" />
+              Filter by:
+            </div>
+            <div className="flex flex-wrap gap-3">
               <input
                 type="text"
-                placeholder="Search by car name..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Model"
+                className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                value={filters.model}
+                onChange={(e) =>
+                  setFilters({ ...filters, model: e.target.value })
+                }
               />
-            </div>
-
-            <div className="space-y-4 bg-white p-4 rounded-lg shadow-sm">
-              <h3 className="font-semibold text-gray-800 mb-4">Filters</h3>
-
-              <div className="space-y-3">
-                <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
-                  value={filters.transmission}
-                  onChange={(e) =>
-                    setFilters({ ...filters, transmission: e.target.value })
-                  }
-                >
-                  <option value="all">All Transmissions</option>
-                  <option value="Manual">Manual</option>
-                  <option value="Automatic">Automatic</option>
-                </select>
-
-                <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
-                  value={filters.fuel}
-                  onChange={(e) =>
-                    setFilters({ ...filters, fuel: e.target.value })
-                  }
-                >
-                  <option value="all">All Fuel Types</option>
-                  <option value="Petrol">Petrol</option>
-                  <option value="Diesel">Diesel</option>
-                </select>
-
-                <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
-                  value={filters.priceRange}
-                  onChange={(e) =>
-                    setFilters({ ...filters, priceRange: e.target.value })
-                  }
-                >
-                  <option value="all">All Prices</option>
-                  <option value="0-1000">Under Rs. 1000</option>
-                  <option value="1000-2000">Rs. 1000 - Rs. 2000</option>
-                  <option value="2000-5000">Rs. 2000 - Rs. 5000</option>
-                  <option value="5000">Above Rs. 5000</option>
-                </select>
-
-                <select
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
-                  value={filters.passengers}
-                  onChange={(e) =>
-                    setFilters({ ...filters, passengers: e.target.value })
-                  }
-                >
-                  <option value="all">All Passenger Capacities</option>
-                  <option value="5">5 Seater</option>
-                  <option value="7">7 Seater</option>
-                </select>
-
-                <div className="border border-gray-200 rounded-lg p-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">
-                    Features
-                  </h4>
-                  <div className="flex flex-wrap gap-2">
-                    {features.map((feature) => (
-                      <button
-                        key={feature}
-                        onClick={() => handleFeatureToggle(feature)}
-                        className={`px-3 py-1 rounded-full text-sm ${
-                          filters.features.includes(feature)
-                            ? "bg-[#ff6b00] text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                      >
-                        {feature}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <select
+                className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                value={filters.passengers}
+                onChange={(e) =>
+                  setFilters({ ...filters, passengers: e.target.value })
+                }
+              >
+                <option value="all">All Passengers</option>
+                <option value="5">5 Seater</option>
+                <option value="7">7 Seater</option>
+              </select>
             </div>
           </div>
         </div>
 
-        {/* Car Grid - Right Side */}
-        <div className="flex-1">
+        {/* Car Grid */}
+        <div className="mb-8 max-w-7xl mx-auto">
           {filteredCars.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentCars.map((car) => (
                 <div
                   key={car.id}
-                  className="bg-white rounded-lg shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-1 flex flex-col overflow-hidden"
+                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col h-full overflow-hidden cursor-pointer"
                 >
-                  <div className="p-6 flex justify-center items-center bg-gray-50">
+                  <div className="relative h-48 bg-gray-50">
                     <img
                       src={
-                        `../../server${car.rentVehicleImages[0].image}` ||
+                        `../../server${car.rentVehicleImages[0]?.image}` ||
                         "/placeholder.svg"
                       }
                       alt={car.make}
-                      className="w-full h-40 object-contain"
+                      className="w-full h-full object-cover object-center"
+                      onError={(e) => {
+                        e.target.src = "/placeholder.svg";
+                      }}
                     />
                   </div>
-                  <div className="p-4">
+                  <div className="p-4 flex-1 flex flex-col">
                     <div className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs mb-2 inline-block">
                       {car.make}
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                    <h3 className="text-lg font-medium text-red-600 mb-1">
                       {car.model}
                     </h3>
-                    <p className="text-red-500 font-semibold text-base mb-4">
+                    <p className="text-base font-semibold text-orange-600 mb-3">
                       Rs. {car.priceHour}/-
                     </p>
-                    <div className="flex justify-between items-center text-gray-500 text-sm mb-4">
+                    <div className="flex justify-between items-center text-gray-500 text-sm mb-4 flex-1">
                       <div className="flex items-center gap-2">
                         <Users className="w-5 h-5" />
                         <span>{car.seats} Seats</span>
@@ -263,7 +198,7 @@ const RentalGallery = () => {
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {car.features.split(",").map((feature) => (
+                      {car.features?.split(",").map((feature) => (
                         <span
                           key={feature}
                           className="bg-gray-50 text-gray-600 rounded-full px-2 py-1 text-xs border border-gray-100"
@@ -274,7 +209,7 @@ const RentalGallery = () => {
                     </div>
                     <button
                       onClick={() => handleRentNow(car)}
-                      className="w-full py-2 bg-[#ff6b00] text-white rounded-md hover:bg-[#ff8533] transition"
+                      className="w-full py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition"
                     >
                       View Details
                     </button>
@@ -283,42 +218,68 @@ const RentalGallery = () => {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-600">
-              No cars found matching your criteria.
-            </p>
-          )}
-
-          {/* Pagination */}
-          <div className="flex justify-center items-center gap-2 mt-8">
-            <button
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-              className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
-            >
-              ←
-            </button>
-            <span className="text-sm">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              disabled={currentPage === totalPages}
-              className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
-            >
-              →
-            </button>
-          </div>
-
-          {filteredCars.length === 0 && (
-            <div className="text-center py-10">
-              <p className="text-gray-500 text-lg">
-                No cars found matching your criteria.
+            <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Filter className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">
+                No vehicles found
+              </h3>
+              <p className="text-gray-500">
+                Try adjusting your filters or search terms
               </p>
             </div>
           )}
         </div>
+
+        {/* Pagination */}
+        {filteredCars.length > 0 && totalPages > 1 && (
+          <div className="flex justify-center mt-10">
+            <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+              <button
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (number) => (
+                  <button
+                    key={number}
+                    onClick={() => setCurrentPage(number)}
+                    className={`px-4 py-2 border-r border-gray-200 ${
+                      currentPage === number
+                        ? "bg-orange-500 text-white font-medium"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {number}
+                  </button>
+                )
+              )}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 flex items-center ${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

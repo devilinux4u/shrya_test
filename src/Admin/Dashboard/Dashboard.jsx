@@ -81,12 +81,8 @@ export default function Dashboard() {
   const primaryBlue = "#2563EB"; // Blue-600
   const primaryOrange = "#F97316"; // Orange-500
 
-  // Colors for wishlist chart - defined outside the component to be consistent
-  const wishlistColors = {
-    Available: "#10B981", // Green
-    Pending: "#F59E0B", // Amber
-    Cancelled: "#EF4444", // Red
-  };
+  // Colors for wishlist chart
+  const wishlistColors = ["#10B981", "#F59E0B", "#EF4444"]; // Green, Amber, Red
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -118,9 +114,9 @@ export default function Dashboard() {
             { model: "BMW X5", sales: 5 },
           ],
           wishlistStatus: data.wishlistStatus || [
-            { name: "Available", value: 12, color: wishlistColors.Available },
-            { name: "Pending", value: 5, color: wishlistColors.Pending },
-            { name: "Cancelled", value: 3, color: wishlistColors.Cancelled },
+            { name: "Available", value: 12 },
+            { name: "Pending", value: 5 },
+            { name: "Cancelled", value: 3 },
           ],
           bookingStatusOverview: data.overview || [
             { status: "Pending", count: 10 },
@@ -689,7 +685,7 @@ function WishlistPieChart({ data, colors }) {
           {data.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={entry.color}
+              fill={colors[index % colors.length]}
               stroke="#ffffff"
               strokeWidth={2}
             />

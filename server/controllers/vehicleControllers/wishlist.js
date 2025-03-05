@@ -122,7 +122,6 @@ router.post('/wishlistForm', async (req, res) => {
     });
 });
 
-
 // Route to get all wishlists for a user by ID
 router.get('/wishlist/:userId', async (req, res) => {
     const { userId } = req.params;
@@ -134,13 +133,12 @@ router.get('/wishlist/:userId', async (req, res) => {
                 {
                     model: wishlistImage,
                     as: 'images',
-                    attributes: ['id', 'imageUrl'], // Customize fields you want from image
+                    attributes: ['id', 'imageUrl'],
                 },
             ],
-            order: [['createdAt', 'DESC']], // Optional: order by latest first
+            order: [['createdAt', 'DESC']],
         });
 
-        // Return an empty array if no wishlists are found
         if (!wishlists || wishlists.length === 0) {
             return res.status(200).json({ success: true, data: [] });
         }
@@ -161,7 +159,6 @@ router.delete('/wishlist/:wishlistId', async (req, res) => {
     const { wishlistId } = req.params;
 
     try {
-        // Check if the wishlist exists
         const wishlist = await vehicleWishlist.findByPk(wishlistId, {
             include: [{ model: wishlistImage, as: 'images' }],
         });
@@ -180,7 +177,6 @@ router.delete('/wishlist/:wishlistId', async (req, res) => {
             }
         }
 
-        // Delete wishlist and associated images from the database
         await wishlist.destroy();
 
         res.json({ success: true, message: 'Wishlist item deleted successfully' });
@@ -225,14 +221,12 @@ router.put('/wishlist/edit/:wishlistId', async (req, res) => {
     } = req.body;
 
     try {
-        // Find the wishlist item by ID
         const wishlist = await vehicleWishlist.findByPk(wishlistId);
 
         if (!wishlist) {
             return res.status(404).json({ success: false, message: 'Wishlist item not found' });
         }
 
-        // Update the wishlist item with new data
         await wishlist.update({
             make,
             model,
@@ -260,29 +254,26 @@ router.put('/wishlist/edit/:wishlistId', async (req, res) => {
 });
 
 router.get('/admin/wishlist/all', async (req, res) => {
-
     try {
         const wishlists = await vehicleWishlist.findAll({
             include: [
                 {
                     model: wishlistImage,
                     as: 'images',
-                    attributes: ['id', 'imageUrl'], // Customize fields you want from image
+                    attributes: ['id', 'imageUrl'],
                 },
                 {
                     model: users,
                     as: "user",
-                    attributes: ['fname', 'num', 'email'], // Only fetch name and contact
+                    attributes: ['fname', 'num', 'email'],
                 },
             ],
-
-            order: [['createdAt', 'DESC']], // Optional: order by latest first
+            order: [['createdAt', 'DESC']],
         });
 
         if (!wishlists || wishlists.length === 0) {
             return res.status(404).json({ success: false, message: 'No wishlists found for this user.' });
         }
-
 
         return res.json({ success: true, data: wishlists });
     } catch (error) {
@@ -295,19 +286,20 @@ router.get('/admin/wishlist/all', async (req, res) => {
     }
 });
 
-
-
 // Route to Update Wishlist Status & Notify User
 router.put("/wishlist/:id/available", async (req, res) => {
     try {
         const { id } = req.params;
 
-        console.log(id)
-
-        // Find the Wishlist Item
         const wishlistItem = await vehicleWishlist.findOne({
             where: { id },
-            include: [{ model: users, as: "user", attributes: ["email", "fname"] }],
+            include: [
+                { 
+                    model: users, 
+                    as: "user", 
+                    attributes: ["email", "fname"] 
+                }
+            ],
         });
 
         if (!wishlistItem) {
@@ -318,49 +310,88 @@ router.put("/wishlist/:id/available", async (req, res) => {
         wishlistItem.status = "available";
         await wishlistItem.save();
 
-        notify(wishlistItem.user.email, wishlistItem.user.fname, wishlistItem.make)
+        // Prepare vehicle details for notification
+        const vehicleDetails = {
+            id: wishlistItem.id,
+            make: wishlistItem.make,
+            model: wishlistItem.model,
+            year: wishlistItem.year,
+            color: wishlistItem.color,
+            kmRun: wishlistItem.kmRun,
+            fuelType: wishlistItem.fuelType,
+            budget: wishlistItem.budget
+        };
 
-        res.json({ success: true, message: "Wishlist status updated & notification sent!" });
+        await notify(
+            wishlistItem.user.email, 
+            wishlistItem.user.fname, 
+            vehicleDetails
+        );
+
+        res.json({ 
+            success: true, 
+            message: "Wishlist status updated & notification sent!" 
+        });
     } catch (error) {
         console.error("Error updating wishlist status:", error);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+        res.status(500).json({ 
+            success: false, 
+            message: "Internal Server Error",
+            error: error.message 
+        });
     }
 });
 
-
-//cancel wishlist status
+// Cancel wishlist status
 router.put("/wishlist/:id/cancel", async (req, res) => {
     try {
         const { id } = req.params;
+        const { reason } = req.body;
 
-        console.log(id)
-
-        // Find the Wishlist Item
         const wishlistItem = await vehicleWishlist.findOne({
             where: { id },
-            include: [{ model: users, as: "user", attributes: ["email", "fname"] }],
+            include: [
+                { 
+                    model: users, 
+                    as: "user", 
+                    attributes: ["email", "fname"] 
+                }
+            ],
         });
 
         if (!wishlistItem) {
             return res.status(404).json({ success: false, message: "Wishlist item not found" });
         }
 
-        // Update Status to "available"
+        // Update Status to "cancelled"
         wishlistItem.status = "cancelled";
         await wishlistItem.save();
 
-        const name = await users.findByPk(wishlistItem.uid)
+        const user = await users.findByPk(wishlistItem.uid);
 
-        console.log(name.fname)
+        await wishCancelNotify(
+            user.email,
+            user.fname,
+            {
+                make: wishlistItem.make,
+                model: wishlistItem.model,
+                year: wishlistItem.year
+            },
+            reason
+        );
 
-        wishCancelNotify(name.fname, req.body.vehicle, req.body.reason)
-
-        res.json({ success: true, message: "Wishlist status updated & notification sent!" });
+        res.json({ 
+            success: true, 
+            message: "Wishlist status updated & notification sent!" 
+        });
     } catch (error) {
         console.error("Error updating wishlist status:", error);
-        res.status(500).json({ success: false, message: "Internal Server Error" });
+        res.status(500).json({ 
+            success: false, 
+            message: "Internal Server Error",
+            error: error.message 
+        });
     }
 });
-
 
 module.exports = router;

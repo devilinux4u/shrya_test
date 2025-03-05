@@ -288,7 +288,7 @@ const RentalBookingForm = ({ vehicleId }) => {
       formData.append("pickupLocation", bookingData.pickupLocation);
       formData.append("dropoffLocation", bookingData.dropoffLocation);
       formData.append("pickupDate", bookingData.pickupDate);
-      formData.append("pickupTime", bookingData.pickupTime);
+      formData.append("pickupTime", bookingData.pickupTime); // Ensure pickupTime is included
       formData.append("returnDate", bookingData.returnDate);
       formData.append("returnTime", bookingData.returnTime);
       formData.append("rentalType", bookingData.rentalType);

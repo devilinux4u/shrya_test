@@ -32,9 +32,20 @@ const LostAndFound = () => {
   const [currentFilter, setCurrentFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const checkCookiesAvailable = () => {
-    return Cookies.get("sauto");
+    const cookie = Cookies.get("sauto");
+    if (cookie) {
+      try {
+        const userData = JSON.parse(cookie);
+        setCurrentUserId(userData.id);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+    return false;
   };
 
   useEffect(() => {
@@ -57,6 +68,7 @@ const LostAndFound = () => {
     };
 
     fetchItems();
+    checkCookiesAvailable(); // Initialize currentUserId
   }, []);
 
   // Filter items based on current filters and search query
@@ -215,6 +227,10 @@ const LostAndFound = () => {
       toast.error("Failed to submit the item report.");
     }
   };
+
+  // Check if current user is the reporter of the selected item
+  const isCurrentUserReporter =
+    selectedItem && currentUserId === selectedItem.uid;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -596,14 +612,24 @@ const LostAndFound = () => {
             <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <button
                 onClick={handleCallReporter}
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                disabled={isCurrentUserReporter}
+                className={`flex-1 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                  isCurrentUserReporter
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
               >
                 <Phone className="w-5 h-5" />
                 Call Reporter
               </button>
               <button
                 onClick={handleSendSMS}
-                className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                disabled={isCurrentUserReporter}
+                className={`flex-1 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                  isCurrentUserReporter
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-green-600 text-white hover:bg-green-700"
+                }`}
               >
                 <MessageSquare className="w-5 h-5" />
                 Send SMS

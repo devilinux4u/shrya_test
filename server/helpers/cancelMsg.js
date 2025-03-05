@@ -1,8 +1,11 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 
-const formatDateTime = (dateString) => {
+const formatDateTime = (dateString, timeString) => {
     const date = new Date(dateString);
+    const [hours, minutes] = timeString.split(":");
+    date.setHours(hours, minutes);
+
     const options = {
         year: 'numeric',
         month: 'long',
@@ -132,7 +135,7 @@ const cancelEmail = async (msg, data, admin) => {
     if (admin === false) {
         const userName = data.User?.fname || "Unknown User";
         const vehicleInfo = `${data.RentalVehicle.make} ${data.RentalVehicle.model} ${data.RentalVehicle.year}`;
-        const dateInfo = formatDateTime(data.pickupDate);
+        const dateInfo = formatDateTime(data.pickupDate, data.pickupTime); // Include pickup time dynamically
         
         mailOptions = {
             from: process.env.EMAIL_USER,
@@ -145,7 +148,7 @@ const cancelEmail = async (msg, data, admin) => {
     } else if (admin === true) {
         const userName = data.user?.fname || "Customer";
         const vehicleInfo = `${data.RentalVehicle.make} ${data.RentalVehicle.model} ${data.RentalVehicle.year}`;
-        const dateInfo = formatDateTime(data.pickupDate);
+        const dateInfo = formatDateTime(data.pickupDate, data.pickupTime); // Include pickup time dynamically
         
         mailOptions = {
             from: process.env.EMAIL_USER,

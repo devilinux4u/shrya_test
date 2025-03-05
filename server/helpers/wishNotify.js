@@ -2,7 +2,7 @@ require('dotenv').config();
 const nodemailer = require('nodemailer');
 
 // Function to send wishlist availability notification via email
-const sendWishlistNotification = async (recipientEmail, name, vehicle) => {
+const sendWishlistNotification = async (recipientEmail, name, vehicleDetails) => {
     // Configure the email transporter
     const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -14,7 +14,7 @@ const sendWishlistNotification = async (recipientEmail, name, vehicle) => {
         },
     });
 
-    // Create HTML content with table layout
+    // Create HTML content with detailed vehicle information
     const htmlContent = `
     <!DOCTYPE html>
     <html lang="en">
@@ -92,20 +92,31 @@ const sendWishlistNotification = async (recipientEmail, name, vehicle) => {
                 <p>Hello ${name},</p>
                 
                 <div class="notification">
-                    <strong>Great news!</strong> A vehicle from your wishlist is now available.
+                    <strong>Great news!</strong> A vehicle matching your wishlist is now available.
                 </div>
                 
                 <table>
                     <tr>
-                        <th>Vehicle</th>
-                        <td>${vehicle}</td>
+                        <th>Make</th>
+                        <td>${vehicleDetails.make || 'N/A'}</td>
                     </tr>
+                    <tr>
+                        <th>Model</th>
+                        <td>${vehicleDetails.model || 'N/A'}</td>
+                    </tr>
+                    <tr>
+                        <th>Year</th>
+                        <td>${vehicleDetails.year || 'N/A'}</td>
+                    </tr>
+                    ${vehicleDetails.color ? `<tr><th>Color</th><td>${vehicleDetails.color}</td></tr>` : ''}
+                    ${vehicleDetails.kmRun ? `<tr><th>Total KM Run</th><td>${vehicleDetails.kmRun}</td></tr>` : ''}
+                    ${vehicleDetails.fuelType ? `<tr><th>Fuel Type</th><td>${vehicleDetails.fuelType}</td></tr>` : ''}
                 </table>
                 
                 <p>Don't wait too long - vehicles in demand often get booked quickly!</p>
                 
                 <div style="text-align: center;">
-                    <a href="#" class="cta-button">View Vehicle Now</a>
+                    <a href="http://localhost:5173/WishlistVehicleDetail/${vehicleDetails.id}" class="cta-button">View Vehicle Now</a>
                 </div>
                 
                 <p>Thank you for choosing Shreya Auto for your vehicle needs.</p>
@@ -120,21 +131,21 @@ const sendWishlistNotification = async (recipientEmail, name, vehicle) => {
     </html>`;
 
     const mailOptions = {
-        from: process.env.EMAIL_USER, // Sender email
-        to: recipientEmail, // Recipient email
+        from: `"Shreya Auto" <${process.env.EMAIL_USER}>`,
+        to: recipientEmail,
         subject: 'Your Wishlist Vehicle is Now Available!',
         html: htmlContent,
-        text: `Hello ${name},\n\nGreat news! The vehicle you wished for (${vehicle}) is now available. Check it out on our website.\n\nBest Regards,\nShreya Auto Team`,
+        text: `Hello ${name},\n\nGreat news! A vehicle matching your wishlist is now available:\n\nMake: ${vehicleDetails.make || 'N/A'}\nModel: ${vehicleDetails.model || 'N/A'}\nYear: ${vehicleDetails.year || 'N/A'}\n${vehicleDetails.color ? `Color: ${vehicleDetails.color}\n` : ''}${vehicleDetails.kmRun ? `Total KM Run: ${vehicleDetails.kmRun}\n` : ''}${vehicleDetails.fuelType ? `Fuel Type: ${vehicleDetails.fuelType}\n` : ''}\nVisit the vehicle detail page: http://localhost:5173/WishlistVehicleDetail/${vehicleDetails.id}\n\nBest Regards,\nShreya Auto Team`,
     };
 
     try {
         await transporter.sendMail(mailOptions);
         console.log(`Wishlist notification sent successfully to ${recipientEmail}`);
+        return true;
     } catch (error) {
         console.error('Error sending wishlist notification:', error);
         throw error;
     }
 };
 
-// Export the function
 module.exports = sendWishlistNotification;
