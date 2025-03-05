@@ -17,6 +17,7 @@ const register = require('./controllers/authControllers/register');
 const message = require('./controllers/contactusControllers/message');
 const wishlist = require('./controllers/vehicleControllers/wishlist');
 const sell = require('./controllers/vehicleControllers/sellVechile');
+const profile = require('./controllers/profileController/profile');
 const lostAndFound = require('./controllers/lostAndFoundControllers/lostAndFound');
 
 app.use('/uploads', express.static(path.join(__dirname, 'controllers/uploads')));
@@ -26,6 +27,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
+app.use('/', login, register, message, wishlist, sell, profile);
 app.use('/', login, register, message, wishlist, sell);
 app.use('/api/lost-and-found', lostAndFound);
 

@@ -1,43 +1,50 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Mail, Phone, Calendar, Edit, Camera, Trash2, Upload, Save, X } from "lucide-react"
+import { Mail, Phone, Calendar, Edit, Camera, Trash2, Upload, Save, X, Loader2 } from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import axios from "axios"
 
+import Cookies from "js-cookie"
+
+const userId = Cookies.get("sauto").split("-")[0]
+
 const Profile = () => {
   const [user, setUser] = useState({
-    name: "",
-    username: "",
+    fname: "",
+    uname: "",
     email: "",
-    phone: "",
-    joinDate: "",
-    avatar: "/placeholder.svg?height=200&width=200",
+    num: "",
+    createdAt: "",
+    profile: "/placeholder.svg?height=200&width=200",
   })
 
   const [isEditing, setIsEditing] = useState(false)
   const [showPhotoOptions, setShowPhotoOptions] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
   const fileInputRef = useRef(null)
   const photoOptionsRef = useRef(null)
 
-  // Fetch user data from the database when the component mounts
+  // Fetch user data from API
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get("/api/user/profile")
-        console.log("Fetched user data:", response.data) // Debugging line
-        setUser(response.data)
+        setIsLoading(true)
+        const response = await fetch(`http://localhost:3000/profile/${userId}`)
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data")
+        }
+
+        const userData = await response.json()
+        setUser(userData.data)
       } catch (error) {
         console.error("Error fetching user data:", error)
-        toast.error("Failed to load user data", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        })
+        toast.error("Failed to load profile data")
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -82,7 +89,22 @@ const Profile = () => {
 
   const handleSaveProfile = async () => {
     try {
-      await axios.put("/api/user/profile", user)
+      setIsSaving(true)
+
+      const response = await fetch(`http://localhost:3000/profileChange/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to update profile")
+      }
+
+      const updatedUser = await response.json()
+      setUser(updatedUser.user)
       setIsEditing(false)
       toast.success("Profile updated successfully!", {
         position: "top-right",
@@ -93,15 +115,10 @@ const Profile = () => {
         draggable: true,
       })
     } catch (error) {
-      console.error("Error saving profile:", error)
-      toast.error("Failed to save profile", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      })
+      console.error("Error updating profile:", error)
+      toast.error("Failed to update profile")
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -112,19 +129,26 @@ const Profile = () => {
   const handleFileChange = async (e) => {
     const file = e.target.files[0]
     if (file) {
-      const formData = new FormData()
-      formData.append("avatar", file)
-
       try {
-        const response = await axios.post("/api/user/upload-avatar", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+        const formData = new FormData()
+        formData.append("profile", file)
+
+        setIsSaving(true)
+        const response = await fetch(`http://localhost:3000/profile/${userId}/update-avatar`, {
+          method: "POST",
+          body: formData,
         })
+
+        if (!response.ok) {
+          throw new Error("Failed to upload avatar")
+        }
+
+        const result = await response.json()
         setUser((prevUser) => ({
           ...prevUser,
-          avatar: response.data.avatarUrl,
+          profile: result.profile,
         }))
+
         toast.success("Profile image uploaded successfully!", {
           position: "top-right",
           autoClose: 3000,
@@ -135,14 +159,9 @@ const Profile = () => {
         })
       } catch (error) {
         console.error("Error uploading avatar:", error)
-        toast.error("Failed to upload profile image", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        })
+        toast.error("Failed to upload profile image")
+      } finally {
+        setIsSaving(false)
       }
     }
     setShowPhotoOptions(false)
@@ -150,13 +169,21 @@ const Profile = () => {
 
   const handleDeletePhoto = async () => {
     try {
-      await axios.delete("/api/user/delete-avatar")
+      setIsSaving(true)
+      const response = await fetch(`http://localhost:3000/profile/${userId}/delete-avatar`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to delete avatar")
+      }
+
       setUser((prevUser) => ({
         ...prevUser,
-        avatar: "/placeholder.svg?height=200&width=200",
+        profile: "/placeholder.svg?height=200&width=200",
       }))
-      setShowPhotoOptions(false)
-      toast.info("Profile image has been removed", {
+
+      toast.success("Profile image has been removed", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -166,14 +193,10 @@ const Profile = () => {
       })
     } catch (error) {
       console.error("Error deleting avatar:", error)
-      toast.error("Failed to delete profile image", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      })
+      toast.error("Failed to delete profile image")
+    } finally {
+      setIsSaving(false)
+      setShowPhotoOptions(false)
     }
   }
 
@@ -182,6 +205,26 @@ const Profile = () => {
   }
 
   const handleCancelEdit = () => {
+    const fetchUserData = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch(`http://localhost:3000/profile/${userId}`)
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data")
+        }
+
+        const userData = await response.json()
+        setUser(userData.data)
+      } catch (error) {
+        console.error("Error fetching user data:", error)
+        toast.error("Failed to revert changes")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchUserData()
     setIsEditing(false)
     toast.info("Profile editing cancelled", {
       position: "top-right",
@@ -191,6 +234,17 @@ const Profile = () => {
       pauseOnHover: true,
       draggable: true,
     })
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -207,6 +261,7 @@ const Profile = () => {
                   onClick={handleCancelEdit}
                   className="flex items-center justify-center p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition-all"
                   aria-label="Cancel editing"
+                  disabled={isSaving}
                 >
                   <X className="h-5 w-5 text-gray-700" />
                 </button>
@@ -214,8 +269,13 @@ const Profile = () => {
                   onClick={handleSaveProfile}
                   className="flex items-center justify-center p-2 bg-white bg-opacity-90 rounded-full shadow-md hover:bg-opacity-100 transition-all"
                   aria-label="Save profile"
+                  disabled={isSaving}
                 >
-                  <Save className="h-5 w-5 text-green-600" />
+                  {isSaving ? (
+                    <Loader2 className="h-5 w-5 text-green-600 animate-spin" />
+                  ) : (
+                    <Save className="h-5 w-5 text-green-600" />
+                  )}
                 </button>
               </div>
             ) : (
@@ -237,16 +297,21 @@ const Profile = () => {
             <div className="relative">
               <img
                 className="h-32 w-32 sm:h-40 sm:w-40 rounded-full border-4 border-white shadow-lg object-cover cursor-pointer transition-transform hover:scale-105"
-                src={user.avatar || "/placeholder.svg"}
-                alt={user.name}
+                src={`../../server/controllers${user.profile}` || "/placeholder.svg?height=200&width=200"}
+                alt={user.fname}
                 onClick={handleAvatarClick}
               />
               <button
                 onClick={handleAvatarClick}
                 className="absolute bottom-0 right-0 bg-white p-2 sm:p-3 rounded-full shadow-lg hover:bg-gray-100 transition-colors"
                 aria-label="Change profile picture"
+                disabled={isSaving}
               >
-                <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600 animate-spin" />
+                ) : (
+                  <Camera className="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" />
+                )}
               </button>
               {showPhotoOptions && (
                 <div className="absolute mt-2 w-48 bg-white rounded-lg shadow-xl z-10 -left-4 transform translate-y-2 border border-gray-100">
@@ -254,6 +319,7 @@ const Profile = () => {
                     <button
                       onClick={handleUploadPhoto}
                       className="flex items-center w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      disabled={isSaving}
                     >
                       <Upload className="inline-block w-4 h-4 mr-3 text-blue-500" />
                       Upload new photo
@@ -261,6 +327,7 @@ const Profile = () => {
                     <button
                       onClick={handleDeletePhoto}
                       className="flex items-center w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-gray-50 transition-colors"
+                      disabled={isSaving}
                     >
                       <Trash2 className="inline-block w-4 h-4 mr-3" />
                       Delete photo
@@ -277,13 +344,14 @@ const Profile = () => {
             {isEditing ? (
               <input
                 type="text"
-                name="name"
-                value={user.name}
+                name="fname"
+                value={user.fname}
                 onChange={handleInputChange}
                 className="text-2xl sm:text-3xl font-bold text-gray-900 bg-gray-50 p-2 rounded-lg border border-gray-200 text-center w-full sm:w-2/3 mx-auto focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isSaving}
               />
             ) : (
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">{user.name || "Name not available"}</h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">{user.fname}</h1>
             )}
             {isEditing ? (
               <div className="mt-2">
@@ -291,15 +359,16 @@ const Profile = () => {
                   <span className="text-gray-500 mr-1">@</span>
                   <input
                     type="text"
-                    name="username"
-                    value={user.username}
+                    name="uname"
+                    value={user.uname}
                     onChange={handleInputChange}
                     className="text-base sm:text-lg text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-200 text-center w-full sm:w-2/3 mx-auto focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    disabled={isSaving}
                   />
                 </div>
               </div>
             ) : (
-              <p className="text-base sm:text-lg text-gray-600 mt-2">@{user.username || "Username not available"}</p>
+              <p className="text-base sm:text-lg text-gray-600 mt-2">@{user.uname}</p>
             )}
           </div>
 
@@ -320,9 +389,10 @@ const Profile = () => {
                       value={user.email}
                       onChange={handleInputChange}
                       className="w-full text-sm sm:text-base text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={isSaving}
                     />
                   ) : (
-                    <p className="text-sm sm:text-base text-gray-600 truncate">{user.email || "Email not available"}</p>
+                    <p className="text-sm sm:text-base text-gray-600 truncate">{user.email}</p>
                   )}
                 </div>
               </div>
@@ -333,13 +403,14 @@ const Profile = () => {
                   {isEditing ? (
                     <input
                       type="tel"
-                      name="phone"
-                      value={user.phone}
+                      name="num"
+                      value={user.num}
                       onChange={handleInputChange}
                       className="w-full text-sm sm:text-base text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      disabled={isSaving}
                     />
                   ) : (
-                    <p className="text-sm sm:text-base text-gray-600 truncate">{user.phone || "Phone number not available"}</p>
+                    <p className="text-sm sm:text-base text-gray-600 truncate">{user.num}</p>
                   )}
                 </div>
               </div>
@@ -347,7 +418,7 @@ const Profile = () => {
                 <Calendar className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-gray-500 mb-1">Member Since</p>
-                  <p className="text-sm sm:text-base text-gray-600">{user.joinDate || "Join date not available"}</p>
+                  <p className="text-sm sm:text-base text-gray-600">{user.createdAt}</p>
                 </div>
               </div>
             </div>
@@ -358,10 +429,12 @@ const Profile = () => {
             <button
               onClick={isEditing ? handleSaveProfile : handleEditToggle}
               className="w-full flex justify-center items-center px-6 py-3 rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+              disabled={isSaving}
             >
               {isEditing ? (
                 <>
-                  <Save className="h-5 w-5 mr-2" /> Save Profile
+                  {isSaving ? <Loader2 className="h-5 w-5 mr-2 animate-spin" /> : <Save className="h-5 w-5 mr-2" />}
+                  Save Profile
                 </>
               ) : (
                 <>
