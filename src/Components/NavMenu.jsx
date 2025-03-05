@@ -107,7 +107,7 @@ const NavMenu = () => {
               <img
                 src={Logo || "/placeholder.svg"}
                 alt="Shreya Auto Logo"
-                className="h-12 w-auto"
+                className="h-12 w-auto shadow-white"
                 onClick={handleLogo}
               />
             </Link>
@@ -126,7 +126,7 @@ const NavMenu = () => {
                   className={`flex items-center px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out ${
                     isScrolled
                       ? "text-black hover:text-blue-600"
-                      : "text-white hover:text-blue-300"
+                      : "text-black hover:text-blue-300"
                   }`}
                 >
                   Services
@@ -488,7 +488,7 @@ const NavLink = ({ to, children, mobile, menuItem, onClick, isScrolled }) => (
           : "hover:text-blue-600 px-3 py-2 rounded-md text-lg font-medium"
       }
       transition duration-300 ease-in-out hover:bg-blue-50
-      ${!mobile && !menuItem ? (isScrolled ? "text-black" : "text-white") : ""}
+      ${!mobile && !menuItem ? "text-black" : ""}
     `}
   >
     {children}
