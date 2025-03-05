@@ -99,124 +99,149 @@ export default function UserAppointments() {
     setShowDetailsModal(false);
   };
 
-  const cancelAppointment = async (id, e) => {
-    if (e) {
-      e.stopPropagation(); // Prevent card click when clicking the button
-    }
-
+  const cancelAppointment = async (id) => {
     try {
-      // Replace with your actual API endpoint
+      // Log the ID being sent
+      console.log("Cancelling appointment with ID:", id);
+
       const response = await fetch(
-        `http://localhost:3000/appointments/${id}/cancel`,
+        `http://localhost:3000/api/appointments/${id}/status`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({ status: "cancelled" }),
         }
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        console.error("Error response:", errorData);
+        throw new Error(
+          errorData.message ||
+            `Failed to cancel appointment: ${response.statusText}`
+        );
       }
 
+      const updatedAppointment = await response.json();
+      console.log("Updated appointment:", updatedAppointment);
+
       // Update local state
-      setAppointments(
-        appointments.map((appointment) =>
-          appointment._id === id
-            ? { ...appointment, status: "cancelled" }
-            : appointment
+      setAppointments((prev) =>
+        prev.map((app) =>
+          app._id === id ? { ...app, status: "cancelled" } : app
         )
       );
 
-      // If the updated appointment is currently selected, update it
-      if (selectedAppointment && selectedAppointment._id === id) {
-        setSelectedAppointment({ ...selectedAppointment, status: "cancelled" });
-      }
+      // Dispatch event to update other components
+      window.dispatchEvent(
+        new CustomEvent("appointmentStatusUpdated", {
+          detail: { id, status: "cancelled", updatedAppointment },
+        })
+      );
 
-      // Close modal if open
-      if (showDetailsModal) {
-        closeDetailsModal();
-      }
+      alert("Appointment successfully canceled.");
     } catch (error) {
       console.error("Error cancelling appointment:", error);
-      alert("Failed to cancel appointment. Please try again.");
+      alert(`Failed to cancel appointment: ${error.message}`);
     }
   };
 
-  const approveAppointment = async (id, e) => {
-    if (e) {
-      e.stopPropagation(); // Prevent card click when clicking the button
-    }
-
+  const approveAppointment = async (id) => {
     try {
-      // Replace with your actual API endpoint
       const response = await fetch(
-        `http://localhost:3000/appointments/${id}/approve`,
+        `http://localhost:3000/api/appointments/${id}/status`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({ status: "confirmed" }),
         }
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(
+          `Failed to approve appointment: ${response.statusText}`
+        );
       }
 
-      // Update local state
-      setAppointments(
-        appointments.map((appointment) =>
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((appointment) =>
           appointment._id === id
             ? { ...appointment, status: "confirmed" }
             : appointment
         )
       );
-
-      // If the updated appointment is currently selected, update it
-      if (selectedAppointment && selectedAppointment._id === id) {
-        setSelectedAppointment({ ...selectedAppointment, status: "confirmed" });
-      }
     } catch (error) {
       console.error("Error approving appointment:", error);
-      alert("Failed to approve appointment. Please try again.");
     }
   };
 
   const completeAppointment = async (id) => {
     try {
-      // Replace with your actual API endpoint
       const response = await fetch(
-        `http://localhost:3000/appointments/${id}/complete`,
+        `http://localhost:3000/api/appointments/${id}/status`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({ status: "completed" }),
         }
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(
+          `Failed to complete appointment: ${response.statusText}`
+        );
       }
 
-      // Update local state
-      setAppointments(
-        appointments.map((appointment) =>
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((appointment) =>
           appointment._id === id
             ? { ...appointment, status: "completed" }
             : appointment
         )
       );
-
-      // If the updated appointment is currently selected, update it
-      if (selectedAppointment && selectedAppointment._id === id) {
-        setSelectedAppointment({ ...selectedAppointment, status: "completed" });
-      }
     } catch (error) {
       console.error("Error completing appointment:", error);
-      alert("Failed to mark appointment as completed. Please try again.");
+    }
+  };
+
+  const updateAppointmentStatus = async (id, status) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/appointments/${id}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to update status: ${response.statusText}`);
+      }
+
+      const updatedStatus = await response.json();
+
+      // Update local state with the updated appointment
+      setAppointments((prevAppointments) =>
+        prevAppointments.map((appointment) =>
+          appointment._id === id
+            ? { ...appointment, status: updatedStatus.status }
+            : appointment
+        )
+      );
+
+      alert(`Appointment status updated to ${status}`);
+    } catch (error) {
+      console.error("Error updating appointment status:", error);
+      alert("Failed to update appointment status. Please try again.");
     }
   };
 
@@ -562,9 +587,7 @@ export default function UserAppointments() {
                       {isUserSeller(appointment) &&
                         appointment.status === "pending" && (
                           <button
-                            onClick={(e) =>
-                              approveAppointment(appointment._id, e)
-                            }
+                            onClick={() => approveAppointment(appointment._id)}
                             className="flex items-center text-green-600 hover:text-green-800 transition-colors"
                           >
                             <CheckCircle className="w-4 h-4 mr-1" />
@@ -573,13 +596,23 @@ export default function UserAppointments() {
                         )}
                       {appointment.status === "pending" && (
                         <button
-                          onClick={(e) => cancelAppointment(appointment._id, e)}
+                          onClick={() => cancelAppointment(appointment._id)}
                           className="flex items-center text-red-600 hover:text-red-800 transition-colors"
                         >
                           <XCircle className="w-4 h-4 mr-1" />
                           Cancel
                         </button>
                       )}
+                      {isUserSeller(appointment) &&
+                        appointment.status === "confirmed" && (
+                          <button
+                            onClick={() => completeAppointment(appointment._id)}
+                            className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Complete
+                          </button>
+                        )}
                     </div>
                   </div>
                 </div>

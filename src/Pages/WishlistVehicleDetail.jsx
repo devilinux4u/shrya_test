@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ItemBooking from "../Components/WishlistBookNow";
+import Cookies from "js-cookie";
 import {
   Car,
   Calendar,
@@ -30,6 +30,12 @@ const WishlistVehicleDetail = () => {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState({
+    date: "",
+    time: "",
+    location: "",
+    description: "",
+  });
 
   // Fetch vehicle data based on ID in the URL
   useEffect(() => {
@@ -86,6 +92,45 @@ const WishlistVehicleDetail = () => {
   // Back button handler
   const handleBackToList = () => {
     navigate("/YourList");
+  };
+
+  const handleBookingChange = (e) => {
+    const { name, value } = e.target;
+    setBookingDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleBookingSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const userId = Cookies.get("sauto").split("-")[0];
+      const payload = {
+        userId,
+        vehicleId: vehicle?.id,
+        ...bookingDetails,
+      };
+
+      const response = await fetch("http://localhost:3000/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `Failed to create appointment: ${
+            errorData.message || "Unknown error"
+          }`
+        );
+      }
+
+      const data = await response.json();
+      setShowBookingModal(false);
+      navigate("/UserAppointments");
+    } catch (error) {
+      console.error("Error submitting booking:", error.message);
+      alert(`Error: ${error.message}`);
+    }
   };
 
   if (loading) {
@@ -359,15 +404,94 @@ const WishlistVehicleDetail = () => {
 
       {/* Booking Modal */}
       {showBookingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl relative">
-            <button
-              onClick={() => setShowBookingModal(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-            >
-              <X className="w-6 h-6" />
-            </button>
-            <ItemBooking vehicle={vehicle} />
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h2 className="text-2xl font-bold mb-4">Book Now</h2>
+            <form onSubmit={handleBookingSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date
+                </label>
+                <input
+                  type="date"
+                  id="date"
+                  name="date"
+                  value={bookingDetails.date}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="time"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Time
+                </label>
+                <input
+                  type="time"
+                  id="time"
+                  name="time"
+                  value={bookingDetails.time}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="location"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Location
+                </label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={bookingDetails.location}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="3"
+                  value={bookingDetails.description}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Add any additional details..."
+                ></textarea>
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setShowBookingModal(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -42,16 +42,48 @@ export default function Appointments() {
           throw new Error(`Failed to fetch bookings: ${response.statusText}`);
         }
         const data = await response.json();
-        setBookings(
-          data.appointments.map((booking) => ({
-            ...booking,
-            user: booking.user || {}, // Fallback to an empty object if user is undefined
-            vehicle: {
-              ...booking.vehicle,
-              seller: booking.vehicle?.user?.fname || "Unknown Seller", // Fallback to "Unknown Seller" if vehicle.user is undefined
-            },
-          }))
-        );
+
+        // Ensure data structure is valid
+        const appointments = data?.data || [];
+        console.log("Fetched bookings:", appointments);
+
+        // Map the appointments to match the expected structure
+        const mappedAppointments = appointments.map((app) => ({
+          _id: app.id,
+          date: app.date,
+          time: app.time,
+          location: app.location,
+          description: app.description,
+          status: app.status,
+          createdAt: app.createdAt,
+          user: {
+            name: app.User?.fname || "Unknown",
+            email: app.User?.email || "N/A",
+            phone: app.User?.num || "N/A",
+          },
+          vehicle: {
+            id: app.SellVehicle?.id,
+            make: app.SellVehicle?.make || "Unknown",
+            model: app.SellVehicle?.model || "Unknown",
+            year: app.SellVehicle?.year,
+            price: app.SellVehicle?.price,
+            color: app.SellVehicle?.color,
+            seller: "Shreya Auto", // Hardcoded as per your filter
+            images:
+              app.SellVehicle?.SellVehicleImages?.map((img) => img.image) || [],
+            cc: app.SellVehicle?.cc,
+            fuel: app.SellVehicle?.fuel,
+            km: app.SellVehicle?.km,
+            mile: app.SellVehicle?.mile,
+            seat: app.SellVehicle?.seat,
+            trans: app.SellVehicle?.trans,
+            own: app.SellVehicle?.own,
+            des: app.SellVehicle?.des,
+            status: app.SellVehicle?.status,
+          },
+        }));
+
+        setBookings(mappedAppointments);
       } catch (error) {
         console.error("Error fetching bookings:", error);
       } finally {
@@ -61,12 +93,43 @@ export default function Appointments() {
     fetchBookings();
   }, []);
 
+  useEffect(() => {
+    const handleStatusUpdate = (event) => {
+      const { id, status, updatedAppointment } = event.detail;
+
+      // Update local state in Appointments
+      setBookings((prevBookings) =>
+        prevBookings.map((booking) =>
+          booking._id === id
+            ? {
+                ...booking,
+                status,
+                // Include any other fields from updatedAppointment if needed
+              }
+            : booking
+        )
+      );
+    };
+
+    // Listen for the custom event
+    window.addEventListener("appointmentStatusUpdated", handleStatusUpdate);
+
+    return () => {
+      // Cleanup the event listener
+      window.removeEventListener(
+        "appointmentStatusUpdated",
+        handleStatusUpdate
+      );
+    };
+  }, []);
+
   const toggleExpand = (id) => {
     setExpandedBooking(expandedBooking === id ? null : id);
   };
 
   const openDetailsModal = (booking) => {
     setSelectedBooking(booking);
+    setCurrentImageIndex(0); // Reset image index when opening modal
     setShowDetailsModal(true);
   };
 
@@ -76,9 +139,8 @@ export default function Appointments() {
 
   const updateBookingStatus = async (id, status) => {
     try {
-      // Replace with your actual API endpoint
       const response = await fetch(
-        `http://localhost:3000/api/bookings/${id}/status`, // Ensure the endpoint matches your backend
+        `http://localhost:3000/api/appointments/${id}/status`,
         {
           method: "PATCH",
           headers: {
@@ -89,7 +151,7 @@ export default function Appointments() {
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Failed to update status: ${response.statusText}`);
       }
 
       const updatedBooking = await response.json();
@@ -103,7 +165,7 @@ export default function Appointments() {
         )
       );
 
-      // If the updated booking is currently selected, update it
+      // Update selected booking if it matches the updated one
       if (selectedBooking && selectedBooking._id === id) {
         setSelectedBooking((prevSelected) => ({
           ...prevSelected,
@@ -115,16 +177,24 @@ export default function Appointments() {
     }
   };
 
-  const handleNextImage = (images) => {
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === images.length - 1 ? 0 : prevIndex + 1
-    );
+  const handleNextImage = () => {
+    if (selectedBooking && selectedBooking.vehicle.images) {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === selectedBooking.vehicle.images.length - 1
+          ? 0
+          : prevIndex + 1
+      );
+    }
   };
 
-  const handlePrevImage = (images) => {
-    setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? images.length - 1 : prevIndex - 1
-    );
+  const handlePrevImage = () => {
+    if (selectedBooking && selectedBooking.vehicle.images) {
+      setCurrentImageIndex((prevIndex) =>
+        prevIndex === 0
+          ? selectedBooking.vehicle.images.length - 1
+          : prevIndex - 1
+      );
+    }
   };
 
   const filteredBookings = bookings
@@ -240,13 +310,18 @@ export default function Appointments() {
                   <div className="px-4 py-4 sm:px-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-center">
-                        <img
-                          src={
-                            booking.vehicle.image || "/placeholder-image.jpg"
-                          }
-                          alt={`${booking.vehicle.make} ${booking.vehicle.model}`}
-                          className="h-16 w-16 rounded-lg object-cover mr-4 flex-shrink-0"
-                        />
+                        {booking.vehicle.images &&
+                        booking.vehicle.images.length > 0 ? (
+                          <img
+                            src={booking.vehicle.images[0]}
+                            alt={`${booking.vehicle.make} ${booking.vehicle.model}`}
+                            className="h-16 w-16 rounded-lg object-cover mr-4 flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="h-16 w-16 rounded-lg bg-gray-200 mr-4 flex-shrink-0 flex items-center justify-center">
+                            <Car className="h-8 w-8 text-gray-400" />
+                          </div>
+                        )}
                         <div>
                           <h3 className="text-lg font-medium text-gray-900">
                             {booking.user.name}
@@ -353,7 +428,6 @@ export default function Appointments() {
               onClick={closeDetailsModal}
             ></div>
 
-            {/* This element is to trick the browser into centering the modal contents. */}
             <span
               className="hidden md:inline-block md:align-middle md:h-screen"
               aria-hidden="true"
@@ -400,7 +474,7 @@ export default function Appointments() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
-                      {/* Adjusted Customer Information */}
+                      {/* Customer Information */}
                       <div className="bg-white p-2 rounded-lg border border-gray-200">
                         <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
                           <User className="h-3 w-3 mr-1 text-purple-600" />
@@ -440,7 +514,7 @@ export default function Appointments() {
                         </div>
                       </div>
 
-                      {/* Adjusted Vehicle Information */}
+                      {/* Vehicle Information */}
                       <div className="bg-white p-2 rounded-lg border border-gray-200">
                         <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
                           <Car className="h-3 w-3 mr-1 text-purple-600" />
@@ -466,45 +540,34 @@ export default function Appointments() {
                                   className="absolute inset-0 h-full w-full object-cover"
                                 />
                               </div>
-                              <button
-                                onClick={() =>
-                                  handlePrevImage(
-                                    selectedBooking.vehicle.images
-                                  )
-                                }
-                                className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
-                              >
-                                &#8249;
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleNextImage(
-                                    selectedBooking.vehicle.images
-                                  )
-                                }
-                                className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
-                              >
-                                &#8250;
-                              </button>
+                              {selectedBooking.vehicle.images.length > 1 && (
+                                <>
+                                  <button
+                                    onClick={handlePrevImage}
+                                    className="absolute top-1/2 left-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
+                                  >
+                                    &#8249;
+                                  </button>
+                                  <button
+                                    onClick={handleNextImage}
+                                    className="absolute top-1/2 right-2 transform -translate-y-1/2 bg-gray-800 text-white p-2 rounded-full"
+                                  >
+                                    &#8250;
+                                  </button>
+                                </>
+                              )}
                             </div>
                           </div>
-                        ) : selectedBooking.vehicle.image ? (
+                        ) : (
                           <div className="mb-4">
                             <p className="text-sm font-medium text-gray-500 mb-2">
                               Vehicle Image
                             </p>
-                            <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                              <img
-                                src={
-                                  selectedBooking.vehicle.image ||
-                                  "/placeholder.svg"
-                                }
-                                alt={`${selectedBooking.vehicle.make} ${selectedBooking.vehicle.model}`}
-                                className="absolute inset-0 h-full w-full object-cover"
-                              />
+                            <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
+                              <Car className="h-12 w-12 text-gray-400" />
                             </div>
                           </div>
-                        ) : null}
+                        )}
 
                         <div className="space-y-3">
                           <div>
@@ -546,7 +609,7 @@ export default function Appointments() {
                         </div>
                       </div>
 
-                      {/* Adjusted Booking Details */}
+                      {/* Booking Details */}
                       <div className="bg-white p-2 rounded-lg border border-gray-200">
                         <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
                           <Calendar className="h-3 w-3 mr-1 text-purple-600" />
@@ -596,7 +659,7 @@ export default function Appointments() {
                         </div>
                       </div>
 
-                      {/* Adjusted Additional Information */}
+                      {/* Additional Information */}
                       <div className="bg-white p-2 rounded-lg border border-gray-200">
                         <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
                           <Info className="h-3 w-3 mr-1 text-purple-600" />
@@ -691,153 +754,3 @@ export default function Appointments() {
     </div>
   );
 }
-
-// Mock data for preview purposes
-const mockBookings = [
-  {
-    _id: "b1001",
-    date: "2023-04-20",
-    time: "10:00 AM",
-    location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
-    description:
-      "I would like to test drive the vehicle before making a decision.",
-    status: "pending",
-    createdAt: "2023-04-15T10:30:00Z",
-    user: {
-      name: "Rajesh Kumar",
-      email: "rajesh.kumar@example.com",
-      phone: "+977 9801234567",
-    },
-    vehicle: {
-      make: "Toyota",
-      model: "Fortuner",
-      year: 2021,
-      price: "8500000",
-      color: "White",
-      seller: "Shreya Auto",
-      images: [
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-    },
-  },
-  {
-    _id: "b1002",
-    date: "2023-04-21",
-    time: "2:30 PM",
-    location: "Kathmandu Auto Gallery, New Baneshwor",
-    description: "Looking for financing options. Will bring documents.",
-    status: "confirmed",
-    createdAt: "2023-04-16T14:20:00Z",
-    user: {
-      name: "Priya Sharma",
-      email: "priya.sharma@example.com",
-      phone: "+977 9847654321",
-    },
-    vehicle: {
-      make: "Honda",
-      model: "City",
-      year: 2022,
-      price: "4200000",
-      color: "Silver",
-      seller: "Kathmandu Auto Gallery",
-      images: [
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-    },
-  },
-  {
-    _id: "b1003",
-    date: "2023-04-18",
-    time: "11:15 AM",
-    location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
-    description: "Need to check the vehicle's condition and service history.",
-    status: "completed",
-    createdAt: "2023-04-14T09:45:00Z",
-    user: {
-      name: "Anil Thapa",
-      email: "anil.thapa@example.com",
-      phone: "+977 9812345678",
-    },
-    vehicle: {
-      make: "Hyundai",
-      model: "Creta",
-      year: 2020,
-      price: "3800000",
-      color: "Blue",
-      seller: "Shreya Auto",
-      images: [
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-    },
-  },
-  {
-    _id: "b1004",
-    date: "2023-04-22",
-    time: "4:00 PM",
-    location: "Customer's Home, Baluwatar, Kathmandu",
-    description: "Requested home visit to inspect the vehicle.",
-    status: "cancelled",
-    createdAt: "2023-04-17T16:10:00Z",
-    user: {
-      name: "Sunita Rai",
-      email: "sunita.rai@example.com",
-      phone: "+977 9861234567",
-    },
-    vehicle: {
-      make: "Kia",
-      model: "Seltos",
-      year: 2021,
-      price: "4500000",
-      color: "Red",
-      seller: "Premium Motors",
-      images: [
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-    },
-  },
-  {
-    _id: "b1005",
-    date: "2023-04-23",
-    time: "1:00 PM",
-    location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
-    description: "Interested in the vehicle's off-road capabilities.",
-    status: "pending",
-    createdAt: "2023-04-18T11:30:00Z",
-    user: {
-      name: "Bikash Shrestha",
-      email: "bikash.shrestha@example.com",
-      phone: "+977 9823456789",
-    },
-    vehicle: {
-      make: "Mahindra",
-      model: "Thar",
-      year: 2022,
-      price: "5600000",
-      color: "Black",
-      seller: "Shreya Auto",
-      images: [
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-        `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-      ],
-      image: `https://source.unsplash.com/random/800x600?car,${Math.random()}`,
-    },
-  },
-];
