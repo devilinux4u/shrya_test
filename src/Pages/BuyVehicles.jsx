@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
+import Toyota from "../assets/Toyota.png";
 import SellCarCard from "../Components/SellCarCard";
 import SellVehicleForm from "../Components/SellVehicleForm";
 
@@ -8,6 +9,7 @@ export default function VehicleDetails() {
   const navigate = useNavigate();
   const [showSellVehicleForm, setShowSellVehicleForm] = useState(false);
   const [vehicle, setVehicle] = useState(null);  // state to store the vehicle data
+  const [error, setError] = useState(null);  // state to store error messages
 
   const handleSellVehicleClick = () => {
     const cookie = Cookies.get('sauto');
@@ -27,15 +29,23 @@ export default function VehicleDetails() {
             "Content-Type": "application/json",
           },
         });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         setVehicle(data.msg); // Store fetched vehicle data in the state
       } catch (error) {
         console.error("Error fetching vehicle data:", error);
+        setError("Failed to load vehicle data. Please try again later.");
       }
     };
 
     fetchVehicle();
   }, []);
+
+  if (error) {
+    return <div>{error}</div>;  // Render error message if there's an error
+  }
 
   if (!vehicle) {
     return <div>Loading...</div>;  // Render a loading message while the data is being fetched
@@ -70,11 +80,19 @@ export default function VehicleDetails() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center mt-8">
           {/* Vehicle Image */}
           <div>
-            <img
-              src={vehicle.images[0].image || "/placeholder.svg"}  // Check if image exists in array and provide fallback
-              alt={vehicle.model}
-              className="w-full h-auto"
-            />
+            {vehicle.images && vehicle.images.length > 0 ? (
+              <img
+                src={vehicle.images[0].image || "/placeholder.svg"}  // Check if image exists in array and provide fallback
+                alt={vehicle.model}
+                className="w-full h-auto"
+              />
+            ) : (
+              <img
+                src="/placeholder.svg"
+                alt="Placeholder"
+                className="w-full h-auto"
+              />
+            )}
           </div>
 
           {/* Vehicle Specifications */}

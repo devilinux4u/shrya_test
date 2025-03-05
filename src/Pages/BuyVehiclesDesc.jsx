@@ -26,6 +26,9 @@ export default function BuyVehiclesDesc() {
     const fetchVehicle = async () => {
       try {
         const response = await fetch(`http://localhost:3000/vehicles/one/${vehicleId}`); // Replace with your actual endpoint
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         if (data.success) {
           setVehicle(data.msg); // Set the vehicle data to the state
@@ -88,7 +91,6 @@ export default function BuyVehiclesDesc() {
               <h2 className="text-4xl font-bold tracking-wider">
                 {vehicle.make}
                 <br />
-                
               </h2>
             </div>
 
@@ -126,11 +128,19 @@ export default function BuyVehiclesDesc() {
           </div>
 
           <div className="relative">
-            <img
-              src={vehicle.images[0].image} // Use the first image from the vehicle images array
-              alt={vehicle.title}
-              className="w-full h-auto"
-            />
+            {vehicle.images && vehicle.images.length > 0 ? (
+              <img
+                src={vehicle.images[0].image} // Use the first image from the vehicle images array
+                alt={vehicle.title}
+                className="w-full h-auto"
+              />
+            ) : (
+              <img
+                src="/placeholder.svg"
+                alt="Placeholder"
+                className="w-full h-auto"
+              />
+            )}
           </div>
         </div>
       </motion.section>
@@ -168,15 +178,25 @@ export default function BuyVehiclesDesc() {
           transition={{ duration: 0.5 }}
           className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8"
         >
-          {vehicle.images.map((image, index) => (
-            <div key={index} className="relative aspect-video">
+          {vehicle.images && vehicle.images.length > 0 ? (
+            vehicle.images.map((image, index) => (
+              <div key={index} className="relative aspect-video">
+                <img
+                  src={image.image}
+                  alt={`${vehicle.type}-image`}
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </div>
+            ))
+          ) : (
+            <div className="relative aspect-video">
               <img
-                src={image.image}
-                alt={`${vehicle.type}-image`}
+                src="/placeholder.svg"
+                alt="Placeholder"
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
-          ))}
+          )}
         </motion.div>
       </section>
 
@@ -189,13 +209,12 @@ export default function BuyVehiclesDesc() {
           className="container mx-auto grid grid-cols-3 gap-x-16 gap-y-8"
         >
           {[
-            { label: "Mileage", value: vehicle.mile},
+            { label: "Mileage", value: vehicle.mile },
             { label: "Seat", value: vehicle.seat },
             { label: "Fuel", value: vehicle.fuel },
             { label: "Transmission", value: vehicle.trans },
             { label: "Engine CC", value: vehicle.cc },
             { label: "Color", value: vehicle.color },
-            
           ].map((spec, index) => (
             <motion.div
               key={index}
@@ -222,11 +241,19 @@ export default function BuyVehiclesDesc() {
             <p className="text-gray-600">{vehicle.des}</p>
           </div>
           <div>
-            <img
-              src={vehicle.images[0].image} // Display the first image again in details
-              alt={`${vehicle.title}-rear`}
-              className="w-full h-auto rounded-lg mb-4"
-            />
+            {vehicle.images && vehicle.images.length > 0 ? (
+              <img
+                src={vehicle.images[0].image} // Display the first image again in details
+                alt={`${vehicle.title}-rear`}
+                className="w-full h-auto rounded-lg mb-4"
+              />
+            ) : (
+              <img
+                src="/placeholder.svg"
+                alt="Placeholder"
+                className="w-full h-auto rounded-lg mb-4"
+              />
+            )}
             <button
               onClick={() => setShowBuyNowForm(true)}
               className="w-full bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors"

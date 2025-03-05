@@ -6,12 +6,17 @@ export default function VehicleListing() {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(25000000);
   const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState(null);  // state to store error messages
+  const [filters, setFilters] = useState({ make: "", model: "" }); // state to store filter values
 
   // Fetch vehicles data from backend on component mount
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
         const response = await fetch("http://localhost:3000/vehicles/all"); // replace with your backend URL
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         if (data.success) {
           setVehicles(data.msg); // Assuming the response contains vehicles in `msg` field
@@ -20,6 +25,7 @@ export default function VehicleListing() {
         }
       } catch (error) {
         console.error("Error fetching vehicles:", error);
+        setError("Failed to load vehicles. Please try again later.");
       }
     };
 
@@ -62,32 +68,36 @@ export default function VehicleListing() {
               </div>
             </div>
 
-            <Filter />
+            <Filter filters={filters} setFilters={setFilters} />
           </div>
         </div>
 
         {/* Vehicle Grid */}
         <div className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayedVehicles.map((vehicle, index) => (
-              <div key={index} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                <img
-                  src={vehicle.images[0].image || "/placeholder.svg"}
-                  alt={`${vehicle.model} ${vehicle.type}`}
-                  className="w-full h-48 object-contain"
-                />
-                <div className="p-4">
-                  <h3 className="text-red-600 font-medium">{vehicle.model}</h3>
-                  <p className="text-gray-600">{vehicle.type}</p>
-                  <div className="flex justify-between mt-2 text-sm text-gray-500">
-                    <span>{vehicle.year}</span>
-                    <span>{vehicle.mile}</span>
+          {error ? (
+            <p className="text-center text-red-600">{error}</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedVehicles.map((vehicle, index) => (
+                <div key={index} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+                  <img
+                    src={(vehicle.images && vehicle.images.length > 0 && vehicle.images[0].image) || "/placeholder.svg"}
+                    alt={`${vehicle.model} ${vehicle.type}`}
+                    className="w-full h-48 object-contain"
+                  />
+                  <div className="p-4">
+                    <h3 className="text-red-600 font-medium">{vehicle.model}</h3>
+                    <p className="text-gray-600">{vehicle.type}</p>
+                    <div className="flex justify-between mt-2 text-sm text-gray-500">
+                      <span>{vehicle.year}</span>
+                      <span>{vehicle.mile}</span>
+                    </div>
+                    <p className="mt-2 font-semibold">Rs. {vehicle.price.toLocaleString()}</p>
                   </div>
-                  <p className="mt-2 font-semibold">Rs. {vehicle.price.toLocaleString()}</p>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Pagination */}
           <div className="flex justify-center items-center gap-2 mt-8">

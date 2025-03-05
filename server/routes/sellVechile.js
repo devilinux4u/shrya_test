@@ -2,37 +2,66 @@ const express = require('express')
 const router = express.Router()
 const multer = require("multer");
 const { sequelize, vehicles, v_img } = require('../db/sequelize')
+const fs = require('fs')
+const path = require('path')
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post('/addVehicle', upload.array("images"), async (req, res) => {
 
-    console.log(req.files);
-
+router.post('/addVehicle', upload.array('images'), async (req, res) => {
     try {
-        const { ownership, mileage, seats, engineCC, title, make, model, year, type, color, totalKm, fuelType, transmission, price, description } = req.body;
-
-        // Create vehicle entry
+        const { ownership, mileage, seats, engineCC, title, make, model, year, type, color, totalKm, fuelType, transmission, price, description, id } = req.body;
+        // Create vehicle entry in the database
         const vehicle = await vehicles.create({
-            uid: req.body.id, title: title, make: make, model: model, year: year, type: type, color: color, km: totalKm, fuel: fuelType, trans: transmission, price: price, des: description, own: ownership, mile: mileage, seat: seats, cc: engineCC,
+            uid: id,
+            title,
+            make,
+            model,
+            year,
+            type,
+            color,
+            km: totalKm,
+            fuel: fuelType,
+            trans: transmission,
+            price,
+            des: description,
+            own: ownership,
+            mile: mileage,
+            seat: seats,
+            cc: engineCC,
         });
-
-        // Save images as BLOBs
+     
+        // Define the image folder path
+        const imageFolder = path.join(__dirname, '../uploads', id);
+     
+        // Create folder if it doesn't exist
+        if (!fs.existsSync(imageFolder)) {
+            fs.mkdirSync(imageFolder, { recursive: true });
+        }
+     
+        // Save images to local storage and database
         if (req.files) {
             for (let file of req.files) {
+                const imagePath = path.join(imageFolder, file.originalname);
+     
+                // Save image as a file
+                fs.writeFileSync(imagePath, file.buffer);
+     
+                // Save image reference in DB
                 await v_img.create({
                     vehicleId: vehicle.id,
-                    image: file.buffer  // Store image as binary
+                    imagePath, // Store image path instead of binary data
                 });
             }
         }
-
-        res.json({ success: true, msg: "Vehicle added successfully!" });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, msg: "Server error" });
-    }
+     
+        res.json({ success: true, msg: 'Vehicle added successfully!' });
+     } catch (error) {
+        console.error('Error during vehicle creation or image handling:', error);
+        res.status(500).json({ success: false, msg: 'Server error', error: error.message });
+     }
+     
 });
 
 

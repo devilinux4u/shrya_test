@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Camera, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Camera, X, ChevronLeft, ChevronRight } from "lucide-react"
 import { toast } from "react-toastify"
 import Cookies from "js-cookie"
 
@@ -58,7 +58,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files)
-    const newPreviewUrls = files.map((file) =>  URL.createObjectURL(file))
+    const newPreviewUrls = files.map((file) => URL.createObjectURL(file))
 
     setVehicle((prev) => ({
       ...prev,
@@ -113,9 +113,8 @@ export default function SellVehicleForm({ isOpen, onClose }) {
 
         formData.append("id", Cookies.get("sauto").split("-")[0])
 
-        console.log(formData)
+        console.log(formData);
 
-       
         // Simulate API call to submit the form
         const response = await fetch("http://127.0.0.1:3000/addVehicle", {
           method: "POST",
@@ -125,15 +124,13 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         const data = await response.json()
 
         if (data.success) {
-          alert("Vehicle listed successfully!")
+          // Remove the alert and just use toast
           toast.success("Vehicle listed successfully!")
-          onClose()
+          // Reset form and close it
           setVehicle({
-            title: "",
             make: "",
             model: "",
             year: "",
-            type: "",
             color: "",
             totalKm: "",
             fuelType: "",
@@ -141,10 +138,17 @@ export default function SellVehicleForm({ isOpen, onClose }) {
             price: "",
             description: "",
             images: [],
+            imagePreviewUrls: [],
+            ownership: "",
+            mileage: "",
+            seats: "",
+            engineCC: "",
           })
           setStep(1)
+          onClose() // Close the form after successful submission
+        } else {
+          toast.error("Failed to list vehicle. Please try again.")
         }
-
       } catch (error) {
         console.error("Error listing vehicle:", error)
         toast.error("Failed to list vehicle. Please try again.")
@@ -158,15 +162,18 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     const stepFields = {
       1: ["make", "model", "year", "color"],
       2: ["totalKm", "fuelType", "transmission", "price", "ownership", "mileage", "seats", "engineCC"],
-      3: ["description"],
+      3: ["description"], // Description is only validated in step 3
     }
+
     const currentStepFields = stepFields[step]
     const stepErrors = {}
+
     currentStepFields.forEach((field) => {
       if (!vehicle[field]) {
         stepErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
       }
     })
+
     setErrors(stepErrors)
     return Object.keys(stepErrors).length === 0
   }
@@ -511,3 +518,4 @@ const SelectField = ({ label, name, value, onChange, options, error }) => (
     {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
+
