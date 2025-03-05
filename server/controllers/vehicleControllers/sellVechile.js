@@ -213,4 +213,29 @@ router.get("/vehicles/one/:vid", async (req, res) => {
 });
 
 
+
+// DELETE route to remove a vehicle by ID
+router.delete("/vehicles/delete/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      // Find the vehicle by ID
+      const vehicle = await vehicles.findByPk(id);
+  
+      if (!vehicle) {
+        return res.status(404).json({ success: false, message: "Vehicle not found" });
+      }
+  
+      // Delete the vehicle
+      await vehicle.destroy();
+  
+      res.json({ success: true, message: "Vehicle deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting vehicle:", error);
+      res.status(500).json({ success: false, message: "Failed to delete vehicle", error: error.message });
+    }
+  });
+  
+
+
 module.exports = router;

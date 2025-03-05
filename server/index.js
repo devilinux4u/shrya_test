@@ -13,6 +13,7 @@ app.use(
 )
 
 const login = require('./controllers/authControllers/login');
+const aReg = require('./controllers/authControllers/adminReg');
 const register = require('./controllers/authControllers/register');
 const message = require('./controllers/contactusControllers/message');
 const wishlist = require('./controllers/vehicleControllers/wishlist');
@@ -27,7 +28,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }))
 
-app.use('/', login, register, message, wishlist, sell, profile);
+app.use('/', login, register, message, wishlist, sell, profile, aReg);
 app.use('/', login, register, message, wishlist, sell);
 app.use('/api/lost-and-found', lostAndFound);
 

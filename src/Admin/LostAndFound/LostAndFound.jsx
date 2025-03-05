@@ -3,212 +3,218 @@
 import { useState, useEffect } from "react"
 import { Search, Plus, Trash2, MapPin, Calendar, CheckCircle, XCircle, AlertTriangle, Eye, Clock, Edit3, Filter, Phone, MessageSquare, X, User } from 'lucide-react'
 import LostAndFoundForm from "../../Components/LostAndFoundForm"
-import Cookies from "js-cookie";
-import { toast } from "react-toastify";
+import Cookies from "js-cookie"
+import { toast } from "react-toastify"
 
 export default function LostAndFound() {
-  const [items, setItems] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [userFilter, setUserFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [showAddItem, setShowAddItem] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [currentUserRole, setCurrentUserRole] = useState("Admin"); // Simulate current user role
-  const [filteredItems, setFilteredItems] = useState([]);
+  const [items, setItems] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [userFilter, setUserFilter] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
+  const [showAddItem, setShowAddItem] = useState(false)
+  const [selectedItem, setSelectedItem] = useState(null)
+  const [itemToDelete, setItemToDelete] = useState(null)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [currentUserRole, setCurrentUserRole] = useState("Admin")
+  const [filteredItems, setFilteredItems] = useState([])
 
   // Fetch data from the API
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        setIsLoading(true);
-        const response = await fetch("http://localhost:3000/api/lost-and-found/all");
+        setIsLoading(true)
+        const response = await fetch("http://localhost:3000/api/lost-and-found/admin/all")
 
         if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error! Status: ${response.status}`)
         }
 
-        const data = await response.json();
-        setItems(data.data || []);
-        setFilteredItems(data.data || []);
+        const data = await response.json()
+        const processedItems = data.data.map(item => ({
+          ...item,
+          userType: item.user.fname === "Admin" ? "Admin" : "User"
+        }))
+        
+        setItems(processedItems || [])
+        setFilteredItems(processedItems || [])
+        toast.success("Items loaded successfully!")
       } catch (err) {
-        console.error("Error fetching lost and found items:", err);
-        setError(err.message);
-        toast.error(`Failed to load items: ${err.message}`);
+        console.error("Error fetching lost and found items:", err)
+        setError(err.message)
+        toast.error(`Failed to load items: ${err.message}`)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchItems();
-  }, []);
+    fetchItems()
+  }, [])
 
-  // Apply filters whenever search term or filters change
+  // Apply filters
   useEffect(() => {
-    let filtered = [...items];
+    let filtered = [...items]
 
     if (searchTerm) {
       filtered = filtered.filter(
         (item) =>
           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      )
     }
 
     if (userFilter) {
       filtered = filtered.filter((item) => 
-        item.user.fname.toLowerCase() === userFilter.toLowerCase()
-      );
+        item.userType.toLowerCase() === userFilter.toLowerCase()
+      )
     }
 
     if (statusFilter) {
       if (statusFilter === "lost") {
-        filtered = filtered.filter((item) => item.type === "lost");
+        filtered = filtered.filter((item) => item.type === "lost")
       } else if (statusFilter === "found") {
-        filtered = filtered.filter((item) => item.type === "found");
+        filtered = filtered.filter((item) => item.type === "found")
       } else if (statusFilter === "resolved") {
-        filtered = filtered.filter((item) => item.status !== "active");
+        filtered = filtered.filter((item) => item.status !== "active")
       }
     }
 
-    setFilteredItems(filtered);
-  }, [searchTerm, userFilter, statusFilter, items]);
+    setFilteredItems(filtered)
+  }, [searchTerm, userFilter, statusFilter, items])
 
-  // Helper functions for status display
+  // Status helpers
   const getStatusColor = (type) => {
     switch (type) {
-      case "lost":
-        return "bg-yellow-100 text-yellow-800";
-      case "found":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-blue-100 text-blue-800";
+      case "lost": return "bg-yellow-100 text-yellow-800"
+      case "found": return "bg-green-100 text-green-800"
+      default: return "bg-blue-100 text-blue-800"
     }
-  };
+  }
 
   const getStatusIcon = (type) => {
     switch (type) {
-      case "lost":
-        return <Clock className="w-4 h-4 mr-1" />;
-      case "found":
-        return <CheckCircle className="w-4 h-4 mr-1" />;
-      default:
-        return <XCircle className="w-4 h-4 mr-1" />;
+      case "lost": return <Clock className="w-4 h-4 mr-1" />
+      case "found": return <CheckCircle className="w-4 h-4 mr-1" />
+      default: return <XCircle className="w-4 h-4 mr-1" />
     }
-  };
+  } 
 
   // Update item status
   const updateStatus = async (id, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/lost-and-found/${id}`, {
-        method: "PATCH",
+      const response = await fetch(`http://localhost:3000/api/lost-and-found/resolve/${id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus === "resolved" ? "inactive" : "active" }),
-      });
+        }
+      })
+      
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        throw new Error(`HTTP error! Status: ${response.message}`)
       }
+      const updatedItem = await response.json()
+      // setItems(items.map((item) => (item.id === id ? {...updatedItem.data} : item)))
 
-      const updatedItem = await response.json();
-      setItems(items.map((item) => (item.id === id ? updatedItem : item)));
-      toast.success(`Item status updated to ${newStatus}`);
+      window.location.reload();
+
+
+      toast.success(`Item status updated`)
     } catch (err) {
-      console.error("Error updating item status:", err);
-      toast.error(`Failed to update status: ${err.message}`);
+      console.error("Error updating item status:", err)
+      toast.error(`Failed to update status: ${err.message}`)
+    }
+  }
+  // Delete item
+  const deleteItem = async () => {
+    if (!itemToDelete) return;
+  
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/lost-and-found/all2/${itemToDelete.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      // First check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(text || 'Invalid response from server');
+      }
+  
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'Delete failed');
+      }
+  
+      // Update local state
+      setItems(items.filter(item => item.id !== itemToDelete.id));
+      setShowDeleteConfirm(false);
+      
+      toast.success(data.message || 'Item deleted successfully!');
+      
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error(err.message || 'Failed to delete item');
+    } finally {
+      setIsLoading(false);
+      setItemToDelete(null);
     }
   };
-
-  // Delete item
-  // const deleteItem = async (id) => {
-  //   const confirmDelete = async () => {
-  //   if (itemToDelete) {
-  //     setIsLoading(true)
-
-  //     try {
-  //       // Replace with your actual delete API endpoint
-  //       const response = await fetch(`http://127.0.0.1:3000/wishlist/delete/${itemToDelete.id}`, {
-  //         method: "DELETE",
-  //       })
-
-  //       if (!response.ok) {
-  //         throw new Error(`Error: ${response.status} ${response.statusText}`)
-  //       }
-
-  //       // Update local state after successful deletion
-  //       setItems(items.filter((item) => item.id !== itemToDelete.id))
-  //       setIsDeleteModalOpen(false)
-
-  //       // Show toast notification
-  //       toast.error(`${itemToDelete.vehicleName} has been removed from your wishlist`, {
-  //         icon: "🗑️",
-  //       })
-
-  //       setItemToDelete(null)
-  //     } catch (err) {
-  //       console.error("Failed to delete wishlist item:", err)
-  //       toast.error("Failed to delete item. Please try again later.")
-  //     } finally {
-  //       setIsLoading(false)
-  //     }
-  //   }
-  // }
-  // };
 
   // Add new item
   const handleAddItemSubmit = async (e) => {
-    e.preventDefault();
-
-    const formData = new FormData(e.target);
+    e.preventDefault()
+    const formData = new FormData(e.target)
 
     try {
-      const uid = Cookies.get("sauto")?.split("-")[0];
+      const uid = Cookies.get("sauto")?.split("-")[0]
       if (!uid) {
-        toast.error("User ID is missing. Please log in again.");
-        return;
+        toast.error("User ID is missing. Please log in again.")
+        return
       }
 
-      formData.append("id", uid);
-
+      formData.append("id", uid)
       const response = await fetch("http://localhost:3000/api/lost-and-found", {
         method: "POST",
         body: formData,
-      });
+      })
 
       if (!response.ok) {
-        const errorDetails = await response.text();
-        throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
+        const errorDetails = await response.text()
+        throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`)
       }
 
-      const data = await response.json();
-
+      const data = await response.json()
       if (data.success) {
-        toast.success("Lost and Found report submitted successfully!");
-        setItems([...items, data.item]);
-        setShowAddItem(false);
+        const newItem = {
+          ...data.item,
+          userType: data.item.user.fname === "Admin" ? "Admin" : "User"
+        }
+        toast.success("Item added successfully!")
+        setItems([...items, newItem])
+        setShowAddItem(false)
       } else {
-        toast.error("Failed to submit the report. Please try again.");
+        toast.error("Failed to add the item. Please try again.")
       }
     } catch (error) {
-      console.error("Error submitting report:", error);
-      toast.error(`Failed to submit report: ${error.message}`);
+      console.error("Error adding item:", error)
+      toast.error(`Failed to add item: ${error.message}`)
     }
-  };
+  }
 
-  // Check if current user can edit an item (only admins can edit)
-  const canEdit = (item) => {
-    return currentUserRole === "Admin";
-  };
-
-  // Check if current user can contact the reporter (only contact if reporter is a user, not an admin)
-  const canContact = (item) => {
-    return item.user.fname === "User" && item.user.num;
-  };
+  // Permission helpers
+  const canEdit = (item) => currentUserRole === "Admin"
+  const canContact = (item) => item.user.fname === "User" && item.user.num
 
   return (
     <div className="min-h-screen bg-gray-100 ml-64 p-8">
@@ -234,7 +240,7 @@ export default function LostAndFound() {
               onChange={(e) => setUserFilter(e.target.value)}
               className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="">Filter by User/Admin</option>
+              <option value="">Filter by User Type</option>
               <option value="Admin">Admin</option>
               <option value="User">User</option>
             </select>
@@ -302,29 +308,20 @@ export default function LostAndFound() {
       {!isLoading && !error && filteredItems.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300"
-            >
+            <div key={item.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300">
               <div className="aspect-w-16 aspect-h-9 bg-gray-100">
-              <img
+                <img
                   src={(item.images && item.images[0] && `../../server${item.images[0].imageUrl}`) || "/placeholder.svg"}
                   alt={item.title}
                   className="w-full h-48 object-cover"
-                  onError={(e) => {
-                    e.target.src = "/placeholder.svg"
-                  }}
+                  onError={(e) => { e.target.src = "/placeholder.svg" }}
                 />
               </div>
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        item.type
-                      )}`}
-                    >
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(item.type)}`}>
                       {getStatusIcon(item.type)}
                       <span className="ml-1">{item.type.toUpperCase()}</span>
                     </span>
@@ -350,7 +347,10 @@ export default function LostAndFound() {
 
                     {canEdit(item) && (
                       <button
-                        onClick={() => setShowDeleteConfirm(item.id)}
+                        onClick={() => {
+                          setItemToDelete(item)
+                          setShowDeleteConfirm(true)
+                        }}
                         className="p-2 hover:bg-gray-100 rounded-full"
                         title="Delete Item"
                       >
@@ -381,9 +381,7 @@ export default function LostAndFound() {
                   </div>
                   <div className="flex items-center text-gray-600">
                     <User className="w-4 h-4 mr-2" />
-                    <span>
-                      Posted by: {item.user.fname}
-                    </span>
+                    <span>Posted by: {item.user.fname}</span>
                   </div>
                 </div>
               </div>
@@ -426,11 +424,7 @@ export default function LostAndFound() {
                   </div>
                   <div>
                     <h3 className="text-gray-600 text-sm">Status</h3>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        selectedItem.type
-                      )}`}
-                    >
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(selectedItem.type)}`}>
                       {getStatusIcon(selectedItem.type)}
                       <span className="ml-1">{selectedItem.type.toUpperCase()}</span>
                     </span>
@@ -449,13 +443,11 @@ export default function LostAndFound() {
 
               <div>
                 <div className="relative bg-gray-100 rounded-lg">
-                <img
+                  <img
                     src={(selectedItem.images && selectedItem.images[0] && `../../server${selectedItem.images[0].imageUrl}`) || "/placeholder.svg"}
                     alt={selectedItem.name}
                     className="w-full h-[300px] md:h-[400px] object-contain rounded-lg"
-                    onError={(e) => {
-                      e.target.src = "/placeholder.svg";
-                    }}
+                    onError={(e) => { e.target.src = "/placeholder.svg" }}
                   />
                 </div>
               </div>
@@ -484,8 +476,8 @@ export default function LostAndFound() {
               {canEdit(selectedItem) && (
                 <button
                   onClick={() => {
-                    setSelectedItem(null);
-                    setShowAddItem(true);
+                    setSelectedItem(null)
+                    setShowAddItem(true)
                   }}
                   className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
                 >
@@ -510,19 +502,26 @@ export default function LostAndFound() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-sm">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Confirm Delete</h2>
-            <p className="text-gray-700 mb-4">Are you sure you want to delete this item?</p>
+            <p className="text-gray-700 mb-4">
+              Are you sure you want to delete "{itemToDelete?.title}"?
+            </p>
             <div className="flex justify-end gap-4">
               <button
                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() => deleteItem(showDeleteConfirm)}
+                onClick={deleteItem}
+                disabled={isLoading}
               >
-                Delete
+                {isLoading ? 'Deleting...' : 'Delete'}
               </button>
               <button
                 className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="button"
-                onClick={() => setShowDeleteConfirm(null)}
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setItemToDelete(null);
+                }}
+                disabled={isLoading}
               >
                 Cancel
               </button>
@@ -531,5 +530,5 @@ export default function LostAndFound() {
         </div>
       )}
     </div>
-  );
+  )
 }

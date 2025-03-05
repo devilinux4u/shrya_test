@@ -167,7 +167,12 @@ module.exports.vehicle = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: false,
             validate: { notEmpty: true }
-        }
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "available",
+        },
     });
 
     return Vehicle;
@@ -197,10 +202,20 @@ module.exports.vimg = (sequelize, DataTypes) => {
 // VehicleWishlist model
 module.exports.VehicleWishlist = (sequelize, DataTypes) => {
     const VehicleWishlist = sequelize.define("VehicleWishlist", {
+        // uid: {
+        //     type: DataTypes.STRING,
+        //     allowNull: false,
+        //     validate: { notEmpty: true }
+        // },
         uid: {
-            type: DataTypes.STRING,
+            type: DataTypes.INTEGER, // Change type to INTEGER to match the users table's id column
             allowNull: false,
-            validate: { notEmpty: true }
+            references: {
+                model: 'users', // Reference the users table
+                key: 'id' // Reference the id column in the users table
+            },
+            onDelete: 'CASCADE', // Update to CASCADE for proper deletion behavior
+            onUpdate: 'CASCADE'
         },
         purpose: {
             type: DataTypes.STRING,
@@ -260,6 +275,7 @@ module.exports.VehicleWishlist = (sequelize, DataTypes) => {
             onDelete: "CASCADE",
         });
     };
+
 
     return VehicleWishlist;
 };

@@ -122,18 +122,18 @@ export default function Vehicles() {
     // Add confirmation dialog
     if (window.confirm("Are you sure you want to delete this vehicle?")) {
       // Replace with your actual delete API call
-      // const deleteVehicle = async () => {
-      //   try {
-      //     await fetch(`/api/vehicles/${vehicleId}`, {
-      //       method: 'DELETE'
-      //     })
-      //     setVehicles(vehicles.filter(v => v.id !== vehicleId))
-      //   } catch (err) {
-      //     console.error("Error deleting vehicle:", err)
-      //     alert("Failed to delete vehicle. Please try again.")
-      //   }
-      // }
-      // deleteVehicle()
+      const deleteVehicle = async () => {
+        try {
+          await fetch(`http://localhost:3000/vehicles/delete/${vehicleId}`, {
+            method: 'DELETE'
+          })
+          setVehicles(vehicles.filter(v => v.id !== vehicleId))
+        } catch (err) {
+          console.error("Error deleting vehicle:", err)
+          alert("Failed to delete vehicle. Please try again.")
+        }
+      }
+      deleteVehicle()
 
       // For now, just filter out the vehicle from the state
       setVehicles(vehicles.filter(v => v.id !== vehicleId))
@@ -356,8 +356,8 @@ export default function Vehicles() {
                     />
                     <div className="absolute top-4 right-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${vehicle.status === "Available" ? "bg-green-100 text-green-800" :
-                            vehicle.status === "Sold" ? "bg-red-100 text-red-800" :
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${vehicle.status === "available" ? "bg-green-100 text-green-800" :
+                            vehicle.status === "sold" ? "bg-red-100 text-red-800" :
                               "bg-yellow-100 text-yellow-800"
                           }`}
                       >
