@@ -53,23 +53,34 @@ export default function AdminWishlist() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
 
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+
+  const confirmDeleteItem = (id) => {
+    setItemToDelete(id);
+    setShowDeleteConfirmation(true);
+  };
+
   // Mock data - replace with actual API call
   useEffect(() => {
     const fetchWishlistItems = async () => {
       try {
         setLoading(true);
-        // In a real app, you would fetch from your API
         const response = await fetch(
           "http://localhost:3000/admin/wishlist/all"
         );
+        if (!response.ok) {
+          throw new Error("Failed to fetch wishlist items");
+        }
         const data = await response.json();
-
-        setWishlistItems(data.data);
-        setFilteredItems(data.data);
-        setLoading(false);
+        setWishlistItems(data.data || []); // Ensure wishlistItems is always an array
+        setFilteredItems(data.data || []); // Ensure filteredItems is always an array
       } catch (error) {
         console.error("Error fetching wishlist items:", error);
         toast.error("Failed to load wishlist items");
+        setWishlistItems([]); // Fallback to an empty array
+        setFilteredItems([]); // Fallback to an empty array
+      } finally {
         setLoading(false);
       }
     };
@@ -134,16 +145,15 @@ export default function AdminWishlist() {
         }
       );
       const data = await response.json();
-
-      // setWishlistItems(updatedItems);
-      toast.success(`Status updated to ${newStatus}`);
-
-      window.location.reload();
-
-      // If we were viewing the item details, update that too
       if (selectedItem && selectedItem.id === id) {
         setSelectedItem({ ...selectedItem, status: newStatus });
       }
+      toast.success(`Status updated to ${newStatus}`); // Success toast message
+      setTimeout(() => {
+        window.location.reload(); // Reload the page after 1 second
+      }, [2000]);
+
+      // If we were viewing the item details, update that too
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status");
@@ -184,6 +194,39 @@ export default function AdminWishlist() {
     }
   };
 
+  const handleDeleteItem = async () => {
+    if (!itemToDelete) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/wishlist/${itemToDelete}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete item");
+      }
+
+      // Remove the deleted item from the local state
+      setWishlistItems((prevItems) =>
+        prevItems.filter((item) => item.id !== itemToDelete)
+      );
+      setFilteredItems((prevItems) =>
+        prevItems.filter((item) => item.id !== itemToDelete)
+      );
+
+      toast.success("Item deleted successfully!"); // Success toast message
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast.error("Failed to delete item. Please try again.");
+    } finally {
+      setShowDeleteConfirmation(false);
+      setItemToDelete(null);
+    }
+  };
+
   const formatDate = (dateString) => {
     const options = {
       year: "numeric",
@@ -200,7 +243,7 @@ export default function AdminWishlist() {
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "available":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 text-green-800"; // Updated to green
       case "cancelled":
         return "bg-red-100 text-red-800";
       default:
@@ -276,7 +319,7 @@ export default function AdminWishlist() {
         )
       );
 
-      toast.success("Item updated successfully!");
+      toast.success("Item updated successfully!"); // Success toast message
       setIsEditing(false);
       setSelectedItem(null);
     } catch (error) {
@@ -288,7 +331,9 @@ export default function AdminWishlist() {
   // Calculate pagination values
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = Array.isArray(filteredItems)
+    ? filteredItems.slice(indexOfFirstItem, indexOfLastItem)
+    : [];
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
   const paginate = (pageNumber) => {
@@ -305,20 +350,36 @@ export default function AdminWishlist() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100 ml-64 p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Wishlist Management
-        </h1>
-        <p className="text-gray-600">
-          Manage customer wishlist requests and help them find their desired
-          vehicles.
-        </p>
+  // Handle no data case
+  if (!loading && filteredItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-100 ml-64 p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <Car className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">
+            No wishlist items found
+          </h3>
+          <p className="text-gray-500">
+            There are no wishlist items to display. Please check back later.
+          </p>
+        </div>
       </div>
+    );
+  }
 
+  return (
+    <div className="flex-1 ml-0 md:ml-64 min-h-screen  pl-8">
+      <div className="mb-8 mt-10">
+        <div className="border-l-4 border-orange-500 pl-4">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+            Wishlist Management
+          </h1>
+        </div>
+      </div>
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
         <div className="relative flex-grow">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input
@@ -329,7 +390,7 @@ export default function AdminWishlist() {
             className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-4 md:flex-row md:gap-6">
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -340,45 +401,46 @@ export default function AdminWishlist() {
             <option value="available">Available</option>
             <option value="cancelled">Cancelled</option>
           </select>
-          <select
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="all">All Dates</option>
-            <option value="lastMonth">Last Month</option>
-            <option value="lastYear">Last Year</option>
-            <option value="custom">Custom Range</option>
-          </select>
-          {dateFilter === "custom" && (
-            <div className="flex gap-2">
-              <input
-                type="date"
-                value={customDateRange.start}
-                onChange={(e) =>
-                  setCustomDateRange({
-                    ...customDateRange,
-                    start: e.target.value,
-                  })
-                }
-                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <input
-                type="date"
-                value={customDateRange.end}
-                onChange={(e) =>
-                  setCustomDateRange({
-                    ...customDateRange,
-                    end: e.target.value,
-                  })
-                }
-                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-          )}
+          <div className="flex flex-col gap-4 md:flex-row md:items-center">
+            <select
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="all">All Dates</option>
+              <option value="lastMonth">Last Month</option>
+              <option value="lastYear">Last Year</option>
+              <option value="custom">Custom Range</option>
+            </select>
+            {dateFilter === "custom" && (
+              <div className="flex flex-col gap-2 md:flex-row">
+                <input
+                  type="date"
+                  value={customDateRange.start}
+                  onChange={(e) =>
+                    setCustomDateRange({
+                      ...customDateRange,
+                      start: e.target.value,
+                    })
+                  }
+                  className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="date"
+                  value={customDateRange.end}
+                  onChange={(e) =>
+                    setCustomDateRange({
+                      ...customDateRange,
+                      end: e.target.value,
+                    })
+                  }
+                  className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
-
       {/* Wishlist Items - Card Layout */}
       {currentItems.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-8 text-center">
@@ -395,7 +457,7 @@ export default function AdminWishlist() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {currentItems.map((item) => (
             <div
               key={item.id}
@@ -404,8 +466,16 @@ export default function AdminWishlist() {
             >
               {/* Card Header */}
               <div className="relative h-48 bg-blue-50">
-                <div className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 px-4 py-1 rounded-full font-medium flex items-center">
-                  <Clock className="w-4 h-4 mr-1" />
+                <div
+                  className={`absolute top-3 right-3 px-4 py-1 rounded-full font-medium flex items-center ${
+                    item.status === "available"
+                      ? "bg-green-100 text-green-800" // Updated to green
+                      : item.status === "pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {getStatusIcon(item.status)}
                   {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
                 </div>
                 {item.images && item.images.length > 0 ? (
@@ -461,16 +531,18 @@ export default function AdminWishlist() {
                 </p>
 
                 <div className="flex justify-between items-center">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering card click
-                      handleEditClick(item);
-                    }}
-                    className="flex items-center text-green-600 hover:text-green-800 transition-colors"
-                  >
-                    <Edit3 className="w-4 h-4 mr-1" />
-                    Edit
-                  </button>
+                  {item.status !== "available" && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering card click
+                        handleEditClick(item);
+                      }}
+                      className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+                    >
+                      <Edit3 className="w-4 h-4 mr-1" />
+                      Edit
+                    </button>
+                  )}
                   {item.status === "pending" && (
                     <button
                       onClick={(e) => {
@@ -483,13 +555,24 @@ export default function AdminWishlist() {
                       Mark as Available
                     </button>
                   )}
+                  {item.status === "available" && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent triggering card click
+                        confirmDeleteItem(item.id);
+                      }}
+                      className="flex items-center text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           ))}
         </div>
       )}
-
       {/* Pagination */}
       {filteredItems.length > 0 && (
         <div className="flex justify-center mt-10">
@@ -536,7 +619,6 @@ export default function AdminWishlist() {
           </div>
         </div>
       )}
-
       {/* Wishlist Item Detail Modal */}
       {isViewing && selectedItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -725,7 +807,6 @@ export default function AdminWishlist() {
           </div>
         </div>
       )}
-
       {/* Notify Customer Modal (replacing Drawer) */}
       {showNotifyModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -786,7 +867,6 @@ export default function AdminWishlist() {
           </div>
         </div>
       )}
-
       {/* Edit Modal */}
       {isEditing && selectedItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -914,7 +994,35 @@ export default function AdminWishlist() {
           </div>
         </div>
       )}
-
+      {showDeleteConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowDeleteConfirmation(false)}
+          ></div>
+          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 z-10 relative">
+            <h2 className="text-xl font-bold mb-4">Confirm Deletion</h2>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this item? This action cannot be
+              undone.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowDeleteConfirmation(false)}
+                className="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteItem}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <ToastContainer
         position="top-right"
         autoClose={3000}

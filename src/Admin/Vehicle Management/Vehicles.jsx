@@ -336,7 +336,8 @@ export default function Vehicles() {
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <h1 className="text-2xl font-semibold">Vehicles</h1>
+          <div className="flex-1"></div>{" "}
+          {/* Spacer to push the button to the right */}
           <button
             onClick={handleAddVehicle}
             className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"

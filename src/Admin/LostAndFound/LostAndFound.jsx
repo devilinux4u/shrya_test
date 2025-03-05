@@ -22,7 +22,7 @@ import {
   Car,
 } from "lucide-react";
 import Cookies from "js-cookie";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import LostAndFoundForm from "../../Components/LostAndFoundForm"; // Import the form component
 
 export default function LostAndFound() {
@@ -364,6 +364,7 @@ export default function LostAndFound() {
 
   return (
     <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <ToastContainer />
       <div className="p-4 sm:p-6 md:p-8">
         <div className="mb-6 md:mb-8">
           <div className="border-l-4 border-[#ff6b00] pl-4">
@@ -454,10 +455,6 @@ export default function LostAndFound() {
       <LostAndFoundForm
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        onSubmit={(newItem) => {
-          setItems([...items, newItem]);
-          setIsFormOpen(false);
-        }}
       />
 
       {/* Loading State */}

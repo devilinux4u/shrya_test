@@ -173,7 +173,7 @@ const WishlistForm = ({ isOpen, onClose }) => {
 
       const data = await response.json();
       if (data.success) {
-        toast.success("Added to your wishlist.");
+        toast.success("Wishlist request submitted successfully!"); // Added success message
 
         setFormData({
           model: "",
@@ -190,9 +190,10 @@ const WishlistForm = ({ isOpen, onClose }) => {
         setPreviewImages([]);
 
         setCurrentStep(1);
-        onClose();
 
         setTimeout(() => {
+          onClose();
+          window.location.reload();
           navigate("/YourList");
         }, 2000);
       } else {
@@ -253,6 +254,7 @@ const WishlistForm = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+      <ToastContainer />
       <div className="relative bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
@@ -507,13 +509,6 @@ const WishlistForm = ({ isOpen, onClose }) => {
           </form>
         </div>
       </div>
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        closeOnClick
-        pauseOnHover
-      />
     </div>
   );
 };

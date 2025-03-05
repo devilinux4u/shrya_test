@@ -3,8 +3,10 @@ import { Camera, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 export default function SellVehicleForm({ isOpen, onClose }) {
+  const navigate = useNavigate();
   const [vehicle, setVehicle] = useState({
     make: "",
     model: "",
@@ -187,8 +189,11 @@ export default function SellVehicleForm({ isOpen, onClose }) {
           engineCC: "",
         });
         setStep(1);
-        onClose(); // Close the form after successful submission
-        window.location.reload();
+        setTimeout(() => {
+          onClose();
+          navigate("/MySales");
+          window.location.reload(); // Reload the page after navigation
+        }, 2000);
       } else {
         toast.error("Failed to list vehicle. Please try again.");
       }

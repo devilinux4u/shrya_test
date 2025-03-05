@@ -156,7 +156,7 @@ router.get('/wishlist/:userId', async (req, res) => {
 });
 
 // Delete a wishlist item by ID
-router.delete('/wishlist/delete/:wishlistId', async (req, res) => {
+router.delete('/wishlist/:wishlistId', async (req, res) => {
     const { wishlistId } = req.params;
 
     try {
@@ -170,7 +170,7 @@ router.delete('/wishlist/delete/:wishlistId', async (req, res) => {
         }
 
         // Delete images from the file system
-        if (wishlist && wishlist.images && wishlist.images.length > 0) {
+        if (wishlist.images && wishlist.images.length > 0) {
             for (let image of wishlist.images) {
                 const filePath = path.join(__dirname, '../../', image.imageUrl);
                 if (fs.existsSync(filePath)) {
@@ -179,13 +179,13 @@ router.delete('/wishlist/delete/:wishlistId', async (req, res) => {
             }
         }
 
-        // Delete wishlist + associated images from DB (due to CASCADE)
+        // Delete wishlist and associated images from the database
         await wishlist.destroy();
 
         res.json({ success: true, message: 'Wishlist item deleted successfully' });
     } catch (error) {
         console.error('Error deleting wishlist item:', error);
-        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+        res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
     }
 });
 
@@ -235,11 +235,11 @@ router.put('/wishlist/edit/:wishlistId', async (req, res) => {
         await wishlist.update({
             make,
             model,
-            kmRun: parseInt(kmRun),
+            kmRun: kmRun ? parseInt(kmRun) : null,
             fuelType,
-            year: parseInt(year),
+            year: year ? parseInt(year) : null,
             color,
-            budget: parseFloat(budget),
+            budget: budget ? parseFloat(budget) : null,
             description,
         });
 

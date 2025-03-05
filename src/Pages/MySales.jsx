@@ -81,21 +81,18 @@ function VehicleCard({
         </p>
 
         <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(vehicle);
-            }}
-            disabled={vehicle.status === "sold"}
-            className={`flex items-center text-green-600 hover:text-green-800 transition-colors ${
-              vehicle.status === "sold"
-                ? "text-gray-400 cursor-not-allowed"
-                : ""
-            }`}
-          >
-            <Edit className="w-4 h-4 mr-1" />
-            Edit
-          </button>
+          {vehicle.status === "available" && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(vehicle);
+              }}
+              className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+            >
+              <Edit className="w-4 h-4 mr-1" />
+              Edit
+            </button>
+          )}
           <button
             onClick={(e) => {
               e.stopPropagation();

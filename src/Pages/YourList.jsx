@@ -14,6 +14,7 @@ import {
   Loader2,
   Edit,
   XCircle,
+  X,
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -92,7 +93,7 @@ const YourList = () => {
   const handleAddWishlistItem = (newItem) => {
     setItems((prevItems) => [...prevItems, newItem]);
     setIsModalOpen(false);
-    toast.success("Vehicle added to your wishlist!");
+    toast.success("Wishlist request submitted successfully!");
   };
 
   // Filter items based on status filter and search query
@@ -143,7 +144,7 @@ const YourList = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:3000/wishlist/delete/${itemToDelete.id}`,
+          `http://localhost:3000/wishlist/${itemToDelete.id}`, // Correct endpoint
           {
             method: "DELETE",
           }
@@ -216,7 +217,7 @@ const YourList = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/wishlist/edit/${selectedItem.id}`,
+        `http://localhost:3000/wishlist/edit/${selectedItem.id}`, // Correct endpoint
         {
           method: "PUT",
           headers: {
@@ -230,8 +231,9 @@ const YourList = () => {
         throw new Error("Failed to update item");
       }
 
-      const data = await response.json();
+      const updatedItem = await response.json();
 
+      // Update the local state with the edited item
       setItems((prevItems) =>
         prevItems.map((item) =>
           item.id === selectedItem.id ? { ...item, ...updatedData } : item
@@ -451,7 +453,6 @@ const YourList = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteClick(item);
-                          toast.info("Delete action initiated.");
                         }}
                         className="flex items-center text-red-600 hover:text-red-800 transition-colors"
                       >
@@ -461,7 +462,6 @@ const YourList = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          toast.info("Edit action canceled.");
                         }}
                         className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
                       >
@@ -581,160 +581,123 @@ const YourList = () => {
       )}
 
       {/* Edit Vehicle Modal */}
-      {isEditing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Edit Vehicle</h2>
+      {isEditing && selectedItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Edit Wishlist Item
+              </h2>
               <button
                 onClick={() => setIsEditing(false)}
                 className="p-1 rounded-full hover:bg-gray-100"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
               </button>
             </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Make
-                </label>
-                <input
-                  type="text"
-                  value={updatedData.make}
-                  onChange={(e) =>
-                    setUpdatedData({ ...updatedData, make: e.target.value })
-                  }
-                  className="w-full p-2 border rounded-md"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Model
-                </label>
-                <input
-                  type="text"
-                  value={updatedData.model}
-                  onChange={(e) =>
-                    setUpdatedData({ ...updatedData, model: e.target.value })
-                  }
-                  className="w-full p-2 border rounded-md"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Year
-                  </label>
-                  <input
-                    type="number"
-                    value={updatedData.year}
-                    onChange={(e) =>
-                      setUpdatedData({ ...updatedData, year: e.target.value })
-                    }
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Color
-                  </label>
-                  <input
-                    type="text"
-                    value={updatedData.color}
-                    onChange={(e) =>
-                      setUpdatedData({ ...updatedData, color: e.target.value })
-                    }
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Km Run
-                  </label>
-                  <input
-                    type="number"
-                    value={updatedData.kmRun}
-                    onChange={(e) =>
-                      setUpdatedData({ ...updatedData, kmRun: e.target.value })
-                    }
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Budget (Rs)
-                  </label>
-                  <input
-                    type="number"
-                    value={updatedData.budget}
-                    onChange={(e) =>
-                      setUpdatedData({ ...updatedData, budget: e.target.value })
-                    }
-                    className="w-full p-2 border rounded-md"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fuel Type
-                </label>
-                <select
-                  value={updatedData.fuelType}
-                  onChange={(e) =>
-                    setUpdatedData({ ...updatedData, fuelType: e.target.value })
-                  }
-                  className="w-full p-2 border rounded-md"
-                >
-                  <option value="">Select Fuel Type</option>
-                  <option value="petrol">Petrol</option>
-                  <option value="diesel">Diesel</option>
-                  <option value="electric">Electric</option>
-                  <option value="hybrid">Hybrid</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  value={updatedData.description}
-                  onChange={(e) =>
-                    setUpdatedData({
-                      ...updatedData,
-                      description: e.target.value,
-                    })
-                  }
-                  rows="3"
-                  className="w-full p-2 border rounded-md"
-                ></textarea>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[
+                { label: "Make", field: "make", fullWidth: true },
+                { label: "Model", field: "model" },
+                { label: "KM Run", field: "kmRun" },
+                {
+                  label: "Fuel Type",
+                  field: "fuelType",
+                  isDropdown: true,
+                  options: ["Petrol", "Diesel", "Electric", "Hybrid"],
+                },
+                { label: "Year", field: "year" },
+                { label: "Color", field: "color" },
+                { label: "Budget", field: "budget" },
+                {
+                  label: "Description",
+                  field: "description",
+                  isTextarea: true,
+                  fullWidth: true,
+                },
+              ].map(
+                ({
+                  label,
+                  field,
+                  isTextarea,
+                  isDropdown,
+                  options,
+                  fullWidth,
+                }) => (
+                  <div
+                    className={`mb-2 ${
+                      fullWidth ? "col-span-1 sm:col-span-2" : ""
+                    }`}
+                    key={field}
+                  >
+                    <label
+                      htmlFor={field}
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      {label}
+                    </label>
+                    {isDropdown ? (
+                      <select
+                        id={field}
+                        value={updatedData[field]}
+                        onChange={(e) =>
+                          setUpdatedData((prev) => ({
+                            ...prev,
+                            [field]: e.target.value,
+                          }))
+                        }
+                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                      >
+                        <option value="">Select {label}</option>
+                        {options.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </select>
+                    ) : isTextarea ? (
+                      <textarea
+                        id={field}
+                        value={updatedData[field]}
+                        onChange={(e) =>
+                          setUpdatedData((prev) => ({
+                            ...prev,
+                            [field]: e.target.value,
+                          }))
+                        }
+                        rows="3"
+                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                      ></textarea>
+                    ) : (
+                      <input
+                        type="text"
+                        id={field}
+                        value={updatedData[field]}
+                        onChange={(e) =>
+                          setUpdatedData((prev) => ({
+                            ...prev,
+                            [field]: e.target.value,
+                          }))
+                        }
+                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                      />
+                    )}
+                  </div>
+                )
+              )}
             </div>
-
-            <div className="flex justify-end space-x-4 mt-6">
+            <div className="flex justify-end space-x-3 mt-6">
               <button
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUpdateData}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                disabled={isLoading}
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
               >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  "Save Changes"
-                )}
+                Save Changes
               </button>
             </div>
           </div>
