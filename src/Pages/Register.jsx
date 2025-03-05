@@ -54,7 +54,7 @@ export default function Register() {
         )
 
         // Navigate to verification page instead of login
-        toast.success("Registration successful! Please verify your account.")
+        toast.success("Please verify your account.")
 
         setTimeout(() => {
           navigate("/UserVerification");
