@@ -4,17 +4,27 @@ import { X } from 'lucide-react';
 import Toyota from "../assets/Toyota.png";
 import SellCarCard from "../Components/SellCarCard";
 import SellVehicleForm from "../Components/SellVehicleForm";
+import Cookies from "js-cookie";
 
 export default function VehicleDetails() {
   const navigate = useNavigate();
   const [showSellVehicleForm, setShowSellVehicleForm] = useState(false);
+
+  const handleSellVehicleClick = () => {
+    const cookie = Cookies.get('sauto');
+    if (!cookie) {
+      navigate("/Login");
+    } else {
+      setShowSellVehicleForm(true);
+    }
+  };
 
   return (
     <div className="mt-12 container mx-auto px-4 py-8 relative">
       {/* Top Button */}
       <div className="absolute left-4 top-4">
         <button
-          onClick={() => setShowSellVehicleForm(true)}
+          onClick={handleSellVehicleClick}
           className="bg-[#C84C27] text-white px-6 py-2 rounded-full hover:bg-[#B43D1B] transition-colors"
         >
           Sell a vehicle
