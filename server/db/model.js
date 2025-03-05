@@ -140,19 +140,27 @@ module.exports.vehicle = (sequelize, DataTypes) => {
         }
     });
 
-    const VehicleImage = sequelize.define("vehicle_image", {
+    const VehicleImage = sequelize.define('vehicle_image', {
         vehicleId: {
             type: DataTypes.INTEGER,
             allowNull: false,
-            references: { model: "vehicles", key: "id" },
-            onDelete: "CASCADE"
+            references: {
+                model: 'vehicles',
+                key: 'id'
+            },
+            onDelete: 'CASCADE'
         },
         image: {
-            type: DataTypes.BLOB("long"),
-            allowNull: false
+            type: DataTypes.BLOB('long'), // Storing images in binary format
+            allowNull: false,
         }
     });
 
-    return Vehicle; 
+
+    // Relationships
+    Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
+    VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
+
+    return { Vehicle, VehicleImage };
 };
 
