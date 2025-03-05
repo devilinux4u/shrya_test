@@ -32,22 +32,22 @@ function RentalVehicles() {
           {/* Brand and Model */}
           <div>
             <h2 className="text-[#E94A35] font-semibold text-3xl lg:text-4xl">
-              {carData?.make?.toUpperCase() || "Unknown Make"}
+              {carData.make.toUpperCase()}
             </h2>
             <h1 className="text-black text-5xl lg:text-6xl font-extrabold tracking-wider">
-              {carData?.model?.toUpperCase() || "Unknown Model"}
+              {carData.model.toUpperCase()}
             </h1>
           </div>
 
           {/* Description */}
           <p className="text-gray-600 text-base lg:text-lg leading-relaxed max-w-lg">
-            {carData?.description || "No description available."}
+            {carData.description}
           </p>
 
           {/* Price */}
           <div className="flex items-baseline space-x-2">
             <span className="text-[#E94A35] text-3xl lg:text-4xl font-bold">
-              Rs. {carData?.priceHour || "N/A"}
+              Rs. {carData.priceHour}
             </span>
             <span className="text-gray-600 text-lg">/hr</span>
           </div>
@@ -64,12 +64,8 @@ function RentalVehicles() {
         {/* Car Image */}
         <div className="relative">
           <img
-            src={
-              carData?.rentVehicleImages?.[0]?.image
-                ? `../../server${carData.rentVehicleImages[0].image}`
-                : "placeholder.jpg"
-            }
-            alt={`${carData?.make || "Car"} ${carData?.model || "Image"}`}
+            src={`../../server${carData.rentVehicleImages[0].image}`}
+            alt={`${carData.make} ${carData.model}`}
             className="w-full h-auto max-w-full object-contain"
           />
         </div>

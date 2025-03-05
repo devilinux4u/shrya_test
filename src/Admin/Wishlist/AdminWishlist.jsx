@@ -57,14 +57,18 @@ export default function AdminWishlist() {
     const fetchWishlistItems = async () => {
       try {
         setLoading(true);
-        // In a real app, you would fetch from your API
         const response = await fetch(
           "http://localhost:3000/admin/wishlist/all"
         );
         const data = await response.json();
 
-        setWishlistItems(data.data);
-        setFilteredItems(data.data);
+        if (data.success && data.data.length > 0) {
+          setWishlistItems(data.data);
+          setFilteredItems(data.data);
+        } else {
+          setWishlistItems([]);
+          setFilteredItems([]);
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching wishlist items:", error);

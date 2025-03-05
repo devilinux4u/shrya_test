@@ -21,24 +21,10 @@ const RentalBookingForm = ({ vehicleId }) => {
   const navigate = useNavigate();
   // Vehicle data state
   const [vehicle, setVehicle] = useState({
-    id: vehicleId || "1",
-    name: "Land Rover Defender",
-    model: "2023",
-    imageUrl: "/placeholder.svg?height=400&width=600",
-    price: 3000,
-    priceDetails: {
-      priceHour: 500,
-      priceDay: 3000,
-      priceWeek: 18000,
-      priceMonth: 70000,
-    },
-    specs: {
-      seats: "5",
-      doors: "4",
-      transmission: "Automatic",
-      fuel: "Diesel",
-      type: "SUV",
-    },
+    priceHour: 0,
+    priceDay: 0,
+    priceWeek: 0,
+    priceMonth: 0,
   });
 
   const [bookingData, setBookingData] = useState({
@@ -67,7 +53,6 @@ const RentalBookingForm = ({ vehicleId }) => {
   const [rentalDuration, setRentalDuration] = useState(1);
   const [loading, setLoading] = useState(false);
   const [verifyingVehicle, setVerifyingVehicle] = useState(false);
-  const [availableVehicles, setAvailableVehicles] = useState([]);
 
   // Calculate total amount whenever rental details change
   useEffect(() => {
@@ -90,11 +75,11 @@ const RentalBookingForm = ({ vehicleId }) => {
     bookingData.returnTime,
     bookingData.rentalType,
     bookingData.driveOption,
+    vehicle,
   ]);
 
   useEffect(() => {
     const fetchVehicleData = async () => {
-
       try {
         setVerifyingVehicle(true);
         const response = await fetch(
@@ -105,9 +90,17 @@ const RentalBookingForm = ({ vehicleId }) => {
         }
         const data = await response.json();
 
-        console.log(data)
-
-        setVehicle(data[0]);
+        // Ensure we have the vehicle data with price fields
+        if (data && data[0]) {
+          const vehicleData = data[0];
+          setVehicle({
+            ...vehicleData,
+            priceHour: Number(vehicleData.priceHour) || 0,
+            priceDay: Number(vehicleData.priceDay) || 0,
+            priceWeek: Number(vehicleData.priceWeek) || 0,
+            priceMonth: Number(vehicleData.priceMonth) || 0,
+          });
+        }
       } catch (error) {
         console.error("Error fetching vehicle data:", error);
         toast.error("Unable to load vehicle data. Please try again later.");
@@ -123,22 +116,12 @@ const RentalBookingForm = ({ vehicleId }) => {
     let basePrice = 0;
     const calculatedDuration = duration || 1;
 
-    switch (bookingData.rentalType) {
-      case "hour":
-        basePrice = vehicle.priceHour * calculatedDuration;
-        break;
-      case "day":
-        basePrice = vehicle.priceDay * calculatedDuration;
-        break;
-      case "week":
-        basePrice = vehicle.priceWeek * calculatedDuration;
-        break;
-      case "month":
-        basePrice = vehicle.priceMonth * calculatedDuration;
-        break;
-      default:
-        basePrice = vehicle.priceDay * calculatedDuration;
-    }
+    // Get the correct price based on rental type
+    const priceKey = `price${
+      bookingData.rentalType.charAt(0).toUpperCase() +
+      bookingData.rentalType.slice(1)
+    }`;
+    basePrice = (vehicle[priceKey] || 0) * calculatedDuration;
 
     let driverCost = 0;
     if (bookingData.driveOption === "hireDriver") {
@@ -155,8 +138,6 @@ const RentalBookingForm = ({ vehicleId }) => {
         case "month":
           driverCost = 25000 * calculatedDuration;
           break;
-        default:
-          driverCost = 0;
       }
     }
 
@@ -217,10 +198,6 @@ const RentalBookingForm = ({ vehicleId }) => {
       default:
         return 1;
     }
-  };
-
-  const handleDateChange = (e) => {
-    handleChange(e);
   };
 
   const validateStep = (step) => {
@@ -305,20 +282,6 @@ const RentalBookingForm = ({ vehicleId }) => {
     window.scrollTo(0, 0);
   };
 
-  function calculateRentalDays() {
-    const start = new Date(
-      `${bookingData.pickupDate}T${bookingData.pickupTime}`
-    );
-    const end = new Date(`${bookingData.returnDate}T${bookingData.returnTime}`);
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 1;
-
-    const diffTime = end - start;
-    if (diffTime <= 0) return 1;
-
-    return Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep(currentStep)) return;
@@ -327,28 +290,30 @@ const RentalBookingForm = ({ vehicleId }) => {
 
     try {
       const duration = calculateDuration();
-      const payload = {
-        userId: Cookies.get("sauto")?.split("-")[0],
-        vehicleId: vehicle.id,
-        pickupLocation: bookingData.pickupLocation,
-        dropoffLocation: bookingData.dropoffLocation,
-        pickupDate: bookingData.pickupDate,
-        pickupTime: bookingData.pickupTime,
-        returnDate: bookingData.returnDate,
-        returnTime: bookingData.returnTime,
-        rentalType: bookingData.rentalType || "day",
-        driveOption: bookingData.driveOption || "selfDrive",
-        paymentMethod: bookingData.paymentMethod || "payLater",
-        termsAccepted: bookingData.termsAccepted,
-        totalAmount: totalAmount,
-        rentalDuration: duration,
-        status: "confirmed",
-      };
+      const userId = Cookies.get("sauto")?.split("-")[0];
+
+      if (!userId) {
+        toast.error("User authentication error. Please log in again.");
+        setLoading(false);
+        return;
+      }
 
       const formData = new FormData();
-      for (const [key, value] of Object.entries(payload)) {
-        formData.append(key, value);
-      }
+      formData.append("userId", userId);
+      formData.append("vehicleId", vehicle.id);
+      formData.append("pickupLocation", bookingData.pickupLocation);
+      formData.append("dropoffLocation", bookingData.dropoffLocation);
+      formData.append("pickupDate", bookingData.pickupDate);
+      formData.append("pickupTime", bookingData.pickupTime);
+      formData.append("returnDate", bookingData.returnDate);
+      formData.append("returnTime", bookingData.returnTime);
+      formData.append("rentalType", bookingData.rentalType);
+      formData.append("driveOption", bookingData.driveOption);
+      formData.append("paymentMethod", bookingData.paymentMethod);
+      formData.append("termsAccepted", bookingData.termsAccepted);
+      formData.append("totalAmount", totalAmount);
+      formData.append("rentalDuration", duration);
+      formData.append("status", "confirmed");
 
       if (bookingData.driveOption === "selfDrive" && bookingData.licenseImage) {
         formData.append("licenseImage", bookingData.licenseImage);
@@ -367,7 +332,8 @@ const RentalBookingForm = ({ vehicleId }) => {
 
       if (response.status === 201) {
         toast.success("Booking confirmed!");
-        window.location.reload();
+        // Navigate to mybookings page
+        navigate("/UserBookings");
         return;
       }
 
@@ -389,7 +355,7 @@ const RentalBookingForm = ({ vehicleId }) => {
   };
 
   const formatCurrency = (amount) => {
-    return `Rs. ${amount?.toLocaleString?.() || "0"}`;
+    return `Rs. ${Number(amount).toLocaleString() || "0"}`;
   };
 
   const getDriverCost = () => {
@@ -407,6 +373,14 @@ const RentalBookingForm = ({ vehicleId }) => {
       default:
         return 0;
     }
+  };
+
+  const getBasePrice = () => {
+    const priceKey = `price${
+      bookingData.rentalType.charAt(0).toUpperCase() +
+      bookingData.rentalType.slice(1)
+    }`;
+    return (vehicle[priceKey] || 0) * rentalDuration;
   };
 
   const renderStep1 = () => (
@@ -488,9 +462,7 @@ const RentalBookingForm = ({ vehicleId }) => {
               <option value="hour">
                 Hourly (Rs. {vehicle.priceHour}/hour)
               </option>
-              <option value="day">
-                Daily (Rs. {vehicle.priceDay}/day)
-              </option>
+              <option value="day">Daily (Rs. {vehicle.priceDay}/day)</option>
               <option value="week">
                 Weekly (Rs. {vehicle.priceWeek}/week)
               </option>
@@ -513,7 +485,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                 id="pickupDate"
                 name="pickupDate"
                 value={bookingData.pickupDate}
-                onChange={handleDateChange}
+                onChange={handleChange}
                 min={new Date().toISOString().split("T")[0]}
                 className={`w-full rounded-lg border ${
                   errors.pickupDate ? "border-red-500" : "border-gray-300"
@@ -538,7 +510,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                 id="pickupTime"
                 name="pickupTime"
                 value={bookingData.pickupTime}
-                onChange={handleDateChange}
+                onChange={handleChange}
                 className={`w-full rounded-lg border ${
                   errors.pickupTime ? "border-red-500" : "border-gray-300"
                 } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
@@ -562,7 +534,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                 id="returnDate"
                 name="returnDate"
                 value={bookingData.returnDate}
-                onChange={handleDateChange}
+                onChange={handleChange}
                 min={
                   bookingData.pickupDate ||
                   new Date().toISOString().split("T")[0]
@@ -590,7 +562,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                 id="returnTime"
                 name="returnTime"
                 value={bookingData.returnTime}
-                onChange={handleDateChange}
+                onChange={handleChange}
                 className={`w-full rounded-lg border ${
                   errors.returnTime ? "border-red-500" : "border-gray-300"
                 } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
@@ -623,10 +595,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                       Base Price:
                     </p>
                     <p className="text-lg sm:text-xl font-bold text-[#ff6b00]">
-                      {formatCurrency(
-                        vehicle[bookingData.rentalType] *
-                          rentalDuration
-                      )}
+                      {formatCurrency(getBasePrice())}
                     </p>
                   </div>
                 </div>
@@ -774,7 +743,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                   <div className="flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-8">
                     <div className="text-center">
                       <Camera className="mx-auto h-12 w-12 text-gray-400" />
-                      <div className="mt-4 flex text-sm text-gray-600">
+                      <div className="mt-4 flex text-sm leading-6 text-gray-600">
                         <label
                           htmlFor="licenseImage"
                           className="relative cursor-pointer rounded-md bg-white font-medium text-[#ff6b00] focus-within:outline-none focus-within:ring-2 focus-within:ring-[#ff6b00] focus-within:ring-offset-2 hover:text-[#ff8533]"
@@ -794,6 +763,11 @@ const RentalBookingForm = ({ vehicleId }) => {
                       <p className="text-xs text-gray-500 mt-2">
                         PNG, JPG, GIF up to 10MB
                       </p>
+                      {bookingData.licenseImage && (
+                        <p className="text-sm text-green-600 mt-2">
+                          ✓ {bookingData.licenseImage.name} selected
+                        </p>
+                      )}
                     </div>
                   </div>
                   {errors.licenseImage && (
@@ -1083,10 +1057,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                   {rentalDuration > 1 ? "s" : ""})
                 </span>
                 <span className="font-medium text-gray-900">
-                  {formatCurrency(
-                    vehicle[bookingData.rentalType] *
-                      rentalDuration
-                  )}
+                  {formatCurrency(getBasePrice())}
                 </span>
               </div>
 
@@ -1147,16 +1118,22 @@ const RentalBookingForm = ({ vehicleId }) => {
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
             <div className="w-full sm:w-1/3 h-36 sm:h-48 bg-gray-100 rounded-lg overflow-hidden">
               <img
-                src={`../../server${vehicle.rentVehicleImages.image[0]}` || "/placeholder-car.jpg"}
-                alt={vehicle.name}
+                src={
+                  vehicle?.rentVehicleImages?.image?.[0] ||
+                  "/placeholder-car.jpg" ||
+                  "/placeholder.svg"
+                }
+                alt={vehicle.name || "Vehicle"}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="flex-1">
               <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                {vehicle.name}
+                {vehicle.name || "Unknown Vehicle"}
               </h3>
-              <p className="text-sm text-gray-600">{vehicle.model} Model</p>
+              <p className="text-sm text-gray-600">
+                {vehicle.model || "Unknown Model"} Model
+              </p>
 
               <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
                 <div className="flex items-center text-xs sm:text-sm text-gray-600">
@@ -1301,14 +1278,6 @@ const RentalBookingForm = ({ vehicleId }) => {
                       **** **** **** {bookingData.cardNumber.slice(-4)}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Expiry Date
-                    </p>
-                    <p className="font-medium text-sm sm:text-base text-gray-900">
-                      {bookingData.expiryDate}
-                    </p>
-                  </div>
                 </>
               )}
             </div>
@@ -1325,10 +1294,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                   {rentalDuration > 1 ? "s" : ""})
                 </span>
                 <span className="font-medium text-gray-900">
-                  {formatCurrency(
-                    vehicle[bookingData.rentalType] *
-                      rentalDuration
-                  )}
+                  {formatCurrency(getBasePrice())}
                 </span>
               </div>
 

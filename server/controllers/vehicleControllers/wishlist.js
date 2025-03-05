@@ -125,10 +125,10 @@ router.get('/wishlist/:userId', async (req, res) => {
             order: [['createdAt', 'DESC']], // Optional: order by latest first
         });
 
+        // Return an empty array if no wishlists are found
         if (!wishlists || wishlists.length === 0) {
-            return res.status(404).json({ success: false, message: 'No wishlists found for this user.' });
+            return res.status(200).json({ success: true, data: [] });
         }
-
 
         return res.json({ success: true, data: wishlists });
     } catch (error) {

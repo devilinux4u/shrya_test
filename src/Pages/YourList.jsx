@@ -710,22 +710,17 @@ const YourList = () => {
             ))}
           </div>
 
-          {filteredItems.length === 0 && !isLoading && (
+          {filteredItems.length === 0 && (
             <div className="text-center py-12 bg-white rounded-xl shadow-sm">
               <p className="text-gray-500">
-                No vehicles match your current filter.
+                Your wishlist is currently empty. Start adding vehicles to your
+                wishlist!
               </p>
               <button
-                onClick={() => {
-                  setCurrentFilter("all");
-                  setStatusFilter("all");
-                  toast.info(`Showing all ${items.length} vehicles`, {
-                    icon: "🔍",
-                  });
-                }}
-                className="mt-4 text-orange-500 hover:text-orange-600 font-medium"
+                onClick={toggleModal}
+                className="mt-4 bg-orange-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-orange-600 transition-colors"
               >
-                Show all vehicles
+                Wish Vehicle
               </button>
             </div>
           )}

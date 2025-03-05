@@ -35,172 +35,17 @@ const UserBookings = () => {
   const [cancelReason, setCancelReason] = useState("");
   const [isCancelling, setIsCancelling] = useState(false);
 
-  // Sample data - in a real app, this would come from an API
+  // Fetch booking data from API
   useEffect(() => {
-    // Simulate API call
     const fetchBookings = async () => {
       setLoading(true);
       try {
-        // In a real app, you would fetch from your API
-        // const response = await fetch('http://localhost:3000/api/bookings')
-        // const data = await response.json()
-
-        // Simulated data
-        const data = [
-          {
-            id: "BK12345",
-            vehicleName: "Toyota Camry",
-            vehicleImage: "/placeholder.svg?height=200&width=300",
-            pickupLocation: "123 Main Street, City Center",
-            dropoffLocation: "456 Oak Avenue, Downtown",
-            pickupDate: "2025-04-10",
-            pickupTime: "10:00",
-            returnDate: "2025-04-15",
-            returnTime: "18:00",
-            rentalType: "day",
-            rentalDuration: 5,
-            driveOption: "selfDrive",
-            status: "confirmed",
-            totalAmount: 15000,
-            createdAt: "2025-04-01T10:30:00",
-            paymentMethod: "creditCard",
-            vehicleDetails: {
-              make: "Toyota",
-              model: "Camry",
-              year: "2023",
-              specs: {
-                seats: "5",
-                doors: "4",
-                transmission: "Automatic",
-                fuel: "Petrol",
-                type: "Sedan",
-              },
-            },
-          },
-          {
-            id: "BK12346",
-            vehicleName: "Honda Civic",
-            vehicleImage: "/placeholder.svg?height=200&width=300",
-            pickupLocation: "789 Pine Road, Uptown",
-            dropoffLocation: "789 Pine Road, Uptown",
-            pickupDate: "2025-04-05",
-            pickupTime: "09:00",
-            returnDate: "2025-04-06",
-            returnTime: "09:00",
-            rentalType: "day",
-            rentalDuration: 1,
-            driveOption: "hireDriver",
-            status: "completed",
-            totalAmount: 5000,
-            createdAt: "2025-03-28T14:15:00",
-            paymentMethod: "payLater",
-            vehicleDetails: {
-              make: "Honda",
-              model: "Civic",
-              year: "2022",
-              specs: {
-                seats: "5",
-                doors: "4",
-                transmission: "Automatic",
-                fuel: "Petrol",
-                type: "Sedan",
-              },
-            },
-          },
-          {
-            id: "BK12347",
-            vehicleName: "Ford Explorer",
-            vehicleImage: "/placeholder.svg?height=200&width=300",
-            pickupLocation: "321 Maple Drive, Westside",
-            dropoffLocation: "654 Elm Street, Eastside",
-            pickupDate: "2025-04-20",
-            pickupTime: "11:00",
-            returnDate: "2025-04-27",
-            returnTime: "11:00",
-            rentalType: "week",
-            rentalDuration: 1,
-            driveOption: "selfDrive",
-            status: "confirmed",
-            totalAmount: 25000,
-            createdAt: "2025-04-02T09:45:00",
-            paymentMethod: "creditCard",
-            vehicleDetails: {
-              make: "Ford",
-              model: "Explorer",
-              year: "2024",
-              specs: {
-                seats: "7",
-                doors: "5",
-                transmission: "Automatic",
-                fuel: "Diesel",
-                type: "SUV",
-              },
-            },
-          },
-          {
-            id: "BK12348",
-            vehicleName: "Nissan Altima",
-            vehicleImage: "/placeholder.svg?height=200&width=300",
-            pickupLocation: "987 Cedar Lane, Northside",
-            dropoffLocation: "987 Cedar Lane, Northside",
-            pickupDate: "2025-03-15",
-            pickupTime: "14:00",
-            returnDate: "2025-03-18",
-            returnTime: "14:00",
-            rentalType: "day",
-            rentalDuration: 3,
-            driveOption: "selfDrive",
-            status: "cancelled",
-            totalAmount: 9000,
-            createdAt: "2025-03-10T16:20:00",
-            paymentMethod: "payLater",
-            cancelReason: "Change of plans",
-            vehicleDetails: {
-              make: "Nissan",
-              model: "Altima",
-              year: "2023",
-              specs: {
-                seats: "5",
-                doors: "4",
-                transmission: "Automatic",
-                fuel: "Petrol",
-                type: "Sedan",
-              },
-            },
-          },
-          {
-            id: "BK12349",
-            vehicleName: "BMW X5",
-            vehicleImage: "/placeholder.svg?height=200&width=300",
-            pickupLocation: "456 Birch Street, Southside",
-            dropoffLocation: "123 Main Street, City Center",
-            pickupDate: "2025-05-01",
-            pickupTime: "12:00",
-            returnDate: "2025-05-31",
-            returnTime: "12:00",
-            rentalType: "month",
-            rentalDuration: 1,
-            driveOption: "hireDriver",
-            status: "pending",
-            totalAmount: 95000,
-            createdAt: "2025-04-03T11:10:00",
-            paymentMethod: "creditCard",
-            vehicleDetails: {
-              make: "BMW",
-              model: "X5",
-              year: "2024",
-              specs: {
-                seats: "5",
-                doors: "5",
-                transmission: "Automatic",
-                fuel: "Petrol",
-                type: "SUV",
-              },
-            },
-          },
-        ];
-
-        setBookings(data);
+        const response = await fetch("http://localhost:3000/api/bookings");
+        if (!response.ok) {
+          throw new Error("Failed to fetch bookings");
+        }
+        const data = await response.json();
+        setBookings(data.length > 0 ? data : []); // Ensure empty array if no bookings
       } catch (err) {
         console.error("Error fetching bookings:", err);
         setError("Failed to load your bookings. Please try again later.");
@@ -371,11 +216,11 @@ const UserBookings = () => {
   };
 
   return (
-    <div className="mt-12 min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className=" min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer position="top-right" autoClose={3000} />
 
       {/* Header */}
-      <div className="max-w-7xl mx-auto">
+      <div className="mt-12 max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Your Bookings</h1>
           <p className="mt-2 text-gray-600">
