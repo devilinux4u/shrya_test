@@ -5,6 +5,7 @@ import {
   CheckCircle,
   Clock,
   MapPin,
+  Calendar,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -296,7 +297,8 @@ const LostAndFound = () => {
           {currentItems.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => handleContact(item)}
             >
               <div className="relative">
                 <img
@@ -315,15 +317,10 @@ const LostAndFound = () => {
                   }}
                 />
                 <div className="absolute top-4 right-4">
-                  {item.status === "resolved" ? (
+                  {item.status === "resolved" && (
                     <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
                       <CheckCircle className="w-4 h-4 mr-1" />
                       Resolved
-                    </span>
-                  ) : (
-                    <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
-                      <Clock className="w-4 h-4 mr-1" />
-                      Active
                     </span>
                   )}
                 </div>
@@ -364,18 +361,8 @@ const LostAndFound = () => {
                   )}
                 </div>
 
-                <div className="space-y-3">
-                  <div className="text-sm text-gray-500">
-                    Reported on: {new Date(item.createdAt).toLocaleDateString()}
-                  </div>
-                  {item.status !== "resolved" && (
-                    <button
-                      onClick={() => handleContact(item)}
-                      className="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Contact Reporter
-                    </button>
-                  )}
+                <div className="text-sm text-gray-500">
+                  Reported on: {new Date(item.createdAt).toLocaleDateString()}
                 </div>
               </div>
             </div>
@@ -558,7 +545,6 @@ const LostAndFound = () => {
                         selectedItem.images[currentImageIndex] &&
                         `../../server${
                           selectedItem.images[currentImageIndex].imageUrl ||
-                          "/placeholder.svg" ||
                           "/placeholder.svg"
                         }`) ||
                       "/placeholder.svg"
