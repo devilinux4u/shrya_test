@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require('fs');
-const { LostAndFound, LostAndFoundImage, users } = require("../../db/sequelize"); // import both models
+const { LostAndFound, LostAndFoundImage, users } = require("../../db/sequelize"); 
 
 // Configure storage for uploaded files
 const uploadDir = path.join(__dirname, '../../uploads/lostAndFound');
@@ -85,7 +85,7 @@ router.get("/all", async (req, res) => {
         {
           model: users,
           as: "user",
-          attributes: ['fname', 'num', 'id'], // Include user ID
+          attributes: ['fname', 'num', 'id'], 
         },
       ],
       order: [['createdAt', 'DESC']],

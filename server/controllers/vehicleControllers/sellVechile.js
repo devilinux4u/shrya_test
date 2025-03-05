@@ -104,12 +104,12 @@ router.get("/vehicles/random", async (req, res) => {
 
 });
 
-router.get("/vehicles/three", async (req, res) => {
+router.get("/vehicles/six", async (req, res) => {
     try {
         const vehicleData = await vehicles.findAll({
             where: { status: "available" },
             order: sequelize.literal("RAND()"),
-            limit: 3, // Fetch 3 random vehicles
+            limit: 6, // Fetch 6 random vehicles
             include: [{ model: v_img, attributes: ["id", "image"] }]
         });
 
@@ -147,7 +147,7 @@ router.get("/vehicles/all", async (req, res) => {
                 {
                     model: users,
                     as: "user",
-                    attributes: ["fname"] // Include both fname and lname
+                    attributes: ["fname"] 
                 }]
         });
 
@@ -183,7 +183,7 @@ router.get("/vehicles/admin/all", async (req, res) => {
                 {
                     model: users,
                     as: "user",
-                    attributes: ["role", "fname"] // Fetch fname instead of uname
+                    attributes: ["role", "fname"] 
                 }
             ]
         });
@@ -217,13 +217,13 @@ router.get("/vehicles/one/:vid", async (req, res) => {
             include: [
                 {
                     model: v_img,
-                    as: "SellVehicleImages", // Ensure alias matches the Sequelize association
+                    as: "SellVehicleImages", 
                     attributes: ["id", "image"]
                 },
                 {
                     model: users,
                     as: "user",
-                    attributes: ["id", "fname", "uname", "email", "num"] // Removed lname
+                    attributes: ["id", "fname", "uname", "email", "num"] 
                 }
             ]
         });

@@ -28,7 +28,7 @@ router.get('/contact', async (req, res) => {
     const allContacts = await contacts.findAll({
       attributes: ['id', 'name', 'email', 'phno', 'msg', 'date', 'status'], // Include the status field
     });
-    res.json(allContacts || []); // Ensure an array is returned
+    res.json(allContacts || []); 
   } catch (error) {
     console.error("Error fetching contact messages:", error);
     res.status(500).json({ success: false, msg: "Error while fetching messages", error: error.message });

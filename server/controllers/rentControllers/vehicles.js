@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
       include: [
         {
           model: db.RentalAllVehicleImages,
-          as: 'rentVehicleImages' // Match this with your association alias
+          as: 'rentVehicleImages' 
         }
       ],
       order: [['createdAt', 'DESC']]
@@ -134,14 +134,14 @@ router.get('/active/all', async (req, res) => {
       include: [
         {
           model: db.users,
-          attributes: ['id', 'fname', 'uname', 'email', 'num'], // customize fields as needed
+          attributes: ['id', 'fname', 'uname', 'email', 'num'], 
         },
         {
           model: db.RentalAllVehicles,
           include: [
             {
               model: db.RentalAllVehicleImages,
-              as: 'rentVehicleImages', // Ensure alias matches the frontend mapping
+              as: 'rentVehicleImages', 
             },
           ],
         },
@@ -171,7 +171,7 @@ router.get('/active/one/:id', async (req, res) => {
       include: [
         {
           model: db.users,
-          attributes: ['id', 'fname', 'uname', 'email', 'num'] // customize fields as needed
+          attributes: ['id', 'fname', 'uname', 'email', 'num'] 
         },
         {
           model: db.RentalAllVehicles,
@@ -211,7 +211,7 @@ router.get('/history/all', async (req, res) => {
       include: [
         {
           model: db.users,
-          attributes: ['id', 'fname', 'uname', 'email', 'num'] // customize fields as needed
+          attributes: ['id', 'fname', 'uname', 'email', 'num'] 
         },
         {
           model: db.RentalAllVehicles,
@@ -255,7 +255,7 @@ router.get('/active/user/all/:id', async (req, res) => {
       include: [
         {
           model: db.users,
-          attributes: ['id', 'fname', 'uname', 'email', 'num'] // customize fields as needed
+          attributes: ['id', 'fname', 'uname', 'email', 'num'] 
         },
         {
           model: db.RentalAllVehicles,

@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import {
   Calendar,
@@ -18,7 +16,6 @@ import { useNavigate } from "react-router-dom";
 
 const RentalBookingForm = ({ vehicleId }) => {
   const navigate = useNavigate();
-  // Vehicle data state
   const [vehicle, setVehicle] = useState({
     priceHour: 0,
     priceDay: 0,
@@ -41,7 +38,6 @@ const RentalBookingForm = ({ vehicleId }) => {
     termsAccepted: false,
   });
 
-  // UI state
   const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(1);
   const [totalAmount, setTotalAmount] = useState(0);
@@ -246,10 +242,6 @@ const RentalBookingForm = ({ vehicleId }) => {
         newErrors.termsAccepted = "You must accept the terms and conditions";
     }
 
-    if (step === 3) {
-      // No additional validation needed for summary step
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -288,7 +280,7 @@ const RentalBookingForm = ({ vehicleId }) => {
       formData.append("pickupLocation", bookingData.pickupLocation);
       formData.append("dropoffLocation", bookingData.dropoffLocation);
       formData.append("pickupDate", bookingData.pickupDate);
-      formData.append("pickupTime", bookingData.pickupTime); // Ensure pickupTime is included
+      formData.append("pickupTime", bookingData.pickupTime);
       formData.append("returnDate", bookingData.returnDate);
       formData.append("returnTime", bookingData.returnTime);
       formData.append("rentalType", bookingData.rentalType);
@@ -324,7 +316,7 @@ const RentalBookingForm = ({ vehicleId }) => {
         formData.get("paymentMethod") != "payLater" &&
         response.status === 201
       ) {
-        const paymentUrl = response.data.data.payment_url; // Assume backend returns this
+        const paymentUrl = response.data.data.payment_url;
         window.location.href = paymentUrl; // Redirect to Khalti
       } else {
         toast.success("Booking confirmed!");

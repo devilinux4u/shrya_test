@@ -30,7 +30,6 @@ import UserBookings from "./Pages/UserBookings";
 import ReportedItems from "./Pages/ReportedItems";
 import UserVerification from "./Pages/UserVerification";
 import WishlistVehicleDetail from "./Pages/WishlistVehicleDetail";
-import VehicleBooking from "./Pages/VehicleBooking";
 import ViewDetails from "./Admin/Vehicle Management/ViewDetails";
 import AddVehicle from "./Admin/Rentals/AddVehicle";
 import AllVehicle from "./Admin/Rentals/AllVehicle";
@@ -51,9 +50,8 @@ function App() {
     location.pathname === "/Login" || location.pathname === "/Register";
 
   const handleLogin = async (credentials) => {
-    // Perform login logic here
     const isAdmin =
-      credentials.username === "admin" && credentials.password === "admin"; // Example check
+      credentials.username === "admin" && credentials.password === "admin";
     if (isAdmin) {
       navigate("/admin/dashboard");
     } else {
@@ -90,7 +88,6 @@ function App() {
           path="/WishlistVehicleDetail/:id"
           element={<WishlistVehicleDetail />}
         />
-        <Route path="/VehicleBooking" element={<VehicleBooking />} />
         <Route path="/MySales" element={<MySales />} />
         <Route path="/login-google" element={<GoogleAuth />} />
 

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "../assets/Logo.png";
@@ -45,7 +43,7 @@ const NavMenu = () => {
       navigate(route);
     } else {
       toast.info("You must be registered to access this feature.", {
-        position: "top-right", // Ensure toast appears on the right
+        position: "top-right",
         autoClose: 3000,
       });
       navigate("/Login");
@@ -76,7 +74,6 @@ const NavMenu = () => {
 
     checkLoginStatus();
 
-    // Add this inside the useEffect
     const handleClickOutside = (event) => {
       if (isServicesOpen || isProfileMenuOpen) {
         setIsServicesOpen(false);

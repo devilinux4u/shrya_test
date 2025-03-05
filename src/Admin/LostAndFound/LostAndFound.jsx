@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -23,7 +21,7 @@ import {
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
-import LostAndFoundForm from "../../Components/LostAndFoundForm"; // Import the form component
+import LostAndFoundForm from "../../Components/LostAndFoundForm";
 
 export default function LostAndFound() {
   const [items, setItems] = useState([]);
@@ -108,7 +106,7 @@ export default function LostAndFound() {
 
     if (userFilter) {
       filtered = filtered.filter((item) => {
-        const role = item.user.role; // Use the role directly from the backend
+        const role = item.user.role;
         return role.toLowerCase() === userFilter.toLowerCase();
       });
     }
@@ -225,7 +223,7 @@ export default function LostAndFound() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/lost-and-found/${itemToDelete.id}`, // Updated endpoint
+        `http://localhost:3000/api/lost-and-found/${itemToDelete.id}`,
         {
           method: "DELETE",
           headers: {
@@ -252,49 +250,6 @@ export default function LostAndFound() {
     } finally {
       setIsLoading(false);
       setItemToDelete(null);
-    }
-  };
-
-  // Add new item
-  const handleAddItemSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-
-    try {
-      const uid = Cookies.get("sauto")?.split("-")[0];
-      if (!uid) {
-        toast.error("User ID is missing. Please log in again.");
-        return;
-      }
-
-      formData.append("id", uid);
-      const response = await fetch("http://localhost:3000/api/lost-and-found", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorDetails = await response.text();
-        throw new Error(
-          `HTTP error! Status: ${response.status}, Details: ${errorDetails}`
-        );
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        const newItem = {
-          ...data.item,
-          userType: data.item.user.fname === "Admin" ? "Admin" : "User",
-        };
-        toast.success("Item added successfully!");
-        setItems([...items, newItem]);
-        setShowAddItem(false);
-      } else {
-        toast.error("Failed to add the item. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error adding item:", error);
-      toast.error(`Failed to add item: ${error.message}`);
     }
   };
 
@@ -349,10 +304,9 @@ export default function LostAndFound() {
     }
   };
 
-  // Permission helpers
   const canEdit = (item) =>
     currentUserRole === "Admin" && item.status !== "resolved";
-  const canContact = (item) => item.user.num; // Updated to check if the reporter has a contact number
+  const canContact = (item) => item.user.num;
 
   // Reset filters
   const resetFilters = () => {

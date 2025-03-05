@@ -1,11 +1,7 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   CheckCircle,
-  Clock,
   MapPin,
-  Calendar,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -71,7 +67,6 @@ const LostAndFound = () => {
     checkCookiesAvailable(); // Initialize currentUserId
   }, []);
 
-  // Filter items based on current filters and search query
   const filteredItems = items.filter((item) => {
     // Filter by type (all/lost/found/resolved)
     if (currentFilter !== "all") {
@@ -155,7 +150,6 @@ const LostAndFound = () => {
 
   const closeContactModal = () => {
     setIsContactModalOpen(false);
-    // Optional: add a small delay before clearing the selected item
     setTimeout(() => {
       setSelectedItem(null);
     }, 300);
@@ -179,7 +173,6 @@ const LostAndFound = () => {
     setCurrentFilter(filter);
     setCurrentPage(1);
 
-    // Show toast notification for filter change
     let message = "";
     if (filter === "all") {
       message = `Showing all ${items.length} items`;
@@ -474,7 +467,6 @@ const LostAndFound = () => {
             </button>
 
             <div className="grid md:grid-cols-2 gap-8">
-              {/* Left side - Details */}
               <div className="overflow-y-auto max-h-[70vh]">
                 <h2 className="text-2xl md:text-3xl font-bold mb-6">
                   {selectedItem.title}
@@ -552,7 +544,6 @@ const LostAndFound = () => {
                 </div>
               </div>
 
-              {/* Right side - Image carousel */}
               <div>
                 <div className="relative bg-gray-100 rounded-lg">
                   <img

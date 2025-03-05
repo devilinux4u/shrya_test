@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -86,7 +84,7 @@ export default function Sidebar() {
   // Initialize sidebar state and detect mobile
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth < 768; // Changed from 1024px to 768px
+      const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
 
       // Auto-open on tablet and desktop
@@ -284,9 +282,7 @@ export default function Sidebar() {
       </div>
 
       {/* Content Margin for Desktop */}
-      <div className="md:pl-[280px] lg:pl-64 transition-all duration-300">
-        {/* Your page content goes here */}
-      </div>
+      <div className="md:pl-[280px] lg:pl-64 transition-all duration-300"></div>
     </>
   );
 }

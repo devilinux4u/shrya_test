@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Cookies from "js-cookie";
@@ -13,11 +11,7 @@ import {
   ChevronRight,
   Fuel,
   Palette,
-  User,
-  Tag,
-  ShoppingBag,
   AlertCircle,
-  X,
   Loader2,
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
@@ -25,7 +19,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const WishlistVehicleDetail = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Get ID from URL params instead of query params
+  const { id } = useParams();
   const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -47,7 +41,6 @@ const WishlistVehicleDetail = () => {
           throw new Error("Vehicle ID not found");
         }
 
-        // Use the ID from URL params
         const response = await fetch(
           `http://localhost:3000/wishlist/one/${id}`
         );

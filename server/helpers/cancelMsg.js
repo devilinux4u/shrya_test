@@ -31,7 +31,7 @@ const cancelEmail = async (msg, data, admin) => {
         secure: true,
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS, // App password (set in .env)
+            pass: process.env.EMAIL_PASS, 
         },
     });
     
@@ -135,7 +135,7 @@ const cancelEmail = async (msg, data, admin) => {
     if (admin === false) {
         const userName = data.User?.fname || "Unknown User";
         const vehicleInfo = `${data.RentalVehicle.make} ${data.RentalVehicle.model} ${data.RentalVehicle.year}`;
-        const dateInfo = formatDateTime(data.pickupDate, data.pickupTime); // Include pickup time dynamically
+        const dateInfo = formatDateTime(data.pickupDate, data.pickupTime); 
         
         mailOptions = {
             from: process.env.EMAIL_USER,
@@ -148,8 +148,8 @@ const cancelEmail = async (msg, data, admin) => {
     } else if (admin === true) {
         const userName = data.user?.fname || "Customer";
         const vehicleInfo = `${data.RentalVehicle.make} ${data.RentalVehicle.model} ${data.RentalVehicle.year}`;
-        const dateInfo = formatDateTime(data.pickupDate, data.pickupTime); // Include pickup time dynamically
-        
+        const dateInfo = formatDateTime(data.pickupDate, data.pickupTime); 
+
         mailOptions = {
             from: process.env.EMAIL_USER,
             to: data.user?.email,
@@ -168,5 +168,4 @@ const cancelEmail = async (msg, data, admin) => {
     }
 };
 
-// Export the function
 module.exports = cancelEmail;

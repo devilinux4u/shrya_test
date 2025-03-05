@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Camera, X } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
@@ -56,7 +54,7 @@ const UserLostAndFoundForm = ({ isOpen, onClose }) => {
     const files = Array.from(e.target.files);
     setFormData((prevData) => ({
       ...prevData,
-      images: [...prevData.images, ...files], // Store actual File objects
+      images: [...prevData.images, ...files],
     }));
   };
 
@@ -106,12 +104,11 @@ const UserLostAndFoundForm = ({ isOpen, onClose }) => {
         return;
       }
 
-      // Convert formData to FormData for submission
       const formDataToSubmit = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         if (key === "images") {
           value.forEach((file) => {
-            formDataToSubmit.append("images", file); // Append actual File objects
+            formDataToSubmit.append("images", file);
           });
         } else {
           formDataToSubmit.append(key, value);
@@ -161,7 +158,7 @@ const UserLostAndFoundForm = ({ isOpen, onClose }) => {
           onClose();
           navigate("/ReportedItems");
           window.location.reload();
-        }, 2000); // Adjust the delay as needed
+        }, 2000);
       } else {
         console.error("Failed to submit the report. Server response:", data);
         toast.error("Failed to submit the report. Please try again.");
@@ -186,7 +183,7 @@ const UserLostAndFoundForm = ({ isOpen, onClose }) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored" // Ensure the theme is set for better visibility
+        theme="colored"
       />
       <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
         {/* Close button */}

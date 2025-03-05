@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -25,7 +23,6 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function ViewDetails() {
   const { id } = useParams();
-  // const location = useLocation()
   const navigate = useNavigate();
   const [vehicle, setVehicle] = useState(location.state?.vehicle || null);
   const [loading, setLoading] = useState(!location.state?.vehicle);
@@ -61,21 +58,16 @@ export default function ViewDetails() {
       const fetchVehicleDetails = async () => {
         try {
           setLoading(true);
-          // Replace with your actual API call
-          // const response = await fetch(`/api/vehicles/${id}`)
-          // const data = await response.json()
-
-          // Simulating API response with sample data
           const response = await fetch(
             `http://localhost:3000/vehicles/one/${vehicleId}`
-          ); // Replace with your actual endpoint
+          );
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const data = await response.json();
           if (data.success) {
             setVehicle(data.msg);
-            setLoading(false); // Set the vehicle data to the state
+            setLoading(false);
           } else {
             console.error("Vehicle not found");
           }
@@ -88,8 +80,6 @@ export default function ViewDetails() {
 
       fetchVehicleDetails();
     } else {
-      // If we have the vehicle from location state but it might be missing some fields
-      // that are needed for the detailed view, we can supplement it here
       if (!vehicle.description) {
         setVehicle({
           ...vehicle,
@@ -197,16 +187,12 @@ export default function ViewDetails() {
       toast.success("Deleted successfully!");
       setTimeout(() => {
         navigate(-1);
-      }, 1500); // Delay navigation by 1.5 seconds
+      }, 1500);
     } catch (error) {
       console.error("Error deleting vehicle:", error);
       toast.error("Failed to delete. Try again.");
       setIsDeleting(false);
     }
-  };
-
-  const handleBookNow = () => {
-    navigate(`/book/${vehicle.id}`);
   };
 
   const handleStatusChange = async (vehicle) => {
@@ -302,9 +288,7 @@ export default function ViewDetails() {
           </div>
         </div>
 
-        {/* Image gallery and Contact information side by side */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          {/* Image gallery - takes 2/3 of the width on medium screens and up */}
           <div className="md:col-span-2 bg-white rounded-lg shadow overflow-hidden">
             <div className="aspect-video relative">
               <img
@@ -348,7 +332,6 @@ export default function ViewDetails() {
             )}
           </div>
 
-          {/* Contact information - takes 1/3 of the width on medium screens and up */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Contact Information</h2>
             <div className="space-y-4">

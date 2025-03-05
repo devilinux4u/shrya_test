@@ -97,5 +97,4 @@ const sendConfirmationEmail = async (userData, appointmentData) => {
     }
 };
 
-// Export the function
 module.exports = sendConfirmationEmail;

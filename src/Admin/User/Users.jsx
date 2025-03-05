@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -15,7 +13,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { subMonths, subYears } from "date-fns"; // Import date-fns for date manipulation
-import { toast, ToastContainer } from "react-toastify"; // Import toast notification library
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; // Import toast styles
 
 export default function Users() {
@@ -39,7 +37,7 @@ export default function Users() {
     end: "",
   });
   const [isEditing, setIsEditing] = useState(false);
-  const [isViewing, setIsViewing] = useState(false); // Add state to track if viewing user details
+  const [isViewing, setIsViewing] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({
     fname: "",
     uname: "",
@@ -102,7 +100,7 @@ export default function Users() {
       setUsers([...users, addedUser.msg]);
       setShowAddUser(false);
       setNewUser({ fname: "", uname: "", email: "", num: "", password: "" });
-      toast.success("User added successfully!"); // Show success toast
+      toast.success("User added successfully!");
     } catch (err) {
       console.error("Error adding user:", err);
       alert(err instanceof Error ? err.message : "Failed to add user");
@@ -126,7 +124,7 @@ export default function Users() {
       // Update the local state by removing the deleted user
       setUsers(users.filter((user) => user.id !== id));
       setShowDeleteConfirm(null);
-      toast.success("User deleted successfully!"); // Show success toast
+      toast.success("User deleted successfully!");
     } catch (err) {
       console.error("Error deleting user:", err);
       alert(err instanceof Error ? err.message : "Failed to delete user");
@@ -136,7 +134,7 @@ export default function Users() {
   const handleViewClick = (user) => {
     setSelectedUser(user);
     setIsViewing(true);
-    setIsEditing(false); // Ensure edit form is not shown
+    setIsEditing(false);
   };
 
   const handleEditClick = (user) => {
@@ -148,7 +146,7 @@ export default function Users() {
       num: user.num,
     });
     setIsEditing(true);
-    setIsViewing(false); // Ensure user details are not shown
+    setIsViewing(false);
   };
 
   const handleUpdateUser = async () => {
@@ -181,7 +179,7 @@ export default function Users() {
 
       setIsEditing(false);
       setSelectedUser(null);
-      toast.success("User updated successfully!"); // Show success toast
+      toast.success("User updated successfully!");
     } catch (error) {
       console.error("Error updating user:", error);
       alert("Failed to update user. Please try again.");

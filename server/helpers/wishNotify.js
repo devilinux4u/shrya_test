@@ -10,7 +10,7 @@ const sendWishlistNotification = async (recipientEmail, name, vehicleDetails) =>
         secure: true,
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS, // App password (set in .env)
+            pass: process.env.EMAIL_PASS, 
         },
     });
 

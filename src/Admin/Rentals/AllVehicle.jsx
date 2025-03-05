@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Car,
@@ -306,7 +304,6 @@ export default function AdminRentalVehicles() {
           </div>
         </div>
 
-        {/* Simplified Search and Filter UI */}
         <div className="mb-6 bg-white rounded-xl shadow-sm">
           <div className="p-4 flex flex-col sm:flex-row gap-4 items-center">
             {/* Search Bar */}
@@ -357,7 +354,6 @@ export default function AdminRentalVehicles() {
               </div>
             </div>
 
-            {/* Custom Date Range (conditionally rendered) */}
             {dateFilter === "custom" && (
               <div className="flex gap-2 w-full sm:w-auto">
                 <input

@@ -6,7 +6,7 @@ const sendOtp = require('../../helpers/sendOtp')
 const { datacatalog } = require('googleapis/build/src/apis/datacatalog');
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client("380619020993-45je5iuq0789kvuf6gifu0b4tl6ghrt4.apps.googleusercontent.com"
-); // Replace CLIENT_ID with your Google Client ID
+); 
 
 router.post('/login', async (req, res) => {
     try {
@@ -22,7 +22,7 @@ router.post('/login', async (req, res) => {
                     uname: 'ShreyaAuto',
                     email: 'noreply.shreyaauto@gmail.com',
                     num: '9841594067',
-                    pass: 'ShreyaAuto', // Make sure to hash this in production!
+                    pass: 'ShreyaAuto', 
                     role: 'admin',
                     profile: null,
                     otp: 123,
@@ -68,7 +68,7 @@ router.post("/google-login", async (req, res) => {
 
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: "380619020993-45je5iuq0789kvuf6gifu0b4tl6ghrt4.apps.googleusercontent.com", // Replace with your Client ID
+      audience: "380619020993-45je5iuq0789kvuf6gifu0b4tl6ghrt4.apps.googleusercontent.com", 
     });
 
     const payload = ticket.getPayload();
@@ -77,7 +77,7 @@ router.post("/google-login", async (req, res) => {
     let user = await users.findOne({ where: { email } });
     console.log("user created")
     if (!user) {
-      // Create a new user if not found
+
       user = await users.create({
         uname: sub, // Use Google sub as a unique identifier
         email,

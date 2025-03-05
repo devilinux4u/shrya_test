@@ -127,9 +127,6 @@ const AboutUs = () => {
       map.setCenter(storeLocation);
       map.setZoom(15);
 
-      // Clear all markers except the store marker
-      // Note: In a production app, you'd want to track markers to remove them properly
-      // This is a simplified approach
       new google.maps.Marker({
         position: storeLocation,
         map: map,

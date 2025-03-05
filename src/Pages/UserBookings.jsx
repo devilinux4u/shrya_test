@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Clock,
@@ -53,7 +51,7 @@ const UserBookings = () => {
 
         console.log(data.data[0].RentalVehicle);
 
-        setBookings(data.data.length > 0 ? data.data : []); // Ensure empty array if no bookings
+        setBookings(data.data.length > 0 ? data.data : []);
       } catch (err) {
         console.error("Error fetching bookings:", err);
         setError("Failed to load your bookings. Please try again later.");
@@ -185,7 +183,6 @@ const UserBookings = () => {
     setIsCancelling(true);
 
     try {
-      // In a real app, you would call your API
       await fetch(
         `http://localhost:3000/api/vehicles/cancel/${selectedBooking.id}`,
         {

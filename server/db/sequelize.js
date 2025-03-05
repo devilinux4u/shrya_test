@@ -35,12 +35,12 @@ LostAndFound.hasMany(LostAndFoundImage, { foreignKey: 'lostAndFoundId', as: 'ima
 LostAndFoundImage.belongsTo(LostAndFound, { foreignKey: 'lostAndFoundId' });
 
 LostAndFound.belongsTo(user, { foreignKey: 'uid', as: 'user' });
-Vehicle.belongsTo(user, { foreignKey: 'uid', as: 'user' }); // Ensure this association exists
+Vehicle.belongsTo(user, { foreignKey: 'uid', as: 'user' }); 
 VehicleWishlist.belongsTo(user, { foreignKey: "uid", as: "user" });
 
 
 
-// RentalAllVehicles associations
+
 RentalAllVehicles.hasMany(RentalAllVehicleImages, {
   as: 'rentVehicleImages', 
   foreignKey: 'vehicleId',
@@ -50,10 +50,7 @@ RentalAllVehicleImages.belongsTo(RentalAllVehicles, {
   foreignKey: 'vehicleId'
 });
 
-// RentalAllVehicles.hasMany(RentalAllVehicleImages, { foreignKey: 'vehicleId', as: 'images' });
-// RentalAllVehicleImages.belongsTo(RentalAllVehicles, { foreignKey: 'vehicleId' });
 
-// Rental associations
 rental.belongsTo(user, { foreignKey: 'userId' });
 rental.belongsTo(RentalAllVehicles, { foreignKey: 'vehicleId' });
 
@@ -80,7 +77,7 @@ sequelize.sync({ alter: true })
 module.exports = {
   sequelize,
   users: user,
-  contacts: contact, // Keep this export
+  contacts: contact, 
   vehicles: Vehicle,
   v_img: VehicleImage,
   vehicleWishlist: VehicleWishlist,

@@ -38,7 +38,7 @@ const upload = multer({
     storage,
     fileFilter,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-}).array('images', 5); // Changed from 'images[]' to 'images' and max 5 files
+}).array('images', 5); 
 
 // Route for creating a wishlist item with images
 router.post('/wishlistForm', async (req, res) => {

@@ -192,7 +192,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         setTimeout(() => {
           onClose();
           navigate("/MySales");
-          window.location.reload(); // Reload the page after navigation
+          window.location.reload();
         }, 2000);
       } else {
         toast.error("Failed to list vehicle. Please try again.");

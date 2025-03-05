@@ -58,18 +58,17 @@ function VehicleCard({ vehicle }) {
 // Main component to display the list of vehicles
 export default function SellCarCard() {
   const navigate = useNavigate();
-  const [vehicles, setVehicles] = useState([]); // Ensure vehicles is always an array
+  const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     async function fetchVehicles() {
       try {
-        const response = await fetch("http://127.0.0.1:3000/vehicles/three"); // Adjust URL based on your backend
+        const response = await fetch("http://127.0.0.1:3000/vehicles/six");
         const data = await response.json();
 
         if (data.success) {
-          // Ensure msg is an array. If not, wrap it in an array.
           const vehicleArray = Array.isArray(data.msg) ? data.msg : [data.msg];
           setVehicles(vehicleArray);
         } else {
@@ -102,14 +101,9 @@ export default function SellCarCard() {
         <p className="text-center text-gray-600">Loading vehicles...</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {vehicles.slice(0, 6).map(
-            (
-              vehicle,
-              index // Limit to 6 vehicles
-            ) => (
-              <VehicleCard key={index} vehicle={vehicle} />
-            )
-          )}
+          {vehicles.slice(0, 6).map((vehicle, index) => (
+            <VehicleCard key={index} vehicle={vehicle} />
+          ))}
         </div>
       )}
 

@@ -4,7 +4,6 @@ const fs = require('fs')
 const path = require('path')
 const { users } = require('../../db/sequelize')
 
-// Ensure the "uploads/profile" directory exists
 const uploadDir = path.join(__dirname, '../uploads/profile');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -82,7 +81,6 @@ router.post('/profile/:id/update-avatar', upload.single('profile'), async (req, 
     
         const profileImage = `/uploads/profile/${req.file.filename}`;
     
-        // Ensure the user exists before updating
         const user = await users.findOne({ where: { id: userId } });
         if (!user) return res.status(404).json({ message: 'User not found' });
     
@@ -98,7 +96,7 @@ router.post('/profile/:id/update-avatar', upload.single('profile'), async (req, 
 
 router.delete('/profile/:id/delete-avatar', async (req, res) => {
     try {
-      const userId = req.params.id; // Ensure user is authenticated
+      const userId = req.params.id;
   
       await users.update(
         { profile: null },

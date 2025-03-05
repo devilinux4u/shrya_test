@@ -1,6 +1,3 @@
-"use client";
-
-// Add custom breakpoint for extra small screens
 import { useEffect, useState } from "react";
 import {
   Search,
@@ -54,11 +51,9 @@ export default function Appointments() {
         }
         const data = await response.json();
 
-        // Ensure data structure is valid
         const appointments = data?.data || [];
         console.log("Fetched bookings:", appointments);
 
-        // Map the appointments to match the expected structure
         const mappedAppointments = appointments.map((app) => ({
           _id: app.id,
           date: app.date,
@@ -80,7 +75,7 @@ export default function Appointments() {
             year: app.SellVehicle?.year,
             price: app.SellVehicle?.price,
             color: app.SellVehicle?.color,
-            seller: "Shreya Auto", // Hardcoded as per your filter
+            seller: "Shreya Auto",
             images:
               app.SellVehicle?.SellVehicleImages?.map((img) => img.image) || [],
             cc: app.SellVehicle?.cc,
@@ -119,16 +114,14 @@ export default function Appointments() {
         prevBookings.map((booking) =>
           booking._id === id
             ? {
-              ...booking,
-              status,
-              // Include any other fields from updatedAppointment if needed
-            }
+                ...booking,
+                status,
+              }
             : booking
         )
       );
     };
 
-    // Listen for the custom event
     window.addEventListener("appointmentStatusUpdated", handleStatusUpdate);
 
     return () => {
@@ -144,7 +137,6 @@ export default function Appointments() {
     const handleNewAppointment = (event) => {
       const newAppointment = event.detail;
 
-      // Map the new appointment to match the expected structure
       const mappedAppointment = {
         _id: newAppointment.id,
         date: newAppointment.date,
@@ -211,7 +203,7 @@ export default function Appointments() {
   };
 
   const isUserBuyer = (appointment) => {
-    if(Cookies.get("sauto").split("-")[0] === appointment.user.id){
+    if (Cookies.get("sauto").split("-")[0] === appointment.user.id) {
       return true;
     }
   };
@@ -234,7 +226,7 @@ export default function Appointments() {
         console.error("Error response:", errorData);
         throw new Error(
           errorData.message ||
-          `Failed to update booking: ${response.statusText}`
+            `Failed to update booking: ${response.statusText}`
         );
       }
 
@@ -450,7 +442,7 @@ export default function Appointments() {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-center">
                         {booking.vehicle.images &&
-                          booking.vehicle.images.length > 0 ? (
+                        booking.vehicle.images.length > 0 ? (
                           <img
                             src={`../../server/controllers${booking.vehicle.images[0]}`}
                             alt={`${booking.vehicle.make} ${booking.vehicle.model}`}
@@ -516,10 +508,11 @@ export default function Appointments() {
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-md ${currentPage === 1
+                className={`p-2 rounded-md ${
+                  currentPage === 1
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                }`}
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -528,10 +521,11 @@ export default function Appointments() {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`px-3 py-1 rounded-md ${currentPage === i + 1
+                  className={`px-3 py-1 rounded-md ${
+                    currentPage === i + 1
                       ? "bg-orange-600 text-white"
                       : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                  }`}
                 >
                   {i + 1}
                 </button>
@@ -542,10 +536,11 @@ export default function Appointments() {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-md ${currentPage === totalPages
+                className={`p-2 rounded-md ${
+                  currentPage === totalPages
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-gray-700 hover:bg-gray-100"
-                  }`}
+                }`}
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -659,7 +654,7 @@ export default function Appointments() {
 
                         {/* Vehicle Images Gallery */}
                         {selectedBooking.vehicle.images &&
-                          selectedBooking.vehicle.images.length > 0 ? (
+                        selectedBooking.vehicle.images.length > 0 ? (
                           <div className="mb-4">
                             <p className="text-sm font-medium text-gray-500 mb-2">
                               Vehicle Images
@@ -831,8 +826,8 @@ export default function Appointments() {
                                 bookingId: selectedBooking._id,
                                 status: "confirmed",
                                 role: isUserBuyer(selectedBooking)
-                                ? "buyer"
-                                : "seller"
+                                  ? "buyer"
+                                  : "seller",
                               });
                             }}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
@@ -844,8 +839,12 @@ export default function Appointments() {
                       {selectedBooking.status === "pending" && (
                         <button
                           type="button"
-                          onClick={() => handleCancelClick(selectedBooking,
-                            isUserBuyer(selectedBooking) ? "buyer" : "seller")}
+                          onClick={() =>
+                            handleCancelClick(
+                              selectedBooking,
+                              isUserBuyer(selectedBooking) ? "buyer" : "seller"
+                            )
+                          }
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >
                           <X className="mr-2 h-4 w-4" />
@@ -887,10 +886,11 @@ export default function Appointments() {
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div
-                    className={`mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full ${confirmationDialog.action === "confirm"
+                    className={`mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full ${
+                      confirmationDialog.action === "confirm"
                         ? "bg-green-100"
                         : "bg-red-100"
-                      } sm:mx-0 sm:h-10 sm:w-10`}
+                    } sm:mx-0 sm:h-10 sm:w-10`}
                   >
                     {confirmationDialog.action === "confirm" ? (
                       <Check className={`h-6 w-6 text-green-600`} />
@@ -917,13 +917,15 @@ export default function Appointments() {
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
                   type="button"
-                  className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${confirmationDialog.action === "confirm"
+                  className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white ${
+                    confirmationDialog.action === "confirm"
                       ? "bg-green-600 hover:bg-green-700"
                       : "bg-red-600 hover:bg-red-700"
-                    } focus:outline-none focus:ring-2 focus:ring-offset-2 ${confirmationDialog.action === "confirm"
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    confirmationDialog.action === "confirm"
                       ? "focus:ring-green-500"
                       : "focus:ring-red-500"
-                    } sm:ml-3 sm:w-auto sm:text-sm`}
+                  } sm:ml-3 sm:w-auto sm:text-sm`}
                   onClick={() => {
                     updateBookingStatus(
                       confirmationDialog.bookingId,

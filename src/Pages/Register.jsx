@@ -1,11 +1,8 @@
-"use client";
-
 import { useState } from "react";
 import {
   FaUser,
   FaEnvelope,
   FaLock,
-  FaGoogle,
   FaPhone,
   FaExclamationTriangle,
 } from "react-icons/fa";
@@ -66,7 +63,6 @@ export default function Register() {
           })
         );
 
-        // Navigate to verification page instead of login
         toast.success("Please verify your account.");
 
         setTimeout(() => {
@@ -79,11 +75,6 @@ export default function Register() {
       console.log(err.message);
       toast.error("An error occurred");
     }
-  };
-
-  const googleLogin = () => {
-    console.log("Google login clicked");
-    // Add your Google login logic here
   };
 
   const pageVariants = {
@@ -115,7 +106,7 @@ export default function Register() {
         className="min-h-screen flex items-center justify-center bg-gray-50 p-4"
       >
         <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row">
-          {/* Left Side - Registration Form */}
+          {/* Registration Form */}
           <motion.div
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -218,7 +209,7 @@ export default function Register() {
             </form>
           </motion.div>
 
-          {/* Right Side - Blue Section */}
+          {/* Blue Section */}
           <motion.div
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}

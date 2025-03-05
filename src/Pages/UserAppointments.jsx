@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import {
@@ -36,8 +34,8 @@ export default function UserAppointments() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState("all"); // "all", "buyer", "seller"
-  const [currentUserId, setCurrentUserId] = useState("user123"); // This would come from auth
+  const [viewMode, setViewMode] = useState("all");
+  const [currentUserId, setCurrentUserId] = useState("user123");
   const [confirmationDialog, setConfirmationDialog] = useState({
     isOpen: false,
     action: null,
@@ -54,7 +52,7 @@ export default function UserAppointments() {
         const response = await fetch(
           "http://localhost:3000/api/appointments/user/" +
             Cookies.get("sauto").split("-")[0]
-        ); // Replace 'user123' with dynamic user ID
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -152,7 +150,6 @@ export default function UserAppointments() {
 
   const cancelAppointment = async (id, roles) => {
     try {
-      // Set confirmation dialog state instead of using window.confirm
       setConfirmationDialog({
         isOpen: true,
         action: "cancel",
@@ -224,7 +221,7 @@ export default function UserAppointments() {
         toast.success("Appointment has been cancelled.");
       }
 
-      // Close the modal if it's open
+      // Close the modal
       if (showDetailsModal) {
         closeDetailsModal();
       }
@@ -239,72 +236,6 @@ export default function UserAppointments() {
         bookingId: null,
         role: null,
       });
-    }
-  };
-
-  const completeAppointment = async (id) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/appointments/${id}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: "completed" }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to complete appointment: ${response.statusText}`
-        );
-      }
-
-      setAppointments((prevAppointments) =>
-        prevAppointments.map((appointment) =>
-          appointment.id === id
-            ? { ...appointment, status: "completed" }
-            : appointment
-        )
-      );
-    } catch (error) {
-      console.error("Error completing appointment:", error);
-    }
-  };
-
-  const updateAppointmentStatus = async (id, status) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/appointments/${id}/status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to update status: ${response.statusText}`);
-      }
-
-      const updatedStatus = await response.json();
-
-      // Update local state with the updated appointment
-      setAppointments((prevAppointments) =>
-        prevAppointments.map((appointment) =>
-          appointment.id === id
-            ? { ...appointment, status: updatedStatus.status }
-            : appointment
-        )
-      );
-
-      alert(`Appointment status updated to ${status}`);
-    } catch (error) {
-      console.error("Error updating appointment status:", error);
-      alert("Failed to update appointment status. Please try again.");
     }
   };
 
@@ -450,16 +381,6 @@ export default function UserAppointments() {
       day: "numeric",
     };
     return new Date(dateString).toLocaleDateString("en-US", options);
-  };
-
-  const getAppointmentRole = (appointment) => {
-    if (isUserBuyer(appointment)) return "buyer";
-    if (isUserSeller(appointment)) return "seller";
-    return "unknown";
-  };
-
-  const getOtherPartyInfo = (appointment) => {
-    return isUserBuyer(appointment) ? appointment.seller : appointment.buyer;
   };
 
   if (loading) {
@@ -694,12 +615,11 @@ export default function UserAppointments() {
                         appointment.status === "pending" && (
                           <button
                             onClick={(e) => {
-                              e.stopPropagation(); // Prevent triggering the card click event
-                              approveAppointment(appointment.id,
-                                isUserBuyer(appointment)
-                              ? "buyer"
-                              : "seller"
-                          );
+                              e.stopPropagation();
+                              approveAppointment(
+                                appointment.id,
+                                isUserBuyer(appointment) ? "buyer" : "seller"
+                              );
                             }}
                             className="flex items-center text-green-600 hover:text-green-800 transition-colors"
                           >
@@ -710,7 +630,7 @@ export default function UserAppointments() {
                       {appointment.status === "pending" && (
                         <button
                           onClick={(e) => {
-                            e.stopPropagation(); // Prevent triggering the card click event
+                            e.stopPropagation();
                             handleCancelClick(
                               appointment,
                               isUserBuyer(appointment) ? "buyer" : "seller"
@@ -788,7 +708,6 @@ export default function UserAppointments() {
               onClick={closeDetailsModal}
             ></div>
 
-            {/* This element is to trick the browser into centering the modal contents. */}
             <span
               className="hidden md:inline-block md:align-middle md:h-screen"
               aria-hidden="true"
@@ -1047,11 +966,10 @@ export default function UserAppointments() {
                           <button
                             type="button"
                             onClick={() => {
-                              approveAppointment(selectedAppointment.id,
-                                isUserBuyer(appointment)
-                              ? "buyer"
-                              : "seller"
-                          );
+                              approveAppointment(
+                                selectedAppointment.id,
+                                isUserBuyer(appointment) ? "buyer" : "seller"
+                              );
                             }}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                           >

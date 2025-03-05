@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -31,14 +29,13 @@ export default function AdminWishlist() {
     start: "",
     end: "",
   });
-  // Purpose is always "buy"
   const [selectedItem, setSelectedItem] = useState(null);
   const [showNotifyModal, setShowNotifyModal] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notifyLoading, setNotifyLoading] = useState(false);
   const [itemToNotify, setItemToNotify] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [isViewing, setIsViewing] = useState(false); // New state for viewing details
+  const [isViewing, setIsViewing] = useState(false);
   const [updatedData, setUpdatedData] = useState({
     make: "",
     model: "",
@@ -61,7 +58,6 @@ export default function AdminWishlist() {
     setShowDeleteConfirmation(true);
   };
 
-  // Mock data - replace with actual API call
   useEffect(() => {
     const fetchWishlistItems = async () => {
       try {
@@ -73,13 +69,13 @@ export default function AdminWishlist() {
           throw new Error("Failed to fetch wishlist items");
         }
         const data = await response.json();
-        setWishlistItems(data.data || []); // Ensure wishlistItems is always an array
-        setFilteredItems(data.data || []); // Ensure filteredItems is always an array
+        setWishlistItems(data.data || []);
+        setFilteredItems(data.data || []);
       } catch (error) {
         console.error("Error fetching wishlist items:", error);
         toast.error("Failed to load wishlist items");
-        setWishlistItems([]); // Fallback to an empty array
-        setFilteredItems([]); // Fallback to an empty array
+        setWishlistItems([]);
+        setFilteredItems([]);
       } finally {
         setLoading(false);
       }
@@ -148,12 +144,10 @@ export default function AdminWishlist() {
       if (selectedItem && selectedItem.id === id) {
         setSelectedItem({ ...selectedItem, status: newStatus });
       }
-      toast.success(`Status updated to ${newStatus}`); // Success toast message
+      toast.success(`Status updated to ${newStatus}`);
       setTimeout(() => {
-        window.location.reload(); // Reload the page after 1 second
+        window.location.reload();
       }, [2000]);
-
-      // If we were viewing the item details, update that too
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status");
@@ -171,15 +165,6 @@ export default function AdminWishlist() {
     try {
       setNotifyLoading(true);
 
-      // In a real app, you would call your API
-      // const response = await fetch(`/api/admin/wishlist/${itemToNotify.id}/notify`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ message: notificationMessage })
-      // })
-      // const data = await response.json()
-
-      // Mock notification
       setTimeout(() => {
         toast.success(`Notification sent to ${itemToNotify.user.fname}`);
         setShowNotifyModal(false);
@@ -217,7 +202,7 @@ export default function AdminWishlist() {
         prevItems.filter((item) => item.id !== itemToDelete)
       );
 
-      toast.success("Item deleted successfully!"); // Success toast message
+      toast.success("Item deleted successfully!");
     } catch (error) {
       console.error("Error deleting item:", error);
       toast.error("Failed to delete item. Please try again.");
@@ -243,7 +228,7 @@ export default function AdminWishlist() {
       case "pending":
         return "bg-yellow-100 text-yellow-800";
       case "available":
-        return "bg-green-100 text-green-800"; // Updated to green
+        return "bg-green-100 text-green-800";
       case "cancelled":
         return "bg-red-100 text-red-800";
       default:
@@ -272,7 +257,7 @@ export default function AdminWishlist() {
   const handleViewClick = (item) => {
     setSelectedItem(item);
     setIsViewing(true);
-    setIsEditing(false); // Ensure edit mode is off
+    setIsEditing(false);
   };
 
   const handleEditClick = (item) => {
@@ -288,7 +273,7 @@ export default function AdminWishlist() {
       description: item.description || "",
     });
     setIsEditing(true);
-    setIsViewing(false); // Ensure view mode is off
+    setIsViewing(false);
   };
 
   const handleUpdateData = async () => {
@@ -319,7 +304,7 @@ export default function AdminWishlist() {
         )
       );
 
-      toast.success("Item updated successfully!"); // Success toast message
+      toast.success("Item updated successfully!");
       setIsEditing(false);
       setSelectedItem(null);
     } catch (error) {
@@ -621,6 +606,7 @@ export default function AdminWishlist() {
           </div>
         </div>
       )}
+
       {/* Wishlist Item Detail Modal */}
       {isViewing && selectedItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -809,7 +795,7 @@ export default function AdminWishlist() {
           </div>
         </div>
       )}
-      {/* Notify Customer Modal (replacing Drawer) */}
+      {/* Notify Customer Modal */}
       {showNotifyModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl w-full max-w-md">

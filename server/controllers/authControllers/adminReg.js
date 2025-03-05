@@ -51,7 +51,7 @@ router.post('/admin/register', async (req, res) => {
 router.get("/users/all", async (req, res) => {
     try {
       const allusers = await users.findAll({
-        attributes: ["id", "fname", "uname", "email", "num", "profile", "createdAt"], // Select only required fields
+        attributes: ["id", "fname", "uname", "email", "num", "profile", "createdAt"],
         order: [["createdAt", "DESC"]], // Order by latest users
       });
   

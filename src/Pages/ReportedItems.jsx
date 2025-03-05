@@ -66,7 +66,7 @@ const ReportedItems = () => {
         const data = await response.json();
 
         if (data && data.data) {
-          console.log("Fetched items:", data.data); // Debug log
+          console.log("Fetched items:", data.data);
           setItems(data.data);
           setFilteredItems(data.data);
         } else {
@@ -93,7 +93,7 @@ const ReportedItems = () => {
       return;
     }
 
-    console.log("Filtering with:", { activeFilter, searchQuery }); // Debug log
+    console.log("Filtering with:", { activeFilter, searchQuery });
 
     let result = [...items];
 
@@ -129,7 +129,7 @@ const ReportedItems = () => {
       );
     }
 
-    console.log("Filtered results:", result); // Debug log
+    console.log("Filtered results:", result);
     setFilteredItems(result);
     setCurrentPage(1); // Reset to first page when filters change
   }, [activeFilter, searchQuery, items]);
@@ -212,7 +212,7 @@ const ReportedItems = () => {
         setSelectedItem(null);
       }
 
-      toast.success("Status updated to resolved successfully!"); // Add success toast
+      toast.success("Status updated to resolved successfully!");
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update item status. Please try again.");
@@ -321,7 +321,7 @@ const ReportedItems = () => {
         )
       );
 
-      toast.success("Item updated successfully!"); // Ensure success toast is called here
+      toast.success("Item updated successfully!");
       setIsEditing(false);
       setUpdatedData({
         title: "",
@@ -631,7 +631,7 @@ const ReportedItems = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
             <div className="flex flex-col md:flex-row h-full">
-              {/* Left side - Images */}
+              {/* Images */}
               <div className="md:w-1/2 bg-gray-50 p-4 md:p-6 overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-2xl font-bold text-gray-900 truncate">
@@ -699,7 +699,7 @@ const ReportedItems = () => {
                 )}
               </div>
 
-              {/* Right side - Details */}
+              {/*Details */}
               <div className="md:w-1/2 p-4 md:p-6 overflow-y-auto border-t md:border-t-0 md:border-l border-gray-200">
                 <div className="space-y-5">
                   <div className="flex items-center justify-between">
@@ -848,7 +848,7 @@ const ReportedItems = () => {
           </div>
         </div>
       )}
-      {/* Edit modal - Simplified */}
+      {/* Edit modal */}
       {isEditing && updatedData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">

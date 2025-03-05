@@ -13,10 +13,6 @@ export default function VehicleListing() {
 
   const navigate = useNavigate();
 
-  const handleCarClick = () => {
-    navigate("/BuyVehiclesDesc");
-  };
-
   useEffect(() => {
     const fetchVehicles = async () => {
       try {

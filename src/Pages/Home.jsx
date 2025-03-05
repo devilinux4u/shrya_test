@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
@@ -109,7 +107,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Benefits Section - ADDED */}
+      {/* Benefits Section */}
       <motion.section
         className="container px-4 md:px-6 py-12 md:py-16 mx-auto"
         variants={containerVariants}
@@ -165,7 +163,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* How It Works Section - UPDATED with image on left and steps on right */}
+      {/* How It Works Section */}
       <motion.section
         className="bg-gray-100 py-12 md:py-16"
         variants={containerVariants}
@@ -187,7 +185,6 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            {/* Left side - Image */}
             <motion.div variants={itemVariants} className="relative">
               <div className="relative rounded-lg overflow-hidden shadow-lg">
                 <img
@@ -209,7 +206,6 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Right side - Steps */}
             <motion.div variants={itemVariants} className="space-y-6">
               <div className="flex items-start gap-4">
                 <div className="bg-orange-100 p-3 rounded-full flex-shrink-0">
@@ -269,7 +265,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Rental Services Section - NEW */}
+      {/* Rental Services Section*/}
       <motion.section
         className="container px-4 md:px-6 py-12 md:py-16 mx-auto"
         variants={containerVariants}
@@ -303,7 +299,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Buy & Sell Section - NEW with slightly larger image */}
+      {/* Buy & Sell Section */}
       <motion.section
         className="bg-gradient-to-r from-indigo-50 to-orange-50 py-12 md:py-16"
         variants={containerVariants}
@@ -384,7 +380,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Lost and Found - UPDATED background color */}
+      {/* Lost and Found  */}
       <motion.section
         className="container px-4 md:px-6 py-12 md:py-16 mx-auto"
         variants={containerVariants}
@@ -418,7 +414,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Wishlist Highlight - UPDATED with image on left */}
+      {/* Wishlist Highlight  */}
       <motion.section
         className="bg-gradient-to-r from-orange-100 to-indigo-50 py-12 md:py-16"
         variants={containerVariants}
@@ -427,7 +423,6 @@ export default function Home() {
       >
         <div className="container px-4 md:px-6 mx-auto">
           <div className="grid md:grid-cols-2 gap-8 items-center">
-            {/* Image moved to left */}
             <motion.div
               variants={itemVariants}
               className="relative h-72 md:h-96 order-2 md:order-1"
@@ -441,7 +436,7 @@ export default function Home() {
                 className="w-full h-full object-contain"
               />
             </motion.div>
-            {/* Content moved to right */}
+
             <motion.div variants={itemVariants} className="order-1 md:order-2">
               <span className="text-orange-500 uppercase tracking-wider text-sm">
                 Wishlist

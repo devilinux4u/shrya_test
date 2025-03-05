@@ -178,7 +178,7 @@ export default function BuyVehiclesDesc() {
   const handleBookNowClick = () => {
     if (!Cookies.get("sauto")) {
       toast.info("You must be registered to proceed.", {
-        position: "top-right", // Ensure toast appears on the right
+        position: "top-right",
         autoClose: 3000,
       });
       navigate("/Login");

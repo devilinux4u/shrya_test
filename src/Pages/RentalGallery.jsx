@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -22,7 +20,7 @@ const RentalGallery = () => {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredCars, setFilteredCars] = useState([]);
-  const carsPerPage = 6; // Changed to show 6 cars per page
+  const carsPerPage = 6;
 
   const features = [
     "AC",
@@ -36,10 +34,9 @@ const RentalGallery = () => {
   const cars = useRef([]);
 
   useEffect(() => {
-    // Fetch car data from API
     const fetchCars = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:3000/rent/all"); // Replace with your API endpoint
+        const response = await fetch("http://127.0.0.1:3000/rent/all");
         const data = await response.json();
         setCarsData(data);
         cars.current = data;
@@ -87,15 +84,6 @@ const RentalGallery = () => {
     navigate(`/RentalVehicleDesc?${vehicleParams.toString()}`);
   };
 
-  const handleFeatureToggle = (feature) => {
-    setFilters((prev) => ({
-      ...prev,
-      features: prev.features?.includes(feature)
-        ? prev.features.filter((f) => f !== feature)
-        : [...(prev.features || []), feature],
-    }));
-  };
-
   return (
     <section className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="mt-12 max-w-7xl mx-auto">
@@ -106,7 +94,7 @@ const RentalGallery = () => {
           <p className="text-lg text-gray-500">from Top Rated Dealers</p>
         </div>
 
-        {/* Search Bar and Filter Options - Matching VehicleListing style */}
+        {/* Search Bar and Filter Options  */}
         <div className="mb-6 max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center gap-4">
           {/* Search Bar */}
           <div className="flex-1 relative">

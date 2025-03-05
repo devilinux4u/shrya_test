@@ -10,7 +10,7 @@ const sendOtpEmail = async (recipientEmail, otp) => {
         secure: true,
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS, // App password (set in .env)
+            pass: process.env.EMAIL_PASS, 
         },
     });
 
@@ -77,5 +77,4 @@ www.shreyaauto.com`,
     }
 };
 
-// Export the function
 module.exports = sendOtpEmail;

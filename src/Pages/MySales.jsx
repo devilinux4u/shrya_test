@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -24,7 +22,6 @@ import "react-toastify/dist/ReactToastify.css";
 import SellVehicleForm from "../Components/SellVehicleForm";
 import Cookies from "js-cookie";
 
-// Replace the VehicleCard component with this improved version
 function VehicleCard({
   vehicle,
   onEdit,
@@ -204,7 +201,6 @@ function VehicleDetailsModal({
             </div>
           </div>
 
-          {/* Image gallery and details side by side */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             {/* Image gallery - takes 2/3 of the width on medium screens and up */}
             <div className="md:col-span-2 bg-white rounded-lg shadow overflow-hidden">
@@ -255,7 +251,7 @@ function VehicleDetailsModal({
               )}
             </div>
 
-            {/* Contact information - takes 1/3 of the width on medium screens and up */}
+            {/* Contact information  */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-lg font-semibold mb-4">Specifications</h2>
               <div className="grid grid-cols-2 gap-4">
@@ -383,7 +379,7 @@ export default function MySales() {
   const navigate = useNavigate();
 
   const [vehicles, setVehicles] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchVehicles = async () => {
@@ -392,19 +388,17 @@ export default function MySales() {
           `http://127.0.0.1:3000/vehicles/user/all/${
             Cookies.get("sauto").split("-")[0]
           }`
-        ); // Replace with your API endpoint
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch vehicles");
         }
         const data = await response.json(); // Read response as text
 
-        // Update this line to correctly handle the array response from the updated API
         setVehicles(Array.isArray(data.data) ? data.data : []);
 
         console.log("Fetched vehicles:", data.data);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
-        // Initialize with empty array on error
         setVehicles([]);
       } finally {
         setIsLoading(false);
@@ -434,7 +428,7 @@ export default function MySales() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isViewingDetails, setIsViewingDetails] = useState(false);
   const [viewedVehicle, setViewedVehicle] = useState(null);
-  const [isSellVehicleFormOpen, setIsSellVehicleFormOpen] = useState(false); // State for SellVehicleForm modal
+  const [isSellVehicleFormOpen, setIsSellVehicleFormOpen] = useState(false);
 
   const handleEditVehicle = (vehicle) => {
     setSelectedVehicle(vehicle);
@@ -574,7 +568,6 @@ export default function MySales() {
   const [itemsPerPage] = useState(6);
 
   // Filter vehicles based on current filters and search query
-  // Ensure vehicles is an array before filtering
   const filteredVehicles = Array.isArray(vehicles)
     ? vehicles.filter((vehicle) => {
         // Filter by status
@@ -649,7 +642,7 @@ export default function MySales() {
       {/* Show loading spinner while fetching data */}
       {isLoading ? (
         <div className="flex justify-center items-center h-screen">
-          <div className="loader"></div> {/* Add a loader component or CSS */}
+          <div className="loader"></div>
         </div>
       ) : (
         <>

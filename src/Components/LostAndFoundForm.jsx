@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { Camera, X } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
@@ -154,11 +152,10 @@ const LostAndFoundForm = ({ isOpen, onClose }) => {
           images: [],
         });
 
-        // Close the form after a short delay to allow the toast to display
         setTimeout(() => {
           onClose();
           window.location.reload();
-        }, 2000); // Adjust the delay as needed
+        }, 2000);
       } else {
         console.error("Failed to submit the report. Server response:", data);
         toast.error("Failed to submit the report. Please try again.");
@@ -183,7 +180,7 @@ const LostAndFoundForm = ({ isOpen, onClose }) => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored" // Ensure the theme is set for better visibility
+        theme="colored"
       />
       <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
         {/* Close button */}

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -36,7 +34,7 @@ export default function Transactions() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const transactionsPerPage = 5;
+  const transactionsPerPage = 8;
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
@@ -437,7 +435,6 @@ export default function Transactions() {
           </div>
         )}
 
-        {/* Improved Transaction Detail Modal */}
         {selectedTransaction && (
           <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"

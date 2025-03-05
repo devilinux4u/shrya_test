@@ -14,7 +14,7 @@ router.get('/api/transaction', async (req, res) => {
               attributes: ['id', 'fname', 'uname', 'email', 'num', 'profile']
             },
             {
-              model: RentalAllVehicles, // Make sure this is the model you defined for rental vehicles // Add more fields as needed
+              model: RentalAllVehicles, 
             }
           ]
         }
@@ -22,9 +22,7 @@ router.get('/api/transaction', async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
     
-    // console.log("Fetched transactions:", transactions);
-
-    // Calculate total, pending, cancelled, and completed amounts
+   
     const totalAmount = transactions
       .filter((trx) => trx.status === "paid")
       .reduce((sum, trx) => sum + trx.amount, 0);

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Users,
@@ -10,11 +8,11 @@ import {
   ArrowRight,
   Loader,
 } from "lucide-react";
-import RentalBookingForm from "../Components/RentalBookingForm"; // Adjust the path as needed
+import RentalBookingForm from "../Components/RentalBookingForm";
 
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
-import { toast } from "react-toastify"; // Add this import
+import { toast } from "react-toastify";
 
 const RentalVehicleDesc = ({ id }) => {
   const [vehicle, setVehicle] = useState(null);
@@ -28,15 +26,13 @@ const RentalVehicleDesc = ({ id }) => {
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const vehicleId = params.get("id");
-  const navigate = useNavigate(); // Ensure navigate is defined here
+  const navigate = useNavigate();
 
   // Fetch vehicle data from API
   useEffect(() => {
     const fetchVehicleData = async () => {
       try {
         setLoading(true);
-        // You can replace this URL with your actual API endpoint
-        // If you need to use a specific vehicle ID, you can use: `/api/vehicles/${id}`
         const response = await fetch(
           `http://localhost:3000/rent/one/${vehicleId}`
         );
@@ -48,7 +44,6 @@ const RentalVehicleDesc = ({ id }) => {
         const datae = await response.json();
         const data = datae[0];
 
-        // Transform API data to match component structure if needed
         const transformedData = {
           name: `${data.make} ${data.model}`,
           model: data.year,
@@ -187,7 +182,7 @@ const RentalVehicleDesc = ({ id }) => {
   const handleBookNowClick = () => {
     if (!Cookies.get("sauto")) {
       toast.info("You must be registered to proceed.", {
-        position: "top-right", // Ensure toast appears on the right
+        position: "top-right",
         autoClose: 3000,
       });
       navigate("/Login");
@@ -283,9 +278,7 @@ const RentalVehicleDesc = ({ id }) => {
             Number Plate: {vehicle.numberPlate}
           </p>
         </div>
-        <div className="flex items-center gap-4 mt-4 md:mt-0">
-          {/* Removed reviews display */}
-        </div>
+        <div className="flex items-center gap-4 mt-4 md:mt-0"></div>
       </div>
 
       {/* Image Gallery */}

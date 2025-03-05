@@ -67,7 +67,7 @@ router.get('/dashboard/summary', async (req, res) => {
     const wishlistStatus = statusCounts.map(item => ({
       name: item.status,
       value: parseInt(item.value),
-      color: statusColorMap[item.status] || '#6B7280' // default gray if not mapped
+      color: statusColorMap[item.status] || '#6B7280' 
     }));
 
 

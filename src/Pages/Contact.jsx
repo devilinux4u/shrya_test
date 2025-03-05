@@ -1,5 +1,3 @@
-"use client";
-
 import {
   MapPin,
   Phone,
@@ -15,13 +13,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
 
 const Contact = () => {
-  useEffect(() => {
-    // Remove map initialization
-    return () => {
-      // Cleanup code if necessary
-    };
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -41,7 +32,6 @@ const Contact = () => {
 
     try {
       const response = await fetch("http://localhost:3000/contact", {
-        // Updated endpoint
         method: "POST",
         headers: {
           "Content-Type": "application/json",

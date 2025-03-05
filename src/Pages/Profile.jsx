@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useRef, useEffect } from "react";
 import {
   Mail,
@@ -15,7 +13,6 @@ import {
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
 
 import Cookies from "js-cookie";
 
@@ -290,9 +287,7 @@ const Profile = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-6 sm:py-12 px-4 sm:px-6 lg:px-8">
       <ToastContainer />
       <div className="mt-12 max-w-3xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        {/* Profile Header with Background */}
         <div className="relative h-36 sm:h-48 bg-gradient-to-r from-blue-500 to-indigo-600">
-          {/* Edit/Save Button - Absolute Position */}
           <div className="absolute top-4 right-4 z-10">
             {isEditing ? (
               <div className="flex space-x-2">
@@ -331,7 +326,6 @@ const Profile = () => {
 
         {/* Profile Content */}
         <div className="relative px-4 sm:px-6 lg:px-8 pb-8">
-          {/* Avatar - Positioned to overlap the header */}
           <div
             className="relative -mt-20 sm:-mt-24 flex justify-center"
             ref={photoOptionsRef}

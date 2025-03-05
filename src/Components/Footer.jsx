@@ -1,5 +1,13 @@
-import { Link } from "react-router-dom"
-import { Facebook, Twitter, Instagram, Linkedin, PhoneCall, Mail, MapPin } from "lucide-react"
+import { Link } from "react-router-dom";
+import {
+  Facebook,
+  Twitter,
+  Instagram,
+  Linkedin,
+  PhoneCall,
+  Mail,
+  MapPin,
+} from "lucide-react";
 
 const Footer = () => {
   return (
@@ -8,12 +16,18 @@ const Footer = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12">
           {/* Company Info */}
           <div className="space-y-4">
-            <h3 className="text-2xl sm:text-3xl font-bold text-white">Shreya Auto Enterprises</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold text-white">
+              Shreya Auto Enterprises
+            </h3>
             <p className="text-gray-400 text-sm sm:text-base">
-              Your trusted partner in automotive excellence. Quality vehicles, exceptional service.
+              Your trusted partner in automotive excellence. Quality vehicles,
+              exceptional service.
             </p>
             <div className="flex space-x-4">
-              <SocialIcon href="https://www.facebook.com/profile.php?id=100057713250606" Icon={Facebook} />
+              <SocialIcon
+                href="https://www.facebook.com/profile.php?id=100057713250606"
+                Icon={Facebook}
+              />
               <SocialIcon href="#" Icon={Twitter} />
               <SocialIcon href="#" Icon={Instagram} />
               <SocialIcon href="#" Icon={Linkedin} />
@@ -22,7 +36,9 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Quick Links</h4>
+            <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">
+              Quick Links
+            </h4>
             <ul className="space-y-2">
               <FooterLink href="/AboutUS">About</FooterLink>
               <FooterLink href="/Contact">Contact</FooterLink>
@@ -34,7 +50,9 @@ const Footer = () => {
 
           {/* Our Services */}
           <div>
-            <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Our Services</h4>
+            <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">
+              Our Services
+            </h4>
             <ul className="space-y-2">
               <FooterLink href="/VehicleListing">Buy a Vehicle</FooterLink>
               <FooterLink href="/BuyVehicles">Sell Your Car</FooterLink>
@@ -46,7 +64,9 @@ const Footer = () => {
 
           {/* Contact Information */}
           <div>
-            <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">Contact Us</h4>
+            <h4 className="text-lg sm:text-xl font-semibold mb-4 text-white">
+              Contact Us
+            </h4>
             <ul className="space-y-2">
               <li className="flex items-center">
                 <PhoneCall className="mr-2 h-5 w-5 text-white flex-shrink-0" />
@@ -58,11 +78,15 @@ const Footer = () => {
               </li>
               <li className="flex items-center">
                 <Mail className="mr-2 h-5 w-5 text-white flex-shrink-0" />
-                <span className="text-sm sm:text-base break-all">shreyaauto.enterprises@gmail.com</span>
+                <span className="text-sm sm:text-base break-all">
+                  shreyaauto.enterprises@gmail.com
+                </span>
               </li>
               <li className="flex items-start">
                 <MapPin className="mr-2 h-5 w-5 text-white mt-1 flex-shrink-0" />
-                <span className="text-sm sm:text-base">Bishalnagar-5, Kathmandu, Nepal</span>
+                <span className="text-sm sm:text-base">
+                  Bishalnagar-5, Kathmandu, Nepal
+                </span>
               </li>
             </ul>
           </div>
@@ -76,8 +100,8 @@ const Footer = () => {
         </div>
       </div>
     </footer>
-  )
-}
+  );
+};
 
 const SocialIcon = ({ href, Icon }) => (
   <a
@@ -88,14 +112,17 @@ const SocialIcon = ({ href, Icon }) => (
   >
     <Icon size={20} className="sm:w-6 sm:h-6" />
   </a>
-)
+);
 
 const FooterLink = ({ href, children }) => (
   <li>
-    <Link to={href} className="text-gray-400 hover:text-white transition duration-300 ease-in-out text-sm sm:text-base">
+    <Link
+      to={href}
+      className="text-gray-400 hover:text-white transition duration-300 ease-in-out text-sm sm:text-base"
+    >
       {children}
     </Link>
   </li>
-)
+);
 
-export default Footer
+export default Footer;

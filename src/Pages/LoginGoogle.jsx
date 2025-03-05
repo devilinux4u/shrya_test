@@ -23,7 +23,6 @@ const GoogleAuth = () => {
 
       if (data.success) {
         toast.success("Google login successful!");
-        // Save token or perform further actions
         console.log("User data:", data);
         Cookies.set("sauto", data.cok, { expires: 10 });
         const userData = data.cok.split("-");

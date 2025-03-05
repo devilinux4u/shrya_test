@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Chart as ChartJS,
@@ -17,14 +15,11 @@ import {
   Car,
   Users,
   DollarSign,
-  Calendar,
   Clock,
   CreditCard,
   Wallet,
   Building,
   TrendingUp,
-  Eye,
-  ArrowRight,
   Heart,
   Search,
 } from "lucide-react";
@@ -77,11 +72,8 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(true);
 
-  // Theme colors
-  const primaryBlue = "#2563EB"; // Blue-600
-  const primaryOrange = "#F97316"; // Orange-500
+  const primaryBlue = "#2563EB";
 
-  // Colors for wishlist chart
   const wishlistColors = ["#10B981", "#F59E0B", "#EF4444"]; // Green, Amber, Red
 
   useEffect(() => {
@@ -481,7 +473,6 @@ export default function Dashboard() {
   );
 }
 
-// Enhanced card components
 function StatCard({
   title,
   value,
@@ -512,37 +503,6 @@ function StatCard({
           {buttonText}
         </button>
       )}
-    </div>
-  );
-}
-
-function SimpleBookingCard({
-  title,
-  value,
-  icon,
-  bgColor,
-  iconBg,
-  borderColor,
-  onClick,
-  progressColor,
-  progressPercentage,
-}) {
-  return (
-    <div
-      onClick={onClick}
-      className={`p-4 sm:p-6 rounded-xl shadow-sm ${bgColor} border ${borderColor} hover:shadow-md transition-all h-full cursor-pointer`}
-    >
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm font-medium text-gray-700">{title}</p>
-        <div className={`p-2 ${iconBg} rounded-lg`}>{icon}</div>
-      </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <div className="w-full h-1 bg-gray-100 rounded-full mt-4">
-        <div
-          className={`h-1 ${progressColor} rounded-full`}
-          style={{ width: `${progressPercentage}%` }}
-        ></div>
-      </div>
     </div>
   );
 }
@@ -626,44 +586,6 @@ function LostAndFoundCard({
         </div>
       </div>
     </div>
-  );
-}
-
-function HorizontalBarChart({ data, primaryColor }) {
-  return (
-    <ResponsiveContainer width="100%" height="100%">
-      <BarChart
-        layout="vertical"
-        data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-      >
-        <XAxis type="number" />
-        <YAxis
-          type="category"
-          dataKey="model"
-          tick={{ fontSize: 12 }}
-          width={80}
-        />
-        <RechartsTooltip
-          contentStyle={{
-            backgroundColor: "rgba(17, 24, 39, 0.8)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            borderRadius: "6px",
-            padding: "10px",
-            fontSize: "12px",
-            color: "white",
-          }}
-          itemStyle={{ color: "white" }}
-          labelStyle={{ fontWeight: "bold", marginBottom: "5px" }}
-        />
-        <Bar
-          dataKey="sales"
-          fill={primaryColor}
-          radius={[0, 4, 4, 0]}
-          barSize={20}
-        />
-      </BarChart>
-    </ResponsiveContainer>
   );
 }
 

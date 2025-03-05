@@ -8,7 +8,7 @@ function RentalVehicles() {
 
   useEffect(() => {
     // Fetch car data from API
-    fetch("http://127.0.0.1:3000/rent/ran1") // Replace with actual API endpoint
+    fetch("http://127.0.0.1:3000/rent/ran1")
       .then((response) => response.json())
       .then((data) => setCarData(data))
       .catch((error) => console.error("Error fetching car data:", error));

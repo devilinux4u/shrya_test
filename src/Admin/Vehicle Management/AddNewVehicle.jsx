@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Camera,
@@ -162,8 +160,8 @@ export default function AddNewVehicle() {
           });
 
           setTimeout(() => {
-            navigate("/admin/vehicles"); // Redirect to the vehicles page
-          }, 2000); // 2-second delay
+            navigate("/admin/vehicles");
+          }, 2000);
         } else {
           toast.error("Failed to add vehicle. Please try again.");
         }
@@ -507,7 +505,7 @@ const InputField = ({
         name={name}
         value={value}
         onChange={onChange}
-        onWheel={(e) => e.target.blur()} // Disable scrolling
+        onWheel={(e) => e.target.blur()}
         className={`w-full rounded-lg border ${
           error ? "border-red-500" : "border-gray-300"
         } focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors ${

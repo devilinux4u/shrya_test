@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import {
   FaUser,
@@ -22,9 +20,9 @@ export default function Login({ onLogin }) {
     username: "",
     password: "",
   });
-  const [error, setError] = useState(""); // State for managing error message
-  const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
-  const navigate = useNavigate(); // Initialize navigate
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,7 +63,6 @@ export default function Login({ onLogin }) {
             })
           );
 
-          // Navigate to verification page instead of login
           toast.error("Please verify your account.");
 
           setTimeout(() => {
@@ -74,7 +71,7 @@ export default function Login({ onLogin }) {
         } else {
           Cookies.set("sauto", data.cok, { expires: 10 });
           setError("");
-          onLogin({ username: user, password: pass }); // Call onLogin with credentials
+          onLogin({ username: user, password: pass });
           toast.success("Login successful!");
           navigate("/");
           window.location.reload();
@@ -176,7 +173,7 @@ export default function Login({ onLogin }) {
                 <div className="relative">
                   <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input
-                    type={showPassword ? "text" : "password"} // Toggle input type
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     placeholder="Password"
                     value={formData.password}

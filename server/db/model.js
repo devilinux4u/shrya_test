@@ -147,7 +147,7 @@ module.exports.SellVehicle = (sequelize, DataTypes) => {
     SellVehicle.associate = (models) => {
         SellVehicle.hasMany(models.SellVehicleImage, {
             foreignKey: "vehicleId",
-            as: "images", // Alias for vehicle images
+            as: "images", 
             onDelete: "CASCADE",
         });
     };
@@ -625,9 +625,9 @@ module.exports.Appointment = (sequelize, DataTypes) => {
   });
 
   Appointment.associate = (models) => {
-    Appointment.belongsTo(models.User, { foreignKey: "userId", as: "Buyer" }); // Alias: Buyer
-    Appointment.belongsTo(models.User, { foreignKey: "SelleruserId", as: "Seller" }); // Alias: Seller
-    Appointment.belongsTo(models.SellVehicle, { foreignKey: "vehicleId", as: "SellVehicle" }); // Alias: SellVehicle
+    Appointment.belongsTo(models.User, { foreignKey: "userId", as: "Buyer" }); 
+    Appointment.belongsTo(models.User, { foreignKey: "SelleruserId", as: "Seller" }); 
+    Appointment.belongsTo(models.SellVehicle, { foreignKey: "vehicleId", as: "SellVehicle" }); 
   };
 
   return Appointment;

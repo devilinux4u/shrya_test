@@ -36,7 +36,7 @@ router.post('/api/verify-khalti', async (req, res) => {
             );
         }
 
-        return res.json(response); // status: "Completed" or others
+        return res.json(response); 
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: 'Verification failed' });

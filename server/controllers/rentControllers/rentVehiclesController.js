@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { RentalAllVehicles, RentalAllVehicleImages, sequelize } = require('../../db/sequelize'); // Import rental & sequelize
-const { Sequelize } = require('sequelize'); // Import Sequelize instance
+const { RentalAllVehicles, RentalAllVehicleImages, sequelize } = require('../../db/sequelize'); 
+const { Sequelize } = require('sequelize'); 
 
 // Route to get one random rental vehicle
 router.get('/ran1', async (req, res) => {
@@ -10,7 +10,7 @@ router.get('/ran1', async (req, res) => {
             include: [
                 {
                     model: RentalAllVehicleImages,
-                    as: 'rentVehicleImages' // Match this with your association alias
+                    as: 'rentVehicleImages' 
                 }
             ],
 
@@ -36,7 +36,7 @@ router.get('/ran6', async (req, res) => {
                 include: [
                     {
                         model: RentalAllVehicleImages,
-                        as: 'rentVehicleImages' // Match this with your association alias
+                        as: 'rentVehicleImages' 
                     }
                 ],
                 order: [Sequelize.literal('RAND()')], limit: 6
@@ -56,7 +56,7 @@ router.get('/all', async (req, res) => {
             include: [
                 {
                     model: RentalAllVehicleImages,
-                    as: 'rentVehicleImages' // Match this with your association alias
+                    as: 'rentVehicleImages'
                 }
             ],
     });
@@ -74,7 +74,7 @@ router.get('/one/:id', async (req, res) => {
             include: [
                 {
                     model: RentalAllVehicleImages,
-                    as: 'rentVehicleImages' // Match this with your association alias
+                    as: 'rentVehicleImages' 
                 }
             ],
     });

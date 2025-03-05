@@ -5,13 +5,11 @@ const router = express.Router();
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const db = require("../../db/sequelize"); // Import the entire db object
+const db = require("../../db/sequelize"); 
 var request = require('request');
 
 
-// =============================================
 // FILE UPLOAD CONFIGURATION
-// =============================================
 const uploadDir = path.join(__dirname, '../../uploads/licenses');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -39,9 +37,7 @@ const upload = multer({
   }
 });
 
-// =============================================
 // HELPER FUNCTIONS
-// =============================================
 async function getVehicle(vehicleId) {
   if (!vehicleId) {
     throw new Error('Vehicle ID is required');
@@ -70,9 +66,8 @@ async function getVehicle(vehicleId) {
   throw new Error(`Vehicle with ID ${vehicleId} not found`);
 }
 
-// =============================================
+
 // ROUTES
-// =============================================
 
 router.post('/', upload.single('licenseImage'), async (req, res) => {
   try {

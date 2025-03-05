@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Camera,
@@ -20,12 +18,12 @@ export default function AddVehicle() {
     make: "",
     model: "",
     year: "",
-    numberPlate: "", // Added numberPlate field
+    numberPlate: "",
     price: {
-      day: "", // Added price per day
-      hour: "", // Added price per hour
-      week: "", // Added price per week
-      month: "", // Added price per month
+      day: "",
+      hour: "",
+      week: "",
+      month: "",
     },
     images: [],
     imagePreviewUrls: [],
@@ -102,7 +100,7 @@ export default function AddVehicle() {
       "year",
       "numberPlate",
       "description",
-    ]; // Added numberPlate to requiredFields
+    ];
 
     const priceFields = ["day", "hour", "week", "month"];
     const specFields = [
@@ -198,7 +196,6 @@ export default function AddVehicle() {
       const response = await fetch("http://localhost:3000/api/add-vehicle", {
         method: "POST",
         body: formData,
-        // Don't set Content-Type header - let the browser set it with boundary
       });
 
       // Check if response is JSON

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Users, Gauge, Fuel } from "lucide-react"; // Import icons for seats, transmission, and fuel
+import { Users, Gauge, Fuel } from "lucide-react";
 
 const CarCard = () => {
   const [cars, setCars] = useState([]);
@@ -9,7 +9,7 @@ const CarCard = () => {
   useEffect(() => {
     const fetchCars = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:3000/rent/ran6"); // Replace with your API endpoint
+        const response = await fetch("http://127.0.0.1:3000/rent/ran6");
         const data = await response.json();
         setCars(data);
       } catch (error) {
@@ -66,15 +66,15 @@ const CarCard = () => {
               </p>
               <div className="flex justify-between items-center text-gray-500 text-sm mb-4">
                 <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5" /> {/* Icon for seats */}
+                  <Users className="w-5 h-5" />
                   <span>{car.seats} Seats</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Gauge className="w-5 h-5" /> {/* Icon for transmission */}
+                  <Gauge className="w-5 h-5" />
                   <span>{car.transmission}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Fuel className="w-5 h-5" /> {/* Icon for fuel */}
+                  <Fuel className="w-5 h-5" />
                   <span>{car.fuelType}</span>
                 </div>
               </div>

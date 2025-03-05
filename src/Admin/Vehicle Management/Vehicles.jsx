@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Search,
@@ -59,7 +57,6 @@ export default function Vehicles() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
 
-  const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingDetails, setBookingDetails] = useState({
     date: "",
     time: "",
@@ -101,14 +98,13 @@ export default function Vehicles() {
 
       const newAppointment = await response.json();
 
-      // Dispatch a custom event to notify the Appointments component
       window.dispatchEvent(
         new CustomEvent("newAppointmentCreated", {
           detail: newAppointment.data,
         })
       );
 
-      setShowBookingModal(false);
+      setIsBookModalOpen(false);
       setSelectedVehicle(null);
       toast.success("Booking submitted successfully!");
     } catch (error) {
@@ -251,8 +247,6 @@ export default function Vehicles() {
         throw new Error("Failed to update vehicle");
       }
 
-      const updatedVehicle = await response.json();
-
       setVehicles((prevVehicles) =>
         prevVehicles.map((vehicle) =>
           vehicle.id === selectedVehicle.id
@@ -338,48 +332,9 @@ export default function Vehicles() {
     }
   };
 
-  // New function to handle booking/purchasing a vehicle
   const handleBookVehicle = (vehicle) => {
     setSelectedVehicle(vehicle);
     setIsBookModalOpen(true);
-  };
-
-  // New function to confirm booking/purchase
-  const confirmBooking = async () => {
-    if (!selectedVehicle) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:3000/vehicles/purchase/${selectedVehicle.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: "sold" }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to book vehicle");
-      }
-
-      // Update the local state
-      setVehicles((prevVehicles) =>
-        prevVehicles.map((vehicle) =>
-          vehicle.id === selectedVehicle.id
-            ? { ...vehicle, status: "sold" }
-            : vehicle
-        )
-      );
-
-      setIsBookModalOpen(false);
-      setSelectedVehicle(null);
-      toast.success("Vehicle booked successfully!");
-    } catch (err) {
-      console.error("Error booking vehicle:", err);
-      toast.error("Failed to book vehicle. Please try again.");
-    }
   };
 
   const clearAllFilters = () => {
@@ -389,7 +344,6 @@ export default function Vehicles() {
     setSearchTerm("");
   };
 
-  // Calculate pagination values
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = displayedVehicles.slice(
@@ -645,7 +599,6 @@ export default function Vehicles() {
                   className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col h-full overflow-hidden cursor-pointer"
                   onClick={() => handleViewDetails(vehicle)}
                 >
-                  {/* Image Container - Fixed Height */}
                   <div className="relative h-48 overflow-hidden">
                     <img
                       src={
@@ -677,7 +630,6 @@ export default function Vehicles() {
                     </div>
                   </div>
 
-                  {/* Content Container - Equal Height */}
                   <div className="p-4 flex-1 flex flex-col">
                     <div className="flex-1">
                       <h3 className="text-red-600 font-medium text-lg mb-1">

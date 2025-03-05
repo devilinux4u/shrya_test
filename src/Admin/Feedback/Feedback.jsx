@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 
 const Feedback = () => {
@@ -19,7 +17,7 @@ const Feedback = () => {
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
-        const response = await fetch("http://localhost:3000/contact"); // Fetch messages from backend
+        const response = await fetch("http://localhost:3000/contact");
         const data = await response.json();
         setFeedbacks(data); // Set fetched data as feedbacks
         setLoading(false);
@@ -259,6 +257,7 @@ const Feedback = () => {
           </div>
         </div>
       </div>
+
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

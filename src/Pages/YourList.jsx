@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   CheckCircle,
@@ -8,7 +6,6 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Eye,
   Trash2,
   Filter,
   Loader2,
@@ -101,7 +98,7 @@ const YourList = () => {
 
   // Filter items based on status filter and search query
   const filteredItems = items.filter((item) => {
-    // Filter by status (available/pending)
+    // Filter by status
     if (statusFilter !== "all" && item.status !== statusFilter) {
       return false;
     }
@@ -124,10 +121,6 @@ const YourList = () => {
   const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
-  const handleBook = (id) => {
-    navigate(`/VehicleBooking?vid=${id}`);
-  };
-
   const toggleModal = () => {
     if (!Cookies.get("sauto")) {
       navigate("/login");
@@ -147,7 +140,7 @@ const YourList = () => {
 
       try {
         const response = await fetch(
-          `http://localhost:3000/wishlist/${itemToDelete.id}`, // Correct endpoint
+          `http://localhost:3000/wishlist/${itemToDelete.id}`,
           {
             method: "DELETE",
           }

@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useRef } from "react";
 import { Car, Camera, X, ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
@@ -153,7 +151,7 @@ const WishlistForm = ({ isOpen, onClose }) => {
 
       if (selectedImages.length > 0) {
         selectedImages.forEach((image) => {
-          formDataToSubmit.append("images", image); // Changed from "images[]" to "images"
+          formDataToSubmit.append("images", image);
         });
       }
 
@@ -173,7 +171,7 @@ const WishlistForm = ({ isOpen, onClose }) => {
 
       const data = await response.json();
       if (data.success) {
-        toast.success("Wishlist request submitted successfully!"); // Added success message
+        toast.success("Wishlist request submitted successfully!");
 
         setFormData({
           model: "",
