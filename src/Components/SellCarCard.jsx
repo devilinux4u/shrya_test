@@ -30,7 +30,7 @@ function VehicleCard({ vehicle }) {
         <p className="text-gray-600">Year: {vehicle.year || "Year N/A"}</p>
         <p className="text-gray-600">
           Total Km Run:{" "}
-          {vehicle.mile ? vehicle.mile.toLocaleString() : "Mileage N/A"} km
+          {vehicle.km ? vehicle.km.toLocaleString() : "Mileage N/A"} km
         </p>
         <p className="mt-2 font-semibold">
           Rs. {vehicle.price ? vehicle.price.toLocaleString() : "Price N/A"}

@@ -82,7 +82,7 @@ const CarCard = () => {
                 onClick={() => handleRentNow(car)}
                 className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition"
               >
-                Rent Now
+                View Details
               </button>
             </div>
           </div>

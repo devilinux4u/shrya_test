@@ -272,10 +272,11 @@ const RentalGallery = () => {
                         </span>
                       ))}
                     </div>
-                    <button 
-                    onClick={() =>handleRentNow(car)}
-                    className="w-full py-2 bg-[#ff6b00] text-white rounded-md hover:bg-[#ff8533] transition">
-                      Rent Now
+                    <button
+                      onClick={() => handleRentNow(car)}
+                      className="w-full py-2 bg-[#ff6b00] text-white rounded-md hover:bg-[#ff8533] transition"
+                    >
+                      View Details
                     </button>
                   </div>
                 </div>

@@ -20,6 +20,8 @@ import {
   Save,
   CheckCircle,
 } from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ViewDetails() {
   const { id } = useParams();
@@ -165,18 +167,12 @@ export default function ViewDetails() {
         throw new Error("Failed to update vehicle");
       }
 
-      const updatedVehicle = await response.json();
       setVehicle((prev) => ({ ...prev, ...updatedData }));
-      setSaveSuccess(true);
-
-      // Reset success message after 3 seconds
-      setTimeout(() => {
-        setSaveSuccess(false);
-        setIsEditing(false);
-      }, 2000);
+      toast.success("Updated successfully!");
+      setIsEditing(false);
     } catch (error) {
       console.error("Error updating vehicle:", error);
-      alert("Failed to update vehicle. Please try again.");
+      toast.error("Failed to update. Try again.");
     }
   };
 
@@ -198,14 +194,14 @@ export default function ViewDetails() {
         throw new Error("Failed to delete vehicle");
       }
 
-      // Show success message briefly before navigating
+      toast.success("Deleted successfully!");
       setTimeout(() => {
         navigate(-1);
-      }, 1000);
+      }, 1500); // Delay navigation by 1.5 seconds
     } catch (error) {
       console.error("Error deleting vehicle:", error);
+      toast.error("Failed to delete. Try again.");
       setIsDeleting(false);
-      alert("Failed to delete vehicle. Please try again.");
     }
   };
 
@@ -223,15 +219,14 @@ export default function ViewDetails() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to mark vehicle as sold");
+        throw new Error("Failed to mark as sold");
       }
 
-      const updatedVehicle = await response.json();
       setVehicle((prev) => ({ ...prev, status: "sold" }));
-      alert("Vehicle marked as sold successfully!");
+      toast.success("Marked as sold!");
     } catch (error) {
       console.error("Error marking vehicle as sold:", error);
-      alert("Failed to mark vehicle as sold. Please try again.");
+      toast.error("Failed to mark as sold. Try again.");
     }
   };
 
@@ -261,6 +256,7 @@ export default function ViewDetails() {
 
   return (
     <div className="flex-1 ml-64 min-h-screen bg-gray-50">
+      <ToastContainer />
       <div className="p-8">
         {/* Back button */}
         <button

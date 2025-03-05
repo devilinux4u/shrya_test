@@ -147,7 +147,7 @@ router.get("/vehicles/all", async (req, res) => {
                 {
                     model: users,
                     as: "user",
-                    attributes: ["uname"] // Only fetch the fname field
+                    attributes: ["fname"] // Include both fname and lname
                 }]
         });
 
@@ -222,7 +222,7 @@ router.get("/vehicles/one/:vid", async (req, res) => {
                 {
                     model: users,
                     as: "user",
-                    attributes: ["id", "fname", "uname", "email", "num"] // Include user ID
+                    attributes: ["id", "fname", "lname", "uname", "email", "num"] // Include lname
                 }
             ]
         });
