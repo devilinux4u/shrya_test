@@ -39,6 +39,7 @@ import AllVehicle from "./Admin/Rentals/AllVehicle";
 import RentalDetails from "./Admin/Rentals/RentalDetails";
 import MySales from "./Pages/MySales";
 import Feedback from "./Admin/Feedback/Feedback";
+import GoogleAuth from "./Pages/LoginGoogle";
 
 function App() {
   const location = useLocation();
@@ -89,6 +90,7 @@ function App() {
         />
         <Route path="/VehicleBooking" element={<VehicleBooking />} />
         <Route path="/MySales" element={<MySales />} />
+        <Route path="/login-google" element={<GoogleAuth />} />
 
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />

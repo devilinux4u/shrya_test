@@ -15,6 +15,7 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import GoogleAuth from "./LoginGoogle";
 
 export default function Login({ onLogin }) {
   const [formData, setFormData] = useState({
@@ -113,47 +114,6 @@ export default function Login({ onLogin }) {
     e.preventDefault();
     navigate("/Register");
   };
-
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (response) => {
-      try {
-        const res = await fetch("http://127.0.0.1:3000/google-login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token: response.access_token }),
-        });
-
-        if (res.status === 404) {
-          toast.error(
-            "Google login endpoint not found. Please check the server."
-          );
-          return;
-        }
-
-        const data = await res.json();
-
-        if (data.success) {
-          Cookies.set("sauto", data.cok, { expires: 10 });
-          toast.success("Google login successful!");
-          navigate("/");
-          window.location.reload();
-        } else {
-          toast.error(data.msg);
-        }
-      } catch (error) {
-        toast.error(
-          "An error occurred while logging in with Google. Please try again."
-        );
-      }
-    },
-    onError: (error) => {
-      console.error("Login Failed:", error);
-      toast.error("Google login failed. Please try again.");
-    },
-    flow: "implicit",
-  });
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -283,10 +243,9 @@ export default function Login({ onLogin }) {
                   e.preventDefault(); // Prevent default form submission
                   googleLogin();
                 }}
-                className="w-full py-3 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-300"
+                className="w-full transition-colors duration-300"
               >
-                <FaGoogle className="w-5 h-5 mr-2 text-red-500" /> Login with
-                Google
+                <GoogleAuth />
               </motion.button>
             </form>
           </motion.div>

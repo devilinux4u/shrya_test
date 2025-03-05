@@ -6,10 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require('cors');
 
 app.use(
-    cors({
-        origin: 'http://localhost:5173',
-        credentials: true
-    })
+    cors()
 )
 
 const login = require('./controllers/authControllers/login');

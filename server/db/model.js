@@ -23,14 +23,14 @@ module.exports.user = (sequelize, DataTypes) => {
         },
         num: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
             validate: {
                 notEmpty: true,
             }
         },
         pass: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
             validate: {
                 notEmpty: true,
             }
@@ -41,7 +41,7 @@ module.exports.user = (sequelize, DataTypes) => {
         },
         otp: {
             type: DataTypes.INTEGER,
-            allowNull: false,
+            allowNull: true,
             validate: {
                 notEmpty: true,
                 isNumeric: true,
@@ -49,7 +49,6 @@ module.exports.user = (sequelize, DataTypes) => {
         },
         verified: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
             defaultValue: false,
         }
     })
