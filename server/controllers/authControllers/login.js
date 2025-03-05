@@ -3,10 +3,8 @@ const router = express.Router()
 const { users } = require('../../db/sequelize')
 const { enc, dec } = require('../../helpers/hash');
 const sendOtp = require('../../helpers/sendOtp')
-const { datacatalog } = require('googleapis/build/src/apis/datacatalog');
 const { OAuth2Client } = require('google-auth-library');
-const client = new OAuth2Client("380619020993-45je5iuq0789kvuf6gifu0b4tl6ghrt4.apps.googleusercontent.com"
-); 
+const client = new OAuth2Client("380619020993-45je5iuq0789kvuf6gifu0b4tl6ghrt4.apps.googleusercontent.com");
 
 router.post('/login', async (req, res) => {
     try {
