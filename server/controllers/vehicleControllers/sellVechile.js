@@ -76,20 +76,20 @@ router.post('/addVehicle', upload.array('images'), async (req, res) => {
 // Route to Fetch Vehicle with Images
 router.get("/vehicles/random", async (req, res) => {
     try {
-        const vehicless = await vehicles.findOne({
+        const vehicleData = await vehicles.findOne({
             where: { status: "available" },
             order: sequelize.literal("RAND()"),
             include: [{ model: v_img, attributes: ["id", "image"] }]
         });
 
-        if (!vehicless) {
+        if (!vehicleData) {
             return res.status(404).json({ success: false, msg: "No vehicle found" });
         }
 
         // Convert BLOBs to Base64
         const formattedVehicle = {
-            ...vehicless.toJSON(),
-            images: vehicless.SellVehicleImages.map(img => ({
+            ...vehicleData.toJSON(),
+            images: vehicleData.SellVehicleImages.map(img => ({
                 id: img.id,
                 image: img.image
             }))
@@ -106,19 +106,19 @@ router.get("/vehicles/random", async (req, res) => {
 
 router.get("/vehicles/three", async (req, res) => {
     try {
-        const vehicless = await vehicles.findAll({
+        const vehicleData = await vehicles.findAll({
             where: { status: "available" },
             order: sequelize.literal("RAND()"),
             limit: 3, // Fetch 3 random vehicles
             include: [{ model: v_img, attributes: ["id", "image"] }]
         });
 
-        if (!vehicless || vehicless.length === 0) {
+        if (!vehicleData || vehicleData.length === 0) {
             return res.status(404).json({ success: false, msg: "No vehicles found" });
         }
 
         // Convert BLOBs to Base64
-        const formattedVehicles = vehicless.map(vehicle => ({
+        const formattedVehicles = vehicleData.map(vehicle => ({
             ...vehicle.toJSON(),
             images: vehicle.SellVehicleImages.map(img => ({
                 id: img.id,
@@ -137,7 +137,7 @@ router.get("/vehicles/three", async (req, res) => {
 
 router.get("/vehicles/all", async (req, res) => {
     try {
-        const vehicless = await vehicles.findAll({
+        const vehicleData = await vehicles.findAll({
             where: { status: "available" },
             order: sequelize.literal("RAND()"),
             include: [
@@ -151,12 +151,12 @@ router.get("/vehicles/all", async (req, res) => {
                 }]
         });
 
-        if (!vehicless || vehicless.length === 0) {
+        if (!vehicleData || vehicleData.length === 0) {
             return res.status(404).json({ success: false, msg: "No vehicles found" });
         }
 
         // Convert BLOBs to Base64
-        const formattedVehicles = vehicless.map(vehicle => ({
+        const formattedVehicles = vehicleData.map(vehicle => ({
             ...vehicle.toJSON(),
             images: vehicle.SellVehicleImages.map(img => ({
                 id: img.id,
@@ -176,7 +176,7 @@ router.get("/vehicles/all", async (req, res) => {
 // same as above for admin
 router.get("/vehicles/admin/all", async (req, res) => {
     try {
-        const vehicless = await vehicles.findAll({
+        const vehicleData = await vehicles.findAll({
             order: sequelize.literal("RAND()"),
             include: [
                 { model: v_img, 
@@ -189,12 +189,12 @@ router.get("/vehicles/admin/all", async (req, res) => {
                 }]
         });
 
-        if (!vehicless || vehicless.length === 0) {
+        if (!vehicleData || vehicleData.length === 0) {
             return res.status(404).json({ success: false, msg: "No vehicles found" });
         }
 
         // Convert BLOBs to Base64
-        const formattedVehicles = vehicless.map(vehicle => ({
+        const formattedVehicles = vehicleData.map(vehicle => ({
             ...vehicle.toJSON(),
             images: vehicle.SellVehicleImages.map(img => ({
                 id: img.id,
@@ -333,7 +333,8 @@ router.get("/vehicles/user/all/:uid", async (req, res) => {
     try {
         const userId = req.params.uid;
 
-        const vehicle = await vehicles.findOne({
+        // Changed from findOne to findAll to get all user vehicles
+        const vehicleData = await vehicles.findAll({
             where: { uid: userId },
             include: [
                 {
@@ -343,27 +344,25 @@ router.get("/vehicles/user/all/:uid", async (req, res) => {
             ]
         });
 
-        if (!vehicle) {
-            return res.status(404).json({ success: false, msg: "Vehicle not found" });
+        if (!vehicleData || vehicleData.length === 0) {
+            return res.status(404).json({ success: false, msg: "No vehicles found for this user" });
         }
 
-        const formattedVehicle = {
+        // Format all vehicles
+        const formattedVehicles = vehicleData.map(vehicle => ({
             ...vehicle.toJSON(),
             images: vehicle.SellVehicleImages.map(img => ({
                 id: img.id,
                 image: img.image
             }))
-        };
+        }));
 
-
-        res.json({ success: true, data: formattedVehicle });
+        res.json({ success: true, data: formattedVehicles });
 
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, msg: "Server error" });
     }
-
-
 });
 
 module.exports = router;

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import LostAndFoundForm from "../Components/LostAndFoundForm";
 
 const ReportedItems = () => {
   const [items, setItems] = useState([]);
@@ -119,10 +120,8 @@ const ReportedItems = () => {
             item.description.toLowerCase().includes(query)) ||
           (item.location && item.location.toLowerCase().includes(query)) ||
           (item.type && item.type.toLowerCase().includes(query)) ||
-          (item.make &&
-            item.make.toLowerCase().includes(query)) ||
-          (item.model &&
-            item.model.toLowerCase().includes(query)) ||
+          (item.make && item.make.toLowerCase().includes(query)) ||
+          (item.model && item.model.toLowerCase().includes(query)) ||
           (item.nplate && item.nplate.toLowerCase().includes(query))
       );
     }
@@ -431,9 +430,7 @@ const ReportedItems = () => {
                           <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                           <span>{item.location}</span>
                         </div>
-                        {(item.make ||
-                          item.model ||
-                          item.nplate) && (
+                        {(item.make || item.model || item.nplate) && (
                           <div className="flex items-center text-sm text-gray-600">
                             <Car className="w-4 h-4 mr-2 text-gray-400" />
                             <span>
