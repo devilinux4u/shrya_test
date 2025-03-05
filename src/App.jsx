@@ -28,7 +28,6 @@ import AdminWishlist from "./Admin/Wishlist/AdminWishlist";
 import Profile from "./Pages/Profile";
 import UserBookings from "./Pages/UserBookings";
 import ReportedItems from "./Pages/ReportedItems";
-import History from "./Pages/History";
 import UserVerification from "./Pages/UserVerification";
 import WishlistVehicleDetail from "./Pages/WishlistVehicleDetail";
 import VehicleBooking from "./Pages/VehicleBooking";
@@ -84,7 +83,6 @@ function App() {
         <Route path="/Profile" element={<Profile />} />
         <Route path="/UserBookings" element={<UserBookings />} />
         <Route path="/ReportedItems" element={<ReportedItems />} />
-        <Route path="/History" element={<History />} />
         <Route path="/payment-verify" element={<PaymentVerify />} />
         <Route path="/UserAppointments" element={<UserAppointments />} />
 

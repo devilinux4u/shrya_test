@@ -273,14 +273,6 @@ const NavMenu = () => {
                             Reported Items
                           </Link>
 
-                          <Link
-                            to="/History"
-                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600"
-                            role="menuitem"
-                            onClick={closeMenu}
-                          >
-                            History
-                          </Link>
                           <button
                             onClick={() => {
                               handleLogout();
@@ -466,14 +458,6 @@ const NavMenu = () => {
                 Items Reported
               </NavLink>
 
-              <NavLink
-                to="/History"
-                mobile
-                onClick={closeMenu}
-                isScrolled={isScrolled}
-              >
-                History
-              </NavLink>
               <button
                 onClick={() => {
                   handleLogout();
