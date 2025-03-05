@@ -86,6 +86,39 @@ export default function UserAppointments() {
     fetchAppointments();
   }, []);
 
+  useEffect(() => {
+    const handleNewAppointment = (event) => {
+      const newAppointment = event.detail;
+
+      // Map the new appointment to match the expected structure
+      const mappedAppointment = {
+        ...newAppointment,
+        role: newAppointment.userId === currentUserId ? "buyer" : "seller",
+        vehicle: {
+          ...newAppointment.SellVehicle,
+          images:
+            newAppointment.SellVehicle?.SellVehicleImages?.map(
+              (img) => img.image
+            ) || [],
+        },
+        seller: newAppointment.User || {},
+      };
+
+      setAppointments((prevAppointments) => [
+        mappedAppointment,
+        ...prevAppointments,
+      ]);
+    };
+
+    // Listen for the custom event
+    window.addEventListener("newAppointmentCreated", handleNewAppointment);
+
+    return () => {
+      // Cleanup the event listener
+      window.removeEventListener("newAppointmentCreated", handleNewAppointment);
+    };
+  }, [currentUserId]);
+
   const toggleExpand = (id) => {
     setExpandedAppointment(expandedAppointment === id ? null : id);
   };

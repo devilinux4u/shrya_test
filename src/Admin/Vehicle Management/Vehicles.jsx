@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle,
+  ShoppingCart,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -49,35 +50,85 @@ export default function Vehicles() {
 
   const navigate = useNavigate();
 
-  // Add this new state variable near the top with your other state declarations
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [isBookModalOpen, setIsBookModalOpen] = useState(false);
   const [newStatus, setNewStatus] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
+
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState({
+    date: "",
+    time: "",
+    location: "",
+    description: "",
+  });
+
+  const handleBookingChange = (e) => {
+    const { name, value } = e.target;
+    setBookingDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleBookingSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedVehicle) return;
+
+    try {
+      const payload = {
+        vehicleId: selectedVehicle.id,
+        ...bookingDetails,
+      };
+
+      const response = await fetch("http://localhost:3000/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          `Failed to create appointment: ${
+            errorData.message || "Unknown error"
+          }`
+        );
+      }
+
+      const newAppointment = await response.json();
+
+      // Dispatch a custom event to notify the Appointments component
+      window.dispatchEvent(
+        new CustomEvent("newAppointmentCreated", {
+          detail: newAppointment.data,
+        })
+      );
+
+      setShowBookingModal(false);
+      setSelectedVehicle(null);
+      toast.success("Booking submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting booking:", error.message);
+      toast.error(`Error: ${error.message}`);
+    }
+  };
 
   // Fetch vehicles data
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
         setLoading(true);
-        // Replace this with your actual API call
-        // const response = await fetch('/api/vehicles')
-        // const data = await response.json()
-
-        // Simulating API response with sample data
-
         const response = await fetch(
           "http://localhost:3000/vehicles/admin/all"
-        ); // replace with your backend URL
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         console.log(data);
         if (data.success) {
-          setVehicles(data.msg); // Assuming the response contains vehicles in `msg` field
+          setVehicles(data.msg);
           setDisplayedVehicles(data.msg);
           setLoading(false);
         } else {
@@ -94,11 +145,9 @@ export default function Vehicles() {
   }, []);
 
   // Filter and sort vehicles
-  // Filter and sort vehicles
   useEffect(() => {
     let filtered = [...vehicles];
 
-    // Apply search filter
     if (searchTerm) {
       filtered = filtered.filter(
         (vehicle) =>
@@ -107,7 +156,6 @@ export default function Vehicles() {
       );
     }
 
-    // Apply user/admin filter - FIXED: Now checks user role instead of username
     if (userFilter) {
       if (userFilter.toLowerCase() === "admin") {
         filtered = filtered.filter(
@@ -120,14 +168,12 @@ export default function Vehicles() {
       }
     }
 
-    // Apply status filter
     if (statusFilter) {
       filtered = filtered.filter(
         (vehicle) => vehicle.status.toLowerCase() === statusFilter.toLowerCase()
       );
     }
 
-    // Apply sorting
     if (sortBy) {
       switch (sortBy) {
         case "price-asc":
@@ -204,7 +250,6 @@ export default function Vehicles() {
 
       const updatedVehicle = await response.json();
 
-      // Update the local state with the edited vehicle
       setVehicles((prevVehicles) =>
         prevVehicles.map((vehicle) =>
           vehicle.id === selectedVehicle.id
@@ -222,13 +267,11 @@ export default function Vehicles() {
     }
   };
 
-  // Replace the handleDeleteVehicle function with this updated version
   const handleDeleteVehicle = (vehicle) => {
     setSelectedVehicle(vehicle);
     setIsDeleteModalOpen(true);
   };
 
-  // Add this new function to handle the actual deletion
   const confirmDelete = async () => {
     if (!selectedVehicle) return;
 
@@ -240,7 +283,6 @@ export default function Vehicles() {
         }
       );
 
-      // Update the local state
       setVehicles(vehicles.filter((v) => v.id !== selectedVehicle.id));
       setIsDeleteModalOpen(false);
       setSelectedVehicle(null);
@@ -251,14 +293,12 @@ export default function Vehicles() {
     }
   };
 
-  // Add function to handle status change
   const handleStatusChange = (vehicle) => {
     setSelectedVehicle(vehicle);
     setNewStatus(vehicle.status === "available" ? "sold" : "available");
     setIsStatusModalOpen(true);
   };
 
-  // Add function to confirm status change
   const confirmStatusChange = async () => {
     if (!selectedVehicle) return;
 
@@ -278,7 +318,6 @@ export default function Vehicles() {
         throw new Error("Failed to update vehicle status");
       }
 
-      // Update the local state
       setVehicles((prevVehicles) =>
         prevVehicles.map((vehicle) =>
           vehicle.id === selectedVehicle.id
@@ -293,6 +332,50 @@ export default function Vehicles() {
     } catch (err) {
       console.error("Error updating vehicle status:", err);
       toast.error("Failed to update vehicle status. Please try again.");
+    }
+  };
+
+  // New function to handle booking/purchasing a vehicle
+  const handleBookVehicle = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setIsBookModalOpen(true);
+  };
+
+  // New function to confirm booking/purchase
+  const confirmBooking = async () => {
+    if (!selectedVehicle) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/vehicles/purchase/${selectedVehicle.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "sold" }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to book vehicle");
+      }
+
+      // Update the local state
+      setVehicles((prevVehicles) =>
+        prevVehicles.map((vehicle) =>
+          vehicle.id === selectedVehicle.id
+            ? { ...vehicle, status: "sold" }
+            : vehicle
+        )
+      );
+
+      setIsBookModalOpen(false);
+      setSelectedVehicle(null);
+      toast.success("Vehicle booked successfully!");
+    } catch (err) {
+      console.error("Error booking vehicle:", err);
+      toast.error("Failed to book vehicle. Please try again.");
     }
   };
 
@@ -331,8 +414,7 @@ export default function Vehicles() {
         </div>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <div className="flex-1"></div>{" "}
-          {/* Spacer to push the button to the right */}
+          <div className="flex-1"></div>
           <button
             onClick={handleAddVehicle}
             className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
@@ -609,7 +691,8 @@ export default function Vehicles() {
                         </p>
                       </div>
                       <p className="text-gray-600 text-sm mb-3">
-                        Posted by: {vehicle.user?.fname || "Unknown"}
+                        Posted by: {vehicle.user?.fname || "Unknown"} (
+                        {vehicle.user?.role || "user"})
                       </p>
                       <p className="text-xl font-semibold text-gray-800 mb-3">
                         Rs. {vehicle.price.toLocaleString()}
@@ -618,16 +701,31 @@ export default function Vehicles() {
 
                     <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
                       {vehicle.status === "available" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditVehicle(vehicle);
-                          }}
-                          className="flex items-center text-green-600 hover:text-green-800 transition-colors"
-                        >
-                          <Edit className="w-4 h-4 mr-1" />
-                          Edit
-                        </button>
+                        <>
+                          {vehicle.user?.role === "admin" ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditVehicle(vehicle);
+                              }}
+                              className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              Edit
+                            </button>
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleBookVehicle(vehicle);
+                              }}
+                              className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                            >
+                              <ShoppingCart className="w-4 h-4 mr-1" />
+                              Book Now
+                            </button>
+                          )}
+                        </>
                       )}
                       <button
                         onClick={(e) => {
@@ -639,18 +737,19 @@ export default function Vehicles() {
                         <Trash2 className="w-4 h-4 mr-1" />
                         Delete
                       </button>
-                      {vehicle.status !== "sold" && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleStatusChange(vehicle);
-                          }}
-                          className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                          Mark as Sold
-                        </button>
-                      )}
+                      {vehicle.status !== "sold" &&
+                        vehicle.user?.role === "admin" && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStatusChange(vehicle);
+                            }}
+                            className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                          >
+                            <CheckCircle className="w-4 h-4 mr-1" />
+                            Mark as Sold
+                          </button>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -867,6 +966,7 @@ export default function Vehicles() {
           </div>
         </div>
       )}
+
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && selectedVehicle && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn">
@@ -974,6 +1074,100 @@ export default function Vehicles() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Book Vehicle Confirmation Modal */}
+      {isBookModalOpen && selectedVehicle && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h2 className="text-2xl font-bold mb-4">Book Now</h2>
+            <form onSubmit={handleBookingSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date
+                </label>
+                <input
+                  type="date"
+                  id="date"
+                  name="date"
+                  value={bookingDetails.date}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="time"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Time
+                </label>
+                <input
+                  type="time"
+                  id="time"
+                  name="time"
+                  value={bookingDetails.time}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="location"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Location
+                </label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={bookingDetails.location}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="3"
+                  value={bookingDetails.description}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="Add any additional details..."
+                ></textarea>
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setIsBookModalOpen(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

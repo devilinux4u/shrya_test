@@ -7,6 +7,7 @@ import {
   useTransform,
   AnimatePresence,
 } from "framer-motion";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Cookies from "js-cookie";
@@ -14,17 +15,17 @@ import Cookies from "js-cookie";
 export default function BuyVehiclesDesc() {
   const [activeSection, setActiveSection] = useState("hero");
   const [showBookNowForm, setShowBookNowForm] = useState(false);
-  const [vehicle, setVehicle] = useState(null); // Store fetched vehicle data
+  const [vehicle, setVehicle] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isOwnVehicle, setIsOwnVehicle] = useState(false);
   const mainRef = useRef(null);
   const sections = useRef({});
   const carouselRef = useRef(null);
   const { search } = useLocation();
   const params = new URLSearchParams(search);
-  const vehicleId = params.get("id"); // Get the vehicle ID from URL params
-  const navigate = useNavigate(); // Add navigate hook
+  const vehicleId = params.get("id");
+  const navigate = useNavigate();
 
-  // Move useScroll here with layoutEffect: false
   const { scrollYProgress } = useScroll({
     target: mainRef,
     offset: ["start start", "end end"],
@@ -40,6 +41,14 @@ export default function BuyVehiclesDesc() {
     location: "",
     description: "",
   });
+
+  // Check if vehicle belongs to current user
+  useEffect(() => {
+    if (vehicle && Cookies.get("sauto")) {
+      const userId = Cookies.get("sauto").split("-")[0];
+      setIsOwnVehicle(Number(vehicle.uid) === Number(userId));
+    }
+  }, [vehicle]);
 
   // Update location if seller is "Shreya Auto"
   useEffect(() => {
@@ -59,14 +68,12 @@ export default function BuyVehiclesDesc() {
   const handleBookingSubmit = async (e) => {
     e.preventDefault();
     try {
-      const userId = Cookies.get("sauto").split("-")[0]; // Replace "userId" with the actual key used to store the user ID in cookies
+      const userId = Cookies.get("sauto").split("-")[0];
       const payload = {
         userId,
-        vehicleId: vehicle?.id, // Ensure vehicle ID exists
+        vehicleId: vehicle?.id,
         ...bookingDetails,
       };
-
-      console.log("Submitting booking with payload:", payload); // Debug log
 
       const response = await fetch("http://localhost:3000/api/appointments", {
         method: "POST",
@@ -76,7 +83,6 @@ export default function BuyVehiclesDesc() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Failed to create appointment:", errorData); // Log error response
         throw new Error(
           `Failed to create appointment: ${
             errorData.message || "Unknown error"
@@ -85,29 +91,26 @@ export default function BuyVehiclesDesc() {
       }
 
       const data = await response.json();
-      console.log("Appointment created successfully:", data); // Debug log
-
       setShowBookNowForm(false);
       navigate("/UserAppointments");
     } catch (error) {
-      console.error("Error submitting booking:", error.message); // Log error message
-      alert(`Error: ${error.message}`); // Show user-friendly error message
+      console.error("Error submitting booking:", error.message);
+      alert(`Error: ${error.message}`);
     }
   };
 
   useEffect(() => {
-    // Fetch vehicle data from the backend using the ID from the URL
     const fetchVehicle = async () => {
       try {
         const response = await fetch(
           `http://localhost:3000/vehicles/one/${vehicleId}`
-        ); // Replace with your actual endpoint
+        );
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         if (data.success) {
-          setVehicle(data.msg); // Set the vehicle data to the state
+          setVehicle(data.msg);
         } else {
           console.error("Vehicle not found");
         }
@@ -117,7 +120,7 @@ export default function BuyVehiclesDesc() {
     };
 
     if (vehicleId) {
-      fetchVehicle(); // Fetch vehicle data when the component mounts or vehicleId changes
+      fetchVehicle();
     }
   }, [vehicleId]);
 
@@ -172,7 +175,7 @@ export default function BuyVehiclesDesc() {
   };
 
   if (!vehicle) {
-    return <div>Loading...</div>; // Show loading state while data is being fetched
+    return <div>Loading...</div>;
   }
 
   return (
@@ -181,7 +184,7 @@ export default function BuyVehiclesDesc() {
       <motion.section
         ref={(el) => (sections.current.hero = el)}
         style={{ opacity, scale }}
-        className="min-h-screen relative flex items-center py-20 px-8" // Added pl-16 for left padding
+        className="min-h-screen relative flex items-center py-20 px-8"
       >
         <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center pl-20">
           <div className="space-y-8">
@@ -231,18 +234,28 @@ export default function BuyVehiclesDesc() {
               </div>
             </div>
 
-            <button
-              onClick={() => setShowBookNowForm(true)} // Fixed the function call to open the booking form
-              className="bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors"
-            >
-              Book Now
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowBookNowForm(true)}
+                className={`bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors ${
+                  isOwnVehicle ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={isOwnVehicle}
+              >
+                Book Now
+              </button>
+              {isOwnVehicle && (
+                <p className="text-red-500 text-sm mt-2">
+                  You cannot book your own vehicle
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="relative">
             {vehicle.images && vehicle.images.length > 0 ? (
               <img
-                src={`../../server/controllers${vehicle.images[0].image}`} // Use the first image from the vehicle images array
+                src={`../../server/controllers${vehicle.images[0].image}`}
                 alt={vehicle.title}
                 className="w-full h-auto rounded-lg shadow-lg"
               />
@@ -317,7 +330,7 @@ export default function BuyVehiclesDesc() {
                     <img
                       src={`../../server/controllers${vehicle.images[currentImageIndex].image}`}
                       alt={`${vehicle.type}-image-${currentImageIndex}`}
-                      className="w-3/4 h-full object-cover mx-auto" // Reduced width to 3/4 and centered
+                      className="w-3/4 h-full object-cover mx-auto"
                     />
                   </motion.div>
                 </AnimatePresence>
@@ -359,7 +372,7 @@ export default function BuyVehiclesDesc() {
                     <img
                       src={`../../server/controllers${image.image}`}
                       alt={`Thumbnail ${index}`}
-                      className="w-12 h-12 object-cover" // Reduced thumbnail size
+                      className="w-12 h-12 object-cover"
                     />
                   </button>
                 ))}
@@ -444,12 +457,22 @@ export default function BuyVehiclesDesc() {
                 className="w-full h-auto rounded-lg mb-4"
               />
             )}
-            <button
-              onClick={() => setShowBookNowForm(true)}
-              className="w-full bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors"
-            >
-              Book Now
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowBookNowForm(true)}
+                className={`w-full bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors ${
+                  isOwnVehicle ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={isOwnVehicle}
+              >
+                Book Now
+              </button>
+              {isOwnVehicle && (
+                <p className="text-red-500 text-sm mt-2 text-center">
+                  You cannot book your own vehicle
+                </p>
+              )}
+            </div>
           </div>
         </motion.div>
       </section>

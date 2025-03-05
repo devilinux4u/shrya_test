@@ -123,6 +123,60 @@ export default function Appointments() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleNewAppointment = (event) => {
+      const newAppointment = event.detail;
+
+      // Map the new appointment to match the expected structure
+      const mappedAppointment = {
+        _id: newAppointment.id,
+        date: newAppointment.date,
+        time: newAppointment.time,
+        location: newAppointment.location,
+        description: newAppointment.description,
+        status: newAppointment.status,
+        createdAt: newAppointment.createdAt,
+        user: {
+          name: newAppointment.User?.fname || "Unknown",
+          email: newAppointment.User?.email || "N/A",
+          phone: newAppointment.User?.num || "N/A",
+        },
+        vehicle: {
+          id: newAppointment.SellVehicle?.id,
+          make: newAppointment.SellVehicle?.make || "Unknown",
+          model: newAppointment.SellVehicle?.model || "Unknown",
+          year: newAppointment.SellVehicle?.year,
+          price: newAppointment.SellVehicle?.price,
+          color: newAppointment.SellVehicle?.color,
+          seller: "Shreya Auto",
+          images:
+            newAppointment.SellVehicle?.SellVehicleImages?.map(
+              (img) => img.image
+            ) || [],
+          cc: newAppointment.SellVehicle?.cc,
+          fuel: newAppointment.SellVehicle?.fuel,
+          km: newAppointment.SellVehicle?.km,
+          mile: newAppointment.SellVehicle?.mile,
+          seat: newAppointment.SellVehicle?.seat,
+          trans: newAppointment.SellVehicle?.trans,
+          own: newAppointment.SellVehicle?.own,
+          des: newAppointment.SellVehicle?.des,
+          status: newAppointment.SellVehicle?.status,
+        },
+      };
+
+      setBookings((prevBookings) => [mappedAppointment, ...prevBookings]);
+    };
+
+    // Listen for the custom event
+    window.addEventListener("newAppointmentCreated", handleNewAppointment);
+
+    return () => {
+      // Cleanup the event listener
+      window.removeEventListener("newAppointmentCreated", handleNewAppointment);
+    };
+  }, []);
+
   const toggleExpand = (id) => {
     setExpandedBooking(expandedBooking === id ? null : id);
   };
