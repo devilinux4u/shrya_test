@@ -585,7 +585,9 @@ export default function UserAppointments() {
                       <User className="w-4 h-4 mr-2 text-gray-400" />
                       <p className="text-gray-600">
                         {isUserBuyer(appointment)
-                          ? `Seller: ${appointment.seller.name || "Shreya Auto" }`
+                          ? `Seller: ${
+                              appointment.seller.name || "Shreya Auto"
+                            }`
                           : `Buyer: ${appointment.buyer.name}`}
                       </p>
                     </div>
@@ -629,7 +631,12 @@ export default function UserAppointments() {
                         )}
                       {appointment.status === "pending" && (
                         <button
-                          onClick={() => cancelAppointment(appointment.id, isUserBuyer(appointment) ? "buyer" : "seller")}
+                          onClick={() =>
+                            cancelAppointment(
+                              appointment.id,
+                              isUserBuyer(appointment) ? "buyer" : "seller"
+                            )
+                          }
                           className="flex items-center text-red-600 hover:text-red-800 transition-colors"
                         >
                           <XCircle className="w-4 h-4 mr-1" />
@@ -826,7 +833,7 @@ export default function UserAppointments() {
                       <div>
                         <p className="text-gray-500">Listed By</p>
                         <p className="font-medium">
-                          {selectedAppointment.seller.name}
+                          {selectedAppointment.seller.fname}
                         </p>
                       </div>
                       <div>
@@ -857,7 +864,8 @@ export default function UserAppointments() {
                         <div>
                           <p className="font-medium text-gray-900">
                             {isUserBuyer(selectedAppointment)
-                              ? selectedAppointment.seller.name || "Shreya Auto"
+                              ? selectedAppointment.seller.fname ||
+                                "Shreya Auto"
                               : selectedAppointment.buyer.name}
                           </p>
                           <p className="text-sm text-gray-500">
@@ -958,7 +966,10 @@ export default function UserAppointments() {
                         <button
                           type="button"
                           onClick={() => {
-                            cancelAppointment(selectedAppointment.id, isUserBuyer(appointment) ? "buyer" : "seller");
+                            cancelAppointment(
+                              selectedAppointment.id,
+                              isUserBuyer(appointment) ? "buyer" : "seller"
+                            );
                           }}
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >
@@ -984,7 +995,10 @@ export default function UserAppointments() {
                           <button
                             type="button"
                             onClick={() => {
-                              cancelAppointment(selectedAppointment.id, isUserBuyer(appointment) ? "buyer" : "seller");
+                              cancelAppointment(
+                                selectedAppointment.id,
+                                isUserBuyer(appointment) ? "buyer" : "seller"
+                              );
                             }}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                           >
@@ -1015,7 +1029,10 @@ export default function UserAppointments() {
                         <button
                           type="button"
                           onClick={() => {
-                            cancelAppointment(selectedAppointment.id, isUserBuyer(appointment) ? "buyer" : "seller");
+                            cancelAppointment(
+                              selectedAppointment.id,
+                              isUserBuyer(appointment) ? "buyer" : "seller"
+                            );
                           }}
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >

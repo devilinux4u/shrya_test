@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -58,6 +58,58 @@ export default function Dashboard() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
+  const [notifications, setNotifications] = useState([]);
+  const [bookings, setBookings] = useState({});
+  const [wishlist, setWishlist] = useState({});
+  const [wishlistStatus, setWishlistStatus] = useState([]);
+  const [lostAndFound, setLostAndFound] = useState({});
+  const [transactions, setTransactions] = useState([]);
+  const [topSellingModels, setTopSellingModels] = useState([]);
+
+  useEffect(() => {
+    // Fetch notifications
+    fetch("/api/notifications")
+      .then((res) => res.json())
+      .then((data) => setNotifications(data))
+      .catch((err) => console.error("Error fetching notifications:", err));
+
+    // Fetch bookings
+    fetch("/api/bookings")
+      .then((res) => res.json())
+      .then((data) => setBookings(data))
+      .catch((err) => console.error("Error fetching bookings:", err));
+
+    // Fetch wishlist
+    fetch("/api/wishlist")
+      .then((res) => res.json())
+      .then((data) => setWishlist(data))
+      .catch((err) => console.error("Error fetching wishlist:", err));
+
+    // Fetch wishlist status
+    fetch("/api/wishlist/status")
+      .then((res) => res.json())
+      .then((data) => setWishlistStatus(data))
+      .catch((err) => console.error("Error fetching wishlist status:", err));
+
+    // Fetch lost and found
+    fetch("/api/lostandfound")
+      .then((res) => res.json())
+      .then((data) => setLostAndFound(data))
+      .catch((err) => console.error("Error fetching lost and found:", err));
+
+    // Fetch transactions
+    fetch("/api/transactions")
+      .then((res) => res.json())
+      .then((data) => setTransactions(data))
+      .catch((err) => console.error("Error fetching transactions:", err));
+
+    // Fetch top-selling models
+    fetch("/api/topsellingmodels")
+      .then((res) => res.json())
+      .then((data) => setTopSellingModels(data))
+      .catch((err) => console.error("Error fetching top-selling models:", err));
+  }, []);
+
   const handleTotalUsers = () => {
     navigate("/admin/users");
   };
@@ -85,92 +137,6 @@ export default function Dashboard() {
   const handleLostAndFound = () => {
     navigate("/admin/lostandfound");
   };
-
-  const [notifications] = useState([
-    { id: 1, type: "lost", message: "New lost item reported: iPhone 12" },
-    { id: 2, type: "inquiry", message: "New inquiry for Toyota Camry" },
-    { id: 3, type: "found", message: "Item claimed: Designer sunglasses" },
-    { id: 4, type: "inquiry", message: "Rental inquiry for Tesla Model 3" },
-    { id: 5, type: "lost", message: "New lost item reported: Car keys" },
-  ]);
-
-  // Mock data for bookings
-  const [bookings, setBookings] = useState({
-    total: 245,
-    completed: 180,
-    active: 30,
-    pending: 15,
-    cancelled: 20,
-  });
-
-  // Mock data for wishlist and lost & found
-  const [wishlist, setWishlist] = useState({
-    total: 320,
-  });
-
-  const [wishlistStatus, setWishlistStatus] = useState([
-    { name: "Pending", value: 145, color: "#2563EB" }, // Blue
-    { name: "Arrived", value: 98, color: "#3B82F6" }, // Lighter blue
-    { name: "Cancelled", value: 77, color: "#F97316" }, // Orange
-  ]);
-
-  const [lostAndFound, setLostAndFound] = useState({
-    total: 85,
-    lost: 45,
-    found: 40,
-  });
-
-  // Mock data for transactions
-  const [transactions, setTransactions] = useState([
-    {
-      id: "TRX-001",
-      customer: { name: "John Doe", email: "john@example.com" },
-      amount: 25000,
-      status: "completed",
-      method: "cash",
-      date: "2023-05-15T10:30:00",
-    },
-    {
-      id: "TRX-002",
-      customer: { name: "Jane Smith", email: "jane@example.com" },
-      amount: 15000,
-      status: "pending",
-      method: "khalti",
-      date: "2023-05-16T14:20:00",
-    },
-    {
-      id: "TRX-003",
-      customer: { name: "Robert Johnson", email: "robert@example.com" },
-      amount: 45000,
-      status: "completed",
-      method: "bank_transfer",
-      date: "2023-05-17T09:15:00",
-    },
-    {
-      id: "TRX-004",
-      customer: { name: "Emily Davis", email: "emily@example.com" },
-      amount: 8000,
-      status: "cancelled",
-      method: "cash",
-      date: "2023-05-18T16:45:00",
-    },
-    {
-      id: "TRX-005",
-      customer: { name: "Michael Wilson", email: "michael@example.com" },
-      amount: 12000,
-      status: "completed",
-      method: "khalti",
-      date: "2023-05-19T11:30:00",
-    },
-  ]);
-
-  const topSellingModels = [
-    { model: "Toyota Camry", sales: 45 },
-    { model: "Honda Civic", sales: 38 },
-    { model: "Tesla Model 3", sales: 32 },
-    { model: "Ford Mustang", sales: 28 },
-    { model: "BMW 3 Series", sales: 25 },
-  ];
 
   const getStatusColor = (status) => {
     switch (status) {
