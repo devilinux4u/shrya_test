@@ -5,9 +5,7 @@ import {
   Search,
   Car,
   Clock,
-  Download,
   FileText,
-  Star,
   ChevronDown,
   ChevronUp,
   XCircle,
@@ -15,9 +13,6 @@ import {
   Ban,
   ChevronLeft,
   ChevronRight,
-  User,
-  Mail,
-  Phone,
 } from "lucide-react";
 import { toast } from "react-toastify"; // Import toast for notifications
 
@@ -63,19 +58,14 @@ export default function RentalHistory() {
           pickupTime: rental.pickupTime,
           returnDate: rental.returnDate,
           returnTime: rental.returnTime,
-          driveOption: rental.driveOption || "self-drive", // Default to self-drive if not specified
-          deposit: rental.deposit || 0,
-          depositReturned: rental.depositReturned || false,
-          review: rental.review || null,
-          damageReport: rental.damageReport || null,
+          driveOption: rental.driveOption || "self-drive",
           rentVehicle: {
-            id: rental.RentalAllVehicles?.id || "",
-            make: rental.RentalAllVehicles?.make || "",
-            model: rental.RentalAllVehicles?.model || "",
-            year: rental.RentalAllVehicles?.year || "",
-            numberPlate: rental.RentalAllVehicles?.numberPlate || "",
-            fuelType: rental.RentalAllVehicles?.fuelType || "",
-            transmission: rental.RentalAllVehicles?.transmission || "",
+            id: rental.rentalVehicles?.id || "",
+            make: rental.rentalVehicles?.make || "",
+            model: rental.rentalVehicles?.model || "",
+            year: rental.rentalVehicles?.year || "",
+            numberPlate: rental.rentalVehicles?.numberPlate || "",
+            transmission: rental.rentalVehicles?.transmission || "",
           },
           user: {
             id: rental.user?.id || rental.User?.id || "N/A",
@@ -173,7 +163,7 @@ export default function RentalHistory() {
     .filter((rental) => {
       const matchesSearch =
         rental.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
-        `${rental.user.fname || ""} ${rental.user.lname || ""}`
+        `${rental.user.fname || ""} `
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         `${rental.rentVehicle.make || ""} ${rental.rentVehicle.model || ""}`
@@ -389,7 +379,7 @@ export default function RentalHistory() {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">
-                                {rental.user.fname} {rental.user.lname}
+                                {rental.user.fname}
                               </div>
                               <div className="text-sm text-gray-500">
                                 {rental.user.email}
