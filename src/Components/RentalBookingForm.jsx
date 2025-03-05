@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import {
   Calendar,
   Clock,
-  CreditCard,
   Car,
   Info,
   AlertTriangle,
@@ -38,11 +37,7 @@ const RentalBookingForm = ({ vehicleId }) => {
     driveOption: "selfDrive",
     drivingLicense: "",
     licenseImage: null,
-    paymentMethod: "creditCard",
-    cardNumber: "",
-    cardName: "",
-    expiryDate: "",
-    cvv: "",
+    paymentMethod: "khalti",
     termsAccepted: false,
   });
 
@@ -119,9 +114,10 @@ const RentalBookingForm = ({ vehicleId }) => {
     const calculatedDuration = duration || 1;
 
     // Get the correct price based on rental type
-    const priceKey = `price${bookingData.rentalType.charAt(0).toUpperCase() +
+    const priceKey = `price${
+      bookingData.rentalType.charAt(0).toUpperCase() +
       bookingData.rentalType.slice(1)
-      }`;
+    }`;
     basePrice = (vehicle[priceKey] || 0) * calculatedDuration;
 
     let driverCost = 0;
@@ -245,26 +241,13 @@ const RentalBookingForm = ({ vehicleId }) => {
         if (!bookingData.licenseImage)
           newErrors.licenseImage = "License image is required";
       }
-    }
-
-    if (step === 3) {
-      if (bookingData.paymentMethod === "creditCard") {
-        if (!bookingData.cardNumber)
-          newErrors.cardNumber = "Card number is required";
-        else if (!/^\d{16}$/.test(bookingData.cardNumber.replace(/\s/g, "")))
-          newErrors.cardNumber = "Card number must be 16 digits";
-
-        if (!bookingData.cardName)
-          newErrors.cardName = "Name on card is required";
-        if (!bookingData.expiryDate)
-          newErrors.expiryDate = "Expiry date is required";
-        if (!bookingData.cvv) newErrors.cvv = "CVV is required";
-        else if (!/^\d{3,4}$/.test(bookingData.cvv))
-          newErrors.cvv = "CVV must be 3 or 4 digits";
-      }
 
       if (!bookingData.termsAccepted)
         newErrors.termsAccepted = "You must accept the terms and conditions";
+    }
+
+    if (step === 3) {
+      // No additional validation needed for summary step
     }
 
     setErrors(newErrors);
@@ -331,13 +314,15 @@ const RentalBookingForm = ({ vehicleId }) => {
         }
       );
 
-      console.log(response)
+      console.log(response);
 
-      if (formData.get("paymentMethod") != 'payLater' && response.status === 201) {
+      if (
+        formData.get("paymentMethod") != "payLater" &&
+        response.status === 201
+      ) {
         const paymentUrl = response.data.data.payment_url; // Assume backend returns this
         window.location.href = paymentUrl; // Redirect to Khalti
-      }
-      else {
+      } else {
         toast.success("Booking confirmed!");
         navigate("/UserBookings");
       }
@@ -381,9 +366,10 @@ const RentalBookingForm = ({ vehicleId }) => {
   };
 
   const getBasePrice = () => {
-    const priceKey = `price${bookingData.rentalType.charAt(0).toUpperCase() +
+    const priceKey = `price${
+      bookingData.rentalType.charAt(0).toUpperCase() +
       bookingData.rentalType.slice(1)
-      }`;
+    }`;
     return (vehicle[priceKey] || 0) * rentalDuration;
   };
 
@@ -411,8 +397,9 @@ const RentalBookingForm = ({ vehicleId }) => {
                 name="pickupLocation"
                 value={bookingData.pickupLocation}
                 onChange={handleChange}
-                className={`w-full rounded-lg border ${errors.pickupLocation ? "border-red-500" : "border-gray-300"
-                  } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
+                className={`w-full rounded-lg border ${
+                  errors.pickupLocation ? "border-red-500" : "border-gray-300"
+                } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
                 placeholder="Enter pickup location"
               />
               {errors.pickupLocation && (
@@ -435,8 +422,9 @@ const RentalBookingForm = ({ vehicleId }) => {
                 name="dropoffLocation"
                 value={bookingData.dropoffLocation}
                 onChange={handleChange}
-                className={`w-full rounded-lg border ${errors.dropoffLocation ? "border-red-500" : "border-gray-300"
-                  } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
+                className={`w-full rounded-lg border ${
+                  errors.dropoffLocation ? "border-red-500" : "border-gray-300"
+                } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
                 placeholder="Enter drop-off location"
               />
               {errors.dropoffLocation && (
@@ -489,8 +477,9 @@ const RentalBookingForm = ({ vehicleId }) => {
                 value={bookingData.pickupDate}
                 onChange={handleChange}
                 min={new Date().toISOString().split("T")[0]}
-                className={`w-full rounded-lg border ${errors.pickupDate ? "border-red-500" : "border-gray-300"
-                  } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
+                className={`w-full rounded-lg border ${
+                  errors.pickupDate ? "border-red-500" : "border-gray-300"
+                } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
               />
               {errors.pickupDate && (
                 <p className="mt-1 text-xs sm:text-sm text-red-500">
@@ -512,8 +501,9 @@ const RentalBookingForm = ({ vehicleId }) => {
                 name="pickupTime"
                 value={bookingData.pickupTime}
                 onChange={handleChange}
-                className={`w-full rounded-lg border ${errors.pickupTime ? "border-red-500" : "border-gray-300"
-                  } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
+                className={`w-full rounded-lg border ${
+                  errors.pickupTime ? "border-red-500" : "border-gray-300"
+                } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
               />
               {errors.pickupTime && (
                 <p className="mt-1 text-xs sm:text-sm text-red-500">
@@ -539,8 +529,9 @@ const RentalBookingForm = ({ vehicleId }) => {
                   bookingData.pickupDate ||
                   new Date().toISOString().split("T")[0]
                 }
-                className={`w-full rounded-lg border ${errors.returnDate ? "border-red-500" : "border-gray-300"
-                  } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
+                className={`w-full rounded-lg border ${
+                  errors.returnDate ? "border-red-500" : "border-gray-300"
+                } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
               />
               {errors.returnDate && (
                 <p className="mt-1 text-xs sm:text-sm text-red-500">
@@ -562,8 +553,9 @@ const RentalBookingForm = ({ vehicleId }) => {
                 name="returnTime"
                 value={bookingData.returnTime}
                 onChange={handleChange}
-                className={`w-full rounded-lg border ${errors.returnTime ? "border-red-500" : "border-gray-300"
-                  } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
+                className={`w-full rounded-lg border ${
+                  errors.returnTime ? "border-red-500" : "border-gray-300"
+                } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
               />
               {errors.returnTime && (
                 <p className="mt-1 text-xs sm:text-sm text-red-500">
@@ -630,10 +622,11 @@ const RentalBookingForm = ({ vehicleId }) => {
             </label>
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div
-                className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-colors ${bookingData.driveOption === "selfDrive"
-                  ? "border-[#ff6b00] bg-orange-50"
-                  : "border-gray-200 hover:border-gray-300"
-                  }`}
+                className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-colors ${
+                  bookingData.driveOption === "selfDrive"
+                    ? "border-[#ff6b00] bg-orange-50"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
                 onClick={() =>
                   setBookingData((prev) => ({
                     ...prev,
@@ -664,10 +657,11 @@ const RentalBookingForm = ({ vehicleId }) => {
               </div>
 
               <div
-                className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-colors ${bookingData.driveOption === "hireDriver"
-                  ? "border-[#ff6b00] bg-orange-50"
-                  : "border-gray-200 hover:border-gray-300"
-                  }`}
+                className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-colors ${
+                  bookingData.driveOption === "hireDriver"
+                    ? "border-[#ff6b00] bg-orange-50"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
                 onClick={() =>
                   setBookingData((prev) => ({
                     ...prev,
@@ -718,10 +712,11 @@ const RentalBookingForm = ({ vehicleId }) => {
                     name="drivingLicense"
                     value={bookingData.drivingLicense}
                     onChange={handleChange}
-                    className={`w-full rounded-lg border ${errors.drivingLicense
-                      ? "border-red-500"
-                      : "border-gray-300"
-                      } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
+                    className={`w-full rounded-lg border ${
+                      errors.drivingLicense
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
                     placeholder="Enter your license number"
                   />
                   {errors.drivingLicense && (
@@ -803,6 +798,116 @@ const RentalBookingForm = ({ vehicleId }) => {
             </div>
           )}
 
+          <div className="mt-6 border-t border-gray-200 pt-6">
+            <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-4">
+              Payment Method
+            </h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div
+                  className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-colors ${
+                    bookingData.paymentMethod === "khalti"
+                      ? "border-[#ff6b00] bg-orange-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  onClick={() =>
+                    setBookingData((prev) => ({
+                      ...prev,
+                      paymentMethod: "khalti",
+                    }))
+                  }
+                >
+                  <div className="flex items-center mb-1 sm:mb-2">
+                    <input
+                      type="radio"
+                      id="khalti"
+                      name="paymentMethod"
+                      value="khalti"
+                      checked={bookingData.paymentMethod === "khalti"}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-[#ff6b00] focus:ring-[#ff6b00]"
+                    />
+                    <label
+                      htmlFor="khalti"
+                      className="ml-2 block text-sm sm:text-base font-medium text-gray-900"
+                    >
+                      Pay with Khalti
+                    </label>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-600 ml-6">
+                    Secure online payment via Khalti digital wallet
+                  </p>
+                </div>
+
+                <div
+                  className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-colors ${
+                    bookingData.paymentMethod === "payLater"
+                      ? "border-[#ff6b00] bg-orange-50"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  onClick={() =>
+                    setBookingData((prev) => ({
+                      ...prev,
+                      paymentMethod: "payLater",
+                    }))
+                  }
+                >
+                  <div className="flex items-center mb-1 sm:mb-2">
+                    <input
+                      type="radio"
+                      id="payLater"
+                      name="paymentMethod"
+                      value="payLater"
+                      checked={bookingData.paymentMethod === "payLater"}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-[#ff6b00] focus:ring-[#ff6b00]"
+                    />
+                    <label
+                      htmlFor="payLater"
+                      className="ml-2 block text-sm sm:text-base font-medium text-gray-900"
+                    >
+                      Pay at Pickup
+                    </label>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-600 ml-6">
+                    Pay the full amount when you pick up the vehicle
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <div className="flex items-start">
+                  <input
+                    type="checkbox"
+                    id="termsAccepted"
+                    name="termsAccepted"
+                    checked={bookingData.termsAccepted}
+                    onChange={handleChange}
+                    className="mt-1 h-4 w-4 text-[#ff6b00] focus:ring-[#ff6b00] rounded"
+                  />
+                  <label
+                    htmlFor="termsAccepted"
+                    className="ml-3 block text-xs sm:text-sm text-gray-700"
+                  >
+                    I agree to the{" "}
+                    <a href="#" className="text-[#ff6b00] hover:underline">
+                      Terms and Conditions
+                    </a>{" "}
+                    and{" "}
+                    <a href="#" className="text-[#ff6b00] hover:underline">
+                      Privacy Policy
+                    </a>
+                  </label>
+                </div>
+                {errors.termsAccepted && (
+                  <p className="mt-1 text-xs sm:text-sm text-red-500">
+                    {errors.termsAccepted}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
             <div className="flex justify-between items-center">
               <div>
@@ -844,259 +949,13 @@ const RentalBookingForm = ({ vehicleId }) => {
           onClick={nextStep}
           className="px-4 sm:px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors shadow-sm text-sm"
         >
-          Continue to Payment
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderStep3 = () => (
-    <div className="space-y-4 sm:space-y-6">
-      <div className="bg-white rounded-lg sm:rounded-xl shadow-sm sm:shadow-md overflow-hidden">
-        <div className="bg-gradient-to-r from-[#ff6b00] to-[#ff8533] px-4 sm:px-6 py-3 sm:py-4">
-          <h2 className="text-white text-base sm:text-lg font-semibold flex items-center">
-            <CreditCard className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            Payment Details
-          </h2>
-        </div>
-        <div className="p-4 sm:p-6">
-          <div className="mb-4 sm:mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Payment Method
-            </label>
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  id="creditCard"
-                  name="paymentMethod"
-                  value="creditCard"
-                  checked={bookingData.paymentMethod === "creditCard"}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-[#ff6b00] focus:ring-[#ff6b00]"
-                />
-                <label
-                  htmlFor="creditCard"
-                  className="ml-3 block text-sm font-medium text-gray-700"
-                >
-                  Credit/Debit Card
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  id="payLater"
-                  name="paymentMethod"
-                  value="payLater"
-                  checked={bookingData.paymentMethod === "payLater"}
-                  onChange={handleChange}
-                  className="h-4 w-4 text-[#ff6b00] focus:ring-[#ff6b00]"
-                />
-                <label
-                  htmlFor="payLater"
-                  className="ml-3 block text-sm font-medium text-gray-700"
-                >
-                  Pay at Pickup
-                </label>
-              </div>
-            </div>
-          </div>
-
-          {bookingData.paymentMethod === "creditCard" && (
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="cardNumber"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Card Number*
-                </label>
-                <input
-                  type="text"
-                  id="cardNumber"
-                  name="cardNumber"
-                  value={bookingData.cardNumber}
-                  onChange={handleChange}
-                  placeholder="1234 5678 9012 3456"
-                  maxLength={19}
-                  className={`w-full rounded-lg border ${errors.cardNumber ? "border-red-500" : "border-gray-300"
-                    } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
-                />
-                {errors.cardNumber && (
-                  <p className="mt-1 text-xs sm:text-sm text-red-500">
-                    {errors.cardNumber}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label
-                  htmlFor="cardName"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Name on Card*
-                </label>
-                <input
-                  type="text"
-                  id="cardName"
-                  name="cardName"
-                  value={bookingData.cardName}
-                  onChange={handleChange}
-                  className={`w-full rounded-lg border ${errors.cardName ? "border-red-500" : "border-gray-300"
-                    } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
-                />
-                {errors.cardName && (
-                  <p className="mt-1 text-xs sm:text-sm text-red-500">
-                    {errors.cardName}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="expiryDate"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Expiry Date*
-                  </label>
-                  <input
-                    type="text"
-                    id="expiryDate"
-                    name="expiryDate"
-                    value={bookingData.expiryDate}
-                    onChange={handleChange}
-                    placeholder="MM/YY"
-                    maxLength={5}
-                    className={`w-full rounded-lg border ${errors.expiryDate ? "border-red-500" : "border-gray-300"
-                      } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
-                  />
-                  {errors.expiryDate && (
-                    <p className="mt-1 text-xs sm:text-sm text-red-500">
-                      {errors.expiryDate}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="cvv"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    CVV*
-                  </label>
-                  <input
-                    type="text"
-                    id="cvv"
-                    name="cvv"
-                    value={bookingData.cvv}
-                    onChange={handleChange}
-                    maxLength={4}
-                    className={`w-full rounded-lg border ${errors.cvv ? "border-red-500" : "border-gray-300"
-                      } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
-                  />
-                  {errors.cvv && (
-                    <p className="mt-1 text-xs sm:text-sm text-red-500">
-                      {errors.cvv}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="mt-4 sm:mt-6">
-            <div className="flex items-start">
-              <input
-                type="checkbox"
-                id="termsAccepted"
-                name="termsAccepted"
-                checked={bookingData.termsAccepted}
-                onChange={handleChange}
-                className="mt-1 h-4 w-4 text-[#ff6b00] focus:ring-[#ff6b00] rounded"
-              />
-              <label
-                htmlFor="termsAccepted"
-                className="ml-3 block text-xs sm:text-sm text-gray-700"
-              >
-                I agree to the{" "}
-                <a href="#" className="text-[#ff6b00] hover:underline">
-                  Terms and Conditions
-                </a>{" "}
-                and{" "}
-                <a href="#" className="text-[#ff6b00] hover:underline">
-                  Privacy Policy
-                </a>
-              </label>
-            </div>
-            {errors.termsAccepted && (
-              <p className="mt-1 text-xs sm:text-sm text-red-500">
-                {errors.termsAccepted}
-              </p>
-            )}
-          </div>
-
-          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-medium text-sm sm:text-base text-gray-900 mb-2 sm:mb-3">
-              Order Summary
-            </h3>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs sm:text-sm">
-                <span className="text-gray-600">
-                  {vehicle.name} ({rentalDuration} {bookingData.rentalType}
-                  {rentalDuration > 1 ? "s" : ""})
-                </span>
-                <span className="font-medium text-gray-900">
-                  {formatCurrency(getBasePrice())}
-                </span>
-              </div>
-
-              {bookingData.driveOption === "hireDriver" && (
-                <div className="flex justify-between text-xs sm:text-sm">
-                  <span className="text-gray-600">Driver Service</span>
-                  <span className="font-medium text-gray-900">
-                    {formatCurrency(getDriverCost())}
-                  </span>
-                </div>
-              )}
-
-              <div className="border-t border-gray-200 pt-2 mt-2">
-                <div className="flex justify-between">
-                  <span className="font-medium text-sm sm:text-base text-gray-900">
-                    Total Amount
-                  </span>
-                  <span className="font-bold text-base sm:text-lg text-[#ff6b00]">
-                    {formatCurrency(totalAmount)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-between">
-        <button
-          type="button"
-          onClick={prevStep}
-          className="px-4 sm:px-6 py-2 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 font-medium transition-colors shadow-sm text-sm"
-        >
-          <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4 inline mr-1" />
-          Back
-        </button>
-        <button
-          type="button"
-          onClick={nextStep}
-          className="px-4 sm:px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors shadow-sm text-sm"
-        >
           Continue to Summary
         </button>
       </div>
     </div>
   );
 
-  const renderStep4 = () => (
+  const renderStep3 = () => (
     <div className="space-y-4 sm:space-y-6">
       <div className="bg-white rounded-lg sm:rounded-xl shadow-sm sm:shadow-md overflow-hidden">
         <div className="bg-gradient-to-r from-[#ff6b00] to-[#ff8533] px-4 sm:px-6 py-3 sm:py-4">
@@ -1110,7 +969,9 @@ const RentalBookingForm = ({ vehicleId }) => {
             <div className="w-full sm:w-1/3 h-36 sm:h-48 bg-gray-100 rounded-lg overflow-hidden">
               <img
                 src={
-                  `../../server${vehicle.rentVehicleImages[0].image}` ||
+                  `../../server${
+                    vehicle.rentVehicleImages[0].image || "/placeholder.svg"
+                  }` ||
                   "/placeholder-car.jpg" ||
                   "/placeholder.svg"
                 }
@@ -1246,31 +1107,11 @@ const RentalBookingForm = ({ vehicleId }) => {
                   Payment Method
                 </p>
                 <p className="font-medium text-sm sm:text-base text-gray-900">
-                  {bookingData.paymentMethod === "creditCard"
-                    ? "Credit/Debit Card"
+                  {bookingData.paymentMethod === "khalti"
+                    ? "Pay with Khalti"
                     : "Pay at Pickup"}
                 </p>
               </div>
-              {bookingData.paymentMethod === "creditCard" && (
-                <>
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Cardholder Name
-                    </p>
-                    <p className="font-medium text-sm sm:text-base text-gray-900">
-                      {bookingData.cardName}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Card Number
-                    </p>
-                    <p className="font-medium text-sm sm:text-base text-gray-900">
-                      **** **** **** {bookingData.cardNumber.slice(-4)}
-                    </p>
-                  </div>
-                </>
-              )}
             </div>
           </div>
 
@@ -1382,41 +1223,40 @@ const RentalBookingForm = ({ vehicleId }) => {
         {/* Progress Steps */}
         <div className="mb-4 mt-4">
           <div className="flex items-center justify-between">
-            {[1, 2, 3, 4].map((step) => (
+            {[1, 2, 3].map((step) => (
               <React.Fragment key={step}>
                 <div className="flex flex-col items-center">
                   <div
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${currentStep >= step
-                      ? "bg-[#ff6b00] text-white"
-                      : "bg-gray-200 text-gray-600"
-                      }`}
+                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
+                      currentStep >= step
+                        ? "bg-[#ff6b00] text-white"
+                        : "bg-gray-200 text-gray-600"
+                    }`}
                   >
                     {step === 1 && (
                       <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
                     )}
                     {step === 2 && <Car className="h-4 w-4 sm:h-5 sm:w-5" />}
-                    {step === 3 && (
-                      <CreditCard className="h-4 w-4 sm:h-5 sm:w-5" />
-                    )}
-                    {step === 4 && <Info className="h-4 w-4 sm:h-5 sm:w-5" />}
+                    {step === 3 && <Info className="h-4 w-4 sm:h-5 sm:w-5" />}
                   </div>
                   <span
-                    className={`text-xs sm:text-sm mt-1 sm:mt-2 ${currentStep >= step
-                      ? "text-[#ff6b00] font-medium"
-                      : "text-gray-500"
-                      } hidden sm:block`}
+                    className={`text-xs sm:text-sm mt-1 sm:mt-2 ${
+                      currentStep >= step
+                        ? "text-[#ff6b00] font-medium"
+                        : "text-gray-500"
+                    } hidden sm:block`}
                   >
                     {step === 1 && "Details"}
-                    {step === 2 && "Service"}
-                    {step === 3 && "Payment"}
-                    {step === 4 && "Summary"}
+                    {step === 2 && "Payment"}
+                    {step === 3 && "Summary"}
                   </span>
                 </div>
 
-                {step < 4 && (
+                {step < 3 && (
                   <div
-                    className={`flex-1 h-0.5 sm:h-1 mx-1 sm:mx-2 ${currentStep > step ? "bg-[#ff6b00]" : "bg-gray-200"
-                      }`}
+                    className={`flex-1 h-0.5 sm:h-1 mx-1 sm:mx-2 ${
+                      currentStep > step ? "bg-[#ff6b00]" : "bg-gray-200"
+                    }`}
                   />
                 )}
               </React.Fragment>
@@ -1428,7 +1268,6 @@ const RentalBookingForm = ({ vehicleId }) => {
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
-          {currentStep === 4 && renderStep4()}
         </form>
       </div>
     </>
