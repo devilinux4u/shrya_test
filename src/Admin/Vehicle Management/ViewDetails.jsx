@@ -338,7 +338,9 @@ export default function ViewDetails() {
                 <User className="w-5 h-5 text-[#4F46E5]" />
                 <div>
                   <p className="text-gray-500 text-sm">Posted By</p>
-                  <p className="font-medium">{vehicle.user.fname}</p>
+                  <p className="font-medium">
+                    {vehicle.user?.fname || "Unknown"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -352,14 +354,18 @@ export default function ViewDetails() {
                 <Phone className="w-5 h-5 text-[#4F46E5]" />
                 <div>
                   <p className="text-gray-500 text-sm">Phone</p>
-                  <p className="font-medium">{vehicle.user.num}</p>
+                  <p className="font-medium">
+                    {vehicle.user?.num || "Unknown"}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-[#4F46E5]" />
                 <div>
                   <p className="text-gray-500 text-sm">Email</p>
-                  <p className="font-medium">{vehicle.user.email}</p>
+                  <p className="font-medium">
+                    {vehicle.user?.email || "Unknown"}
+                  </p>
                 </div>
               </div>
             </div>

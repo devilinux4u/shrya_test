@@ -179,21 +179,19 @@ router.get("/vehicles/admin/all", async (req, res) => {
         const vehicleData = await vehicles.findAll({
             order: sequelize.literal("RAND()"),
             include: [
-                { model: v_img, 
-                    attributes: ["id", "image"] 
-                },
+                { model: v_img, attributes: ["id", "image"] },
                 {
                     model: users,
                     as: "user",
-                    attributes: ["uname"] // Only fetch the fname field
-                }]
+                    attributes: ["fname"] // Fetch fname instead of uname
+                }
+            ]
         });
 
         if (!vehicleData || vehicleData.length === 0) {
             return res.status(404).json({ success: false, msg: "No vehicles found" });
         }
 
-        // Convert BLOBs to Base64
         const formattedVehicles = vehicleData.map(vehicle => ({
             ...vehicle.toJSON(),
             images: vehicle.SellVehicleImages.map(img => ({
@@ -203,12 +201,10 @@ router.get("/vehicles/admin/all", async (req, res) => {
         }));
 
         res.json({ success: true, msg: formattedVehicles });
-
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, msg: "Server error" });
     }
-
 });
 
 

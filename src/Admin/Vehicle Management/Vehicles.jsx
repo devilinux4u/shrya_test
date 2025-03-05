@@ -94,6 +94,7 @@ export default function Vehicles() {
   }, []);
 
   // Filter and sort vehicles
+  // Filter and sort vehicles
   useEffect(() => {
     let filtered = [...vehicles];
 
@@ -106,21 +107,15 @@ export default function Vehicles() {
       );
     }
 
-    // Apply user/admin filter
+    // Apply user/admin filter - FIXED: Now checks user role instead of username
     if (userFilter) {
       if (userFilter.toLowerCase() === "admin") {
         filtered = filtered.filter(
-          (vehicle) =>
-            vehicle.user &&
-            vehicle.user.uname &&
-            vehicle.user.uname.toLowerCase() === "shreyaauto"
+          (vehicle) => vehicle.user?.role?.toLowerCase() === "admin"
         );
       } else if (userFilter.toLowerCase() === "user") {
         filtered = filtered.filter(
-          (vehicle) =>
-            !vehicle.user ||
-            !vehicle.user.uname ||
-            vehicle.user.uname.toLowerCase() !== "shreyaauto"
+          (vehicle) => vehicle.user?.role?.toLowerCase() === "user"
         );
       }
     }
@@ -613,27 +608,27 @@ export default function Vehicles() {
                           Total Run: {vehicle.km.toLocaleString()} km
                         </p>
                       </div>
+                      <p className="text-gray-600 text-sm mb-3">
+                        Posted by: {vehicle.user?.fname || "Unknown"}
+                      </p>
                       <p className="text-xl font-semibold text-gray-800 mb-3">
                         Rs. {vehicle.price.toLocaleString()}
                       </p>
                     </div>
 
                     <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditVehicle(vehicle);
-                        }}
-                        disabled={vehicle.status === "sold"}
-                        className={`flex items-center text-green-600 hover:text-green-800 transition-colors ${
-                          vehicle.status === "sold"
-                            ? "text-gray-400 cursor-not-allowed"
-                            : ""
-                        }`}
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </button>
+                      {vehicle.status === "available" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditVehicle(vehicle);
+                          }}
+                          className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+                        >
+                          <Edit className="w-4 h-4 mr-1" />
+                          Edit
+                        </button>
+                      )}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
