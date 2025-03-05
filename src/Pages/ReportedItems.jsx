@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
-  Calendar,
   MapPin,
   Search,
   Filter,
@@ -16,6 +15,7 @@ import {
   X,
   RefreshCw,
   Edit,
+  Car,
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
@@ -38,6 +38,9 @@ const ReportedItems = () => {
     description: "",
     location: "",
     date: "",
+    vehicleMake: "",
+    vehicleModel: "",
+    numberPlate: "",
   });
   const itemsPerPage = 6;
 
@@ -115,7 +118,12 @@ const ReportedItems = () => {
           (item.description &&
             item.description.toLowerCase().includes(query)) ||
           (item.location && item.location.toLowerCase().includes(query)) ||
-          (item.type && item.type.toLowerCase().includes(query))
+          (item.type && item.type.toLowerCase().includes(query)) ||
+          (item.vehicleMake &&
+            item.vehicleMake.toLowerCase().includes(query)) ||
+          (item.vehicleModel &&
+            item.vehicleModel.toLowerCase().includes(query)) ||
+          (item.numberPlate && item.numberPlate.toLowerCase().includes(query))
       );
     }
 
@@ -237,6 +245,9 @@ const ReportedItems = () => {
             description: updatedData.description,
             location: updatedData.location,
             date: updatedData.date,
+            vehicleMake: updatedData.vehicleMake,
+            vehicleModel: updatedData.vehicleModel,
+            numberPlate: updatedData.numberPlate,
           }),
         }
       );
@@ -385,7 +396,9 @@ const ReportedItems = () => {
                         src={
                           (item.images &&
                             item.images[0] &&
-                            `../../server${item.images[0].imageUrl}`) ||
+                            `../../server${
+                              item.images[0].imageUrl || "/placeholder.svg"
+                            }`) ||
                           "/placeholder.svg"
                         }
                         alt={item.title}
@@ -415,13 +428,20 @@ const ReportedItems = () => {
 
                       <div className="space-y-2 mb-4">
                         <div className="flex items-center text-sm text-gray-600">
-                          <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                          <span>Reported on {formatDate(item.createdAt)}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                           <span>{item.location}</span>
                         </div>
+                        {(item.vehicleMake ||
+                          item.vehicleModel ||
+                          item.numberPlate) && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Car className="w-4 h-4 mr-2 text-gray-400" />
+                            <span>
+                              {item.vehicleMake} {item.vehicleModel}
+                              {item.numberPlate && ` (${item.numberPlate})`}
+                            </span>
+                          </div>
+                        )}
                         <p className="text-sm text-gray-600 line-clamp-2 mt-2">
                           {item.description}
                         </p>
@@ -460,6 +480,9 @@ const ReportedItems = () => {
                               description: item.description,
                               location: item.location,
                               date: item.createdAt,
+                              vehicleMake: item.vehicleMake || "",
+                              vehicleModel: item.vehicleModel || "",
+                              numberPlate: item.numberPlate || "",
                             });
                           }}
                           className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 justify-end"
@@ -529,241 +552,428 @@ const ReportedItems = () => {
       {/* Item Detail Modal */}
       {isViewing && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {selectedItem.title}
-              </h2>
-              <button
-                onClick={() => {
-                  setIsViewing(false);
-                  setSelectedItem(null);
-                }}
-                className="p-1 rounded-full hover:bg-gray-100"
-              >
-                <X className="h-6 w-6 text-gray-500" />
-              </button>
-            </div>
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            <div className="flex flex-col md:flex-row h-full">
+              {/* Left side - Images */}
+              <div className="md:w-1/2 bg-gray-50 p-4 md:p-6 overflow-y-auto">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-2xl font-bold text-gray-900 truncate">
+                    {selectedItem.title}
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setIsViewing(false);
+                      setSelectedItem(null);
+                    }}
+                    className="p-1 rounded-full hover:bg-gray-200"
+                  >
+                    <X className="h-6 w-6 text-gray-500" />
+                  </button>
+                </div>
 
-            <div className="mb-4 rounded-lg overflow-hidden">
-              <img
-                src={
-                  (selectedItem.images &&
-                    selectedItem.images[0] &&
-                    `../../server${selectedItem.images[0].imageUrl}`) ||
-                  "/placeholder.svg"
-                }
-                alt={selectedItem.title}
-                className="w-full h-48 object-cover"
-                onError={(e) => {
-                  e.target.src = "/placeholder.svg";
-                }}
-              />
-            </div>
+                {/* Main image */}
+                <div className="mb-4 rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm">
+                  <img
+                    src={
+                      (selectedItem.images &&
+                        selectedItem.images.length > 0 &&
+                        `../../server${
+                          selectedItem.images[0].imageUrl || "/placeholder.svg"
+                        }`) ||
+                      "/placeholder.svg"
+                    }
+                    alt={selectedItem.title}
+                    className="w-full h-64 object-contain"
+                    onError={(e) => {
+                      e.target.src = "/placeholder.svg";
+                    }}
+                    id="main-image"
+                  />
+                </div>
 
-            <div className="space-y-4 mb-6">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-500">Report ID</span>
-                <span className="text-sm font-medium">{selectedItem.id}</span>
+                {/* Thumbnails */}
+                {selectedItem.images && selectedItem.images.length > 1 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {selectedItem.images.map((image, index) => (
+                      <div
+                        key={index}
+                        className="cursor-pointer rounded-md overflow-hidden border-2 hover:border-blue-500 transition-all"
+                        onClick={() => {
+                          document.getElementById(
+                            "main-image"
+                          ).src = `../../server${
+                            image.imageUrl || "/placeholder.svg"
+                          }`;
+                        }}
+                      >
+                        <img
+                          src={`../../server${
+                            image.imageUrl || "/placeholder.svg"
+                          }`}
+                          alt={`${selectedItem.title} - image ${index + 1}`}
+                          className="w-full h-16 object-cover"
+                          onError={(e) => {
+                            e.target.src = "/placeholder.svg";
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-500">Status</span>
-                <span
-                  className={`text-sm font-medium ${
-                    selectedItem.status === "resolved"
-                      ? "text-green-600"
-                      : selectedItem.type === "lost"
-                      ? "text-red-600"
-                      : "text-blue-600"
-                  }`}
-                >
-                  {selectedItem.status === "resolved"
-                    ? "Resolved"
-                    : selectedItem.type === "lost"
-                    ? "Lost"
-                    : "Found"}
-                </span>
+              {/* Right side - Details */}
+              <div className="md:w-1/2 p-4 md:p-6 overflow-y-auto border-t md:border-t-0 md:border-l border-gray-200">
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      Report #{selectedItem.id}
+                    </span>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        selectedItem.status === "resolved"
+                          ? "bg-green-100 text-green-800"
+                          : selectedItem.type === "lost"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}
+                    >
+                      {selectedItem.status === "resolved" ? (
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                      ) : selectedItem.type === "lost" ? (
+                        <AlertTriangle className="w-3 h-3 mr-1" />
+                      ) : (
+                        <Package className="w-3 h-3 mr-1" />
+                      )}
+                      {selectedItem.status === "resolved"
+                        ? "Resolved"
+                        : selectedItem.type === "lost"
+                        ? "Lost"
+                        : "Found"}
+                    </span>
+                  </div>
+
+                  <div className="border-b border-gray-200 pb-4">
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">
+                      Report Details
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-xs text-gray-500">Date Reported</p>
+                        <p className="text-sm font-medium">
+                          {formatDate(selectedItem.createdAt)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-500">Location</p>
+                        <p className="text-sm font-medium">
+                          {selectedItem.location}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-b border-gray-200 pb-4">
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">
+                      Vehicle Information
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedItem.vehicleMake && (
+                        <div>
+                          <p className="text-xs text-gray-500">Make</p>
+                          <p className="text-sm font-medium">
+                            {selectedItem.vehicleMake}
+                          </p>
+                        </div>
+                      )}
+                      {selectedItem.vehicleModel && (
+                        <div>
+                          <p className="text-xs text-gray-500">Model</p>
+                          <p className="text-sm font-medium">
+                            {selectedItem.vehicleModel}
+                          </p>
+                        </div>
+                      )}
+                      {selectedItem.numberPlate && (
+                        <div>
+                          <p className="text-xs text-gray-500">Number Plate</p>
+                          <p className="text-sm font-medium">
+                            {selectedItem.numberPlate}
+                          </p>
+                        </div>
+                      )}
+                      {!selectedItem.vehicleMake &&
+                        !selectedItem.vehicleModel &&
+                        !selectedItem.numberPlate && (
+                          <div className="col-span-2">
+                            <p className="text-sm text-gray-500">
+                              No vehicle information provided
+                            </p>
+                          </div>
+                        )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-500 mb-2">
+                      Description
+                    </h3>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                      {selectedItem.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200 flex justify-end space-x-3">
+                    {selectedItem.status !== "resolved" && (
+                      <button
+                        onClick={() => handleStatusChange(selectedItem.id)}
+                        disabled={isUpdating}
+                        className={`px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center ${
+                          isUpdating ? "opacity-70 cursor-not-allowed" : ""
+                        }`}
+                      >
+                        {isUpdating ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                            Updating...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4 mr-2" />
+                            Mark as Resolved
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-500">Report Date</span>
-                <span className="text-sm font-medium">
-                  {formatDate(selectedItem.createdAt)}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-sm text-gray-500 block mb-1">
-                  Location
-                </span>
-                <span className="text-sm font-medium">
-                  {selectedItem.location}
-                </span>
-              </div>
-
-              <div>
-                <span className="text-sm text-gray-500 block mb-1">
-                  Description
-                </span>
-                <p className="text-sm">{selectedItem.description}</p>
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-              <button
-                onClick={() => setSelectedItem(null)}
-                className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Close
-              </button>
-
-              {selectedItem.status !== "resolved" && (
-                <button
-                  onClick={() => handleStatusChange(selectedItem.id)}
-                  disabled={isUpdating}
-                  className={`px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center ${
-                    isUpdating ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {isUpdating ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                      Updating...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Mark as Resolved
-                    </>
-                  )}
-                </button>
-              )}
             </div>
           </div>
         </div>
       )}
-      {/* Edit modal */}
+      {/* Edit modal - Simplified */}
       {isEditing && updatedData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Edit Item</h2>
-              <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setUpdatedData({
-                    title: "",
-                    description: "",
-                    location: "",
-                    date: "",
-                  });
-                }}
-                className="p-1 rounded-full hover:bg-gray-100"
-              >
-                <X className="h-6 w-6 text-gray-500" />
-              </button>
-            </div>
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-gray-900">Edit Item</h2>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setUpdatedData({
+                      title: "",
+                      description: "",
+                      location: "",
+                      date: "",
+                      vehicleMake: "",
+                      vehicleModel: "",
+                      numberPlate: "",
+                    });
+                  }}
+                  className="p-1 rounded-full hover:bg-gray-200"
+                >
+                  <X className="h-6 w-6 text-gray-500" />
+                </button>
+              </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="title"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                value={updatedData.title}
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    title: e.target.value,
-                  }));
-                }}
-              />
-            </div>
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="title"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value={updatedData.title}
+                    className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    onChange={(e) => {
+                      setUpdatedData((prev) => ({
+                        ...prev,
+                        title: e.target.value,
+                      }));
+                    }}
+                  />
+                </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={updatedData.description}
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }));
-                }}
-                rows="3"
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              ></textarea>
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="location"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      id="location"
+                      value={updatedData.location}
+                      onChange={(e) => {
+                        setUpdatedData((prev) => ({
+                          ...prev,
+                          location: e.target.value,
+                        }));
+                      }}
+                      name="location"
+                      className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    />
+                  </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="location"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Location
-              </label>
-              <input
-                type="text"
-                id="location"
-                value={updatedData.location}
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    location: e.target.value,
-                  }));
-                }}
-                name="location"
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              />
-            </div>
+                  <div>
+                    <label
+                      htmlFor="date"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Date
+                    </label>
+                    <input
+                      type="date"
+                      id="date"
+                      name="date"
+                      onChange={(e) => {
+                        setUpdatedData((prev) => ({
+                          ...prev,
+                          date: new Date(e.target.value).toISOString(),
+                        }));
+                      }}
+                      value={
+                        updatedData.date
+                          ? new Date(updatedData.date)
+                              .toISOString()
+                              .split("T")[0]
+                          : ""
+                      }
+                      className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                    />
+                  </div>
+                </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="date"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Date
-              </label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    date: new Date(e.target.value).toISOString(),
-                  }));
-                }}
-                value={
-                  updatedData.date
-                    ? new Date(updatedData.date).toISOString().split("T")[0]
-                    : ""
-                }
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              />
-            </div>
-            <div className="mb-4">
-              <button
-                onClick={() => handleUpdateData(selectedItemId)}
-                className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
-              >
-                <CheckCircle className="w-4 h-4 mr-1" />
-                Save Changes
-              </button>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label
+                      htmlFor="vehicleMake"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Vehicle Make
+                    </label>
+                    <input
+                      type="text"
+                      id="vehicleMake"
+                      name="vehicleMake"
+                      value={updatedData.vehicleMake || ""}
+                      onChange={(e) => {
+                        setUpdatedData((prev) => ({
+                          ...prev,
+                          vehicleMake: e.target.value,
+                        }));
+                      }}
+                      className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                      placeholder="e.g., Toyota"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="vehicleModel"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Vehicle Model
+                    </label>
+                    <input
+                      type="text"
+                      id="vehicleModel"
+                      name="vehicleModel"
+                      value={updatedData.vehicleModel || ""}
+                      onChange={(e) => {
+                        setUpdatedData((prev) => ({
+                          ...prev,
+                          vehicleModel: e.target.value,
+                        }));
+                      }}
+                      className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                      placeholder="e.g., Corolla"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="numberPlate"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Number Plate
+                    </label>
+                    <input
+                      type="text"
+                      id="numberPlate"
+                      name="numberPlate"
+                      value={updatedData.numberPlate || ""}
+                      onChange={(e) => {
+                        setUpdatedData((prev) => ({
+                          ...prev,
+                          numberPlate: e.target.value,
+                        }));
+                      }}
+                      className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                      placeholder="e.g., ABC-123"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Description
+                  </label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    value={updatedData.description}
+                    onChange={(e) => {
+                      setUpdatedData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }));
+                    }}
+                    rows="4"
+                    className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                  ></textarea>
+                </div>
+
+                <div className="pt-4 flex justify-end space-x-3">
+                  <button
+                    onClick={() => {
+                      setIsEditing(false);
+                      setUpdatedData({
+                        title: "",
+                        description: "",
+                        location: "",
+                        date: "",
+                        vehicleMake: "",
+                        vehicleModel: "",
+                        numberPlate: "",
+                      });
+                    }}
+                    className="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={() => handleUpdateData(selectedItemId)}
+                    className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Save Changes
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

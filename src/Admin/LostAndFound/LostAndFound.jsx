@@ -6,7 +6,6 @@ import {
   Plus,
   Trash2,
   MapPin,
-  Calendar,
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -20,6 +19,7 @@ import {
   ChevronLeft,
   ChevronRight,
   SlidersHorizontal,
+  Car,
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
@@ -45,6 +45,9 @@ export default function LostAndFound() {
     description: "",
     location: "",
     date: "",
+    vehicleMake: "",
+    vehicleModel: "",
+    numberPlate: "",
   });
   const [isFormOpen, setIsFormOpen] = useState(false); // State to manage form visibility
   const [currentPage, setCurrentPage] = useState(1);
@@ -92,7 +95,17 @@ export default function LostAndFound() {
       filtered = filtered.filter(
         (item) =>
           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchTerm.toLowerCase())
+          item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (item.vehicleMake &&
+            item.vehicleMake
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          (item.vehicleModel &&
+            item.vehicleModel
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          (item.numberPlate &&
+            item.numberPlate.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -282,6 +295,9 @@ export default function LostAndFound() {
             description: updatedData.description,
             location: updatedData.location,
             date: updatedData.date,
+            vehicleMake: updatedData.vehicleMake,
+            vehicleModel: updatedData.vehicleModel,
+            numberPlate: updatedData.numberPlate,
           }),
         }
       );
@@ -516,6 +532,9 @@ export default function LostAndFound() {
                             description: item.description,
                             location: item.location,
                             date: item.date,
+                            vehicleMake: item.vehicleMake || "",
+                            vehicleModel: item.vehicleModel || "",
+                            numberPlate: item.numberPlate || "",
                           });
                         }}
                         className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
@@ -555,10 +574,15 @@ export default function LostAndFound() {
                     <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                     <span className="truncate">{item.location}</span>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
-                    <span>{new Date(item.date).toLocaleDateString()}</span>
-                  </div>
+                  {item.vehicleMake && (
+                    <div className="flex items-center text-gray-600">
+                      <Car className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
+                      <span>
+                        {item.vehicleMake} {item.vehicleModel}
+                        {item.numberPlate && ` (${item.numberPlate})`}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center text-gray-600">
                     <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                     <span>Posted by: {item.user.fname}</span>
@@ -639,6 +663,9 @@ export default function LostAndFound() {
                     description: "",
                     location: "",
                     date: "",
+                    vehicleMake: "",
+                    vehicleModel: "",
+                    numberPlate: "",
                   });
                 }}
                 className="p-1 rounded-full hover:bg-gray-100"
@@ -738,6 +765,72 @@ export default function LostAndFound() {
                 className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
               />
             </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="vehicleMake"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Vehicle Make
+              </label>
+              <input
+                type="text"
+                id="vehicleMake"
+                name="vehicleMake"
+                value={updatedData.vehicleMake || ""}
+                onChange={(e) => {
+                  setUpdatedData((prev) => ({
+                    ...prev,
+                    vehicleMake: e.target.value,
+                  }));
+                }}
+                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="vehicleModel"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Vehicle Model
+              </label>
+              <input
+                type="text"
+                id="vehicleModel"
+                name="vehicleModel"
+                value={updatedData.vehicleModel || ""}
+                onChange={(e) => {
+                  setUpdatedData((prev) => ({
+                    ...prev,
+                    vehicleModel: e.target.value,
+                  }));
+                }}
+                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label
+                htmlFor="numberPlate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Number Plate
+              </label>
+              <input
+                type="text"
+                id="numberPlate"
+                name="numberPlate"
+                value={updatedData.numberPlate || ""}
+                onChange={(e) => {
+                  setUpdatedData((prev) => ({
+                    ...prev,
+                    numberPlate: e.target.value,
+                  }));
+                }}
+                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+              />
+            </div>
             <div className="mb-4">
               <button
                 onClick={() => handleUpdateData(selectedItemId)}
@@ -780,6 +873,30 @@ export default function LostAndFound() {
                       {new Date(selectedItem.date).toLocaleDateString()}
                     </p>
                   </div>
+                  {selectedItem.vehicleMake && (
+                    <div>
+                      <h3 className="text-gray-600 text-sm">Vehicle Make</h3>
+                      <p className="text-lg sm:text-xl font-medium">
+                        {selectedItem.vehicleMake}
+                      </p>
+                    </div>
+                  )}
+                  {selectedItem.vehicleModel && (
+                    <div>
+                      <h3 className="text-gray-600 text-sm">Vehicle Model</h3>
+                      <p className="text-lg sm:text-xl font-medium">
+                        {selectedItem.vehicleModel}
+                      </p>
+                    </div>
+                  )}
+                  {selectedItem.numberPlate && (
+                    <div>
+                      <h3 className="text-gray-600 text-sm">Number Plate</h3>
+                      <p className="text-lg sm:text-xl font-medium">
+                        {selectedItem.numberPlate}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <h3 className="text-gray-600 text-sm">Description</h3>
                     <p className="text-gray-700">{selectedItem.description}</p>
@@ -867,6 +984,9 @@ export default function LostAndFound() {
                       description: selectedItem.description,
                       location: selectedItem.location,
                       date: selectedItem.date,
+                      vehicleMake: selectedItem.vehicleMake || "",
+                      vehicleModel: selectedItem.vehicleModel || "",
+                      numberPlate: selectedItem.numberPlate || "",
                     });
                   }}
                   className="flex items-center gap-2 bg-indigo-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-indigo-700 transition-colors text-sm sm:text-base"
