@@ -160,7 +160,10 @@ export default function AddNewVehicle() {
             seats: "",
             engineCC: "",
           });
-          navigate(-1);
+
+          setTimeout(() => {
+            navigate("/admin/vehicles"); // Redirect to the vehicles page
+          }, 2000); // 2-second delay
         } else {
           toast.error("Failed to add vehicle. Please try again.");
         }
