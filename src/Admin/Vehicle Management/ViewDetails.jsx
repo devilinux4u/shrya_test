@@ -209,6 +209,10 @@ export default function ViewDetails() {
     }
   };
 
+  const handleBookNow = () => {
+    navigate(`/book/${vehicle.id}`);
+  };
+
   if (loading) {
     return (
       <div className="flex-1 ml-64 min-h-screen bg-gray-50 flex items-center justify-center">
@@ -472,6 +476,15 @@ export default function ViewDetails() {
             <Trash2 className="w-5 h-5" />
             Delete Vehicle
           </button>
+          {vehicle.user.uname !== "ShreyaAuto" && (
+            <button
+              className="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+              onClick={handleBookNow}
+            >
+              <CheckCircle className="w-5 h-5" />
+              Book Now
+            </button>
+          )}
         </div>
 
         {/* Edit Vehicle Modal */}

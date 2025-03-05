@@ -226,7 +226,7 @@ router.get("/vehicles/one/:vid", async (req, res) => {
                 {
                     model: users,
                     as: "user",
-                    attributes: ["fname", "uname", "email", "num"] // Only fetch the fname field
+                    attributes: ["id", "fname", "uname", "email", "num"] // Include user ID
                 }
             ]
         });
@@ -364,5 +364,28 @@ router.get("/vehicles/user/all/:uid", async (req, res) => {
         res.status(500).json({ success: false, msg: "Server error" });
     }
 });
+
+router.get("/book/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      const vehicle = await vehicles.findByPk(id, {
+        include: [
+          { model: v_img, attributes: ["id", "image"] },
+          { model: users, as: "user", attributes: ["fname", "email", "num"] },
+        ],
+      });
+  
+      if (!vehicle) {
+        return res.status(404).json({ success: false, message: "Vehicle not found" });
+      }
+  
+      res.json({ success: true, message: "Booking page placeholder", data: vehicle });
+    } catch (error) {
+      console.error("Error fetching booking details:", error);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  });
+  
 
 module.exports = router;

@@ -13,7 +13,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function BuyVehiclesDesc() {
   const [activeSection, setActiveSection] = useState("hero");
-  const [showBuyNowForm, setShowBuyNowForm] = useState(false);
+  const [showBookNowForm, setShowBookNowForm] = useState(false);
   const [vehicle, setVehicle] = useState(null); // Store fetched vehicle data
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const mainRef = useRef(null);
@@ -170,10 +170,10 @@ export default function BuyVehiclesDesc() {
             </div>
 
             <button
-              onClick={() => setShowBuyNowForm(true)}
+              onClick={() => setShowBookForm(true)}
               className="bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors"
             >
-              Buy Now
+              Book Now
             </button>
           </div>
 
@@ -383,7 +383,7 @@ export default function BuyVehiclesDesc() {
               />
             )}
             <button
-              onClick={() => setShowBuyNowForm(true)}
+              onClick={() => setShowBookNowForm(true)}
               className="w-full bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors"
             >
               Buy Now
@@ -392,7 +392,7 @@ export default function BuyVehiclesDesc() {
         </motion.div>
       </section>
 
-      {showBuyNowForm && (
+      {showBookNowForm && (
         <BuyNowForm
           vehicle={{
             name: vehicle.title,
@@ -401,7 +401,7 @@ export default function BuyVehiclesDesc() {
             ownership: "Single-Hand",
             price: vehicle.price,
           }}
-          onClose={() => setShowBuyNowForm(false)}
+          onClose={() => setShowBookNowForm(false)}
         />
       )}
     </div>
