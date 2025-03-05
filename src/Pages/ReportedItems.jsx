@@ -19,7 +19,7 @@ import {
 import Cookies from "js-cookie";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import LostAndFoundForm from "../Components/LostAndFoundForm";
+import UserLostAndFoundForm from "../Components/UserLostAndFoundForm";
 
 const ReportedItems = () => {
   const [items, setItems] = useState([]);
@@ -519,27 +519,28 @@ const ReportedItems = () => {
 
                       <div className="relative pt-3 border-t border-gray-100 pb-4">
                         {/* Edit Button - Left */}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent card click event
-                            setIsEditing(true);
-                            setSelectedItemId(item.id);
-                            setUpdatedData({
-                              title: item.title,
-                              description: item.description,
-                              location: item.location,
-                              date: item.createdAt,
-                              vehicleMake: item.make || "",
-                              vehicleModel: item.model || "",
-                              numberPlate: item.nplate || "",
-                            });
-                          }}
-                          className="absolute left-0 flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                        >
-                          <Edit className="w-4 h-4 mr-1" />
-                          Edit
-                        </button>
-
+                        {item.status !== "resolved" && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent card click event
+                              setIsEditing(true);
+                              setSelectedItemId(item.id);
+                              setUpdatedData({
+                                title: item.title,
+                                description: item.description,
+                                location: item.location,
+                                date: item.createdAt,
+                                vehicleMake: item.make || "",
+                                vehicleModel: item.model || "",
+                                numberPlate: item.nplate || "",
+                              });
+                            }}
+                            className="absolute left-0 flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </button>
+                        )}
                         {/* Resolve Button - Center */}
                         {item.status !== "resolved" && (
                           <button
@@ -553,7 +554,6 @@ const ReportedItems = () => {
                             Resolve
                           </button>
                         )}
-
                         {/* Delete Button - Right */}
                         <button
                           onClick={(e) => {
@@ -1138,7 +1138,7 @@ const ReportedItems = () => {
         </button>
       )}
       {/* LostAndFoundForm Modal */}
-      <LostAndFoundForm
+      <UserLostAndFoundForm
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         onAddItem={(newItem) => {

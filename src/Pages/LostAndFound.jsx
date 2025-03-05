@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import LostAndFoundForm from "../Components/LostAndFoundForm";
+import UserLostAndFoundForm from "../Components/UserLostAndFoundForm";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
@@ -449,7 +449,7 @@ const LostAndFound = () => {
       </div>
 
       {/* LostAndFoundForm Modal */}
-      <LostAndFoundForm
+      <UserLostAndFoundForm
         isOpen={isModalOpen}
         onClose={toggleModal}
         onSubmit={handleAddItem}
