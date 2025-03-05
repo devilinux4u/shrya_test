@@ -7,11 +7,9 @@ import { toast } from "react-toastify"
 export default function SellVehicleForm({ isOpen, onClose }) {
   const [step, setStep] = useState(1)
   const [vehicle, setVehicle] = useState({
-    title: "",
     make: "",
     model: "",
     year: "",
-    type: "",
     color: "",
     totalKm: "",
     fuelType: "",
@@ -19,6 +17,10 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     price: "",
     description: "",
     images: [],
+    ownership: "",
+    mileage: "",
+    seats: "",
+    engineCC: "",
   })
 
   const [errors, setErrors] = useState({})
@@ -87,11 +89,9 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         onClose()
         // Reset form state
         setVehicle({
-          title: "",
           make: "",
           model: "",
           year: "",
-          type: "",
           color: "",
           totalKm: "",
           fuelType: "",
@@ -99,6 +99,10 @@ export default function SellVehicleForm({ isOpen, onClose }) {
           price: "",
           description: "",
           images: [],
+          ownership: "",
+          mileage: "",
+          seats: "",
+          engineCC: "",
         })
         setStep(1)
       } catch (error) {
@@ -110,18 +114,10 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     }
   }
 
-  const nextStep = () => {
-    if (validateStep()) {
-      setStep(step + 1)
-    } else {
-      toast.error("Please fill in all required fields for this step")
-    }
-  }
-
   const validateStep = () => {
     const stepFields = {
-      1: ["title", "make", "model", "year"],
-      2: ["type", "color", "totalKm", "fuelType", "transmission", "price"],
+      1: ["make", "model", "year", "color"],
+      2: ["totalKm", "fuelType", "transmission", "price", "ownership", "mileage", "seats", "engineCC"],
       3: ["description"],
     }
     const currentStepFields = stepFields[step]
@@ -136,6 +132,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
   }
 
   const prevStep = () => setStep(step - 1)
+  const nextStep = () => setStep(step + 1)
 
   if (!isOpen) return null
 
@@ -146,14 +143,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <InputField
-                label="Vehicle Title"
-                name="title"
-                value={vehicle.title}
-                onChange={handleChange}
-                placeholder="e.g., 2023 Toyota Camry Hybrid XLE"
-                error={errors.title}
-              />
               <InputField
                 label="Make"
                 name="make"
@@ -179,30 +168,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 placeholder="e.g., 2023"
                 error={errors.year}
               />
-            </div>
-          </div>
-        )
-      case 2:
-        return (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Vehicle Details</h2>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <SelectField
-                label="Type"
-                name="type"
-                value={vehicle.type}
-                onChange={handleChange}
-                options={[
-                  { value: "sedan", label: "Sedan" },
-                  { value: "suv", label: "SUV" },
-                  { value: "truck", label: "Truck" },
-                  { value: "van", label: "Van" },
-                  { value: "coupe", label: "Coupe" },
-                  { value: "wagon", label: "Wagon" },
-                  { value: "convertible", label: "Convertible" },
-                ]}
-                error={errors.type}
-              />
               <InputField
                 label="Color"
                 name="color"
@@ -211,6 +176,14 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 placeholder="e.g., Red"
                 error={errors.color}
               />
+            </div>
+          </div>
+        )
+      case 2:
+        return (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Vehicle Details</h2>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <InputField
                 label="Total Kilometers Run"
                 name="totalKm"
@@ -254,6 +227,48 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 placeholder="e.g., 2500000"
                 prefix="Rs."
                 error={errors.price}
+              />
+              <SelectField
+                label="Ownership"
+                name="ownership"
+                value={vehicle.ownership}
+                onChange={handleChange}
+                options={[
+                  { value: "1st", label: "1st Owner" },
+                  { value: "2nd", label: "2nd Owner" },
+                  { value: "3rd", label: "3rd Owner" },
+                  { value: "4th+", label: "4th Owner or more" },
+                ]}
+                error={errors.ownership}
+              />
+              <InputField
+                label="Mileage (km/l)"
+                name="mileage"
+                type="number"
+                value={vehicle.mileage}
+                onChange={handleChange}
+                placeholder="e.g., 15"
+                suffix="km/l"
+                error={errors.mileage}
+              />
+              <InputField
+                label="Number of Seats"
+                name="seats"
+                type="number"
+                value={vehicle.seats}
+                onChange={handleChange}
+                placeholder="e.g., 5"
+                error={errors.seats}
+              />
+              <InputField
+                label="Engine Capacity"
+                name="engineCC"
+                type="number"
+                value={vehicle.engineCC}
+                onChange={handleChange}
+                placeholder="e.g., 1500"
+                suffix="cc"
+                error={errors.engineCC}
               />
             </div>
           </div>
@@ -455,3 +470,4 @@ const SelectField = ({ label, name, value, onChange, options, error }) => (
     {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
+

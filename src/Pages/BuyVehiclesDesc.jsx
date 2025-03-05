@@ -160,13 +160,10 @@ export default function BuyVehiclesDesc() {
           {[
             { label: "Mileage", value: "10 km/lr" },
             { label: "Seat", value: "7 seater" },
-            { label: "Horsepower", value: "46 HP" },
             { label: "Fuel", value: "Petrol" },
             { label: "Transmission", value: "Auto" },
             { label: "Engine CC", value: "3000" },
             { label: "Color", value: "Silver" },
-            { label: "Used For", value: "Personal" },
-            { label: "Top Speed", value: "210 kmph" },
           ].map((spec, index) => (
             <motion.div
               key={index}
