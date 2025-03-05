@@ -141,7 +141,7 @@ const WishlistVehicleDetail = () => {
                 >
                   {vehicle.purpose === "buy" ? "Buy" : "Rent"}
                 </span>
-                {vehicle.status === "arrived" ? (
+                {vehicle.status === "available" ? (
                   <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
                     <CheckCircle className="w-4 h-4 mr-1" />
                     Arrived
@@ -341,7 +341,7 @@ const WishlistVehicleDetail = () => {
                   </p>
                 </div>
 
-                {vehicle.status === "arrived" && (
+                {vehicle.status === "available" && (
                   <button
                     onClick={handleBook}
                     className="w-full bg-[#4B3EAE] text-white px-6 py-3 rounded-lg hover:bg-[#3c318a] transition-colors flex items-center justify-center"

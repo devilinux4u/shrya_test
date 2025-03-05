@@ -102,30 +102,17 @@ export default function AdminWishlist() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-      // In a real app, you would call your API
-      // const response = await fetch(`/api/admin/wishlist/${id}/status`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ status: newStatus })
-      // })
-      // const data = await response.json()
 
-      // Mock update
-      const updatedItems = wishlistItems.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              status: newStatus,
-              updatedAt: new Date()
-                .toISOString()
-                .replace("T", " ")
-                .substring(0, 19),
-            }
-          : item
-      );
+      const response = await fetch(`http://localhost:3000/wishlist/${id}/available`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      const data = await response.json()
 
-      setWishlistItems(updatedItems);
+      // setWishlistItems(updatedItems);
       toast.success(`Status updated to ${newStatus}`);
+
+      window.location.reload();
 
       // If we were viewing the item details, update that too
       if (selectedItem && selectedItem.id === id) {
