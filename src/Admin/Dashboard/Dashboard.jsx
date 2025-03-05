@@ -116,7 +116,7 @@ export default function Dashboard() {
         </div>
 
         {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <OverviewCard
             title="Total Users"
             value="1,280"
@@ -125,10 +125,17 @@ export default function Dashboard() {
             iconBg="bg-blue-100"
           />
           <OverviewCard
-            title="Total Vehicles"
-            value="320"
+            title="Vehicles for Sale"
+            value="180"
+            icon={<Car className="w-6 h-6 text-green-600" />}
+            change={3.8}
+            iconBg="bg-green-100"
+          />
+          <OverviewCard
+            title="Rental Vehicles"
+            value="140"
             icon={<Car className="w-6 h-6 text-purple-600" />}
-            change={5.2}
+            change={6.5}
             iconBg="bg-purple-100"
           />
           <OverviewCard
