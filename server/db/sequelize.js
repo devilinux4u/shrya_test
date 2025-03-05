@@ -16,7 +16,6 @@ const RentalAllVehicles = model.RentalVehicle(sequelize, DataTypes);
 const RentalAllVehicleImages = model.RentalVehicleImage(sequelize, DataTypes);
 const rental = model.Booking(sequelize, DataTypes);
 const Transaction = model.Transaction(sequelize, DataTypes);
-const Appointments = model.Appointments(sequelize, DataTypes);
 
 Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
 VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
@@ -38,11 +37,7 @@ LostAndFound.belongsTo(user, { foreignKey: 'uid', as: 'user' });
 Vehicle.belongsTo(user, { foreignKey: 'uid', as: 'user' }); // Ensure this association exists
 VehicleWishlist.belongsTo(user, { foreignKey: "uid", as: "user" });
 
-Vehicle.hasMany(Appointments, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
-Appointments.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
 
-user.hasMany(Appointments, { foreignKey: 'userId', onDelete: 'CASCADE' });
-Appointments.belongsTo(user, { foreignKey: 'userId' });
 
 // RentalAllVehicles associations
 RentalAllVehicles.hasMany(RentalAllVehicleImages, {
@@ -82,6 +77,6 @@ module.exports = {
   RentalAllVehicles,
   RentalAllVehicleImages,
   Transaction,
-  Appointments,
+
 };
 
