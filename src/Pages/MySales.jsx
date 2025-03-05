@@ -369,11 +369,12 @@ export default function MySales() {
         if (!response.ok) {
           throw new Error("Failed to fetch vehicles");
         }
-        const data = await response.json();
+        const text = await response.text(); // Read response as text
+        const data = JSON.parse(text); // Parse JSON manually
         setVehicles(data);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
-        toast.error("Failed to load vehicles. Please try again later.");
+        // Removed toast.error for no vehicles
       } finally {
         setIsLoading(false);
       }
