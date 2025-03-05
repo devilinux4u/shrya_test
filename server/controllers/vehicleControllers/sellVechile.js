@@ -264,6 +264,16 @@ router.delete("/vehicles/delete/:id", async (req, res) => {
         return res.status(404).json({ success: false, message: "Vehicle not found" });
       }
   
+      // Delete associated images
+      const images = await v_img.findAll({ where: { vehicleId: id } });
+      for (const img of images) {
+        const imagePath = path.join(__dirname, "../..", img.image);
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+        await img.destroy();
+      }
+  
       // Delete the vehicle
       await vehicle.destroy();
   
@@ -299,24 +309,24 @@ router.put("/vehicles/edit/:id", async (req, res) => {
 });
 
 
-// PUT route to mark a vechile as sold
+// PUT route to mark a vehicle as sold
 router.put("/vehicles/sold/:id", async (req, res) => {
     try {
       const { id } = req.params;
   
-      // Find the item
-      const report = await vehicles.findByPk(id);
-      if (!report) {
-        return res.status(404).json({ success: false, message: "Item not found" });
+      // Find the vehicle
+      const vehicle = await vehicles.findByPk(id);
+      if (!vehicle) {
+        return res.status(404).json({ success: false, message: "Vehicle not found" });
       }
   
-      // Update the status to 'resolved'
-      report.status = "sold";
-      await report.save();
+      // Update the status to 'sold'
+      vehicle.status = "sold";
+      await vehicle.save();
   
-      res.status(200).json({ success: true, message: "Item marked as resolved", data: report });
+      res.status(200).json({ success: true, message: "Vehicle marked as sold", data: vehicle });
     } catch (error) {
-      console.error("Error updating item status:", error);
+      console.error("Error updating vehicle status:", error);
       res.status(500).json({ success: false, message: "Failed to update status", error: error.message });
     }
   });

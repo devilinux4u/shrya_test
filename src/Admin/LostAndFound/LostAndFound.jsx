@@ -681,7 +681,7 @@ export default function LostAndFound() {
       {/* Edit modal - Responsive */}
       {isEditing && updatedData && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Edit Item
@@ -704,170 +704,98 @@ export default function LostAndFound() {
                 <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
               </button>
             </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="title"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                value={updatedData.title}
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    title: e.target.value,
-                  }));
-                }}
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { label: "Title", field: "title" },
+                {
+                  label: "Description",
+                  field: "description",
+                  isTextarea: true,
+                },
+                { label: "Location", field: "location" },
+                { label: "Date", field: "date", isDate: true },
+                { label: "Vehicle Make", field: "vehicleMake" },
+                { label: "Vehicle Model", field: "vehicleModel" },
+                { label: "Number Plate", field: "numberPlate" },
+              ].map(({ label, field, isTextarea, isDate }) => (
+                <div key={field} className="mb-2">
+                  <label
+                    htmlFor={field}
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    {label}
+                  </label>
+                  {isTextarea ? (
+                    <textarea
+                      id={field}
+                      value={updatedData[field]}
+                      onChange={(e) =>
+                        setUpdatedData((prev) => ({
+                          ...prev,
+                          [field]: e.target.value,
+                        }))
+                      }
+                      rows="3"
+                      className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
+                    ></textarea>
+                  ) : isDate ? (
+                    <input
+                      type="date"
+                      id={field}
+                      value={
+                        updatedData[field]
+                          ? new Date(updatedData[field])
+                              .toISOString()
+                              .split("T")[0]
+                          : ""
+                      }
+                      onChange={(e) =>
+                        setUpdatedData((prev) => ({
+                          ...prev,
+                          [field]: new Date(e.target.value).toISOString(),
+                        }))
+                      }
+                      className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      id={field}
+                      value={updatedData[field]}
+                      onChange={(e) =>
+                        setUpdatedData((prev) => ({
+                          ...prev,
+                          [field]: e.target.value,
+                        }))
+                      }
+                      className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
+                    />
+                  )}
+                </div>
+              ))}
             </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={updatedData.description}
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }));
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => {
+                  setIsEditing(false);
+                  setUpdatedData({
+                    title: "",
+                    description: "",
+                    location: "",
+                    date: "",
+                    vehicleMake: "",
+                    vehicleModel: "",
+                    numberPlate: "",
+                  });
                 }}
-                rows="3"
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              ></textarea>
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="location"
-                className="block text-sm font-medium text-gray-700"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
-                Location
-              </label>
-              <input
-                type="text"
-                id="location"
-                value={updatedData.location}
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    location: e.target.value,
-                  }));
-                }}
-                name="location"
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="date"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Date
-              </label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    date: new Date(e.target.value).toISOString(),
-                  }));
-                }}
-                value={
-                  updatedData.date
-                    ? new Date(updatedData.date).toISOString().split("T")[0]
-                    : ""
-                }
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="vehicleMake"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Vehicle Make
-              </label>
-              <input
-                type="text"
-                id="vehicleMake"
-                name="vehicleMake"
-                value={updatedData.vehicleMake}
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    vehicleMake: e.target.value,
-                  }));
-                }}
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="vehicleModel"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Vehicle Model
-              </label>
-              <input
-                type="text"
-                id="vehicleModel"
-                name="vehicleModel"
-                value={updatedData.vehicleModel || ""}
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    vehicleModel: e.target.value,
-                  }));
-                }}
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label
-                htmlFor="numberPlate"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Number Plate
-              </label>
-              <input
-                type="text"
-                id="numberPlate"
-                name="numberPlate"
-                value={updatedData.numberPlate || ""}
-                onChange={(e) => {
-                  setUpdatedData((prev) => ({
-                    ...prev,
-                    numberPlate: e.target.value,
-                  }));
-                }}
-                className="mt-1 p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-              />
-            </div>
-            <div className="mb-4">
+                Cancel
+              </button>
               <button
                 onClick={() => handleUpdateData(selectedItemId)}
-                className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
               >
-                <CheckCircle className="w-4 h-4 mr-1" />
                 Save Changes
               </button>
             </div>

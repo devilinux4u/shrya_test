@@ -12,8 +12,10 @@ import {
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 export default function AddVehicle() {
+  const navigate = useNavigate();
   const [vehicle, setVehicle] = useState({
     make: "",
     model: "",
@@ -155,68 +157,73 @@ export default function AddVehicle() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-  
+
     try {
       // Log the form data before sending
       console.log("Form data being submitted:", {
         ...vehicle,
         specs: vehicle.specs,
-        price: vehicle.price
+        price: vehicle.price,
       });
-  
+
       const formData = new FormData();
-  
+
       // Append basic fields
-      formData.append('make', vehicle.make);
-      formData.append('model', vehicle.model);
-      formData.append('year', vehicle.year);
-      formData.append('numberPlate', vehicle.numberPlate);
-      formData.append('description', vehicle.description);
-      formData.append('features', vehicle.features);
-  
+      formData.append("make", vehicle.make);
+      formData.append("model", vehicle.model);
+      formData.append("year", vehicle.year);
+      formData.append("numberPlate", vehicle.numberPlate);
+      formData.append("description", vehicle.description);
+      formData.append("features", vehicle.features);
+
       // Append specs
       Object.entries(vehicle.specs).forEach(([key, value]) => {
         formData.append(key, value);
       });
-  
+
       // Append prices
       Object.entries(vehicle.price).forEach(([key, value]) => {
         formData.append(`price_${key}`, value);
       });
-  
+
       // Append images
       vehicle.images.forEach((image, index) => {
         formData.append(`images`, image);
       });
-  
+
       const response = await fetch("http://localhost:3000/api/add-vehicle", {
         method: "POST",
         body: formData,
         // Don't set Content-Type header - let the browser set it with boundary
       });
-  
+
       // Check if response is JSON
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
-        console.error('Received non-JSON response:', text);
-        throw new Error('Server returned non-JSON response');
+        console.error("Received non-JSON response:", text);
+        throw new Error("Server returned non-JSON response");
       }
-  
+
       const data = await response.json();
-  
+
       if (!response.ok) {
-        console.error('Server error:', data);
-        throw new Error(data.message || 'Failed to add vehicle');
+        console.error("Server error:", data);
+        throw new Error(data.message || "Failed to add vehicle");
       }
-  
-      console.log('Success response:', data);
+
+      console.log("Success response:", data);
       toast.success("Vehicle added successfully!");
-  
+
+      // Delay redirect by 2 seconds
+      setTimeout(() => {
+        navigate("/admin/allvehicles");
+      }, 2000);
+
       // Reset form
       setVehicle({
         make: "",
@@ -238,9 +245,8 @@ export default function AddVehicle() {
         features: "",
         description: "",
       });
-  
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error("Error submitting form:", error);
       toast.error(error.message || "Failed to add vehicle. Please try again.");
     }
   };

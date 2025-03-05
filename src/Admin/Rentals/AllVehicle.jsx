@@ -17,6 +17,7 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
+  X,
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -165,12 +166,18 @@ export default function AdminRentalVehicles() {
       setVehicles(
         vehicles.filter((vehicle) => vehicle._id !== vehicleToDelete)
       );
-      toast.success("Vehicle deleted successfully");
       setIsDeleteModalOpen(false);
       setVehicleToDelete(null);
+      toast.success("Vehicle deleted successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      }); // Updated toast message
     } catch (error) {
       console.error("Error deleting vehicle:", error);
-      toast.error(error.message || "Failed to delete vehicle");
+      toast.error("Failed to delete vehicle. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      }); // Updated toast message
     } finally {
       setLoading(false);
     }
@@ -226,10 +233,16 @@ export default function AdminRentalVehicles() {
         )
       );
       setIsEditModalOpen(false);
-      toast.success("Vehicle updated successfully!");
+      toast.success("Vehicle updated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      }); // Updated toast message
     } catch (error) {
       console.error("Error updating vehicle:", error);
-      toast.error("Failed to update vehicle. Please try again.");
+      toast.error("Failed to update vehicle. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      }); // Updated toast message
     }
   };
 
@@ -310,6 +323,8 @@ export default function AdminRentalVehicles() {
 
   return (
     <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <ToastContainer />
+      {/* Ensure ToastContainer is included */}
       <div className="p-4 sm:p-6 md:p-8">
         <div className="mb-6 md:mb-8">
           <div className="border-l-4 border-orange-500 pl-4">
@@ -580,299 +595,122 @@ export default function AdminRentalVehicles() {
           </div>
         )}
       </div>
-
       {isEditModalOpen && selectedVehicle && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Edit Vehicle</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Editable fields */}
-              <div>
-                <label className="block text-sm font-medium">Make</label>
-                <input
-                  type="text"
-                  value={updatedVehicleData.make}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      make: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Model</label>
-                <input
-                  type="text"
-                  value={updatedVehicleData.model}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      model: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              {/* Add other fields dynamically */}
-              <div>
-                <label className="block text-sm font-medium">Year</label>
-                <input
-                  type="number"
-                  value={updatedVehicleData.year}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      year: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Number Plate
-                </label>
-                <input
-                  type="text"
-                  value={updatedVehicleData.numberPlate}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      numberPlate: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Price (Hour)
-                </label>
-                <input
-                  type="number"
-                  value={updatedVehicleData.price.hour}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      price: {
-                        ...updatedVehicleData.price,
-                        hour: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Price (Day)</label>
-                <input
-                  type="number"
-                  value={updatedVehicleData.price.day}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      price: {
-                        ...updatedVehicleData.price,
-                        day: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Price (Week)
-                </label>
-                <input
-                  type="number"
-                  value={updatedVehicleData.price.week}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      price: {
-                        ...updatedVehicleData.price,
-                        week: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Price (Month)
-                </label>
-                <input
-                  type="number"
-                  value={updatedVehicleData.price.month}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      price: {
-                        ...updatedVehicleData.price,
-                        month: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Seats</label>
-                <input
-                  type="number"
-                  value={updatedVehicleData.specs.seats}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      specs: {
-                        seats: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Doors</label>
-                <input
-                  type="number"
-                  value={updatedVehicleData.specs.doors}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      specs: {
-                        doors: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Transmission
-                </label>
-                <input
-                  type="text"
-                  value={updatedVehicleData.specs.transmission}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      specs: {
-                        transmission: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Fuel Type</label>
-                <input
-                  type="text"
-                  value={updatedVehicleData.specs.fuel}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      specs: {
-                        fuel: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Mileage</label>
-                <input
-                  type="number"
-                  value={updatedVehicleData.specs.mileage}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      specs: {
-                        mileage: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Engine</label>
-                <input
-                  type="text"
-                  value={updatedVehicleData.specs.engine}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      specs: {
-                        engine: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Power</label>
-                <input
-                  type="number"
-                  value={updatedVehicleData.specs.power}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      specs: {
-                        power: e.target.value,
-                      },
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div className="lg:col-span-3">
-                <label className="block text-sm font-medium">
-                  Features (comma-separated)
-                </label>
-                <textarea
-                  value={updatedVehicleData.features}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      features: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-              <div className="lg:col-span-3">
-                <label className="block text-sm font-medium">Description</label>
-                <textarea
-                  value={updatedVehicleData.description}
-                  onChange={(e) =>
-                    setUpdatedVehicleData({
-                      ...updatedVehicleData,
-                      description: e.target.value,
-                    })
-                  }
-                  className="w-full border rounded-lg p-2"
-                />
-              </div>
-            </div>
-            <div className="flex justify-end mt-4">
+          <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                Edit Vehicle
+              </h2>
               <button
                 onClick={() => setIsEditModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 rounded-lg mr-2"
+                className="p-1 rounded-full hover:bg-gray-100"
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6 text-gray-500" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { label: "Make", field: "make" },
+                { label: "Model", field: "model" },
+                { label: "Year", field: "year" },
+                { label: "Number Plate", field: "numberPlate" },
+                { label: "Price (Hour)", field: "price.hour" },
+                { label: "Price (Day)", field: "price.day" },
+                { label: "Price (Week)", field: "price.week" },
+                { label: "Price (Month)", field: "price.month" },
+                { label: "Seats", field: "specs.seats" },
+                { label: "Doors", field: "specs.doors" },
+                { label: "Transmission", field: "specs.transmission" },
+                { label: "Fuel Type", field: "specs.fuel" },
+                { label: "Mileage", field: "specs.mileage" },
+                { label: "Engine", field: "specs.engine" },
+                { label: "Power", field: "specs.power" },
+                {
+                  label: "Features (comma-separated)",
+                  field: "features",
+                  isTextarea: true,
+                  fullWidth: true,
+                },
+                {
+                  label: "Description",
+                  field: "description",
+                  isTextarea: true,
+                  fullWidth: true,
+                },
+              ].map(({ label, field, isTextarea, fullWidth }) => (
+                <div
+                  key={field}
+                  className={`mb-2 ${
+                    fullWidth ? "col-span-1 sm:col-span-2 lg:col-span-3" : ""
+                  }`}
+                >
+                  <label
+                    htmlFor={field}
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    {label}
+                  </label>
+                  {isTextarea ? (
+                    <textarea
+                      id={field}
+                      value={
+                        field.includes(".")
+                          ? eval(`updatedVehicleData.${field}`)
+                          : updatedVehicleData[field]
+                      }
+                      onChange={(e) =>
+                        setUpdatedVehicleData((prev) => {
+                          const updated = { ...prev };
+                          if (field.includes(".")) {
+                            const [parent, child] = field.split(".");
+                            updated[parent][child] = e.target.value;
+                          } else {
+                            updated[field] = e.target.value;
+                          }
+                          return updated;
+                        })
+                      }
+                      rows="3"
+                      className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
+                    ></textarea>
+                  ) : (
+                    <input
+                      type="text"
+                      id={field}
+                      value={
+                        field.includes(".")
+                          ? eval(`updatedVehicleData.${field}`)
+                          : updatedVehicleData[field]
+                      }
+                      onChange={(e) =>
+                        setUpdatedVehicleData((prev) => {
+                          const updated = { ...prev };
+                          if (field.includes(".")) {
+                            const [parent, child] = field.split(".");
+                            updated[parent][child] = e.target.value;
+                          } else {
+                            updated[field] = e.target.value;
+                          }
+                          return updated;
+                        })
+                      }
+                      className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => setIsEditModalOpen(false)}
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleUpdateVehicle}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
               >
                 Save Changes
               </button>
@@ -880,7 +718,6 @@ export default function AdminRentalVehicles() {
           </div>
         </div>
       )}
-
       {isViewModalOpen && viewedVehicle && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg shadow-md w-full max-w-2xl">
@@ -1043,7 +880,6 @@ export default function AdminRentalVehicles() {
           </div>
         </div>
       )}
-
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">

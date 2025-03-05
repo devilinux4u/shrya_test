@@ -730,7 +730,7 @@ export default function Vehicles() {
       </div>
 
       {/* Edit Vehicle Modal */}
-      {isEditing && (
+      {isEditing && selectedVehicle && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
@@ -859,7 +859,7 @@ export default function Vehicles() {
               </button>
               <button
                 onClick={handleUpdateData}
-                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
               >
                 Save Changes
               </button>

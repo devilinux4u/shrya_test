@@ -213,6 +213,28 @@ export default function ViewDetails() {
     navigate(`/book/${vehicle.id}`);
   };
 
+  const handleStatusChange = async (vehicle) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/vehicles/sold/${vehicle.id}`,
+        {
+          method: "PUT",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to mark vehicle as sold");
+      }
+
+      const updatedVehicle = await response.json();
+      setVehicle((prev) => ({ ...prev, status: "sold" }));
+      alert("Vehicle marked as sold successfully!");
+    } catch (error) {
+      console.error("Error marking vehicle as sold:", error);
+      alert("Failed to mark vehicle as sold. Please try again.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex-1 ml-64 min-h-screen bg-gray-50 flex items-center justify-center">
@@ -466,12 +488,9 @@ export default function ViewDetails() {
 
         {/* Action buttons */}
         <div className="flex flex-wrap gap-3 mt-6">
-          {vehicle.status !== "sold" && (
+          {vehicle.status === "available" && (
             <button
-              onClick={() => {
-                onClose();
-                handleEditClick();
-              }}
+              onClick={handleEditClick}
               className="flex-1 min-w-[120px] bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
             >
               <Edit className="w-5 h-5" />
@@ -479,21 +498,15 @@ export default function ViewDetails() {
             </button>
           )}
           <button
-            onClick={() => {
-              onClose();
-              handleDeleteClick();
-            }}
+            onClick={handleDeleteClick}
             className="flex-1 min-w-[120px] bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center gap-2"
           >
             <Trash2 className="w-5 h-5" />
             Delete
           </button>
-          {vehicle.status !== "sold" && (
+          {vehicle.status === "available" && (
             <button
-              onClick={() => {
-                onClose();
-                handleStatusChange(vehicle);
-              }}
+              onClick={() => handleStatusChange(vehicle)}
               className="flex-1 min-w-[120px] bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
             >
               <CheckCircle className="w-5 h-5" />
