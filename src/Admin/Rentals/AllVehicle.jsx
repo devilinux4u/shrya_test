@@ -55,6 +55,9 @@ export default function AdminRentalVehicles() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewedVehicle, setViewedVehicle] = useState(null);
 
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [vehicleToDelete, setVehicleToDelete] = useState(null);
+
   useEffect(() => {
     fetchVehicles();
   }, []);
@@ -123,31 +126,41 @@ export default function AdminRentalVehicles() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this vehicle?")) {
-      try {
-        const response = await fetch(
-          `http://localhost:3000/api/vehicles/${id}`,
-          {
-            method: "DELETE",
-          }
-        );
+    setVehicleToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+  const confirmDelete = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `http://localhost:3000/api/vehicles/${vehicleToDelete}`,
+        {
+          method: "DELETE",
         }
+      );
 
-        const result = await response.json();
-
-        if (result.error) {
-          throw new Error(result.error);
-        }
-
-        setVehicles(vehicles.filter((vehicle) => vehicle._id !== id));
-        toast.success("Vehicle deleted successfully");
-      } catch (error) {
-        console.error("Error deleting vehicle:", error);
-        toast.error(error.message || "Failed to delete vehicle");
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const result = await response.json();
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      setVehicles(
+        vehicles.filter((vehicle) => vehicle._id !== vehicleToDelete)
+      );
+      toast.success("Vehicle deleted successfully");
+      setIsDeleteModalOpen(false);
+      setVehicleToDelete(null);
+    } catch (error) {
+      console.error("Error deleting vehicle:", error);
+      toast.error(error.message || "Failed to delete vehicle");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -195,14 +208,16 @@ export default function AdminRentalVehicles() {
       const updatedVehicle = await response.json();
       setVehicles((prevVehicles) =>
         prevVehicles.map((vehicle) =>
-          vehicle._id === selectedVehicle._id ? updatedVehicle : vehicle
+          vehicle._id === selectedVehicle._id
+            ? { ...vehicle, ...updatedVehicleData }
+            : vehicle
         )
       );
       setIsEditModalOpen(false);
-      toast.success("Vehicle updated successfully");
+      toast.success("Vehicle updated successfully!");
     } catch (error) {
       console.error("Error updating vehicle:", error);
-      toast.error("Failed to update vehicle");
+      toast.error("Failed to update vehicle. Please try again.");
     }
   };
 
@@ -508,11 +523,12 @@ export default function AdminRentalVehicles() {
         </div>
       </div>
 
-      {isEditModalOpen && (
+      {isEditModalOpen && selectedVehicle && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-3xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Edit Vehicle</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {/* Editable fields */}
               <div>
                 <label className="block text-sm font-medium">Make</label>
                 <input
@@ -541,6 +557,7 @@ export default function AdminRentalVehicles() {
                   className="w-full border rounded-lg p-2"
                 />
               </div>
+              {/* Add other fields dynamically */}
               <div>
                 <label className="block text-sm font-medium">Year</label>
                 <input
@@ -815,120 +832,204 @@ export default function AdminRentalVehicles() {
 
       {isViewModalOpen && viewedVehicle && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-3xl">
-            <h2 className="text-xl font-bold mb-4">Vehicle Details</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="lg:col-span-3">
-                <label className="block text-sm font-medium">Images</label>
-                <div className="flex gap-2 overflow-x-auto">
-                  {viewedVehicle.vehicle_images.length > 0 ? (
-                    viewedVehicle.vehicle_images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={
-                          image.image.startsWith("http")
-                            ? image.image
-                            : `http://localhost:3000/uploads/${image.image}`
-                        }
-                        alt={`Vehicle Image ${index + 1}`}
-                        className="h-32 w-32 object-cover rounded-lg border"
-                        onError={(e) => {
-                          e.target.src = "/placeholder.svg";
-                        }}
-                      />
-                    ))
-                  ) : (
-                    <p className="text-gray-500">No images available</p>
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Make</label>
-                <p className="text-gray-700">{viewedVehicle.make}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Model</label>
-                <p className="text-gray-700">{viewedVehicle.model}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Year</label>
-                <p className="text-gray-700">{viewedVehicle.year}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Number Plate
-                </label>
-                <p className="text-gray-700">{viewedVehicle.numberPlate}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Price (Hour)
-                </label>
-                <p className="text-gray-700">Rs. {viewedVehicle.price.hour}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Price (Day)</label>
-                <p className="text-gray-700">Rs. {viewedVehicle.price.day}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Price (Week)
-                </label>
-                <p className="text-gray-700">Rs. {viewedVehicle.price.week}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Price (Month)
-                </label>
-                <p className="text-gray-700">Rs. {viewedVehicle.price.month}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Seats</label>
-                <p className="text-gray-700">{viewedVehicle.specs.seats}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Doors</label>
-                <p className="text-gray-700">{viewedVehicle.specs.doors}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Transmission
-                </label>
-                <p className="text-gray-700">
-                  {viewedVehicle.specs.transmission}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Fuel Type</label>
-                <p className="text-gray-700">{viewedVehicle.specs.fuel}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Mileage</label>
-                <p className="text-gray-700">{viewedVehicle.specs.mileage}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Engine</label>
-                <p className="text-gray-700">{viewedVehicle.specs.engine}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Power</label>
-                <p className="text-gray-700">{viewedVehicle.specs.power}</p>
-              </div>
-              <div className="lg:col-span-3">
-                <label className="block text-sm font-medium">Features</label>
-                <p className="text-gray-700">{viewedVehicle.features}</p>
-              </div>
-              <div className="lg:col-span-3">
-                <label className="block text-sm font-medium">Description</label>
-                <p className="text-gray-700">{viewedVehicle.description}</p>
-              </div>
-            </div>
-            <div className="flex justify-end mt-4">
+          <div className="bg-white rounded-lg shadow-md w-full max-w-2xl">
+            <div className="flex justify-between items-center border-b border-gray-200 px-4 py-3">
+              <h2 className="text-xl font-bold text-gray-900">
+                Vehicle Details
+              </h2>
               <button
                 onClick={() => setIsViewModalOpen(false)}
-                className="px-4 py-2 bg-gray-200 rounded-lg"
+                className="text-gray-500 hover:text-gray-700"
               >
-                Close
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-4">
+              <div className="flex flex-col sm:flex-row gap-4 mb-4">
+                {/* Vehicle Image */}
+                <div className="w-full sm:w-1/3 h-48 bg-gray-100 rounded-lg overflow-hidden">
+                  {viewedVehicle.vehicle_images &&
+                  viewedVehicle.vehicle_images[0] ? (
+                    <img
+                      src={
+                        viewedVehicle.vehicle_images[0].image.startsWith("http")
+                          ? viewedVehicle.vehicle_images[0].image
+                          : `http://localhost:3000/uploads/${viewedVehicle.vehicle_images[0].image}`
+                      }
+                      alt={`${viewedVehicle.make} ${viewedVehicle.model}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = "/placeholder.svg";
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Car className="h-16 w-16 text-gray-400" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Basic Info */}
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {viewedVehicle.make} {viewedVehicle.model}
+                      </h3>
+                      <p className="text-gray-600 text-sm mt-1">
+                        Year: {viewedVehicle.year} • Plate:{" "}
+                        {viewedVehicle.numberPlate}
+                      </p>
+                    </div>
+                    <div className="bg-[#ff6b00] text-white px-3 py-1 rounded-lg font-medium">
+                      Rs. {viewedVehicle.price.day}/day
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-700">Seats:</span>{" "}
+                      {viewedVehicle.specs.seats}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-700">Doors:</span>{" "}
+                      {viewedVehicle.specs.doors}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-700">
+                        Transmission:
+                      </span>{" "}
+                      {viewedVehicle.specs.transmission}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-700">Fuel:</span>{" "}
+                      {viewedVehicle.specs.fuel}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-700">Engine:</span>{" "}
+                      {viewedVehicle.specs.engine}
+                    </div>
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-700">
+                        Mileage:
+                      </span>{" "}
+                      {viewedVehicle.specs.mileage}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing */}
+              <div className="mt-4 bg-gray-50 p-3 rounded-lg">
+                <h4 className="font-medium text-gray-900 mb-2">Pricing</h4>
+                <div className="grid grid-cols-4 gap-2 text-center">
+                  <div>
+                    <p className="text-xs text-gray-500">Hourly</p>
+                    <p className="font-bold">Rs. {viewedVehicle.price.hour}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Daily</p>
+                    <p className="font-bold">Rs. {viewedVehicle.price.day}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Weekly</p>
+                    <p className="font-bold">Rs. {viewedVehicle.price.week}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Monthly</p>
+                    <p className="font-bold">Rs. {viewedVehicle.price.month}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div className="mt-4">
+                <h4 className="font-medium text-gray-900 mb-1">Description</h4>
+                <p className="text-sm text-gray-700">
+                  {viewedVehicle.description || "No description available"}
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="border-t border-gray-200 px-4 py-3 flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setIsViewModalOpen(false);
+                  handleEdit(viewedVehicle);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+              >
+                <Edit className="h-4 w-4 inline mr-1" />
+                Edit
+              </button>
+              <button
+                onClick={() => {
+                  setIsViewModalOpen(false);
+                  setVehicleToDelete(viewedVehicle._id);
+                  setIsDeleteModalOpen(true);
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+              >
+                <Trash2 className="h-4 w-4 inline mr-1" />
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 max-w-md w-full">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-red-100 p-3 rounded-full">
+                <Trash2 className="h-8 w-8 text-red-600" />
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
+              Confirm Deletion
+            </h3>
+            <p className="text-gray-600 text-center mb-6">
+              Are you sure you want to delete this vehicle? This action cannot
+              be undone.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Vehicle
+                  </>
+                )}
               </button>
             </div>
           </div>

@@ -27,17 +27,21 @@ const Contact = () => {
 
     // Collect form data
     const formData = {
+      name: e.target.fullName.value,
+      email: e.target.email.value,
+      phno: e.target.phone.value,
       msg: e.target.message.value,
     };
 
     // Validate form data
-    if (!formData.msg) {
-      toast.error("Message field is required");
+    if (!formData.name || !formData.email || !formData.phno || !formData.msg) {
+      toast.error("All fields are required");
       return;
     }
 
     try {
-      const response = await fetch("http://localhost:3000/lostAndFound", {
+      const response = await fetch("http://localhost:3000/contact", {
+        // Updated endpoint
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -130,6 +134,57 @@ const Contact = () => {
               <h2 className="text-2xl font-bold">Send us a Message</h2>
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Full Name */}
+              <div>
+                <label
+                  htmlFor="fullName"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  id="fullName"
+                  name="fullName"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
+                />
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label
+                  htmlFor="phone"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-[#ff6b00] focus:border-[#ff6b00] outline-none transition"
+                />
+              </div>
+
               {/* Message */}
               <div>
                 <label

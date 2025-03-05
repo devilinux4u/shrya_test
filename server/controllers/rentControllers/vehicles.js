@@ -62,6 +62,27 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// PUT route to update a rental vehicle
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedData = req.body;
+
+    const vehicle = await db.RentalAllVehicles.findByPk(id);
+
+    if (!vehicle) {
+      return res.status(404).json({ success: false, message: 'Vehicle not found' });
+    }
+
+    await vehicle.update(updatedData);
+
+    res.json({ success: true, message: 'Vehicle updated successfully', data: vehicle });
+  } catch (error) {
+    console.error('Error updating vehicle:', error);
+    res.status(500).json({ success: false, message: 'Internal server error', error: error.message });
+  }
+});
+
 // DELETE a rental vehicle
 router.delete('/:id', async (req, res) => {
   try {

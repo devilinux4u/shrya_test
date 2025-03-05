@@ -56,40 +56,7 @@ module.exports.user = (sequelize, DataTypes) => {
     return user;
 }
 
-module.exports.contact = (sequelize, DataTypes) => {
-    const contact = sequelize.define('contact', {
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        email: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        phno: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        msg: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        }
-    });
 
-    return contact;
-};
 
 module.exports.vehicle = (sequelize, DataTypes) => {
     const Vehicle = sequelize.define('vehicles', {
@@ -550,4 +517,37 @@ module.exports.rental = (sequelize, DataTypes) => {
     };
 
     return Rental;
+};
+
+module.exports.contact = (sequelize, DataTypes) => {
+  const Contact = sequelize.define('contact', {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phno: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    msg: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    date: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW, // Automatically set to the current date
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "new", // Default value for the status column
+    },
+  });
+
+  return Contact;
 };

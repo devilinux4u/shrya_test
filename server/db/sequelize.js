@@ -17,6 +17,7 @@ const rental = model.rental(sequelize, DataTypes);
 const RentalAllVehicles = model.rentalAllVehicles(sequelize, DataTypes);
 const RentalAllVehicleImages = model.rentalAllVehicleImages(sequelize, DataTypes);
 
+
 Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
 VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
 
@@ -64,17 +65,17 @@ sequelize.sync({ alter: true })
   .then(() => console.log('Database synced successfully'))
   .catch(error => console.error('Unable to sync database:', error));
 
-  module.exports = {
-    sequelize,
-    users: user,
-    contacts: contact,
-    vehicles: Vehicle,
-    v_img: VehicleImage,
-    vehicleWishlist: VehicleWishlist,
-    LostAndFound,
-    wishlistImage: WishlistImage,
-    LostAndFoundImage,
-    rental,
-    RentalAllVehicles,  // Add this
-    RentalAllVehicleImages  // Add this
-  };
+module.exports = {
+  sequelize,
+  users: user,
+  contacts: contact, // Keep this export
+  vehicles: Vehicle,
+  v_img: VehicleImage,
+  vehicleWishlist: VehicleWishlist,
+  LostAndFound,
+  wishlistImage: WishlistImage,
+  LostAndFoundImage,
+  rental,
+  RentalAllVehicles,
+  RentalAllVehicleImages,
+};
