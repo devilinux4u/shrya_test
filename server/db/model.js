@@ -246,13 +246,32 @@ module.exports.VehicleWishlist = (sequelize, DataTypes) => {
 
   module.exports.LostAndFound = (sequelize, DataTypes) => {
     const LostAndFound = sequelize.define("LostAndFound", {
-      type: { type: DataTypes.STRING, allowNull: false },
-      title: { type: DataTypes.STRING, allowNull: false },
-      description: { type: DataTypes.TEXT, allowNull: false },
-      location: { type: DataTypes.STRING, allowNull: false },
-      date: { type: DataTypes.DATE, allowNull: false },
-      status: { type: DataTypes.STRING, defaultValue: "active" },
-      images: { type: DataTypes.JSON }, // Store image file paths as an array
+      type: { 
+        type: DataTypes.STRING,
+        allowNull: false },
+        
+      title: { 
+        type: DataTypes.STRING, 
+        allowNull: false },
+
+      description: { 
+        type: DataTypes.TEXT, 
+        allowNull: false },
+
+      location: { 
+        type: DataTypes.STRING, 
+        allowNull: false },
+
+      date: { 
+        type: DataTypes.DATE, 
+        allowNull: false },
+
+      status: {
+         type: DataTypes.STRING, 
+         defaultValue: "active" },
+
+      images: {
+         type: DataTypes.JSON }, // Store image file paths as an array
     });
   
     return LostAndFound;

@@ -3,8 +3,16 @@
 import { MapPin, Phone, Mail, Send, Facebook, Instagram, Linkedin, MessageSquare } from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import { useEffect } from "react"
 
 const Contact = () => {
+  useEffect(() => {
+    // Remove map initialization
+    return () => {
+      // Cleanup code if necessary
+    }
+  }, [])
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -16,8 +24,14 @@ const Contact = () => {
       msg: e.target.message.value,
     }
 
+    // Validate form data
+    if (!formData.name || !formData.email || !formData.phno || !formData.msg) {
+      toast.error("All fields are required")
+      return
+    }
+
     try {
-      const response = await fetch("http://localhost:3000/contact", {
+      const response = await fetch("http://localhost:3000/lostAndFound", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,33 +111,6 @@ const Contact = () => {
                   <p className="text-gray-600">shreyaauto.enterprises@gmail.com</p>
                 </div>
               </div>
-            </div>
-
-            {/* Map */}
-            <div className="bg-white rounded-3xl shadow-lg p-8">
-              <h2 className="text-2xl font-bold mb-6">Our Location</h2>
-              <div className="h-[300px] rounded-lg overflow-hidden">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.2603082328604!2d85.3302!3d27.7041!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb19a7c6cd102f%3A0x64033c208b73c234!2sPragati%20Marg%2C%20Kathmandu%2044600%2C%20Nepal"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen=""
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Shreya Auto Enterprises Location"
-                  className="rounded-lg"
-                />
-              </div>
-              <a
-                href="https://www.google.com/maps/dir//Pragati+Marga,+Kathmandu,+Nepal"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center text-[#ff6b00] hover:underline mt-4"
-              >
-                Get Directions
-                <MapPin className="h-4 w-4 ml-1" />
-              </a>
             </div>
           </div>
 

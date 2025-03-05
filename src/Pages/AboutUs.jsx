@@ -100,22 +100,19 @@ const AboutUs = () => {
 
             {/* Google Maps Embed */}
             <div className="h-[400px] rounded-lg overflow-hidden shadow-md">
-      <iframe
-        src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBBlcytxntTu86mWsz5Wcjapk1w9wvPl9w&q=Pragati+Marga,+Kathmandu,+Nepal`}
-        width="100%"
-        height="100%"
-        style={{ border: 0 }}
-        allowFullScreen
-        loading="lazy"
-        referrerPolicy="no-referrer-when-downgrade"
-        title="Shreya Auto Enterprises Location"
-      />
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3532.010279631316!2d85.3240!3d27.7172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39eb1902d2b2b2b2%3A0x2b2b2b2b2b2b2b2b!2sShreya%20Auto%20Enterprises!5e0!3m2!1sen!2snp!4v1633024800000!5m2!1sen!2snp"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Shreya Auto Enterprises Location"
+              />
             </div>
           </div>
         </div>
-
-
-        
       </div>
     </div>
   );

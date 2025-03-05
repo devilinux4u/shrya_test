@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { Camera, X, ChevronLeft, ChevronRight } from "lucide-react"
-import { toast } from "react-toastify"
+import { toast, ToastContainer } from "react-toastify"
+import 'react-toastify/dist/ReactToastify.css';
 import Cookies from "js-cookie"
 
 export default function SellVehicleForm({ isOpen, onClose }) {
@@ -84,12 +85,14 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     Object.keys(vehicle).forEach((key) => {
       if (key !== "images" && key !== "imagePreviewUrls" && !vehicle[key]) {
         newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`
+        toast.error(`${key.charAt(0).toUpperCase() + key.slice(1)} is required`)
       }
     })
 
     // Check if images are uploaded
     if (vehicle.images.length === 0) {
       newErrors.images = "Please upload at least one image"
+      toast.error("Please upload at least one image")
     }
 
     setErrors(newErrors)
@@ -127,7 +130,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
         const data = await response.json()
 
         if (data.success) {
-          // Remove the alert and just use toast
           toast.success("Vehicle listed successfully!")
           // Reset form and close it
           setVehicle({
@@ -175,12 +177,14 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     currentStepFields.forEach((field) => {
       if (!vehicle[field]) {
         stepErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`
+        toast.error(`${field.charAt(0).toUpperCase() + field.slice(1)} is required`)
       }
     })
 
     // Check for images in step 3
     if (step === 3 && vehicle.images.length === 0) {
       stepErrors.images = "Please upload at least one image"
+      toast.error("Please upload at least one image")
     }
 
     setErrors(stepErrors)
@@ -352,7 +356,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 }`}
                 placeholder="Provide a detailed description of your vehicle..."
               ></textarea>
-              {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Images</label>
@@ -410,63 +413,66 @@ export default function SellVehicleForm({ isOpen, onClose }) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
-        <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
-          <X className="h-6 w-6" />
-        </button>
+    <>
+      <ToastContainer />
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
+          <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
+            <X className="h-6 w-6" />
+          </button>
 
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">Sell Your Vehicle</h1>
-        </div>
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h1 className="text-2xl font-bold text-gray-900">Sell Your Vehicle</h1>
+          </div>
 
-        <div className="px-6 py-4 bg-gray-50">
-          <div className="flex space-x-2">
-            {[1, 2, 3].map((stepNumber) => (
-              <div
-                key={stepNumber}
-                className={`h-2 rounded-full flex-1 transition-colors duration-200 ${
-                  step >= stepNumber ? "bg-[#ff6b00]" : "bg-gray-200"
-                }`}
-              />
-            ))}
+          <div className="px-6 py-4 bg-gray-50">
+            <div className="flex space-x-2">
+              {[1, 2, 3].map((stepNumber) => (
+                <div
+                  key={stepNumber}
+                  className={`h-2 rounded-full flex-1 transition-colors duration-200 ${
+                    step >= stepNumber ? "bg-[#ff6b00]" : "bg-gray-200"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="px-6 py-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 180px)" }}>
+            <form onSubmit={handleSubmit}>
+              {renderStep()}
+              <div className="mt-6 flex justify-between">
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
+                  >
+                    <ChevronLeft className="w-5 h-5 mr-1" /> Previous
+                  </button>
+                )}
+                {step < 3 ? (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors flex items-center ml-auto"
+                  >
+                    Next <ChevronRight className="w-5 h-5 ml-1" />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors ml-auto"
+                  >
+                    List Vehicle
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
         </div>
-
-        <div className="px-6 py-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 180px)" }}>
-          <form onSubmit={handleSubmit}>
-            {renderStep()}
-            <div className="mt-6 flex justify-between">
-              {step > 1 && (
-                <button
-                  type="button"
-                  onClick={prevStep}
-                  className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center"
-                >
-                  <ChevronLeft className="w-5 h-5 mr-1" /> Previous
-                </button>
-              )}
-              {step < 3 ? (
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors flex items-center ml-auto"
-                >
-                  Next <ChevronRight className="w-5 h-5 ml-1" />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors ml-auto"
-                >
-                  List Vehicle
-                </button>
-              )}
-            </div>
-          </form>
-        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -500,7 +506,6 @@ const InputField = ({ label, name, type = "text", value, onChange, placeholder, 
         </div>
       )}
     </div>
-    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
 
@@ -525,7 +530,6 @@ const SelectField = ({ label, name, value, onChange, options, error }) => (
         </option>
       ))}
     </select>
-    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
 

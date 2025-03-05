@@ -78,25 +78,6 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
     return Object.keys(newErrors).length === 0
   }
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault()
-  //   if (validateForm()) {
-  //     try {
-  //       console.log("Form Data:", formData) // Log form data to the console
-  //       await onSubmit(formData)
-  //       toast.success("Report submitted successfully!")
-  //       onClose()
-  //     } catch (error) {
-  //       toast.error("An error occurred while submitting the report. Please try again.")
-  //     }
-  //   } else {
-  //     // Display toast for each error
-  //     Object.values(errors).forEach((error) => {
-  //       toast.error(error)
-  //     })
-  //   }
-  // }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
   
@@ -166,12 +147,8 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
           images: [],
         });
   
-        //console.log("Form reset to initial state.");
         // Clear selected images and previews
-        // setSelectedImages([]);
-        // setPreviewImages([]);
         onClose(); // Close the form/modal
-        //console.log("Form/modal closed.");
   
         // Redirect to the lost and found page after a delay
         setTimeout(() => {
@@ -227,7 +204,6 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
                     { value: "lost", label: "Lost Item" },
                     { value: "found", label: "Found Item" },
                   ]}
-                  error={errors.type}
                 />
                 <InputField
                   label="Title"
@@ -235,7 +211,6 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="Brief title of the item"
-                  error={errors.title}
                 />
               </div>
 
@@ -249,12 +224,9 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
                   rows="4"
                   value={formData.description}
                   onChange={handleChange}
-                  className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] ${
-                    errors.description ? "border-red-500" : ""
-                  }`}
+                  className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]`}
                   placeholder="Provide a detailed description of the item..."
                 ></textarea>
-                {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
               </div>
 
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -264,7 +236,6 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
                   value={formData.location}
                   onChange={handleChange}
                   placeholder="Where was it lost/found?"
-                  error={errors.location}
                 />
                 <InputField
                   label="Date"
@@ -272,7 +243,6 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
                   type="date"
                   value={formData.date}
                   onChange={handleChange}
-                  error={errors.date}
                 />
               </div>
 
@@ -347,7 +317,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   )
 }
 
-const InputField = ({ label, name, type = "text", value, onChange, placeholder, error }) => (
+const InputField = ({ label, name, type = "text", value, onChange, placeholder }) => (
   <div>
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
       {label}
@@ -358,16 +328,13 @@ const InputField = ({ label, name, type = "text", value, onChange, placeholder, 
       name={name}
       value={value}
       onChange={onChange}
-      className={`w-full px-4 py-2 rounded-lg border ${
-        error ? "border-red-500" : "border-gray-300"
-      } focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors`}
+      className={`w-full px-4 py-2 rounded-lg border border-gray-300 focus:border-[#ff6b00] focus:ring-2 focus:ring-[#ff6b00] focus:ring-opacity-50 transition-colors`}
       placeholder={placeholder}
     />
-    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
 
-const SelectField = ({ label, name, value, onChange, options, error }) => (
+const SelectField = ({ label, name, value, onChange, options }) => (
   <div>
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
       {label}
@@ -377,9 +344,7 @@ const SelectField = ({ label, name, value, onChange, options, error }) => (
       name={name}
       value={value}
       onChange={onChange}
-      className={`w-full rounded-lg ${
-        error ? "border-red-500" : "border-gray-300"
-      } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]`}
+      className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00]`}
     >
       <option value="">Select {label.toLowerCase()}</option>
       {options.map((option) => (
@@ -388,7 +353,6 @@ const SelectField = ({ label, name, value, onChange, options, error }) => (
         </option>
       ))}
     </select>
-    {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
 

@@ -4,21 +4,45 @@ import { useState, useRef, useEffect } from "react"
 import { Mail, Phone, Calendar, Edit, Camera, Trash2, Upload, Save, X } from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import axios from "axios"
 
 const Profile = () => {
   const [user, setUser] = useState({
-    name: "Test",
-    username: "Test123",
-    email: "Test@gmail.com",
-    phone: "987654321",
-    joinDate: "January 2022",
-    avatar: "https://i.ibb.co/ZpGX4rRT/Screenshot-2025-03-05-at-5-39-55-PM.png",
+    name: "",
+    username: "",
+    email: "",
+    phone: "",
+    joinDate: "",
+    avatar: "/placeholder.svg?height=200&width=200",
   })
 
   const [isEditing, setIsEditing] = useState(false)
   const [showPhotoOptions, setShowPhotoOptions] = useState(false)
   const fileInputRef = useRef(null)
   const photoOptionsRef = useRef(null)
+
+  // Fetch user data from the database when the component mounts
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get("/api/user/profile")
+        console.log("Fetched user data:", response.data) // Debugging line
+        setUser(response.data)
+      } catch (error) {
+        console.error("Error fetching user data:", error)
+        toast.error("Failed to load user data", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        })
+      }
+    }
+
+    fetchUserData()
+  }, [])
 
   // Close photo options when clicking outside
   useEffect(() => {
@@ -56,31 +80,50 @@ const Profile = () => {
     }))
   }
 
-  const handleSaveProfile = () => {
-    console.log("Saving profile:", user)
-    setIsEditing(false)
-    toast.success("Profile updated successfully!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    })
+  const handleSaveProfile = async () => {
+    try {
+      await axios.put("/api/user/profile", user)
+      setIsEditing(false)
+      toast.success("Profile updated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      })
+    } catch (error) {
+      console.error("Error saving profile:", error)
+      toast.error("Failed to save profile", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      })
+    }
   }
 
   const handleAvatarClick = () => {
     setShowPhotoOptions(!showPhotoOptions)
   }
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
+      const formData = new FormData()
+      formData.append("avatar", file)
+
+      try {
+        const response = await axios.post("/api/user/upload-avatar", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
         setUser((prevUser) => ({
           ...prevUser,
-          avatar: reader.result,
+          avatar: response.data.avatarUrl,
         }))
         toast.success("Profile image uploaded successfully!", {
           position: "top-right",
@@ -90,26 +133,48 @@ const Profile = () => {
           pauseOnHover: true,
           draggable: true,
         })
+      } catch (error) {
+        console.error("Error uploading avatar:", error)
+        toast.error("Failed to upload profile image", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        })
       }
-      reader.readAsDataURL(file)
     }
     setShowPhotoOptions(false)
   }
 
-  const handleDeletePhoto = () => {
-    setUser((prevUser) => ({
-      ...prevUser,
-      avatar: "/placeholder.svg?height=200&width=200",
-    }))
-    setShowPhotoOptions(false)
-    toast.info("Profile image has been removed", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-    })
+  const handleDeletePhoto = async () => {
+    try {
+      await axios.delete("/api/user/delete-avatar")
+      setUser((prevUser) => ({
+        ...prevUser,
+        avatar: "/placeholder.svg?height=200&width=200",
+      }))
+      setShowPhotoOptions(false)
+      toast.info("Profile image has been removed", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      })
+    } catch (error) {
+      console.error("Error deleting avatar:", error)
+      toast.error("Failed to delete profile image", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      })
+    }
   }
 
   const handleUploadPhoto = () => {
@@ -218,7 +283,7 @@ const Profile = () => {
                 className="text-2xl sm:text-3xl font-bold text-gray-900 bg-gray-50 p-2 rounded-lg border border-gray-200 text-center w-full sm:w-2/3 mx-auto focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             ) : (
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">{user.name}</h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">{user.name || "Name not available"}</h1>
             )}
             {isEditing ? (
               <div className="mt-2">
@@ -234,7 +299,7 @@ const Profile = () => {
                 </div>
               </div>
             ) : (
-              <p className="text-base sm:text-lg text-gray-600 mt-2">@{user.username}</p>
+              <p className="text-base sm:text-lg text-gray-600 mt-2">@{user.username || "Username not available"}</p>
             )}
           </div>
 
@@ -257,7 +322,7 @@ const Profile = () => {
                       className="w-full text-sm sm:text-base text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   ) : (
-                    <p className="text-sm sm:text-base text-gray-600 truncate">{user.email}</p>
+                    <p className="text-sm sm:text-base text-gray-600 truncate">{user.email || "Email not available"}</p>
                   )}
                 </div>
               </div>
@@ -274,7 +339,7 @@ const Profile = () => {
                       className="w-full text-sm sm:text-base text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   ) : (
-                    <p className="text-sm sm:text-base text-gray-600 truncate">{user.phone}</p>
+                    <p className="text-sm sm:text-base text-gray-600 truncate">{user.phone || "Phone number not available"}</p>
                   )}
                 </div>
               </div>
@@ -282,7 +347,7 @@ const Profile = () => {
                 <Calendar className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs text-gray-500 mb-1">Member Since</p>
-                  <p className="text-sm sm:text-base text-gray-600">{user.joinDate}</p>
+                  <p className="text-sm sm:text-base text-gray-600">{user.joinDate || "Join date not available"}</p>
                 </div>
               </div>
             </div>
