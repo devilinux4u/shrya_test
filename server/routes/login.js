@@ -18,7 +18,7 @@ router.post('/login', async (req, res) => {
                 res.json({ success: false, msg: 'User not found' });
             }
             else if (id.uname == data.user && dec(data.pass, id.pass)) {
-                res.json({ success: true, cok: `${id.id}-${enc(id.uname)}-${id.uname}` });
+                res.json({ success: true, cok: `${id.id}-${enc(id.uname)}-${id.fname}` });
             }
             else {
                 res.json({ success: false, msg: 'Invalid Credentials' });
