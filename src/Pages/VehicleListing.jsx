@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Filter from "../Components/Filter";
 
 export default function VehicleListing() {
@@ -7,7 +8,10 @@ export default function VehicleListing() {
   const [maxPrice, setMaxPrice] = useState(25000000);
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState(null);  // state to store error messages
+  const [loading, setLoading] = useState(true); // Add loading state
   const [filters, setFilters] = useState({ make: "", model: "" }); // state to store filter values
+
+  const navigate = useNavigate(); // Initialize navigate
 
   // Fetch vehicles data from backend on component mount
   useEffect(() => {
@@ -26,6 +30,8 @@ export default function VehicleListing() {
       } catch (error) {
         console.error("Error fetching vehicles:", error);
         setError("Failed to load vehicles. Please try again later.");
+      } finally {
+        setLoading(false); // Set loading to false after fetch
       }
     };
 
@@ -76,27 +82,32 @@ export default function VehicleListing() {
         <div className="flex-1">
           {error ? (
             <p className="text-center text-red-600">{error}</p>
-          ) : (
+          ) : loading ? (
+            <p className="text-center text-gray-600">Loading vehicles...</p>
+          ) : displayedVehicles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayedVehicles.map((vehicle, index) => (
-                <div key={index} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+                <div
+                  key={index}
+                  onClick={() => navigate(`/BuyVehiclesDesc`, { state: { vehicle } })} // Correct route name
+                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col items-center text-center cursor-pointer"
+                >
                   <img
                     src={(vehicle.images && vehicle.images.length > 0 && `../../server/controllers${vehicle.images[0].image}`) || "/placeholder.svg"}
                     alt={`${vehicle.model} ${vehicle.type}`}
                     className="w-full h-48 object-contain"
                   />
                   <div className="p-4">
-                    <h3 className="text-red-600 font-medium">{vehicle.model}</h3>
-                    <p className="text-gray-600">{vehicle.type}</p>
-                    <div className="flex justify-between mt-2 text-sm text-gray-500">
-                      <span>{vehicle.year}</span>
-                      <span>{vehicle.mile}</span>
-                    </div>
+                    <h3 className="text-red-600 font-medium">{vehicle.make} {vehicle.model}</h3>
+                    <p className="text-gray-600">Year: {vehicle.year}</p>
+                    <p className="text-gray-600">Total Km Run: {vehicle.mile.toLocaleString()} km</p>
                     <p className="mt-2 font-semibold">Rs. {vehicle.price.toLocaleString()}</p>
                   </div>
                 </div>
               ))}
             </div>
+          ) : (
+            <p className="text-center text-gray-600">No vehicles found.</p>
           )}
 
           {/* Pagination */}

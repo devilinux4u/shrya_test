@@ -12,14 +12,19 @@ export default function BuyVehiclesDesc() {
   const mainRef = useRef(null);
   const sections = useRef({});
 
-  const { scrollYProgress } = useScroll({
-    target: mainRef,
-    offset: ["start start", "end end"],
-  });
-
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const vehicleId = params.get("id"); // Get the vehicle ID from URL params
+
+  // Move useScroll here with layoutEffect: false
+  const { scrollYProgress } = useScroll({
+    target: mainRef,
+    offset: ["start start", "end end"],
+    layoutEffect: false,
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
 
   useEffect(() => {
     // Fetch vehicle data from the backend using the ID from the URL
@@ -69,9 +74,6 @@ export default function BuyVehiclesDesc() {
     };
   }, []);
 
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
-
   if (!vehicle) {
     return <div>Loading...</div>; // Show loading state while data is being fetched
   }
@@ -116,6 +118,16 @@ export default function BuyVehiclesDesc() {
                 <p className="text-3xl font-bold">
                   Rs. <span className="text-red-600">{vehicle.price}</span>
                 </p>
+              </div>
+
+              {/* Added Posted By and Posted Time */}
+              <div>
+                <p className="text-gray-500">Posted By</p>
+                <p className="text-xl">{vehicle.postedBy}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Posted Time</p>
+                <p className="text-xl">{new Date(vehicle.postedTime).toLocaleString()}</p>
               </div>
             </div>
 

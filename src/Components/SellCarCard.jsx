@@ -10,7 +10,7 @@ function VehicleCard({ vehicle }) {
       className="flex flex-col items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
       onClick={() => {
         const vehicleParams = new URLSearchParams(vehicle);
-        navigate(`/BuyVehiclesDesc?${vehicleParams}`);
+        navigate(`/BuyVehiclesDesc?${vehicleParams}`); // Correct route name
       }}
     >
       <img

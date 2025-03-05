@@ -1,42 +1,201 @@
 "use client"
 
-import { useState } from "react"
-import { Search, Plus, Edit, Trash2, Filter } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Search, Plus, Edit, Trash2, Filter } from 'lucide-react'
 import { useNavigate } from "react-router-dom"
 
 export default function Vehicles() {
-  const [vehicles] = useState([
-    {
-      id: 1,
-      brand: "TOYOTA",
-      model: "LAND CRUISER PRADO",
-      year: "2023",
-      price: "10,000,000",
-      status: "Available",
-      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-yYEfMtCEIUbS41feUOsWLakxRbQ3Xd.png",
-    },
-    {
-      id: 2,
-      brand: "TOYOTA",
-      model: "FORTUNER",
-      year: "2023",
-      price: "8,500,000",
-      status: "Sold",
-      image: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-yYEfMtCEIUbS41feUOsWLakxRbQ3Xd.png",
-    },
-    // Add more vehicles as needed
-  ])
+  const [vehicles, setVehicles] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [displayedVehicles, setDisplayedVehicles] = useState([])
+  const [searchTerm, setSearchTerm] = useState("")
+  const [brandFilter, setBrandFilter] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
+  const [sortBy, setSortBy] = useState("")
 
   const navigate = useNavigate()
+
+  // Fetch vehicles data
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        setLoading(true)
+        // Replace this with your actual API call
+        // const response = await fetch('/api/vehicles')
+        // const data = await response.json()
+        
+        // Simulating API response with sample data
+        const data = [
+          {
+            id: 1,
+            make: "TOYOTA",
+            model: "LAND CRUISER PRADO",
+            year: "2023",
+            price: 10000000,
+            mile: 5000,
+            status: "Available",
+            location: "Kathmandu, Nepal",
+            postedBy: {
+              name: "John Doe",
+              role: "Admin",
+              contact: "+977 9812345678",
+              email: "john.doe@example.com"
+            },
+            postedAt: "2023-08-15T10:30:00Z",
+            images: [{ image: "/uploads/prado.jpg" }]
+          },
+          {
+            id: 2,
+            make: "TOYOTA",
+            model: "FORTUNER",
+            year: "2023",
+            price: 8500000,
+            mile: 7500,
+            status: "Sold",
+            location: "Pokhara, Nepal",
+            postedBy: {
+              name: "Jane Smith",
+              role: "User",
+              contact: "+977 9876543210",
+              email: "jane.smith@example.com"
+            },
+            postedAt: "2023-07-20T14:45:00Z",
+            images: [{ image: "/uploads/fortuner.jpg" }]
+          },
+          {
+            id: 3,
+            make: "HONDA",
+            model: "CIVIC",
+            year: "2022",
+            price: 5500000,
+            mile: 12000,
+            status: "Available",
+            location: "Lalitpur, Nepal",
+            postedBy: {
+              name: "Mike Johnson",
+              role: "User",
+              contact: "+977 9845678912",
+              email: "mike.johnson@example.com"
+            },
+            postedAt: "2023-08-05T09:15:00Z",
+            images: [{ image: "/uploads/civic.jpg" }]
+          },
+          {
+            id: 4,
+            make: "FORD",
+            model: "MUSTANG",
+            year: "2021",
+            price: 15000000,
+            mile: 3000,
+            status: "Maintenance",
+            location: "Bhaktapur, Nepal",
+            postedBy: {
+              name: "Sarah Williams",
+              role: "Admin",
+              contact: "+977 9812345678",
+              email: "sarah.williams@example.com"
+            },
+            postedAt: "2023-06-10T16:20:00Z",
+            images: [{ image: "/uploads/mustang.jpg" }]
+          }
+        ]
+        
+        setVehicles(data)
+        setDisplayedVehicles(data)
+        setLoading(false)
+      } catch (err) {
+        console.error("Error fetching vehicles:", err)
+        setError("Failed to load vehicles. Please try again later.")
+        setLoading(false)
+      }
+    }
+
+    fetchVehicles()
+  }, [])
+
+  // Filter and sort vehicles
+  useEffect(() => {
+    let filtered = [...vehicles]
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(vehicle => 
+        vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+    
+    // Apply brand filter
+    if (brandFilter) {
+      filtered = filtered.filter(vehicle => 
+        vehicle.make.toLowerCase() === brandFilter.toLowerCase()
+      )
+    }
+    
+    // Apply status filter
+    if (statusFilter) {
+      filtered = filtered.filter(vehicle => 
+        vehicle.status.toLowerCase() === statusFilter.toLowerCase()
+      )
+    }
+    
+    // Apply sorting
+    if (sortBy) {
+      switch (sortBy) {
+        case "price-asc":
+          filtered.sort((a, b) => a.price - b.price)
+          break
+        case "price-desc":
+          filtered.sort((a, b) => b.price - a.price)
+          break
+        case "newest":
+          filtered.sort((a, b) => parseInt(b.year) - parseInt(a.year))
+          break
+        default:
+          break
+      }
+    }
+    
+    setDisplayedVehicles(filtered)
+  }, [vehicles, searchTerm, brandFilter, statusFilter, sortBy])
 
   const handleAddVehicle = () => {
     navigate("/admin/addnewvehicles")
   }
 
+  const handleViewDetails = (vehicle) => {
+    navigate(`/admin/viewdetails/${vehicle.id}`)
+  }
+
+  const handleEditVehicle = (vehicle) => {
+    navigate(`/admin/editvehicle/${vehicle.id}`, { state: { vehicle } })
+  }
+
+  const handleDeleteVehicle = (vehicleId) => {
+    // Add confirmation dialog
+    if (window.confirm("Are you sure you want to delete this vehicle?")) {
+      // Replace with your actual delete API call
+      // const deleteVehicle = async () => {
+      //   try {
+      //     await fetch(`/api/vehicles/${vehicleId}`, {
+      //       method: 'DELETE'
+      //     })
+      //     setVehicles(vehicles.filter(v => v.id !== vehicleId))
+      //   } catch (err) {
+      //     console.error("Error deleting vehicle:", err)
+      //     alert("Failed to delete vehicle. Please try again.")
+      //   }
+      // }
+      // deleteVehicle()
+      
+      // For now, just filter out the vehicle from the state
+      setVehicles(vehicles.filter(v => v.id !== vehicleId))
+    }
+  }
+
   return (
-    // Add ml-64 to offset the fixed sidebar and remove the original p-8 padding
     <div className="flex-1 ml-64 min-h-screen bg-gray-50">
-      {/* Add padding inside this container instead */}
       <div className="p-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <h1 className="text-2xl font-semibold">Vehicles</h1>
@@ -57,11 +216,17 @@ export default function Vehicles() {
               type="text"
               placeholder="Search vehicles..."
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <select className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white">
+            <select 
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value)}
+            >
               <option value="">Filter by Brand</option>
               <option value="toyota">Toyota</option>
               <option value="honda">Honda</option>
@@ -69,7 +234,11 @@ export default function Vehicles() {
             </select>
           </div>
           <div className="relative">
-            <select className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white">
+            <select 
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
               <option value="">Filter by Status</option>
               <option value="available">Available</option>
               <option value="sold">Sold</option>
@@ -77,7 +246,11 @@ export default function Vehicles() {
             </select>
           </div>
           <div className="relative">
-            <select className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white">
+            <select 
+              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
               <option value="">Sort by</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
@@ -87,54 +260,71 @@ export default function Vehicles() {
         </div>
 
         {/* Vehicles Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {vehicles.map((vehicle) => (
-            <div key={vehicle.id} className="bg-white rounded-lg shadow-sm overflow-hidden">
-              <div className="relative aspect-video">
-                <img
-                  src={vehicle.image || "/placeholder.svg"}
-                  alt={`${vehicle.brand} ${vehicle.model}`}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 right-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      vehicle.status === "Available" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {vehicle.status}
-                  </span>
+        <div className="flex-1">
+          {error ? (
+            <p className="text-center text-red-600">{error}</p>
+          ) : loading ? (
+            <p className="text-center text-gray-600">Loading vehicles...</p>
+          ) : displayedVehicles.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {displayedVehicles.map((vehicle) => (
+                <div
+                  key={vehicle.id}
+                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col overflow-hidden"
+                >
+                  <div className="relative aspect-video">
+                    <img
+                      src={(vehicle.images && vehicle.images.length > 0 && `../../server/controllers${vehicle.images[0].image}`) || "/placeholder.svg"}
+                      alt={`${vehicle.make} ${vehicle.model}`}
+                      className="w-full h-full object-contain"
+                    />
+                    <div className="absolute top-4 right-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          vehicle.status === "Available" ? "bg-green-100 text-green-800" : 
+                          vehicle.status === "Sold" ? "bg-red-100 text-red-800" : 
+                          "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {vehicle.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col">
+                    <h3 className="text-red-600 font-medium">{vehicle.make} {vehicle.model}</h3>
+                    <p className="text-gray-600">Year: {vehicle.year}</p>
+                    <p className="text-gray-600">Total Km Run: {vehicle.mile.toLocaleString()} km</p>
+                    <p className="mt-2 font-semibold">Rs. {vehicle.price.toLocaleString()}</p>
+                    
+                    <div className="flex gap-2 mt-4">
+                      <button 
+                        onClick={() => handleViewDetails(vehicle)}
+                        className="flex-1 bg-[#4F46E5] text-white px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors"
+                      >
+                        View Details
+                      </button>
+                      <button 
+                        onClick={() => handleEditVehicle(vehicle)}
+                        className="p-2 text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteVehicle(vehicle.id)}
+                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="p-6">
-                <div className="mb-4">
-                  <h3 className="text-[#DC2626] text-lg font-bold">{vehicle.brand}</h3>
-                  <p className="text-2xl font-bold tracking-wider">{vehicle.model}</p>
-                  <p className="text-gray-600">Year: {vehicle.year}</p>
-                </div>
-                <div className="mb-6">
-                  <p className="text-sm text-gray-600">Price</p>
-                  <p className="text-2xl font-bold">
-                    Rs. <span className="text-[#DC2626]">{vehicle.price}</span>
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <button className="flex-1 bg-[#4F46E5] text-white px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors">
-                    View Details
-                  </button>
-                  <button className="p-2 text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100 rounded-lg transition-colors">
-                    <Edit className="w-5 h-5" />
-                  </button>
-                  <button className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors">
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          ) : (
+            <p className="text-center text-gray-600">No vehicles found. Try adjusting your filters.</p>
+          )}
         </div>
       </div>
     </div>
   )
 }
-

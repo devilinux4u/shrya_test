@@ -34,6 +34,7 @@ import History from './Pages/History';
 import UserVerification from './Pages/UserVerification';
 import WishlistVehicleDetail from './Pages/WishlistVehicleDetail';
 import VehicleBooking from './Pages/VehicleBooking';
+import ViewDetails from './Admin/Vehicle Management/ViewDetails';
 
 function App() {
   const location = useLocation();
@@ -82,6 +83,7 @@ function App() {
         
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
+        <Route path="/admin/viewdetails" element={<ViewDetails />} />
         <Route path="/admin/vehicles" element={<Vehicles />} />
         <Route path="/admin/addnewvehicles" element={<AddNewVehicle />} />
         <Route path="/admin/transactions" element={<Transactions />} />

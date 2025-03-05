@@ -70,7 +70,7 @@ export default function Login({ onLogin }) {
           setError("")
           onLogin({ username: user, password: pass }) // Call onLogin with credentials
           toast.success("Login successful!")
-          navigate("/RentalVehicles")
+          navigate("/")
           window.location.reload();
 
         }
@@ -131,7 +131,7 @@ export default function Login({ onLogin }) {
         if (data.success) {
           Cookies.set("sauto", data.cok, { expires: 10 });
           toast.success("Google login successful!");
-          navigate("/RentalVehicles");
+          navigate("/");
           window.location.reload();
         } else {
           toast.error(data.msg);
