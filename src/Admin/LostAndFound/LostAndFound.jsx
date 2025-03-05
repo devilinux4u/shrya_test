@@ -97,13 +97,9 @@ export default function LostAndFound() {
           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (item.make &&
-            item.make
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())) ||
+            item.make.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (item.model &&
-            item.model
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())) ||
+            item.model.toLowerCase().includes(searchTerm.toLowerCase())) ||
           (item.nplate &&
             item.nplate.toLowerCase().includes(searchTerm.toLowerCase()))
       );
@@ -121,7 +117,9 @@ export default function LostAndFound() {
       } else if (statusFilter === "found") {
         filtered = filtered.filter((item) => item.type === "found");
       } else if (statusFilter === "resolved") {
-        filtered = filtered.filter((item) => item.status !== "active");
+        filtered = filtered.filter((item) => item.status === "resolved");
+      } else if (statusFilter === "active") {
+        filtered = filtered.filter((item) => item.status === "active");
       }
     }
 
@@ -141,26 +139,41 @@ export default function LostAndFound() {
   };
 
   // Status helpers
-  const getStatusColor = (type) => {
+  const getStatusColor = (type, status) => {
+    if (status === "resolved") {
+      return "bg-blue-100 text-blue-800";
+    }
+
     switch (type) {
       case "lost":
         return "bg-yellow-100 text-yellow-800";
       case "found":
         return "bg-green-100 text-green-800";
       default:
-        return "bg-blue-100 text-blue-800";
+        return "bg-gray-100 text-gray-800";
     }
   };
 
-  const getStatusIcon = (type) => {
+  const getStatusIcon = (type, status) => {
+    if (status === "resolved") {
+      return <CheckCircle className="w-4 h-4 mr-1" />;
+    }
+
     switch (type) {
       case "lost":
         return <Clock className="w-4 h-4 mr-1" />;
       case "found":
-        return <CheckCircle className="w-4 h-4 mr-1" />;
+        return <Eye className="w-4 h-4 mr-1" />;
       default:
-        return <XCircle className="w-4 h-4 mr-1" />;
+        return <AlertTriangle className="w-4 h-4 mr-1" />;
     }
+  };
+
+  const getStatusText = (type, status) => {
+    if (status === "resolved") {
+      return "RESOLVED";
+    }
+    return type.toUpperCase();
   };
 
   // Update item status
@@ -179,17 +192,31 @@ export default function LostAndFound() {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.message}`);
       }
-      const updatedItem = await response.json();
-      // setItems(items.map((item) => (item.id === id ? {...updatedItem.data} : item)))
+      const result = await response.json();
 
-      window.location.reload();
+      // Update item in the local state
+      setItems(
+        items.map((item) =>
+          item.id === id ? { ...item, status: "resolved" } : item
+        )
+      );
+      setFilteredItems(
+        filteredItems.map((item) =>
+          item.id === id ? { ...item, status: "resolved" } : item
+        )
+      );
 
-      toast.success(`Item status updated`);
+      if (selectedItem && selectedItem.id === id) {
+        setSelectedItem({ ...selectedItem, status: "resolved" });
+      }
+
+      toast.success(`Item marked as resolved`);
     } catch (err) {
       console.error("Error updating item status:", err);
       toast.error(`Failed to update status: ${err.message}`);
     }
   };
+
   // Delete item
   const deleteItem = async () => {
     if (!itemToDelete) return;
@@ -323,7 +350,8 @@ export default function LostAndFound() {
   };
 
   // Permission helpers
-  const canEdit = (item) => currentUserRole === "Admin";
+  const canEdit = (item) =>
+    currentUserRole === "Admin" && item.status !== "resolved";
   const canContact = (item) => item.user.fname === "User" && item.user.num;
 
   // Reset filters
@@ -403,6 +431,7 @@ export default function LostAndFound() {
                   className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">All Status</option>
+                  <option value="active">Active</option>
                   <option value="lost">Lost</option>
                   <option value="found">Found</option>
                   <option value="resolved">Resolved</option>
@@ -506,11 +535,14 @@ export default function LostAndFound() {
                     </h3>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        item.type
+                        item.type,
+                        item.status
                       )}`}
                     >
-                      {getStatusIcon(item.type)}
-                      <span className="ml-1">{item.type.toUpperCase()}</span>
+                      {getStatusIcon(item.type, item.status)}
+                      <span className="ml-1">
+                        {getStatusText(item.type, item.status)}
+                      </span>
                     </span>
                   </div>
                   <div className="flex gap-1 sm:gap-2">
