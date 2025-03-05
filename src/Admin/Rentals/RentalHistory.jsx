@@ -67,7 +67,6 @@ export default function RentalHistory() {
           driveOption: rental.driveOption,
           deposit: rental.deposit || 0,
           depositReturned: rental.depositReturned || false,
-          rating: rental.rating || null,
           review: rental.review || null,
           damageReport: rental.damageReport || null,
           rentVehicle: {
@@ -76,7 +75,6 @@ export default function RentalHistory() {
             model: rental.rentVehicle?.model || "",
             year: rental.rentVehicle?.year || "",
             numberPlate: rental.rentVehicle?.numberPlate || "",
-            color: rental.rentVehicle?.color || "N/A",
             fuelType: rental.rentVehicle?.fuelType || "",
             transmission: rental.rentVehicle?.transmission || "",
           },
@@ -185,13 +183,6 @@ export default function RentalHistory() {
       return matchesSearch && matchesStatus;
     })
     .sort((a, b) => {
-      if (sortConfig.key === "rating") {
-        const ratingA = a.rating || 0;
-        const ratingB = b.rating || 0;
-        return sortConfig.direction === "asc"
-          ? ratingA - ratingB
-          : ratingB - ratingA;
-      }
       const valueA = a[sortConfig.key];
       const valueB = b[sortConfig.key];
       if (valueA < valueB) return sortConfig.direction === "asc" ? -1 : 1;
@@ -325,15 +316,6 @@ export default function RentalHistory() {
                   <option value="completed_late">Late Returns</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
-                <button
-                  onClick={() => {
-                    console.log("Exporting data...");
-                  }}
-                  className="px-4 py-2 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] transition-colors flex items-center gap-2"
-                >
-                  <Download className="w-5 h-5" />
-                  Export
-                </button>
               </div>
             </div>
 
@@ -384,15 +366,7 @@ export default function RentalHistory() {
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Status
                           </th>
-                          <th
-                            className="group px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-[#4F46E5] transition-colors"
-                            onClick={() => handleSort("rating")}
-                          >
-                            <div className="flex items-center gap-2">
-                              Rating
-                              {getSortIcon("rating")}
-                            </div>
-                          </th>
+
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Actions
                           </th>
@@ -450,20 +424,7 @@ export default function RentalHistory() {
                                 </span>
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {rental.rating ? (
-                                <div className="flex items-center">
-                                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                                  <span className="ml-1 text-sm text-gray-600">
-                                    {rental.rating}/5
-                                  </span>
-                                </div>
-                              ) : (
-                                <span className="text-sm text-gray-500">
-                                  N/A
-                                </span>
-                              )}
-                            </td>
+
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                               <button
                                 onClick={() => setSelectedRental(rental)}
@@ -591,14 +552,7 @@ export default function RentalHistory() {
                           {selectedRental.rentVehicle.numberPlate}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          Color
-                        </p>
-                        <p className="text-gray-900">
-                          {selectedRental.rentVehicle.color}
-                        </p>
-                      </div>
+
                       <div>
                         <p className="text-sm font-medium text-gray-500">
                           Transmission
@@ -674,14 +628,7 @@ export default function RentalHistory() {
                           {formatTime(selectedRental.returnTime)}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          Duration
-                        </p>
-                        <p className="text-gray-900">
-                          {selectedRental.rentalDuration}
-                        </p>
-                      </div>
+
                       <div>
                         <p className="text-sm font-medium text-gray-500">
                           Pickup Location
@@ -705,79 +652,7 @@ export default function RentalHistory() {
                           Rs. {selectedRental.totalAmount.toLocaleString()}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          Security Deposit
-                        </p>
-                        <p className="text-gray-900">
-                          Rs. {selectedRental.deposit.toLocaleString()}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">
-                          Deposit Status
-                        </p>
-                        <p
-                          className={`text-${
-                            selectedRental.depositReturned ? "green" : "red"
-                          }-600`}
-                        >
-                          {selectedRental.depositReturned
-                            ? "Returned"
-                            : "Not Returned"}
-                        </p>
-                      </div>
                     </div>
-
-                    {/* Review and Damage Report */}
-                    {(selectedRental.review || selectedRental.damageReport) && (
-                      <div className="col-span-2 space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Additional Information
-                        </h3>
-                        {selectedRental.review && (
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <p className="text-sm font-medium text-gray-500">
-                              Customer Review
-                            </p>
-                            {selectedRental.rating && (
-                              <div className="flex items-center gap-2 mb-2">
-                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                                <span className="text-gray-600">
-                                  {selectedRental.rating}/5
-                                </span>
-                              </div>
-                            )}
-                            <p className="text-gray-900">
-                              {selectedRental.review}
-                            </p>
-                          </div>
-                        )}
-                        {selectedRental.damageReport && (
-                          <div className="bg-red-50 rounded-lg p-4">
-                            <p className="text-sm font-medium text-red-500">
-                              Damage Report
-                            </p>
-                            <p className="text-red-900">
-                              {selectedRental.damageReport}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-8 flex justify-end gap-3 border-t pt-6">
-                    <button
-                      onClick={() => setSelectedRental(null)}
-                      className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-                    >
-                      Close
-                    </button>
-                    <button className="px-4 py-2 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] transition-colors font-medium flex items-center gap-2">
-                      <Download className="w-5 h-5" />
-                      Export Details
-                    </button>
                   </div>
                 </div>
               </div>

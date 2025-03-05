@@ -14,8 +14,11 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  Tag,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Vehicles() {
   const [vehicles, setVehicles] = useState([]);
@@ -48,6 +51,8 @@ export default function Vehicles() {
 
   // Add this new state variable near the top with your other state declarations
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [newStatus, setNewStatus] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
@@ -204,9 +209,10 @@ export default function Vehicles() {
 
       setIsEditing(false);
       setSelectedVehicle(null);
+      toast.success("Vehicle updated successfully!");
     } catch (error) {
       console.error("Error updating vehicle:", error);
-      alert("Failed to update vehicle. Please try again.");
+      toast.error("Failed to update vehicle. Please try again.");
     }
   };
 
@@ -232,9 +238,55 @@ export default function Vehicles() {
       setVehicles(vehicles.filter((v) => v.id !== selectedVehicle.id));
       setIsDeleteModalOpen(false);
       setSelectedVehicle(null);
+      toast.success("Vehicle deleted successfully!");
     } catch (err) {
       console.error("Error deleting vehicle:", err);
-      alert("Failed to delete vehicle. Please try again.");
+      toast.error("Failed to delete vehicle. Please try again.");
+    }
+  };
+
+  // Add function to handle status change
+  const handleStatusChange = (vehicle) => {
+    setSelectedVehicle(vehicle);
+    setNewStatus(vehicle.status === "available" ? "sold" : "available");
+    setIsStatusModalOpen(true);
+  };
+
+  // Add function to confirm status change
+  const confirmStatusChange = async () => {
+    if (!selectedVehicle) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/vehicles/status/${selectedVehicle.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update vehicle status");
+      }
+
+      // Update the local state
+      setVehicles((prevVehicles) =>
+        prevVehicles.map((vehicle) =>
+          vehicle.id === selectedVehicle.id
+            ? { ...vehicle, status: newStatus }
+            : vehicle
+        )
+      );
+
+      setIsStatusModalOpen(false);
+      setSelectedVehicle(null);
+      toast.success(`Vehicle marked as ${newStatus}!`);
+    } catch (err) {
+      console.error("Error updating vehicle status:", err);
+      toast.error("Failed to update vehicle status. Please try again.");
     }
   };
 
@@ -262,6 +314,7 @@ export default function Vehicles() {
 
   return (
     <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <ToastContainer position="top-right" autoClose={3000} />
       <div className="p-4 sm:p-6 md:p-8">
         <div className="mb-6 md:mb-8">
           <div className="border-l-4 border-[#ff6b00] pl-4">
@@ -497,9 +550,10 @@ export default function Vehicles() {
               {currentItems.map((vehicle) => (
                 <div
                   key={vehicle.id}
-                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col overflow-hidden"
+                  className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col h-full overflow-hidden"
                 >
-                  <div className="relative aspect-video">
+                  {/* Image Container - Fixed Height */}
+                  <div className="relative h-48 overflow-hidden">
                     <img
                       src={
                         (vehicle.images &&
@@ -510,7 +564,10 @@ export default function Vehicles() {
                         "/placeholder.svg"
                       }
                       alt={`${vehicle.make} ${vehicle.model}`}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = "/placeholder.svg";
+                      }}
                     />
                     <div className="absolute top-4 right-4">
                       <span
@@ -526,34 +583,65 @@ export default function Vehicles() {
                       </span>
                     </div>
                   </div>
-                  <div className="p-4 flex-1 flex flex-col">
-                    <h3 className="text-red-600 font-medium">
-                      {vehicle.make} {vehicle.model}
-                    </h3>
-                    <p className="text-gray-600">Year: {vehicle.year}</p>
-                    <p className="text-gray-600">
-                      Total Km Run: {vehicle.mile.toLocaleString()} km
-                    </p>
-                    <p className="mt-2 font-semibold">
-                      Rs. {vehicle.price.toLocaleString()}
-                    </p>
 
-                    <div className="flex gap-2 mt-4">
+                  {/* Content Container - Equal Height */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <div className="flex-1">
+                      <h3 className="text-red-600 font-medium text-lg mb-1">
+                        {vehicle.make} {vehicle.model}
+                      </h3>
+                      <div className="grid grid-cols-2 gap-x-2 gap-y-1 mb-3">
+                        <p className="text-gray-600 text-sm flex items-center">
+                          <Calendar className="w-3.5 h-3.5 mr-1 text-gray-400" />
+                          Year: {vehicle.year}
+                        </p>
+                        <p className="text-gray-600 text-sm flex items-center">
+                          <Clock className="w-3.5 h-3.5 mr-1 text-gray-400" />
+                          {vehicle.mile.toLocaleString()} km
+                        </p>
+                      </div>
+                      <p className="text-xl font-semibold text-gray-800 mb-3">
+                        Rs. {vehicle.price.toLocaleString()}
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2 mt-auto pt-3 border-t border-gray-100">
                       <button
                         onClick={() => handleViewDetails(vehicle)}
-                        className="flex-1 bg-[#4F46E5] text-white px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors"
+                        className="flex-1 bg-[#4F46E5] text-white px-3 py-2 rounded-lg hover:bg-[#4338CA] transition-colors text-sm font-medium"
                       >
                         View Details
                       </button>
                       <button
                         onClick={() => handleEditVehicle(vehicle)}
                         className="p-2 text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Edit Vehicle"
                       >
                         <Edit className="w-5 h-5" />
                       </button>
                       <button
+                        onClick={() => handleStatusChange(vehicle)}
+                        className={`p-2 ${
+                          vehicle.status === "available"
+                            ? "text-gray-600 hover:text-blue-600"
+                            : "text-gray-600 hover:text-green-600"
+                        } hover:bg-gray-100 rounded-lg transition-colors`}
+                        title={
+                          vehicle.status === "available"
+                            ? "Mark as Sold"
+                            : "Mark as Available"
+                        }
+                      >
+                        {vehicle.status === "available" ? (
+                          <Tag className="w-5 h-5" />
+                        ) : (
+                          <Check className="w-5 h-5" />
+                        )}
+                      </button>
+                      <button
                         onClick={() => handleDeleteVehicle(vehicle)}
                         className="p-2 text-gray-600 hover:text-red-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Delete Vehicle"
                       >
                         <Trash2 className="w-5 h-5" />
                       </button>
@@ -804,6 +892,79 @@ export default function Vehicles() {
                 >
                   <Trash2 className="w-4 h-4 mr-2" />
                   Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Status Change Confirmation Modal */}
+      {isStatusModalOpen && selectedVehicle && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white rounded-xl overflow-hidden w-full max-w-md shadow-2xl transform transition-all animate-scaleIn">
+            <div
+              className={`${
+                newStatus === "sold" ? "bg-red-50" : "bg-green-50"
+              } p-6 text-center`}
+            >
+              <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4">
+                {newStatus === "sold" ? (
+                  <Tag className="h-8 w-8 text-blue-600" />
+                ) : (
+                  <Check className="h-8 w-8 text-green-600" />
+                )}
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Change Vehicle Status
+              </h3>
+              <p className="text-gray-600 mb-1">
+                Are you sure you want to mark this vehicle as{" "}
+                <span
+                  className={
+                    newStatus === "sold"
+                      ? "text-red-600 font-medium"
+                      : "text-green-600 font-medium"
+                  }
+                >
+                  {newStatus}
+                </span>
+                ?
+              </p>
+              <p className="text-lg font-medium text-blue-600 mb-6">
+                {selectedVehicle.make} {selectedVehicle.model} (
+                {selectedVehicle.year})
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => setIsStatusModalOpen(false)}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmStatusChange}
+                  className={`px-4 py-2 ${
+                    newStatus === "sold"
+                      ? "bg-blue-600 hover:bg-blue-700"
+                      : "bg-green-600 hover:bg-green-700"
+                  } rounded-lg text-white font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    newStatus === "sold"
+                      ? "focus:ring-blue-500"
+                      : "focus:ring-green-500"
+                  } flex items-center justify-center`}
+                >
+                  {newStatus === "sold" ? (
+                    <>
+                      <Tag className="w-4 h-4 mr-2" />
+                      Mark as Sold
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-4 h-4 mr-2" />
+                      Mark as Available
+                    </>
+                  )}
                 </button>
               </div>
             </div>
