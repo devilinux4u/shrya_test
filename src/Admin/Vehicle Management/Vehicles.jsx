@@ -261,8 +261,16 @@ export default function Vehicles() {
   };
 
   return (
-    <div className="flex-1 ml-64 min-h-screen bg-gray-50">
-      <div className="p-8">
+    <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <div className="border-l-4 border-[#ff6b00] pl-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Vehicle Management
+            </h1>
+          </div>
+        </div>
+
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <h1 className="text-2xl font-semibold">Vehicles</h1>
           <button

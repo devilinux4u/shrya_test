@@ -117,13 +117,6 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-
-
-
-
-
-
-
 // GET all active rental vehicles
 router.get('/active/all', async (req, res) => {
   try {
@@ -132,33 +125,33 @@ router.get('/active/all', async (req, res) => {
       include: [
         {
           model: db.users,
-          attributes: ['id', 'fname', 'uname', 'email'] // customize fields as needed
+          attributes: ['id', 'fname', 'uname', 'email'], // customize fields as needed
         },
         {
           model: db.RentalAllVehicles,
           include: [
-            { 
+            {
               model: db.RentalAllVehicleImages,
-            }
-          ]
-        }
-      ]
+              as: 'rentVehicleImages', // Ensure alias matches the frontend mapping
+            },
+          ],
+        },
+      ],
     });
 
     res.json({
       success: true,
-      data: vehiclesData
+      data: vehiclesData,
     });
   } catch (error) {
     console.error('Error fetching rental vehicles:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: error.message
+      message: error.message,
     });
   }
 });
-
 
 // GET only one active rental vehicles
 router.get('/active/one/:id', async (req, res) => {
@@ -194,7 +187,5 @@ router.get('/active/one/:id', async (req, res) => {
     });
   }
 });
-
-
 
 module.exports = router;

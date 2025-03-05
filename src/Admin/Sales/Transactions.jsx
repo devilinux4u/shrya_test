@@ -131,10 +131,16 @@ export default function Transactions() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    // Add ml-64 to offset the fixed sidebar
-    <div className="flex-1 ml-64 min-h-screen bg-gray-50">
-      {/* Add padding inside this container */}
-      <div className="p-8">
+    <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <div className="border-l-4 border-[#ff6b00] pl-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Transactions
+            </h1>
+          </div>
+        </div>
+
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">

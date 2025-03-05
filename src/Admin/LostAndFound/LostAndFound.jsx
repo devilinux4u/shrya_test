@@ -311,12 +311,15 @@ export default function LostAndFound() {
   const canContact = (item) => item.user.fname === "User" && item.user.num;
 
   return (
-    <div className="min-h-screen bg-gray-100 ml-64 p-8">
-      {/* Header Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Lost and Found
-        </h1>
+    <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <div className="border-l-4 border-[#ff6b00] pl-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Lost and Found
+            </h1>
+          </div>
+        </div>
 
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4">

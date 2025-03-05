@@ -102,8 +102,16 @@ const Feedback = () => {
     return <div className="text-center py-10 text-red-500">{error}</div>;
 
   return (
-    <div className="flex-1 ml-64 min-h-screen bg-gray-50">
-      <div className="p-8">
+    <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <div className="border-l-4 border-[#ff6b00] pl-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Feedback Management
+            </h1>
+          </div>
+        </div>
+
         <div className="font-sans text-gray-800 max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-5 flex-wrap gap-4">
             <h1 className="text-2xl font-bold text-gray-700 m-0">
