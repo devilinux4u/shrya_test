@@ -1,6 +1,11 @@
 require('dotenv').config();
 const nodemailer = require('nodemailer');
 
+/**
+ * Formats a date string with ordinal suffixes (1st, 2nd, 3rd, etc.)
+ * @param {string} dateString - ISO date string to format
+ * @return {string} Formatted date and time
+ */
 const formatDateTime = (dateString) => {
     const date = new Date(dateString);
     const options = {
@@ -12,14 +17,22 @@ const formatDateTime = (dateString) => {
         hour12: true
     };
     return date.toLocaleString('en-US', options).replace(/(\d+)(?=\s)/, (match) => {
-        const suffix = ['th', 'st', 'nd', 'rd'][(match % 10 > 3 || [11, 12, 13].includes(match % 100)) ? 0 : match % 10];
-        return match + suffix;
+        const num = parseInt(match, 10);
+        if ([11, 12, 13].includes(num % 100)) return `${num}th`;
+        const suffix = ['th', 'st', 'nd', 'rd'][Math.min(num % 10, 4)] || 'th';
+        return `${num}${suffix}`;
     });
 };
 
-// Function to send cancellation email notification
-const cancelEmail = async (udata, adata, msg) => {
-    console.log(udata);
+/**
+ * Sends an appointment cancellation email to the customer
+ * @param {Object} userData - User data containing contact information
+ * @param {Object} appointmentData - Appointment details
+ * @param {string} [message] - Optional cancellation reason
+ * @return {Promise<boolean>} Returns true if email sent successfully
+ */
+const sendCancellationEmail = async (userData, appointmentData, message) => {
+    console.log('Sending cancellation email to:', userData.email);
 
     // Configure the email transporter
     const transporter = nodemailer.createTransport({
@@ -28,57 +41,67 @@ const cancelEmail = async (udata, adata, msg) => {
         secure: true,
         auth: {
             user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS, // App password (set in .env)
+            pass: process.env.EMAIL_PASS,
         },
     });
 
     // Format the appointment date/time for better readability
-    const formattedDateTime = formatDateTime(adata.date);
+    const formattedDateTime = formatDateTime(appointmentData.date);
 
     const mailOptions = {
-        from: `"Shreya Auto" <${process.env.EMAIL_USER}>`, // Sender name and email
-        to: udata.email, // Recipient email
-        subject: 'Appointment Cancellation Notification - Shreya Auto',
+        from: `"Shreya Auto" <${process.env.EMAIL_USER}>`,
+        to: userData.email,
+        subject: 'Appointment Cancellation Notice - Shreya Auto',
         html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 5px;">
                 <div style="text-align: center; margin-bottom: 20px;">
                     <h2 style="color: #333;">Appointment Cancellation</h2>
                 </div>
                 
-                <p style="margin-bottom: 15px;">Dear ${udata.fname},</p>
+                <p style="margin-bottom: 15px;">Dear ${userData.fname},</p>
                 
-                <p style="margin-bottom: 15px;">We're writing to inform you that your vehicle appointment scheduled for <strong>${formattedDateTime}</strong> has been canceled.</p>
+                <p style="margin-bottom: 15px;">We regret to inform you that your appointment at Shreya Auto scheduled for <strong>${formattedDateTime}</strong> has been cancelled.</p>
                 
-                <p style="margin-bottom: 15px;">If you would like to reschedule your appointment or have any questions, please contact our customer service team at <a href="tel:+1234567890">(123) 456-7890</a> or reply to this email.</p>
+                <div style="background-color: #f7f7f7; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+                    <p style="margin: 0 0 10px 0;"><strong>Cancelled Appointment Details:</strong></p>
+                    <p style="margin: 0 0 5px 0;">Date and Time: ${formattedDateTime}</p>
+                    <p style="margin: 0 0 5px 0;">Service Type: ${appointmentData.serviceType || 'Vehicle Service'}</p>
+                    ${message ? `<p style="margin: 10px 0 0 0;"><strong>Reason for cancellation:</strong> ${message}</p>` : ''}
+                </div>
                 
-                <p style="margin-bottom: 5px;">Thank you for your understanding. Reason: ${msg ? msg : 'none'}</p>
+                <p style="margin-bottom: 15px;">If you would like to reschedule your appointment or have any questions, please contact our customer service team at <a href="tel:+014541713">01-4541713</a> or <a href="tel:+9779841594067">9841594067</a>.</p>
+                
+                <p style="margin-bottom: 5px;">We apologize for any inconvenience this may cause and appreciate your understanding.</p>
                 
                 <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
                     <p style="margin: 0; font-weight: bold;">Shreya Auto</p>
-                    <p style="margin: 5px 0 0; color: #666; font-size: 14px;">Your trusted partner for vehicle transactions</p>
+                    <p style="margin: 5px 0 0; color: #666; font-size: 14px;">Your trusted partner for vehicle services</p>
                     <p style="margin: 5px 0 0; color: #666; font-size: 14px;"><a href="https://www.shreyaauto.com" style="color: #0066cc; text-decoration: none;">www.shreyaauto.com</a></p>
                 </div>
             </div>
         `,
         // Plain text version as fallback
-        text: `Dear ${udata.fname},
+        text: `Dear ${userData.fname},
 
-We're writing to inform you that your vehicle appointment scheduled for ${formattedDateTime} has been canceled.
+We regret to inform you that your appointment at Shreya Auto scheduled for ${formattedDateTime} has been cancelled.
 
-If you would like to reschedule your appointment or have any questions, please contact our customer service team at (123) 456-7890 or reply to this email.
+Cancelled Appointment Details:
+- Date and Time: ${formattedDateTime}
+- Service Type: ${appointmentData.serviceType || 'Vehicle Service'}
+${message ? `- Reason for cancellation: ${message}` : ''}
 
-Thank you for your understanding.
+If you would like to reschedule your appointment or have any questions, please contact our customer service team at 01-4541713 or 9841594067.
 
-
+We apologize for any inconvenience this may cause and appreciate your understanding.
 
 Shreya Auto
-Your trusted partner for vehicle transactions
+Your trusted partner for vehicle services
 www.shreyaauto.com`,
     };
 
     try {
         await transporter.sendMail(mailOptions);
-        console.log(`Cancellation notification sent successfully to ${udata.email}`);
+        console.log(`Cancellation notification sent successfully to ${userData.email}`);
         return true;
     } catch (error) {
         console.error('Error sending cancellation notification:', error);
@@ -87,4 +110,4 @@ www.shreyaauto.com`,
 };
 
 // Export the function
-module.exports = cancelEmail;
+module.exports = sendCancellationEmail;
