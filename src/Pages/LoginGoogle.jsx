@@ -40,12 +40,17 @@ const GoogleAuth = () => {
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <GoogleLogin
-        onSuccess={handleGoogleLoginSuccess}
-        onError={() => {
-          toast.error("Google login failed. Please try again.");
-        }}
-      />
+      <div className="flex justify-center">
+        <GoogleLogin
+          onSuccess={handleGoogleLoginSuccess}
+          onError={() => {
+            toast.error("Google login failed. Please try again.");
+          }}
+          theme="filled_blue"
+          size="large"
+          shape="pill"
+        />
+      </div>
     </GoogleOAuthProvider>
   );
 };

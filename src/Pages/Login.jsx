@@ -236,17 +236,19 @@ export default function Login({ onLogin }) {
                 </div>
               </div>
 
-              <motion.button
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-medium text-gray-700">
+                  Login with Google
+                </h3>
+              </div>
+
+              <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={(e) => {
-                  e.preventDefault(); // Prevent default form submission
-                  googleLogin();
-                }}
-                className="w-full transition-colors duration-300"
+                className="w-full flex justify-center"
               >
                 <GoogleAuth />
-              </motion.button>
+              </motion.div>
             </form>
           </motion.div>
         </div>

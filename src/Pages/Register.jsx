@@ -1,11 +1,18 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { FaUser, FaEnvelope, FaLock, FaGoogle, FaPhone, FaExclamationTriangle } from "react-icons/fa"
-import { motion, AnimatePresence } from "framer-motion"
-import { useNavigate } from "react-router-dom"
-import { ToastContainer, toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+import { useState } from "react";
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaGoogle,
+  FaPhone,
+  FaExclamationTriangle,
+} from "react-icons/fa";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -14,34 +21,40 @@ export default function Register() {
     email: "",
     phoneNumber: "",
     password: "",
-  })
-  const [error, setError] = useState("")
+  });
+  const [error, setError] = useState("");
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
-    }))
-  }
+    }));
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const { fullName, username, email, phoneNumber, password } = formData
+    const { fullName, username, email, phoneNumber, password } = formData;
 
-    try { 
+    try {
       const response = await fetch("http://127.0.0.1:3000/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: fullName, user: username, email, number: phoneNumber, pass: password }),
-      })
+        body: JSON.stringify({
+          name: fullName,
+          user: username,
+          email,
+          number: phoneNumber,
+          pass: password,
+        }),
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
         // Store user data in localStorage or sessionStorage for verification page
@@ -49,46 +62,46 @@ export default function Register() {
           "pendingVerification",
           JSON.stringify({
             userId: data.msg.id,
-            email: data.msg.email
-          }),
-        )
+            email: data.msg.email,
+          })
+        );
 
         // Navigate to verification page instead of login
-        toast.success("Please verify your account.")
+        toast.success("Please verify your account.");
 
         setTimeout(() => {
           navigate("/UserVerification");
         }, 1000);
       } else {
-        toast.error(data.msg || "Registration failed. Please try again.")
+        toast.error(data.msg || "Registration failed. Please try again.");
       }
     } catch (err) {
-      console.log(err.message)
-      toast.error("An error occurred")
+      console.log(err.message);
+      toast.error("An error occurred");
     }
-  }
+  };
 
   const googleLogin = () => {
-    console.log("Google login clicked")
+    console.log("Google login clicked");
     // Add your Google login logic here
-  }
+  };
 
   const pageVariants = {
     initial: { opacity: 0, x: 200 },
     animate: { opacity: 1, x: 0 },
     exit: { opacity: 0, x: -200 },
-  }
+  };
 
   const errorVariants = {
     initial: { opacity: 0, y: -10 },
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: -10 },
-  }
+  };
 
   const handleLoginClick = (e) => {
-    e.preventDefault()
-    navigate("/Login")
-  }
+    e.preventDefault();
+    navigate("/Login");
+  };
 
   return (
     <>
@@ -109,7 +122,9 @@ export default function Register() {
             transition={{ delay: 0.2 }}
             className="md:w-1/2 p-12"
           >
-            <h2 className="text-3xl font-bold text-gray-800 mb-8">Registration</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-8">
+              Registration
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="relative">
                 <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -200,24 +215,6 @@ export default function Register() {
               >
                 Register
               </motion.button>
-
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">or</span>
-                </div>
-              </div>
-
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={googleLogin}
-                className="w-full py-3 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-300"
-              >
-                <FaGoogle className="w-5 h-5 mr-2 text-red-500" /> Register with Google
-              </motion.button>
             </form>
           </motion.div>
 
@@ -240,6 +237,5 @@ export default function Register() {
         </div>
       </motion.div>
     </>
-  )
+  );
 }
-
