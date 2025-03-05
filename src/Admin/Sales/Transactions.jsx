@@ -34,9 +34,10 @@ export default function Transactions() {
         }
         const data = await response.json();
 
-        console.log(data)
+        console.log(data);
 
-        setTransactions(data);
+        // Ensure transactions is an array
+        setTransactions(Array.isArray(data) ? data : []);
       } catch (err) {
         setError(err.message);
       } finally {

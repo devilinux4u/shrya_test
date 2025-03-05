@@ -30,6 +30,7 @@ const menuItems = [
     submenu: [
       { title: "All Vehicles", path: "/admin/vehicles" },
       { title: "Add New Vehicle", path: "/admin/addnewvehicles" },
+      { title: "Bookings", path: "/admin/bookings" },
     ],
   },
   {
