@@ -121,7 +121,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
 
         console.log(formData)
 
-        // Simulate API call to submit the form
         const response = await fetch("http://127.0.0.1:3000/addVehicle", {
           method: "POST",
           body: formData,
