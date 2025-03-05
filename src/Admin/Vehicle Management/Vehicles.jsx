@@ -14,7 +14,7 @@ import {
   Calendar,
   ChevronLeft,
   ChevronRight,
-  Tag,
+  CheckCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
@@ -158,6 +158,8 @@ export default function Vehicles() {
   };
 
   const handleEditVehicle = (vehicle) => {
+    if (vehicle.status === "sold") return;
+
     setSelectedVehicle(vehicle);
     setUpdatedData({
       make: vehicle.make,
@@ -257,13 +259,16 @@ export default function Vehicles() {
     if (!selectedVehicle) return;
 
     try {
-      const response = await fetch(`http://localhost:3000/vehicles/sold/${selectedVehicle.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(),
-      })
+      const response = await fetch(
+        `http://localhost:3000/vehicles/sold/${selectedVehicle.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update vehicle status");
@@ -362,28 +367,31 @@ export default function Vehicles() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setUserFilter("")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 ${!userFilter
+                  className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                    !userFilter
                       ? "bg-[#4F46E5] text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   All Users
                 </button>
                 <button
                   onClick={() => setUserFilter("admin")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${userFilter === "admin"
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    userFilter === "admin"
                       ? "bg-purple-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   Admin
                 </button>
                 <button
                   onClick={() => setUserFilter("user")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${userFilter === "user"
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    userFilter === "user"
                       ? "bg-indigo-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   User
                 </button>
@@ -396,38 +404,43 @@ export default function Vehicles() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setStatusFilter("")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 ${!statusFilter
+                  className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                    !statusFilter
                       ? "bg-[#4F46E5] text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   All Status
                 </button>
                 <button
                   onClick={() => setStatusFilter("available")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${statusFilter === "available"
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    statusFilter === "available"
                       ? "bg-green-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   <Check
-                    className={`w-4 h-4 mr-1 ${statusFilter === "available"
+                    className={`w-4 h-4 mr-1 ${
+                      statusFilter === "available"
                         ? "text-white"
                         : "text-green-500"
-                      }`}
+                    }`}
                   />
                   Available
                 </button>
                 <button
                   onClick={() => setStatusFilter("sold")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${statusFilter === "sold"
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    statusFilter === "sold"
                       ? "bg-red-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   <X
-                    className={`w-4 h-4 mr-1 ${statusFilter === "sold" ? "text-white" : "text-red-500"
-                      }`}
+                    className={`w-4 h-4 mr-1 ${
+                      statusFilter === "sold" ? "text-white" : "text-red-500"
+                    }`}
                   />
                   Sold
                 </button>
@@ -442,62 +455,71 @@ export default function Vehicles() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setSortBy("")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 ${!sortBy
+                  className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                    !sortBy
                       ? "bg-[#4F46E5] text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   Default
                 </button>
                 <button
                   onClick={() => setSortBy("price-asc")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${sortBy === "price-asc"
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    sortBy === "price-asc"
                       ? "bg-blue-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   <DollarSign
-                    className={`w-4 h-4 mr-1 ${sortBy === "price-asc" ? "text-white" : "text-blue-500"
-                      }`}
+                    className={`w-4 h-4 mr-1 ${
+                      sortBy === "price-asc" ? "text-white" : "text-blue-500"
+                    }`}
                   />
                   Price: Low to High
                 </button>
                 <button
                   onClick={() => setSortBy("price-desc")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${sortBy === "price-desc"
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    sortBy === "price-desc"
                       ? "bg-blue-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   <DollarSign
-                    className={`w-4 h-4 mr-1 ${sortBy === "price-desc" ? "text-white" : "text-blue-500"
-                      }`}
+                    className={`w-4 h-4 mr-1 ${
+                      sortBy === "price-desc" ? "text-white" : "text-blue-500"
+                    }`}
                   />
                   Price: High to Low
                 </button>
                 <button
                   onClick={() => setSortBy("newest")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${sortBy === "newest"
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    sortBy === "newest"
                       ? "bg-blue-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   <Calendar
-                    className={`w-4 h-4 mr-1 ${sortBy === "newest" ? "text-white" : "text-blue-500"
-                      }`}
+                    className={`w-4 h-4 mr-1 ${
+                      sortBy === "newest" ? "text-white" : "text-blue-500"
+                    }`}
                   />
                   Date: Latest
                 </button>
                 <button
                   onClick={() => setSortBy("oldest")}
-                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${sortBy === "oldest"
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    sortBy === "oldest"
                       ? "bg-blue-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
+                  }`}
                 >
                   <Clock
-                    className={`w-4 h-4 mr-1 ${sortBy === "oldest" ? "text-white" : "text-blue-500"
-                      }`}
+                    className={`w-4 h-4 mr-1 ${
+                      sortBy === "oldest" ? "text-white" : "text-blue-500"
+                    }`}
                   />
                   Date: Oldest
                 </button>
@@ -538,7 +560,8 @@ export default function Vehicles() {
                       src={
                         (vehicle.images &&
                           vehicle.images.length > 0 &&
-                          `../../server/controllers${vehicle.images[0].image || "/placeholder.svg"
+                          `../../server/controllers${
+                            vehicle.images[0].image || "/placeholder.svg"
                           }`) ||
                         "/placeholder.svg"
                       }
@@ -550,12 +573,13 @@ export default function Vehicles() {
                     />
                     <div className="absolute top-4 right-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${vehicle.status === "available"
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          vehicle.status === "available"
                             ? "bg-green-100 text-green-800"
                             : vehicle.status === "sold"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-yellow-100 text-yellow-800"
-                          }`}
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
                       >
                         {vehicle.status}
                       </span>
@@ -592,17 +616,23 @@ export default function Vehicles() {
                       </button>
                       <button
                         onClick={() => handleEditVehicle(vehicle)}
-                        className="p-2 text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100 rounded-lg transition-colors"
+                        disabled={vehicle.status === "sold"}
+                        className={`p-2 rounded-lg transition-colors ${
+                          vehicle.status === "sold"
+                            ? "text-gray-400 cursor-not-allowed"
+                            : "text-gray-600 hover:text-[#4F46E5] hover:bg-gray-100"
+                        }`}
                         title="Edit Vehicle"
                       >
                         <Edit className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => handleStatusChange(vehicle)}
-                        className={`p-2 ${vehicle.status === "available"
+                        className={`p-2 ${
+                          vehicle.status === "available"
                             ? "text-gray-600 hover:text-blue-600"
                             : "text-gray-600 hover:text-green-600"
-                          } hover:bg-gray-100 rounded-lg transition-colors`}
+                        } hover:bg-gray-100 rounded-lg transition-colors`}
                         title={
                           vehicle.status === "available"
                             ? "Mark as Sold"
@@ -610,7 +640,7 @@ export default function Vehicles() {
                         }
                       >
                         {vehicle.status === "available" ? (
-                          <Tag className="w-5 h-5" />
+                          <CheckCircle className="w-5 h-5" />
                         ) : (
                           <Check className="w-5 h-5" />
                         )}
@@ -659,10 +689,11 @@ export default function Vehicles() {
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 border-r border-gray-200 flex items-center ${currentPage === 1
+                className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                  currentPage === 1
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                }`}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -672,10 +703,11 @@ export default function Vehicles() {
                   <button
                     key={number}
                     onClick={() => paginate(number)}
-                    className={`px-4 py-2 border-r border-gray-200 ${currentPage === number
+                    className={`px-4 py-2 border-r border-gray-200 ${
+                      currentPage === number
                         ? "bg-orange-500 text-white font-medium"
                         : "text-gray-700 hover:bg-gray-50"
-                      }`}
+                    }`}
                   >
                     {number}
                   </button>
@@ -685,10 +717,11 @@ export default function Vehicles() {
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-4 py-2 flex items-center ${currentPage === totalPages
+                className={`px-4 py-2 flex items-center ${
+                  currentPage === totalPages
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                }`}
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -758,8 +791,9 @@ export default function Vehicles() {
                 }) => (
                   <div
                     key={field}
-                    className={`mb-2 ${fullWidth ? "col-span-1 sm:col-span-2 lg:col-span-3" : ""
-                      }`}
+                    className={`mb-2 ${
+                      fullWidth ? "col-span-1 sm:col-span-2 lg:col-span-3" : ""
+                    }`}
                   >
                     <label
                       htmlFor={field}
@@ -877,12 +911,13 @@ export default function Vehicles() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 animate-fadeIn">
           <div className="bg-white rounded-xl overflow-hidden w-full max-w-md shadow-2xl transform transition-all animate-scaleIn">
             <div
-              className={`${newStatus === "sold" ? "bg-red-50" : "bg-green-50"
-                } p-6 text-center`}
+              className={`${
+                newStatus === "sold" ? "bg-red-50" : "bg-green-50"
+              } p-6 text-center`}
             >
               <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 mb-4">
                 {newStatus === "sold" ? (
-                  <Tag className="h-8 w-8 text-blue-600" />
+                  <CheckCircle className="h-8 w-8 text-blue-600" />
                 ) : (
                   <Check className="h-8 w-8 text-green-600" />
                 )}
@@ -916,17 +951,19 @@ export default function Vehicles() {
                 </button>
                 <button
                   onClick={confirmStatusChange}
-                  className={`px-4 py-2 ${newStatus === "sold"
+                  className={`px-4 py-2 ${
+                    newStatus === "sold"
                       ? "bg-blue-600 hover:bg-blue-700"
                       : "bg-green-600 hover:bg-green-700"
-                    } rounded-lg text-white font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${newStatus === "sold"
+                  } rounded-lg text-white font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    newStatus === "sold"
                       ? "focus:ring-blue-500"
                       : "focus:ring-green-500"
-                    } flex items-center justify-center`}
+                  } flex items-center justify-center`}
                 >
                   {newStatus === "sold" ? (
                     <>
-                      <Tag className="w-4 h-4 mr-2" />
+                      <CheckCircle className="w-4 h-4 mr-2" />
                       Mark as Sold
                     </>
                   ) : (
