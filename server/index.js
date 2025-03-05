@@ -13,11 +13,11 @@ app.use(
     })
 )
 
-const login = require('./routes/login');
-const register = require('./routes/register');
-const message = require('./routes/message');
-const wishlist = require('./routes/wishlist');
-const sell = require('./routes/sellVechile');
+const login = require('./controllers/authControllers/login');
+const register = require('./controllers/authControllers/register');
+const message = require('./controllers/contactusControllers/message');
+const wishlist = require('./controllers/vehicleControllers/wishlist');
+const sell = require('./controllers/vehicleControllers/sellVechile');
 
 
 app.use(express.json());

@@ -5,12 +5,12 @@ import { Mail, Phone, Calendar, Edit, Camera, Trash2, Upload, Save, X } from "lu
 
 const Profile = () => {
   const [user, setUser] = useState({
-    name: "John Doe",
-    username: "johndoe123",
-    email: "john.doe@example.com",
+    name: "Kaluwa",
+    username: "Kalua23",
+    email: "Kalua@example.com",
     phone: "+1 (555) 123-4567",
     joinDate: "January 2022",
-    avatar: "/placeholder.svg?height=200&width=200",
+    avatar: "https://i.ibb.co/ZpGX4rRT/Screenshot-2025-03-05-at-5-39-55-PM.png",
   })
 
   const [isEditing, setIsEditing] = useState(false)

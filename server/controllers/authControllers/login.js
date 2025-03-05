@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const { users } = require('../db/sequelize')
-const { enc, dec } = require('../helpers/hash');
+const { users } = require('../../db/sequelize')
+const { enc, dec } = require('../../helpers/hash');
 const { datacatalog } = require('googleapis/build/src/apis/datacatalog');
 
 router.post('/login', async (req, res) => {

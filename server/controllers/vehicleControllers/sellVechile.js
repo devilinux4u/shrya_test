@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const multer = require("multer");
-const { sequelize, vehicles, v_img } = require('../db/sequelize')
+const { sequelize, vehicles, v_img } = require('../../db/sequelize')
 const fs = require('fs')
 const path = require('path')
 

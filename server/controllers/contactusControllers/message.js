@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { contacts } = require('../db/sequelize')
+const { contacts } = require('../../db/sequelize')
 
 router.post('/contact', async (req, res) => {
     try {

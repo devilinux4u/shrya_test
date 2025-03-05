@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const { users } = require('../db/sequelize')
-const { enc } = require('../helpers/hash')
+const { users } = require('../../db/sequelize')
+const { enc } = require('../../helpers/hash')
 
 router.post('/register', async (req, res) => {
     try {
