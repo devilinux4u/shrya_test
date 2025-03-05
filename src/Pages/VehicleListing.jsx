@@ -7,7 +7,7 @@ export default function VehicleListing() {
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(25000000);
   const [currentPage, setCurrentPage] = useState(1);
-  const [error, setError] = useState(null);  // state to store error messages
+  const [error, setError] = useState(null); // state to store error messages
   const [loading, setLoading] = useState(true); // Add loading state
   const [filters, setFilters] = useState({ make: "", model: "" }); // state to store filter values
 
@@ -15,7 +15,7 @@ export default function VehicleListing() {
 
   const handleCarClick = () => {
     navigate("/BuyVehiclesDesc"); // Correct route name
-  }
+  };
 
   // Fetch vehicles data from backend on component mount
   useEffect(() => {
@@ -50,8 +50,7 @@ export default function VehicleListing() {
     const matchesModel = filters.model
       ? vehicle.model.toLowerCase().includes(filters.model.toLowerCase())
       : true;
-    const matchesPrice =
-      vehicle.price >= minPrice && vehicle.price <= maxPrice;
+    const matchesPrice = vehicle.price >= minPrice && vehicle.price <= maxPrice;
 
     return matchesMake && matchesModel && matchesPrice;
   });
@@ -60,7 +59,10 @@ export default function VehicleListing() {
   const totalPages = Math.ceil(filteredVehicles.length / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const displayedVehicles = filteredVehicles.slice(startIndex, startIndex + itemsPerPage);
+  const displayedVehicles = filteredVehicles.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -100,7 +102,9 @@ export default function VehicleListing() {
                 className="w-full p-2 border rounded"
                 placeholder="Enter make"
                 value={filters.make}
-                onChange={(e) => setFilters({ ...filters, make: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, make: e.target.value })
+                }
               />
             </div>
 
@@ -112,7 +116,9 @@ export default function VehicleListing() {
                 className="w-full p-2 border rounded"
                 placeholder="Enter model"
                 value={filters.model}
-                onChange={(e) => setFilters({ ...filters, model: e.target.value })}
+                onChange={(e) =>
+                  setFilters({ ...filters, model: e.target.value })
+                }
               />
             </div>
           </div>
@@ -131,21 +137,31 @@ export default function VehicleListing() {
                   key={index}
                   onClick={() => {
                     const vehicleParams = new URLSearchParams(vehicle);
-                    navigate(`/BuyVehiclesDesc?${vehicleParams}`)}
-                  } // Correct route name
-              
+                    navigate(`/BuyVehiclesDesc?${vehicleParams}`);
+                  }} // Correct route name
                   className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col items-center text-center cursor-pointer"
                 >
                   <img
-                    src={(vehicle.images && vehicle.images.length > 0 && `../../server/controllers${vehicle.images[0].image}`) || "/placeholder.svg"}
+                    src={
+                      (vehicle.images &&
+                        vehicle.images.length > 0 &&
+                        `../../server/controllers${vehicle.images[0].image}`) ||
+                      "/placeholder.svg"
+                    }
                     alt={`${vehicle.model} ${vehicle.type}`}
                     className="w-full h-48 object-contain"
                   />
                   <div className="p-4">
-                    <h3 className="text-red-600 font-medium">{vehicle.make} {vehicle.model}</h3>
+                    <h3 className="text-red-600 font-medium">
+                      {vehicle.make} {vehicle.model}
+                    </h3>
                     <p className="text-gray-600">Year: {vehicle.year}</p>
-                    <p className="text-gray-600">Total Km Run: {vehicle.mile.toLocaleString()} km</p>
-                    <p className="mt-2 font-semibold">Rs. {vehicle.price.toLocaleString()}</p>
+                    <p className="text-gray-600">
+                      Total Run: {vehicle.km.toLocaleString()} km
+                    </p>
+                    <p className="mt-2 font-semibold">
+                      Rs. {vehicle.price.toLocaleString()}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -167,7 +183,9 @@ export default function VehicleListing() {
               Page {currentPage} of {totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
               disabled={currentPage === totalPages}
               className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50"
             >
