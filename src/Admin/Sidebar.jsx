@@ -97,7 +97,7 @@ export default function Sidebar() {
         } lg:translate-x-0`}
       >
         <div className="flex items-center justify-center h-16 bg-gray-800">
-          <h1 className="text-2xl font-bold">Admin Panel</h1>
+          <h1 className="text-2xl font-bold">Shreya Auto</h1>
         </div>
         <nav className="mt-8">
           {menuItems.map((item, index) => (
