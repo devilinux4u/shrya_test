@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { Search, Plus, Edit, Trash2, Filter } from 'lucide-react'
+import { Search, Plus, Edit, Trash2, Filter, Check, X, Clock, DollarSign, Calendar } from 'lucide-react'
 import { useNavigate } from "react-router-dom"
 
 export default function Vehicles() {
@@ -8,7 +8,7 @@ export default function Vehicles() {
   const [error, setError] = useState(null)
   const [displayedVehicles, setDisplayedVehicles] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [userFilter, setUserFilter] = useState("") // Replace brandFilter with userFilter
+  const [userFilter, setUserFilter] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
   const [sortBy, setSortBy] = useState("")
 
@@ -62,18 +62,12 @@ export default function Vehicles() {
     }
 
     // Apply user/admin filter
-    // if (userFilter) {
-    //   filtered = filtered.filter(vehicle =>
-    //     vehicle.user.uname.toLowerCase() === userFilter.toLowerCase()
-    //   )
-    // }
-
     if (userFilter) {
       if (userFilter.toLowerCase() === 'admin') {
         filtered = filtered.filter(vehicle =>
           vehicle.user.uname.toLowerCase() === 'admin'
         );
-      } else if (userFilter.toLowerCase() !== 'others') {
+      } else if (userFilter.toLowerCase() === 'user') {
         filtered = filtered.filter(vehicle =>
           vehicle.user.uname.toLowerCase() !== 'admin'
         );
@@ -114,12 +108,15 @@ export default function Vehicles() {
     navigate("/admin/addnewvehicles")
   }
 
-
   const handleViewDetails = (vehicle) => {
     const vehicleParams = new URLSearchParams({ id: vehicle.id });
     navigate(`/admin/viewdetails?${vehicleParams.toString()}`);
-}
+  }
 
+  const handleEditVehicle = (vehicle) => {
+    // Add your edit logic here
+    console.log("Edit vehicle:", vehicle.id)
+  }
 
   const handleDeleteVehicle = (vehicleId) => {
     // Add confirmation dialog
@@ -143,6 +140,13 @@ export default function Vehicles() {
     }
   }
 
+  const clearAllFilters = () => {
+    setUserFilter("")
+    setStatusFilter("")
+    setSortBy("")
+    setSearchTerm("")
+  }
+
   return (
     <div className="flex-1 ml-64 min-h-screen bg-gray-50">
       <div className="p-8">
@@ -157,119 +161,178 @@ export default function Vehicles() {
           </button>
         </div>
 
-        {/* Search and Filter */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Search Bar */}
+        <div className="mb-8">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search vehicles..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
+              placeholder="Search by make, model..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent shadow-sm"
             />
-          </div>
-          <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <select
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
-              value={userFilter}
-              onChange={(e) => setUserFilter(e.target.value)}
-            >
-              <option value="">Filter by User/Admin</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
-            </select>
-          </div>
-          <div className="relative">
-            <select
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="">Filter by Status</option>
-              <option value="available">Available</option>
-              <option value="sold">Sold</option>
-            </select>
-          </div>
-          <div className="relative">
-            <select
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="">Sort by</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="newest">Date: Latest</option>
-              <option value="oldest">Date: Oldest</option>
-            </select>
           </div>
         </div>
 
-        {/* Filter Options */}
-        <div className="mb-8 max-w-6xl mx-auto">
-          <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-center gap-4">
-            <div className="flex items-center text-gray-700 font-medium">
-              <Filter className="w-5 h-5 mr-2" />
-              Filter by:
+        {/* Enhanced Filter Section */}
+        <div className="bg-white rounded-xl shadow-sm p-5 mb-8">
+          <div className="flex items-center text-gray-700 font-medium mb-4">
+            <Filter className="w-5 h-5 mr-2 text-[#4F46E5]" />
+            <span className="text-lg">Filters</span>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* User Type Filters */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-3">Posted By</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setUserFilter("")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                    !userFilter 
+                      ? "bg-[#4F46E5] text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  All Users
+                </button>
+                <button
+                  onClick={() => setUserFilter("admin")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    userFilter === "admin" 
+                      ? "bg-purple-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  Admin
+                </button>
+                <button
+                  onClick={() => setUserFilter("user")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    userFilter === "user" 
+                      ? "bg-indigo-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  User
+                </button>
+              </div>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => {
-                  setUserFilter("")
-                  setStatusFilter("")
-                  setSortBy("")
-                }}
-                className={`px-4 py-2 rounded-full transition-colors ${!userFilter && !statusFilter && !sortBy ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            
+            {/* Status Filters */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-3">Status</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setStatusFilter("")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                    !statusFilter 
+                      ? "bg-[#4F46E5] text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-              >
-                All
-              </button>
-              <button
-                onClick={() => setUserFilter("admin")}
-                className={`px-4 py-2 rounded-full transition-colors ${userFilter === "admin" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  All Status
+                </button>
+                <button
+                  onClick={() => setStatusFilter("available")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    statusFilter === "available" 
+                      ? "bg-green-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-              >
-                Admin
-              </button>
-              <button
-                onClick={() => setUserFilter("user")}
-                className={`px-4 py-2 rounded-full transition-colors ${userFilter === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  <Check className={`w-4 h-4 mr-1 ${statusFilter === "available" ? "text-white" : "text-green-500"}`} />
+                  Available
+                </button>
+                <button
+                  onClick={() => setStatusFilter("sold")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    statusFilter === "sold" 
+                      ? "bg-red-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-              >
-                User
-              </button>
-              <button
-                onClick={() => setStatusFilter("available")}
-                className={`px-4 py-2 rounded-full transition-colors ${statusFilter === "available" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  <X className={`w-4 h-4 mr-1 ${statusFilter === "sold" ? "text-white" : "text-red-500"}`} />
+                  Sold
+                </button>
+              </div>
+            </div>
+            
+            {/* Sort Options */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-3">Sort By</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setSortBy("")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                    !sortBy 
+                      ? "bg-[#4F46E5] text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-              >
-                Available
-              </button>
-              <button
-                onClick={() => setStatusFilter("sold")}
-                className={`px-4 py-2 rounded-full transition-colors ${statusFilter === "sold" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  Default
+                </button>
+                <button
+                  onClick={() => setSortBy("price-asc")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    sortBy === "price-asc" 
+                      ? "bg-blue-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-              >
-                Sold
-              </button>
-              <button
-                onClick={() => setSortBy("newest")}
-                className={`px-4 py-2 rounded-full transition-colors ${sortBy === "newest" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  <DollarSign className={`w-4 h-4 mr-1 ${sortBy === "price-asc" ? "text-white" : "text-blue-500"}`} />
+                  Price: Low to High
+                </button>
+                <button
+                  onClick={() => setSortBy("price-desc")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    sortBy === "price-desc" 
+                      ? "bg-blue-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-              >
-                Date: Latest
-              </button>
-              <button
-                onClick={() => setSortBy("oldest")}
-                className={`px-4 py-2 rounded-full transition-colors ${sortBy === "oldest" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                >
+                  <DollarSign className={`w-4 h-4 mr-1 ${sortBy === "price-desc" ? "text-white" : "text-blue-500"}`} />
+                  Price: High to Low
+                </button>
+                <button
+                  onClick={() => setSortBy("newest")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    sortBy === "newest" 
+                      ? "bg-blue-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-              >
-                Date: Oldest
-              </button>
+                >
+                  <Calendar className={`w-4 h-4 mr-1 ${sortBy === "newest" ? "text-white" : "text-blue-500"}`} />
+                  Date: Latest
+                </button>
+                <button
+                  onClick={() => setSortBy("oldest")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    sortBy === "oldest" 
+                      ? "bg-blue-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <Clock className={`w-4 h-4 mr-1 ${sortBy === "oldest" ? "text-white" : "text-blue-500"}`} />
+                  Date: Oldest
+                </button>
+              </div>
             </div>
           </div>
+          
+          {/* Clear Filters Button */}
+          {(userFilter || statusFilter || sortBy || searchTerm) && (
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={clearAllFilters}
+                className="text-sm text-[#4F46E5] hover:text-[#4338CA] flex items-center"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear all filters
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Vehicles Grid */}
@@ -333,7 +396,25 @@ export default function Vehicles() {
               ))}
             </div>
           ) : (
-            <p className="text-center text-gray-600">No vehicles found. Try adjusting your filters.</p>
+            <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+              <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <Filter className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">No vehicles found</h3>
+              <p className="text-gray-500">
+                {searchTerm || userFilter || statusFilter || sortBy
+                  ? "Try adjusting your filters or search terms"
+                  : "There are no vehicles to display"}
+              </p>
+              {(searchTerm || userFilter || statusFilter || sortBy) && (
+                <button
+                  onClick={clearAllFilters}
+                  className="mt-4 px-4 py-2 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] transition-colors"
+                >
+                  Clear All Filters
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

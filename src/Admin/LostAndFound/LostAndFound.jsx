@@ -101,7 +101,7 @@ export default function LostAndFound() {
     setItems(items.map(item => item.id === id ? { ...item, status: newStatus } : item))
   }
 
-  const uid = Cookies.get("sauto").split("-")[0]
+  const uid = Cookies.get("sauto")?.split("-")[0]
   const handleAddItemSubmit = async (e) => {
       e.preventDefault();
   
@@ -228,8 +228,8 @@ export default function LostAndFound() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Lost and Found</h1>
 
-        {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4">
+        {/* Search and Add Item */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -237,100 +237,131 @@ export default function LostAndFound() {
               placeholder="Search items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
             />
           </div>
-          <div className="flex gap-4">
-            <select
-              value={userFilter}
-              onChange={(e) => setUserFilter(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Filter by User/Admin</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
-            </select>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="">Filter by Status</option>
-              <option value="lost">Lost</option>
-              <option value="found">Found</option>
-              <option value="resolved">Resolved</option>
-            </select>
-            <button
-              onClick={() => setShowAddItem(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Add Item
-            </button>
-          </div>
+          <button
+            onClick={() => setShowAddItem(true)}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 shadow-sm transition-all duration-200 hover:shadow"
+          >
+            <Plus className="w-5 h-5" />
+            Add Item
+          </button>
         </div>
-      </div>
 
-      {/* Filter by Section */}
-      <div className="mb-8 max-w-6xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-center gap-4">
-          <div className="flex items-center text-gray-700 font-medium">
-            <Filter className="w-5 h-5 mr-2" />
-            Filter by:
+        {/* Enhanced Filter Section */}
+        <div className="bg-white rounded-xl shadow-sm p-5 mb-8">
+          <div className="flex items-center text-gray-700 font-medium mb-4">
+            <Filter className="w-5 h-5 mr-2 text-blue-600" />
+            <span className="text-lg">Filters</span>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <button
-              onClick={() => {
-                setUserFilter("")
-                setStatusFilter("")
-              }}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                !userFilter && !statusFilter ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setUserFilter("admin")}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                userFilter === "admin" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Admin
-            </button>
-            <button
-              onClick={() => setUserFilter("user")}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                userFilter === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              User
-            </button>
-            <button
-              onClick={() => setStatusFilter("lost")}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                statusFilter === "lost" ? "bg-yellow-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Lost
-            </button>
-            <button
-              onClick={() => setStatusFilter("found")}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                statusFilter === "found" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Found
-            </button>
-            <button
-              onClick={() => setStatusFilter("resolved")}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                statusFilter === "resolved" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Resolved
-            </button>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Status Filters */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-3">Status</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setStatusFilter("")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                    !statusFilter 
+                      ? "bg-blue-600 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  onClick={() => setStatusFilter("lost")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    statusFilter === "lost" 
+                      ? "bg-yellow-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <Clock className={`w-4 h-4 mr-1 ${statusFilter === "lost" ? "text-white" : "text-yellow-500"}`} />
+                  Lost
+                </button>
+                <button
+                  onClick={() => setStatusFilter("found")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    statusFilter === "found" 
+                      ? "bg-green-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <CheckCircle className={`w-4 h-4 mr-1 ${statusFilter === "found" ? "text-white" : "text-green-500"}`} />
+                  Found
+                </button>
+                <button
+                  onClick={() => setStatusFilter("resolved")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    statusFilter === "resolved" 
+                      ? "bg-blue-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <XCircle className={`w-4 h-4 mr-1 ${statusFilter === "resolved" ? "text-white" : "text-blue-500"}`} />
+                  Resolved
+                </button>
+              </div>
+            </div>
+            
+            {/* User Type Filters */}
+            <div>
+              <h3 className="text-sm font-medium text-gray-500 mb-3">Posted By</h3>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setUserFilter("")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 ${
+                    !userFilter 
+                      ? "bg-blue-600 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  All Users
+                </button>
+                <button
+                  onClick={() => setUserFilter("admin")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    userFilter === "admin" 
+                      ? "bg-purple-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <User className={`w-4 h-4 mr-1 ${userFilter === "admin" ? "text-white" : "text-purple-500"}`} />
+                  Admin
+                </button>
+                <button
+                  onClick={() => setUserFilter("user")}
+                  className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center ${
+                    userFilter === "user" 
+                      ? "bg-indigo-500 text-white shadow-md" 
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  <User className={`w-4 h-4 mr-1 ${userFilter === "user" ? "text-white" : "text-indigo-500"}`} />
+                  User
+                </button>
+              </div>
+            </div>
           </div>
+          
+          {/* Clear Filters Button */}
+          {(statusFilter || userFilter) && (
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => {
+                  setStatusFilter("");
+                  setUserFilter("");
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
+              >
+                <X className="w-4 h-4 mr-1" />
+                Clear all filters
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -420,6 +451,21 @@ export default function LostAndFound() {
           </div>
         ))}
       </div>
+
+      {/* No items found message */}
+      {items.length === 0 && (
+        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
+          <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <AlertTriangle className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-1">No items found</h3>
+          <p className="text-gray-500">
+            {searchTerm || statusFilter || userFilter
+              ? "Try adjusting your filters or search terms"
+              : "There are no lost and found items to display"}
+          </p>
+        </div>
+      )}
 
       {/* Add Item Modal */}
       {showAddItem && (
