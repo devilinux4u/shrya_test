@@ -19,7 +19,10 @@ const Feedback = () => {
       try {
         const response = await fetch("http://localhost:3000/contact"); // Fetch messages from backend
         const data = await response.json();
-        setFeedbacks(data); // Use the data as-is since the status is now persisted in the backend
+        const sortedData = data.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        ); // Sort by date descending
+        setFeedbacks(sortedData); // Use the sorted data
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch feedbacks");
