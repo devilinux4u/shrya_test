@@ -82,6 +82,7 @@ function App() {
         <Route path="/History" element={<History />} />
         <Route path="/WishlistVehicleDetail" element={<WishlistVehicleDetail />} />
         <Route path="/VehicleBooking:id" element={<VehicleBooking />} />
+      
         
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<Dashboard />} />
