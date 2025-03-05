@@ -382,7 +382,7 @@ export default function LostAndFound() {
               placeholder="Search items..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
           </div>
           <div className="flex gap-2">
@@ -395,7 +395,7 @@ export default function LostAndFound() {
             </button>
             <button
               onClick={() => setIsFormOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 whitespace-nowrap"
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center gap-2 whitespace-nowrap"
             >
               <Plus className="w-5 h-5" />
               <span className="hidden sm:inline">Add Item</span>
@@ -414,7 +414,7 @@ export default function LostAndFound() {
                 <select
                   value={userFilter}
                   onChange={(e) => setUserFilter(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">All Users</option>
                   <option value="Admin">Admin</option>
@@ -428,7 +428,7 @@ export default function LostAndFound() {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 >
                   <option value="">All Status</option>
                   <option value="active">Active</option>
@@ -440,7 +440,7 @@ export default function LostAndFound() {
               <div className="flex items-end">
                 <button
                   onClick={resetFilters}
-                  className="w-full sm:w-auto px-4 py-2 text-sm text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="w-full sm:w-auto px-4 py-2 text-sm text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-lg transition-colors"
                 >
                   Reset Filters
                 </button>
@@ -990,7 +990,7 @@ export default function LostAndFound() {
                     onClick={() =>
                       (window.location.href = `tel:${selectedItem.user.num}`)
                     }
-                    className="flex items-center gap-2 bg-blue-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors text-sm sm:text-base"
+                    className="flex items-center gap-2 bg-orange-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-orange-700 transition-colors text-sm sm:text-base"
                   >
                     <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                     Call Reporter

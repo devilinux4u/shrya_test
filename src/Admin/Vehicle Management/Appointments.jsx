@@ -145,7 +145,7 @@ export default function Appointments() {
       case "cancelled":
         return "bg-red-100 text-red-800";
       case "completed":
-        return "bg-blue-100 text-blue-800";
+        return "bg-orange-100 text-orange-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -160,7 +160,7 @@ export default function Appointments() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="w-16 h-16 border-4 border-gray-200 border-t-purple-600 rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-gray-200 border-t-orange-600 rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -185,7 +185,7 @@ export default function Appointments() {
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               placeholder="Search by customer or vehicle..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -195,7 +195,7 @@ export default function Appointments() {
             <div className="flex">
               <button
                 type="button"
-                className="inline-flex justify-center w-full rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="inline-flex justify-center w-full rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 onClick={() => {
                   const select = document.getElementById("status-filter");
                   select.click();
@@ -263,7 +263,7 @@ export default function Appointments() {
                         </span>
                         <button
                           onClick={() => openDetailsModal(booking)}
-                          className="ml-2 inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                          className="ml-2 inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                           aria-label="View details"
                         >
                           <Eye className="h-4 w-4" />
@@ -312,7 +312,7 @@ export default function Appointments() {
                   onClick={() => setCurrentPage(i + 1)}
                   className={`px-3 py-1 rounded-md ${
                     currentPage === i + 1
-                      ? "bg-blue-600 text-white"
+                      ? "bg-orange-600 text-white"
                       : "text-gray-700 hover:bg-gray-100"
                   }`}
                 >
@@ -671,7 +671,7 @@ export default function Appointments() {
                       <button
                         type="button"
                         onClick={closeDetailsModal}
-                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                       >
                         Close
                       </button>

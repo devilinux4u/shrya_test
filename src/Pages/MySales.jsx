@@ -170,7 +170,7 @@ function VehicleDetailsModal({
               </div>
             </div>
             <div className="flex flex-col items-end">
-              <div className="text-2xl font-bold text-indigo-500">
+              <div className="text-2xl font-bold text-orange-500">
                 Rs. {vehicle.price ? vehicle.price.toLocaleString() : "N/A"}
               </div>
               <span
@@ -215,7 +215,7 @@ function VehicleDetailsModal({
                       key={index}
                       className={`w-20 h-20 flex-shrink-0 cursor-pointer border-2 rounded ${
                         activeImage === index
-                          ? "border-indigo-500"
+                          ? "border-orange-500"
                           : "border-transparent"
                       }`}
                       onClick={() => setActiveImage(index)}
@@ -319,7 +319,7 @@ function VehicleDetailsModal({
                   onClose();
                   onEdit(vehicle);
                 }}
-                className="flex-1 min-w-[120px] bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 min-w-[120px] bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center gap-2"
               >
                 <Edit className="w-5 h-5" />
                 Edit
@@ -641,7 +641,7 @@ export default function MySales() {
             <h1 className="text-3xl font-bold text-gray-900">My Sales</h1>
             <button
               onClick={handleSellVehicleClick}
-              className="bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors shadow-md flex items-center gap-2"
+              className="bg-orange-500 text-white px-6 py-3 rounded-full hover:bg-orange-600 transition-colors shadow-md flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
               Sell Vehicle
@@ -656,7 +656,7 @@ export default function MySales() {
               <input
                 type="text"
                 placeholder="Search for vehicles..."
-                className="w-full pl-10 pr-4 py-3 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full pl-10 pr-4 py-3 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -673,7 +673,7 @@ export default function MySales() {
                   onClick={() => setStatusFilter("all")}
                   className={`px-4 py-2 rounded-full transition-colors ${
                     statusFilter === "all"
-                      ? "bg-indigo-500 text-white"
+                      ? "bg-orange-500 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
@@ -734,7 +734,7 @@ export default function MySales() {
                 {(searchTerm || statusFilter !== "all" || sortBy) && (
                   <button
                     onClick={clearAllFilters}
-                    className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors"
+                    className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                   >
                     Clear All Filters
                   </button>
@@ -742,7 +742,7 @@ export default function MySales() {
                 {!searchTerm && statusFilter === "all" && !sortBy && (
                   <button
                     onClick={() => setIsSellVehicleFormOpen(true)}
-                    className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 transition-colors flex items-center gap-2 mx-auto"
+                    className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors flex items-center gap-2 mx-auto"
                   >
                     <Plus className="w-4 h-4" />
                     Sell Vehicle
@@ -775,7 +775,7 @@ export default function MySales() {
                       onClick={() => paginate(number)}
                       className={`px-4 py-2 border-r border-gray-200 ${
                         currentPage === number
-                          ? "bg-indigo-500 text-white font-medium"
+                          ? "bg-orange-500 text-white font-medium"
                           : "text-gray-700 hover:bg-gray-50"
                       }`}
                     >
@@ -882,7 +882,7 @@ export default function MySales() {
                                 [field]: e.target.value,
                               }))
                             }
-                            className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                            className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
                           >
                             <option value="">Select {label}</option>
                             {options.map((option) => (
@@ -902,7 +902,7 @@ export default function MySales() {
                               }))
                             }
                             rows="3"
-                            className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                            className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
                           ></textarea>
                         ) : (
                           <input
@@ -915,7 +915,7 @@ export default function MySales() {
                                 [field]: e.target.value,
                               }))
                             }
-                            className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                            className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
                           />
                         )}
                       </div>
@@ -931,7 +931,7 @@ export default function MySales() {
                   </button>
                   <button
                     onClick={handleUpdateData}
-                    className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
                   >
                     Save Changes
                   </button>

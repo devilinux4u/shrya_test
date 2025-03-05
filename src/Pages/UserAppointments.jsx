@@ -323,7 +323,7 @@ export default function UserAppointments() {
       {/* Header */}
       <div className="mt-12 max-w-6xl mx-auto mb-8">
         <h1 className="text-4xl font-bold mb-4 text-left">
-          <span className="text-purple-600">My</span> Appointments
+          <span className="text-orange-600">My</span> Appointments
         </h1>
         <p className="text-sm text-gray-600 text-left">
           Track and manage your vehicle viewing appointments
@@ -337,7 +337,7 @@ export default function UserAppointments() {
             onClick={() => setViewMode("all")}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
               viewMode === "all"
-                ? "bg-purple-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -347,7 +347,7 @@ export default function UserAppointments() {
             onClick={() => setViewMode("buyer")}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
               viewMode === "buyer"
-                ? "bg-purple-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -357,7 +357,7 @@ export default function UserAppointments() {
             onClick={() => setViewMode("seller")}
             className={`px-4 py-2 rounded-md text-sm font-medium ${
               viewMode === "seller"
-                ? "bg-purple-600 text-white"
+                ? "bg-orange-600 text-white"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
@@ -375,7 +375,7 @@ export default function UserAppointments() {
             <input
               type="text"
               placeholder="Search appointments..."
-              className="w-full pl-10 pr-4 py-3 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full pl-10 pr-4 py-3 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -391,7 +391,7 @@ export default function UserAppointments() {
               onClick={() => setActiveFilter("all")}
               className={`px-4 py-2 rounded-full transition-colors ${
                 activeFilter === "all"
-                  ? "bg-purple-600 text-white"
+                  ? "bg-orange-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
@@ -478,7 +478,7 @@ export default function UserAppointments() {
                   </div>
                   <div className="absolute top-4 left-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800 flex items-center`}
+                      className={`px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 flex items-center`}
                     >
                       {isUserBuyer(appointment) ? (
                         <>
@@ -588,7 +588,7 @@ export default function UserAppointments() {
                     onClick={() => paginate(number)}
                     className={`px-4 py-2 border-r border-gray-200 ${
                       currentPage === number
-                        ? "bg-purple-600 text-white font-medium"
+                        ? "bg-orange-600 text-white font-medium"
                         : "text-gray-700 hover:bg-gray-50"
                     }`}
                   >
@@ -656,7 +656,7 @@ export default function UserAppointments() {
                     </div>
 
                     <div
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800`}
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800`}
                     >
                       {isUserBuyer(selectedAppointment) ? (
                         <>
@@ -679,7 +679,7 @@ export default function UserAppointments() {
                   {/* Vehicle Information */}
                   <div className="mb-6">
                     <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
-                      <Car className="h-5 w-5 mr-2 text-purple-600" />
+                      <Car className="h-5 w-5 mr-2 text-orange-600" />
                       Vehicle Information
                     </h3>
 
@@ -756,7 +756,7 @@ export default function UserAppointments() {
                   {/* Contact Information */}
                   <div className="mb-6">
                     <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
-                      <User className="h-5 w-5 mr-2 text-purple-600" />
+                      <User className="h-5 w-5 mr-2 text-orange-600" />
                       {isUserBuyer(selectedAppointment)
                         ? "Seller Information"
                         : "Buyer Information"}
@@ -764,8 +764,8 @@ export default function UserAppointments() {
 
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <div className="flex items-center mb-3">
-                        <div className="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center mr-3">
-                          <User className="h-5 w-5 text-purple-600" />
+                        <div className="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                          <User className="h-5 w-5 text-orange-600" />
                         </div>
                         <div>
                           <p className="font-medium text-gray-900">
@@ -815,7 +815,7 @@ export default function UserAppointments() {
                   {/* Appointment Details */}
                   <div className="mb-6">
                     <h3 className="text-lg font-medium text-gray-900 mb-3 flex items-center">
-                      <Calendar className="h-5 w-5 mr-2 text-purple-600" />
+                      <Calendar className="h-5 w-5 mr-2 text-orange-600" />
                       Appointment Schedule
                     </h3>
 
@@ -941,7 +941,7 @@ export default function UserAppointments() {
                     {selectedAppointment.status === "confirmed" && (
                       <button
                         type="button"
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                       >
                         <MessageCircle className="mr-2 h-4 w-4" />
                         Send Message
@@ -951,7 +951,7 @@ export default function UserAppointments() {
                     <button
                       type="button"
                       onClick={closeDetailsModal}
-                      className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                      className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                     >
                       Close
                     </button>

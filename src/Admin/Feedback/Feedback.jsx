@@ -121,7 +121,7 @@ const Feedback = () => {
               <button
                 className={`px-4 py-2 rounded text-sm transition-colors ${
                   filter === "all"
-                    ? "bg-blue-500 text-white"
+                    ? "bg-orange-500 text-white"
                     : "bg-gray-100 hover:bg-gray-200"
                 }`}
                 onClick={() => setFilter("all")}
@@ -131,7 +131,7 @@ const Feedback = () => {
               <button
                 className={`px-4 py-2 rounded text-sm transition-colors ${
                   filter === "new"
-                    ? "bg-blue-500 text-white"
+                    ? "bg-orange-500 text-white"
                     : "bg-gray-100 hover:bg-gray-200"
                 }`}
                 onClick={() => setFilter("new")}
@@ -141,7 +141,7 @@ const Feedback = () => {
               <button
                 className={`px-4 py-2 rounded text-sm transition-colors ${
                   filter === "read"
-                    ? "bg-blue-500 text-white"
+                    ? "bg-orange-500 text-white"
                     : "bg-gray-100 hover:bg-gray-200"
                 }`}
                 onClick={() => setFilter("read")}
@@ -243,7 +243,7 @@ const Feedback = () => {
                   </div>
                   <div className="flex justify-end gap-3 mt-5 flex-wrap">
                     <button
-                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
+                      className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors text-sm"
                       onClick={() => handleDelete(selectedFeedback.id)}
                     >
                       Delete
@@ -297,7 +297,7 @@ const Feedback = () => {
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center"
+                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium transition-colors flex items-center"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

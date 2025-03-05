@@ -249,14 +249,14 @@ export default function Users() {
               placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
           </div>
           <div className="flex gap-4">
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             >
               <option value="all">All Dates</option>
               <option value="lastMonth">Joined Last Month</option>
@@ -274,7 +274,7 @@ export default function Users() {
                       start: e.target.value,
                     })
                   }
-                  className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
                 <input
                   type="date"
@@ -285,13 +285,13 @@ export default function Users() {
                       end: e.target.value,
                     })
                   }
-                  className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
               </div>
             )}
             <button
               onClick={() => setShowAddUser(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center gap-2"
             >
               <UserPlus className="w-5 h-5" />
               Add User
@@ -548,7 +548,7 @@ export default function Users() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
                 >
                   Add User
                 </button>
@@ -635,7 +635,7 @@ export default function Users() {
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => handleEditClick(selectedUser)}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 flex items-center gap-2"
               >
                 <Edit className="w-4 h-4" />
                 Edit User
@@ -702,7 +702,7 @@ export default function Users() {
               </button>
               <button
                 onClick={handleUpdateUser}
-                className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                className="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-orange-600 hover:bg-orange-700"
               >
                 Save Changes
               </button>
@@ -732,7 +732,7 @@ export default function Users() {
               </button>
               <button
                 onClick={() => handleDeleteUser(showDeleteConfirm)}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
               >
                 Delete
               </button>

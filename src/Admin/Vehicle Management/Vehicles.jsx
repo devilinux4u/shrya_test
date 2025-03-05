@@ -328,7 +328,7 @@ export default function Vehicles() {
       <ToastContainer position="top-right" autoClose={3000} />
       <div className="p-4 sm:p-6 md:p-8">
         <div className="mb-6 md:mb-8">
-          <div className="border-l-4 border-[#ff6b00] pl-4">
+          <div className="border-l-4 border-orange-500 pl-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Vehicle Management
             </h1>
@@ -339,7 +339,7 @@ export default function Vehicles() {
           <h1 className="text-2xl font-semibold">Vehicles</h1>
           <button
             onClick={handleAddVehicle}
-            className="flex items-center gap-2 bg-[#4F46E5] text-white px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors"
+            className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
           >
             <Plus className="w-5 h-5" />
             Add Vehicle
@@ -355,7 +355,7 @@ export default function Vehicles() {
               placeholder="Search by make, model..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent shadow-sm"
+              className="pl-10 pr-4 py-3 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent shadow-sm"
             />
           </div>
         </div>
@@ -363,7 +363,7 @@ export default function Vehicles() {
         {/* Enhanced Filter Section */}
         <div className="bg-white rounded-xl shadow-sm p-5 mb-8">
           <div className="flex items-center text-gray-700 font-medium mb-4">
-            <Filter className="w-5 h-5 mr-2 text-[#4F46E5]" />
+            <Filter className="w-5 h-5 mr-2 text-orange-500" />
             <span className="text-lg">Filters</span>
           </div>
 
@@ -378,7 +378,7 @@ export default function Vehicles() {
                   onClick={() => setUserFilter("")}
                   className={`px-4 py-2 rounded-md transition-all duration-200 ${
                     !userFilter
-                      ? "bg-[#4F46E5] text-white shadow-md"
+                      ? "bg-orange-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
@@ -415,7 +415,7 @@ export default function Vehicles() {
                   onClick={() => setStatusFilter("")}
                   className={`px-4 py-2 rounded-md transition-all duration-200 ${
                     !statusFilter
-                      ? "bg-[#4F46E5] text-white shadow-md"
+                      ? "bg-orange-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
@@ -466,7 +466,7 @@ export default function Vehicles() {
                   onClick={() => setSortBy("")}
                   className={`px-4 py-2 rounded-md transition-all duration-200 ${
                     !sortBy
-                      ? "bg-[#4F46E5] text-white shadow-md"
+                      ? "bg-orange-500 text-white shadow-md"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
@@ -541,7 +541,7 @@ export default function Vehicles() {
             <div className="mt-4 flex justify-end">
               <button
                 onClick={clearAllFilters}
-                className="text-sm text-[#4F46E5] hover:text-[#4338CA] flex items-center"
+                className="text-sm text-orange-500 hover:text-orange-600 flex items-center"
               >
                 <X className="w-4 h-4 mr-1" />
                 Clear all filters
@@ -676,7 +676,7 @@ export default function Vehicles() {
               {(searchTerm || userFilter || statusFilter || sortBy) && (
                 <button
                   onClick={clearAllFilters}
-                  className="mt-4 px-4 py-2 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] transition-colors"
+                  className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
                 >
                   Clear All Filters
                 </button>
@@ -814,7 +814,7 @@ export default function Vehicles() {
                             [field]: e.target.value,
                           }))
                         }
-                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
                       >
                         <option value="">Select {label}</option>
                         {options.map((option) => (
@@ -834,7 +834,7 @@ export default function Vehicles() {
                           }))
                         }
                         rows="3"
-                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
                       ></textarea>
                     ) : (
                       <input
@@ -847,7 +847,7 @@ export default function Vehicles() {
                             [field]: e.target.value,
                           }))
                         }
-                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 text-sm sm:text-base"
+                        className="p-2 border-[1px] block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring focus:ring-orange-500 focus:ring-opacity-50 text-sm sm:text-base"
                       />
                     )}
                   </div>

@@ -21,6 +21,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import { subMonths, subYears } from "date-fns"; // Import date-fns for date manipulation
 
 export default function AdminRentalVehicles() {
   const navigate = useNavigate();
@@ -62,6 +63,12 @@ export default function AdminRentalVehicles() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const vehiclesPerPage = 6;
+
+  const [dateFilter, setDateFilter] = useState("all");
+  const [customDateRange, setCustomDateRange] = useState({
+    start: "",
+    end: "",
+  });
 
   useEffect(() => {
     fetchVehicles();
@@ -239,7 +246,24 @@ export default function AdminRentalVehicles() {
         (postedByFilter === "admin" && vehicle.postedBy === "admin") ||
         (postedByFilter === "user" && vehicle.postedBy !== "admin");
 
-      return searchMatch && postedByMatch;
+      const vehicleDate = new Date(vehicle.createdAt);
+      let matchesDate = true;
+
+      if (dateFilter === "lastMonth") {
+        matchesDate = vehicleDate >= subMonths(new Date(), 1);
+      } else if (dateFilter === "lastYear") {
+        matchesDate = vehicleDate >= subYears(new Date(), 1);
+      } else if (dateFilter === "custom") {
+        const startDate = customDateRange.start
+          ? new Date(customDateRange.start)
+          : new Date(0);
+        const endDate = customDateRange.end
+          ? new Date(customDateRange.end)
+          : new Date();
+        matchesDate = vehicleDate >= startDate && vehicleDate <= endDate;
+      }
+
+      return searchMatch && postedByMatch && matchesDate;
     })
     .sort((a, b) => {
       switch (sortByFilter) {
@@ -288,7 +312,7 @@ export default function AdminRentalVehicles() {
     <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
       <div className="p-4 sm:p-6 md:p-8">
         <div className="mb-6 md:mb-8">
-          <div className="border-l-4 border-[#ff6b00] pl-4">
+          <div className="border-l-4 border-orange-500 pl-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Rental Vehicles
             </h1>
@@ -298,8 +322,8 @@ export default function AdminRentalVehicles() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md mb-6">
-          <div className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="mb-6">
+          <div className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center sm:items-start justify-between">
             <div className="relative w-full sm:w-auto flex-1 max-w-md">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
@@ -307,15 +331,54 @@ export default function AdminRentalVehicles() {
               <input
                 type="text"
                 placeholder="Search vehicles by make, model, year or plate..."
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <select
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full sm:w-auto"
+              >
+                <option value="all">All Dates</option>
+                <option value="lastMonth">Added Last Month</option>
+                <option value="lastYear">Added Last Year</option>
+                <option value="custom">Custom Range</option>
+              </select>
+              {dateFilter === "custom" && (
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <input
+                    type="date"
+                    value={customDateRange.start}
+                    onChange={(e) =>
+                      setCustomDateRange({
+                        ...customDateRange,
+                        start: e.target.value,
+                      })
+                    }
+                    className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full sm:w-auto"
+                  />
+                  <input
+                    type="date"
+                    value={customDateRange.end}
+                    onChange={(e) =>
+                      setCustomDateRange({
+                        ...customDateRange,
+                        end: e.target.value,
+                      })
+                    }
+                    className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full sm:w-auto"
+                  />
+                </div>
+              )}
+            </div>
+
             <button
               onClick={handleAddNew}
-              className="flex items-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
+              className="flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors w-full sm:w-auto"
             >
               <Plus className="h-5 w-5 mr-2" />
               <span>Add Vehicle</span>
@@ -323,55 +386,9 @@ export default function AdminRentalVehicles() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md mb-6 p-5">
-          <div className="flex items-center mb-4">
-            <Filter className="h-5 w-5 mr-2 text-indigo-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Sort By</h2>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <div className="flex flex-wrap gap-2">
-                <FilterButton
-                  active={sortByFilter === "default"}
-                  onClick={() => setSortByFilter("default")}
-                >
-                  Default
-                </FilterButton>
-                <FilterButton
-                  active={sortByFilter === "price-low"}
-                  onClick={() => setSortByFilter("price-low")}
-                >
-                  <DollarSign className="h-4 w-4 mr-1 inline" /> Price: Low to
-                  High
-                </FilterButton>
-                <FilterButton
-                  active={sortByFilter === "price-high"}
-                  onClick={() => setSortByFilter("price-high")}
-                >
-                  <DollarSign className="h-4 w-4 mr-1 inline" /> Price: High to
-                  Low
-                </FilterButton>
-                <FilterButton
-                  active={sortByFilter === "date-latest"}
-                  onClick={() => setSortByFilter("date-latest")}
-                >
-                  <Calendar className="h-4 w-4 mr-1 inline" /> Date: Latest
-                </FilterButton>
-                <FilterButton
-                  active={sortByFilter === "date-oldest"}
-                  onClick={() => setSortByFilter("date-oldest")}
-                >
-                  <Clock className="h-4 w-4 mr-1 inline" /> Date: Oldest
-                </FilterButton>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <Loader2 className="h-8 w-8 text-[#ff6b00] animate-spin" />
+            <Loader2 className="h-8 w-8 text-orange-500 animate-spin" />
             <span className="ml-2 text-lg text-gray-600">
               Loading vehicles...
             </span>
@@ -438,7 +455,7 @@ export default function AdminRentalVehicles() {
                       <Car className="h-16 w-16 text-gray-400" />
                     </div>
                   )}
-                  <div className="absolute top-0 right-0 bg-[#ff6b00] text-white px-3 py-1 rounded-bl-lg font-medium">
+                  <div className="absolute top-0 right-0 bg-orange-500 text-white px-3 py-1 rounded-bl-lg font-medium">
                     Rs. {vehicle.price.day}/day
                   </div>
                   {vehicle.status === "sold" && (
@@ -929,7 +946,7 @@ export default function AdminRentalVehicles() {
                         {viewedVehicle.numberPlate}
                       </p>
                     </div>
-                    <div className="bg-[#ff6b00] text-white px-3 py-1 rounded-lg font-medium">
+                    <div className="bg-orange-500 text-white px-3 py-1 rounded-lg font-medium">
                       Rs. {viewedVehicle.price.day}/day
                     </div>
                   </div>
