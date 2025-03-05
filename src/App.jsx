@@ -36,6 +36,7 @@ import WishlistVehicleDetail from './Pages/WishlistVehicleDetail';
 import VehicleBooking from './Pages/VehicleBooking';
 import ViewDetails from './Admin/Vehicle Management/ViewDetails';
 
+
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -92,8 +93,7 @@ function App() {
         <Route path="/admin/users" element={<Users />} />
         <Route path="/admin/lostandfound" element={<AdminLostAndFound />} />
         <Route path="/admin/adminwishlist" element={<AdminWishlist />} />
-      </Routes>
-      {!isAuthRoute && !isAdminRoute && <Footer />} {/* Footer for non-auth and non-admin routes */}
+      </Routes> {/* Closing the Routes tag */}
     </>
   );
 }

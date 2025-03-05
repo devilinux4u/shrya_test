@@ -1,70 +1,83 @@
 "use client"
 
-import { useState } from "react"
-import {
-  Search,
-  Plus,
-  Trash2,
-  MapPin,
-  Calendar,
-  Package,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Eye,
-  Clock,
-  Edit3,
-} from "lucide-react"
+import { useState, useEffect } from "react"
+import { Search, Plus, Trash2, MapPin, Calendar, CheckCircle, XCircle, AlertTriangle, Eye, Clock, Edit3, Filter, Phone, MessageSquare, X, User } from 'lucide-react'
+import LostAndFoundForm from "../../Components/LostAndFoundForm"
 
 // Mock data remains the same
 const initialItems = [
   {
     id: 1,
     name: "Laptop",
-    category: "Electronics",
     location: "Library",
     dateFound: "2024-01-15",
-    status: "pending",
+    status: "lost",
     image: "/laptop.jpg",
     description: "Silver MacBook Pro with a dent on the lid.",
+    postedBy: {
+      name: "John Doe",
+      role: "Admin",
+      contact: "987-654-3210", // Added for testing
+    },
   },
   {
     id: 2,
     name: "Wallet",
-    category: "Personal Items",
     location: "Cafeteria",
     dateFound: "2024-01-20",
-    status: "claimed",
+    status: "found",
     image: "/wallet.jpg",
     description: "Brown leather wallet with ID and credit cards.",
+    postedBy: {
+      name: "Jane Smith",
+      role: "User",
+      contact: "123-456-7890",
+    },
   },
 ]
 
 export default function LostAndFound() {
   const [items, setItems] = useState(initialItems)
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterCategory, setFilterCategory] = useState("all")
-  const [filterStatus, setFilterStatus] = useState("all")
+  const [userFilter, setUserFilter] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
   const [showAddItem, setShowAddItem] = useState(false)
   const [selectedItem, setSelectedItem] = useState(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [currentUserRole, setCurrentUserRole] = useState("Admin") // Simulate current user role - change to "User" to test
 
-  const filteredItems = items.filter((item) => {
-    const searchMatch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const categoryMatch = filterCategory === "all" || item.category === filterCategory
-    const statusMatch = filterStatus === "all" || item.status === filterStatus
+  useEffect(() => {
+    let filtered = [...initialItems]
 
-    return searchMatch && categoryMatch && statusMatch
-  })
+    if (searchTerm) {
+      filtered = filtered.filter((item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    if (userFilter) {
+      filtered = filtered.filter((item) =>
+        item.postedBy.role.toLowerCase() === userFilter.toLowerCase()
+      )
+    }
+
+    if (statusFilter) {
+      filtered = filtered.filter((item) => item.status === statusFilter)
+    }
+
+    setItems(filtered)
+  }, [searchTerm, userFilter, statusFilter])
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "pending":
+      case "lost":
         return "bg-yellow-100 text-yellow-800"
-      case "claimed":
+      case "found":
         return "bg-green-100 text-green-800"
+      case "resolved":
+        return "bg-blue-100 text-blue-800"
       default:
         return "bg-gray-100 text-gray-800"
     }
@@ -72,10 +85,12 @@ export default function LostAndFound() {
 
   const getStatusIcon = (status) => {
     switch (status) {
-      case "pending":
+      case "lost":
         return <Clock className="w-4 h-4 mr-1" />
-      case "claimed":
+      case "found":
         return <CheckCircle className="w-4 h-4 mr-1" />
+      case "resolved":
+        return <XCircle className="w-4 h-4 mr-1" />
       default:
         return <AlertTriangle className="w-4 h-4 mr-1" />
     }
@@ -85,38 +100,52 @@ export default function LostAndFound() {
     setItems(items.map(item => item.id === id ? { ...item, status: newStatus } : item))
   }
 
+  const handleAddItemSubmit = (newItem) => {
+    setItems([...items, { ...newItem, id: items.length + 1 }])
+    setShowAddItem(false)
+  }
+
+  const nextImage = () => {
+    if (!selectedItem || !selectedItem.image) return
+    setCurrentImageIndex((prevIndex) => (prevIndex === selectedItem.image.length - 1 ? 0 : prevIndex + 1))
+  }
+
+  const prevImage = () => {
+    if (!selectedItem || !selectedItem.image) return
+    setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? selectedItem.image.length - 1 : prevIndex - 1))
+  }
+
+  const handleCallReporter = (item) => {
+    if (item.postedBy.contact) {
+      window.location.href = `tel:${item.postedBy.contact}`
+    } else {
+      alert("Contact information is not available for this reporter.")
+    }
+  }
+
+  const handleSendSMS = (item) => {
+    if (item.postedBy.contact) {
+      window.location.href = `sms:${item.postedBy.contact}`
+    } else {
+      alert("Contact information is not available for this reporter.")
+    }
+  }
+
+  // Check if current user can edit an item (only admins can edit)
+  const canEdit = (item) => {
+    return currentUserRole === "Admin"
+  }
+
+  // Check if current user can contact the reporter (only contact if reporter is a user, not an admin)
+  const canContact = (item) => {
+    return item.postedBy.role === "User" && item.postedBy.contact
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 ml-64 p-8">
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">Lost and Found</h1>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-500">Total Items</h3>
-              <Package className="w-6 h-6 text-blue-500" />
-            </div>
-            <p className="text-2xl font-bold mt-2">{items.length}</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-500">Pending Claims</h3>
-              <Clock className="w-6 h-6 text-yellow-500" />
-            </div>
-            <p className="text-2xl font-bold mt-2">{items.filter((item) => item.status === "pending").length}</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-500">Claimed Items</h3>
-              <CheckCircle className="w-6 h-6 text-green-500" />
-            </div>
-            <p className="text-2xl font-bold mt-2">{items.filter((item) => item.status === "claimed").length}</p>
-          </div>
-        </div>
 
         {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4">
@@ -132,25 +161,23 @@ export default function LostAndFound() {
           </div>
           <div className="flex gap-4">
             <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
+              value={userFilter}
+              onChange={(e) => setUserFilter(e.target.value)}
               className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Categories</option>
-              <option value="Electronics">Electronics</option>
-              <option value="Personal Items">Personal Items</option>
-              <option value="Accessories">Accessories</option>
-              <option value="Documents">Documents</option>
-              <option value="Other">Other</option>
+              <option value="">Filter by User/Admin</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
             </select>
             <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
               className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="claimed">Claimed</option>
+              <option value="">Filter by Status</option>
+              <option value="lost">Lost</option>
+              <option value="found">Found</option>
+              <option value="resolved">Resolved</option>
             </select>
             <button
               onClick={() => setShowAddItem(true)}
@@ -163,9 +190,72 @@ export default function LostAndFound() {
         </div>
       </div>
 
+      {/* Filter by Section */}
+      <div className="mb-8 max-w-6xl mx-auto">
+        <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-center gap-4">
+          <div className="flex items-center text-gray-700 font-medium">
+            <Filter className="w-5 h-5 mr-2" />
+            Filter by:
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button
+              onClick={() => {
+                setUserFilter("")
+                setStatusFilter("")
+              }}
+              className={`px-4 py-2 rounded-full transition-colors ${
+                !userFilter && !statusFilter ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setUserFilter("admin")}
+              className={`px-4 py-2 rounded-full transition-colors ${
+                userFilter === "admin" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Admin
+            </button>
+            <button
+              onClick={() => setUserFilter("user")}
+              className={`px-4 py-2 rounded-full transition-colors ${
+                userFilter === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              User
+            </button>
+            <button
+              onClick={() => setStatusFilter("lost")}
+              className={`px-4 py-2 rounded-full transition-colors ${
+                statusFilter === "lost" ? "bg-yellow-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Lost
+            </button>
+            <button
+              onClick={() => setStatusFilter("found")}
+              className={`px-4 py-2 rounded-full transition-colors ${
+                statusFilter === "found" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Found
+            </button>
+            <button
+              onClick={() => setStatusFilter("resolved")}
+              className={`px-4 py-2 rounded-full transition-colors ${
+                statusFilter === "resolved" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              Resolved
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Items Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredItems.map((item) => (
+        {items.map((item) => (
           <div
             key={item.id}
             className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition-shadow duration-300"
@@ -187,26 +277,45 @@ export default function LostAndFound() {
                   </span>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => setSelectedItem(item)} className="p-2 hover:bg-gray-100 rounded-full">
+                  <button 
+                    onClick={() => setSelectedItem(item)} 
+                    className="p-2 hover:bg-gray-100 rounded-full"
+                    title="View Details"
+                  >
                     <Eye className="w-5 h-5 text-gray-600" />
                   </button>
-                  <button onClick={() => setShowAddItem(true)} className="p-2 hover:bg-gray-100 rounded-full">
-                    <Edit3 className="w-5 h-5 text-gray-600" />
-                  </button>
-                  {item.status === "pending" && (
+                  
+                  {/* Only show edit button for admins */}
+                  {canEdit(item) && (
+                    <button 
+                      onClick={() => setShowAddItem(true)} 
+                      className="p-2 hover:bg-gray-100 rounded-full"
+                      title="Edit Item"
+                    >
+                      <Edit3 className="w-5 h-5 text-gray-600" />
+                    </button>
+                  )}
+                  
+                  {item.status !== "resolved" && (
                     <>
                       <button
-                        onClick={() => updateStatus(item.id, "claimed")}
+                        onClick={() => updateStatus(item.id, "resolved")}
                         className="p-2 hover:bg-gray-100 rounded-full"
+                        title="Mark as Resolved"
                       >
-                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <CheckCircle className="w-5 h-5 text-blue-600" />
                       </button>
-                      <button
-                        onClick={() => setShowDeleteConfirm(item.id)}
-                        className="p-2 hover:bg-gray-100 rounded-full"
-                      >
-                        <Trash2 className="w-5 h-5 text-gray-600" />
-                      </button>
+                      
+                      {/* Only show delete button for admins */}
+                      {canEdit(item) && (
+                        <button
+                          onClick={() => setShowDeleteConfirm(item.id)}
+                          className="p-2 hover:bg-gray-100 rounded-full"
+                          title="Delete Item"
+                        >
+                          <Trash2 className="w-5 h-5 text-gray-600" />
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
@@ -221,6 +330,10 @@ export default function LostAndFound() {
                   <Calendar className="w-4 h-4 mr-2" />
                   <span>{item.dateFound}</span>
                 </div>
+                <div className="flex items-center text-gray-600">
+                  <User className="w-4 h-4 mr-2" />
+                  <span>Posted by: {item.postedBy.name} ({item.postedBy.role})</span>
+                </div>
               </div>
             </div>
           </div>
@@ -229,139 +342,124 @@ export default function LostAndFound() {
 
       {/* Add Item Modal */}
       {showAddItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Add New Item</h2>
-            <form>
-              <div className="mb-4">
-                <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">
-                  Item Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter item name"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="category" className="block text-gray-700 text-sm font-bold mb-2">
-                  Category
-                </label>
-                <select
-                  id="category"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                >
-                  <option>Electronics</option>
-                  <option>Personal Items</option>
-                  <option>Accessories</option>
-                  <option>Documents</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="location" className="block text-gray-700 text-sm font-bold mb-2">
-                  Location Found
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter location found"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="date" className="block text-gray-700 text-sm font-bold mb-2">
-                  Date Found
-                </label>
-                <input
-                  type="date"
-                  id="date"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label htmlFor="image" className="block text-gray-700 text-sm font-bold mb-2">
-                  Image URL
-                </label>
-                <input
-                  type="url"
-                  id="image"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter image URL"
-                />
-              </div>
-
-              <div className="mb-6">
-                <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">
-                  Description
-                </label>
-                <textarea
-                  id="description"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter item description"
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="button"
-                >
-                  Save
-                </button>
-                <button
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  type="button"
-                  onClick={() => setShowAddItem(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <LostAndFoundForm
+          isOpen={showAddItem}
+          onClose={() => setShowAddItem(false)}
+          onSubmit={handleAddItemSubmit}
+        />
       )}
 
       {/* Item Detail Modal */}
       {selectedItem && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">{selectedItem.name}</h2>
-            <div className="aspect-w-16 aspect-h-9 bg-gray-100 mb-4">
-              <img
-                src={selectedItem.image || "/placeholder.svg"}
-                alt={selectedItem.name}
-                className="object-cover w-full h-48"
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center text-gray-600">
-                <MapPin className="w-4 h-4 mr-2" />
-                <span>{selectedItem.location}</span>
+          <div className="bg-white rounded-xl p-6 w-full max-w-4xl relative">
+            {/* Close button */}
+            <button
+              onClick={() => setSelectedItem(null)}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Left side - Details */}
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold mb-6">{selectedItem.name}</h2>
+
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-gray-600 text-sm">Location</h3>
+                    <p className="text-xl font-medium">{selectedItem.location}</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-gray-600 text-sm">Date Found</h3>
+                    <p className="text-xl font-medium">{selectedItem.dateFound}</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-gray-600 text-sm">Description</h3>
+                    <p className="text-gray-700">{selectedItem.description}</p>
+                  </div>
+
+                  <div>
+                    <h3 className="text-gray-600 text-sm">Status</h3>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                        selectedItem.status,
+                      )}`}
+                    >
+                      {getStatusIcon(selectedItem.status)}
+                      <span className="ml-1">{selectedItem.status.toUpperCase()}</span>
+                    </span>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-gray-600 text-sm">Reporter</h3>
+                    <p className="text-gray-700">
+                      {selectedItem.postedBy.name} ({selectedItem.postedBy.role})
+                      {selectedItem.postedBy.contact && canContact(selectedItem) && (
+                        <span className="ml-2 text-sm text-blue-600">{selectedItem.postedBy.contact}</span>
+                      )}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center text-gray-600">
-                <Calendar className="w-4 h-4 mr-2" />
-                <span>{selectedItem.dateFound}</span>
+
+              {/* Right side - Image */}
+              <div>
+                <div className="relative bg-gray-100 rounded-lg">
+                  <img
+                    src={selectedItem.image || "/placeholder.svg"}
+                    alt={selectedItem.name}
+                    className="w-full h-[300px] md:h-[400px] object-contain rounded-lg"
+                    onError={(e) => {
+                      e.target.src = "/placeholder.svg"
+                    }}
+                  />
+                </div>
               </div>
-              <p className="text-gray-700">{selectedItem.description}</p>
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                  selectedItem.status,
-                )}`}
-              >
-                {getStatusIcon(selectedItem.status)}
-                <span className="ml-1">{selectedItem.status.toUpperCase()}</span>
-              </span>
             </div>
-            <div className="mt-6 flex justify-end">
+
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-4 mt-8 justify-end">
+              {/* Only show contact buttons if reporter is a user (not an admin) */}
+              {canContact(selectedItem) && (
+                <>
+                  <button
+                    onClick={() => handleCallReporter(selectedItem)}
+                    className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Phone className="w-5 h-5" />
+                    Call Reporter
+                  </button>
+                  <button
+                    onClick={() => handleSendSMS(selectedItem)}
+                    className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <MessageSquare className="w-5 h-5" />
+                    SMS Reporter
+                  </button>
+                </>
+              )}
+              
+              {/* Only show edit button for admins */}
+              {canEdit(selectedItem) && (
+                <button
+                  onClick={() => {
+                    setSelectedItem(null)
+                    setShowAddItem(true)
+                  }}
+                  className="flex items-center gap-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  <Edit3 className="w-5 h-5" />
+                  Edit Item
+                </button>
+              )}
+              
               <button
-                className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 onClick={() => setSelectedItem(null)}
+                className="bg-gray-100 text-gray-800 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Close
               </button>
