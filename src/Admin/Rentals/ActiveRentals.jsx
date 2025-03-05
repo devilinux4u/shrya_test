@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import {
   Car,
   Calendar,
-  Clock,
   User,
   Search,
   Eye,
@@ -16,8 +15,11 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  XCircle,
+  Clock,
+  MoreHorizontal,
 } from "lucide-react";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
@@ -27,9 +29,10 @@ export default function ActiveRentals() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(6);
+  const [showStatusMenu, setShowStatusMenu] = useState(null);
 
   const fetchRentals = async () => {
     setLoading(true);
@@ -42,7 +45,7 @@ export default function ActiveRentals() {
       }
       const data = await response.json();
 
-      console.log(data)
+      console.log(data);
 
       // Check if data.data exists and is an array
       if (!data.data || !Array.isArray(data.data)) {
@@ -52,7 +55,7 @@ export default function ActiveRentals() {
       // Map API response to required structure
       const mappedRentals = data.data.map((rental) => ({
         id: rental.id,
-        status: rental.status,
+        status: rental.status || "pending", // Default to pending if status is not provided
         rentalType: rental.rentalType,
         rentalDuration: rental.rentalDuration,
         totalAmount: rental.totalAmount,
@@ -127,28 +130,122 @@ export default function ActiveRentals() {
     return timeString.slice(0, 5); // Assuming time is in HH:MM format
   };
 
-  // Calculate time remaining between pickup and return
-  const calculateTimeRemaining = (
-    pickupDate,
-    pickupTime,
-    returnDate,
-    returnTime
-  ) => {
-    if (!pickupDate || !returnDate) return 0;
+  // Update rental status
+  const updateRentalStatus = async (rentalId, newStatus) => {
+    try {
+      setLoading(true);
+      // In a real application, you would make an API call here
+      // const response = await fetch(`http://localhost:3000/api/rentals/${rentalId}/status`, {
+      //   method: 'PUT',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify({ status: newStatus }),
+      // });
 
-    const pickupDateTime = new Date(`${pickupDate}T${pickupTime || "00:00"}`);
-    const returnDateTime = new Date(`${returnDate}T${returnTime || "00:00"}`);
-    const now = new Date();
+      // if (!response.ok) {
+      //   throw new Error('Failed to update rental status');
+      // }
 
-    if (now > returnDateTime) return 0; // Rental has ended
-    if (now < pickupDateTime)
-      return (returnDateTime - pickupDateTime) / (1000 * 60 * 60); // Rental hasn't started
+      // For demo purposes, we'll just update the state directly
+      setRentals((prevRentals) =>
+        prevRentals.map((rental) =>
+          rental.id === rentalId ? { ...rental, status: newStatus } : rental
+        )
+      );
 
-    return (returnDateTime - now) / (1000 * 60 * 60); // Hours remaining
+      setShowStatusMenu(null);
+      toast.success(`Rental status updated to ${newStatus.replace("-", " ")}`);
+    } catch (err) {
+      toast.error(`Failed to update status: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Filter rentals based on search term
+  // Cancel rental
+  const cancelRental = async (rentalId) => {
+    if (!window.confirm("Are you sure you want to cancel this rental?")) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // In a real application, you would make an API call here
+      // const response = await fetch(`http://localhost:3000/api/rentals/${rentalId}/cancel`, {
+      //   method: 'PUT',
+      // });
+
+      // if (!response.ok) {
+      //   throw new Error('Failed to cancel rental');
+      // }
+
+      // For demo purposes, we'll just update the state directly
+      setRentals((prevRentals) =>
+        prevRentals.map((rental) =>
+          rental.id === rentalId ? { ...rental, status: "cancelled" } : rental
+        )
+      );
+
+      toast.success("Rental has been cancelled");
+    } catch (err) {
+      toast.error(`Failed to cancel rental: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Get status color and icon
+  const getStatusInfo = (status) => {
+    switch (status) {
+      case "pending":
+        return {
+          color: "bg-yellow-100 text-yellow-800",
+          icon: <Clock className="h-3 w-3 inline mr-1" />,
+          label: "Pending",
+        };
+      case "active":
+        return {
+          color: "bg-green-100 text-green-800",
+          icon: <CheckCircle className="h-3 w-3 inline mr-1" />,
+          label: "Active",
+        };
+      case "completed":
+        return {
+          color: "bg-blue-100 text-blue-800",
+          icon: <CheckCircle className="h-3 w-3 inline mr-1" />,
+          label: "Completed",
+        };
+      case "completed-late":
+        return {
+          color: "bg-purple-100 text-purple-800",
+          icon: <CheckCircle className="h-3 w-3 inline mr-1" />,
+          label: "Completed Late",
+        };
+      case "late":
+        return {
+          color: "bg-orange-100 text-orange-800",
+          icon: <AlertTriangle className="h-3 w-3 inline mr-1" />,
+          label: "Late",
+        };
+      case "cancelled":
+        return {
+          color: "bg-red-100 text-red-800",
+          icon: <XCircle className="h-3 w-3 inline mr-1" />,
+          label: "Cancelled",
+        };
+      default:
+        return {
+          color: "bg-gray-100 text-gray-800",
+          icon: <Clock className="h-3 w-3 inline mr-1" />,
+          label: "Unknown",
+        };
+    }
+  };
+
+  // Filter rentals based on search term and status
   const filteredRentals = rentals.filter((rental) => {
+    // Filter by search term
     const searchMatch =
       rental.rentVehicle.make
         .toLowerCase()
@@ -163,7 +260,11 @@ export default function ActiveRentals() {
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
-    return searchMatch;
+    // Filter by status
+    const statusMatch =
+      statusFilter === "all" || rental.status === statusFilter;
+
+    return searchMatch && statusMatch;
   });
 
   // Calculate pagination values
@@ -179,16 +280,16 @@ export default function ActiveRentals() {
   };
 
   // Filter button component
-  const FilterButton = ({ active, onClick, children }) => (
+  const FilterButton = ({ value, label, active, onClick }) => (
     <button
-      onClick={onClick}
+      onClick={() => onClick(value)}
       className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
         active
-          ? "bg-indigo-600 text-white"
+          ? "bg-[#ff6b00] text-white"
           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
       }`}
     >
-      {children}
+      {label}
     </button>
   );
 
@@ -200,16 +301,16 @@ export default function ActiveRentals() {
           <div className="mb-6 md:mb-8">
             <div className="border-l-4 border-[#ff6b00] pl-4">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Active Rentals
+                Rental Management
               </h1>
               <p className="mt-2 text-gray-600">
-                Monitor and manage currently active vehicle rentals
+                Monitor and manage all vehicle rentals
               </p>
             </div>
           </div>
 
           {/* Search Bar and Filters Section */}
-          <div className="mb-6 p-5">
+          <div className="mb-6 p-5 bg-white rounded-xl shadow-sm">
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
               {/* Search Bar */}
               <div className="relative w-full sm:w-auto flex-1 max-w-md">
@@ -224,6 +325,40 @@ export default function ActiveRentals() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
+
+              {/* Filter by Status */}
+              <div className="flex items-center">
+                <Filter className="h-5 w-5 text-gray-500 mr-2" />
+                <span className="text-sm font-medium text-gray-700 mr-3">
+                  Filter by status:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  <FilterButton
+                    value="all"
+                    label="All"
+                    active={statusFilter === "all"}
+                    onClick={setStatusFilter}
+                  />
+                  <FilterButton
+                    value="pending"
+                    label="Pending"
+                    active={statusFilter === "pending"}
+                    onClick={setStatusFilter}
+                  />
+                  <FilterButton
+                    value="active"
+                    label="Active"
+                    active={statusFilter === "active"}
+                    onClick={setStatusFilter}
+                  />
+                  <FilterButton
+                    value="late"
+                    label="Late"
+                    active={statusFilter === "late"}
+                    onClick={setStatusFilter}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -232,7 +367,7 @@ export default function ActiveRentals() {
             <div className="flex justify-center items-center h-64">
               <Loader2 className="h-8 w-8 text-[#ff6b00] animate-spin" />
               <span className="ml-2 text-lg text-gray-600">
-                Loading active rentals...
+                Loading rentals...
               </span>
             </div>
           ) : error ? (
@@ -255,23 +390,18 @@ export default function ActiveRentals() {
             <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
               <Car className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No active rentals found
+                No rentals found
               </h3>
               <p className="text-gray-600 mb-6">
-                {searchTerm || filterType !== "all"
+                {searchTerm || statusFilter !== "all"
                   ? "Try adjusting your search or filters"
-                  : "There are currently no active vehicle rentals"}
+                  : "There are currently no vehicle rentals"}
               </p>
             </div>
           ) : (
             <div className="space-y-6">
               {currentItems.map((rental) => {
-                const hoursRemaining = calculateTimeRemaining(
-                  rental.pickupDate,
-                  rental.pickupTime,
-                  rental.returnDate,
-                  rental.returnTime
-                );
+                const statusInfo = getStatusInfo(rental.status);
 
                 return (
                   <div
@@ -284,11 +414,21 @@ export default function ActiveRentals() {
                         <div className="h-full">
                           <img
                             src={
-                              `../../server${rental.rentVehicle.rentVehicleImages[0].image}` || "/placeholder.svg"
+                              (rental.rentVehicle.rentVehicleImages &&
+                                rental.rentVehicle.rentVehicleImages.length >
+                                  0 &&
+                                `../../server${
+                                  rental.rentVehicle.rentVehicleImages[0]
+                                    .image || "/placeholder.svg"
+                                }`) ||
+                              "/placeholder.svg"
                             }
                             alt={`${rental.rentVehicle.make} ${rental.rentVehicle.model}`}
                             className="w-full h-full object-cover md:h-full"
                             style={{ minHeight: "200px" }}
+                            onError={(e) => {
+                              e.target.src = "/placeholder.svg";
+                            }}
                           />
                           <div className="absolute top-0 left-0 bg-[#ff6b00] text-white px-3 py-1 rounded-br-lg font-medium">
                             {rental.rentalType?.charAt(0).toUpperCase() +
@@ -302,11 +442,19 @@ export default function ActiveRentals() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                           {/* Vehicle Info */}
                           <div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-1">
-                              {rental.rentVehicle.make}{" "}
-                              {rental.rentVehicle.model} (
-                              {rental.rentVehicle.year})
-                            </h3>
+                            <div className="flex justify-between items-start">
+                              <h3 className="text-lg font-bold text-gray-900 mb-1">
+                                {rental.rentVehicle.make}{" "}
+                                {rental.rentVehicle.model} (
+                                {rental.rentVehicle.year})
+                              </h3>
+                              <div
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}
+                              >
+                                {statusInfo.icon}
+                                <span>{statusInfo.label}</span>
+                              </div>
+                            </div>
                             <p className="text-sm text-gray-600 mb-3">
                               Number Plate: {rental.rentVehicle.numberPlate}
                             </p>
@@ -392,60 +540,125 @@ export default function ActiveRentals() {
                             </div>
                           </div>
 
-                          {/* Time Remaining */}
+                          {/* Actions */}
                           <div>
                             <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                              <Clock className="h-4 w-4 mr-2 text-[#ff6b00]" />
-                              Time Remaining
+                              <CheckCircle className="h-4 w-4 mr-2 text-[#ff6b00]" />
+                              Actions
                             </h4>
 
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-600">Time Left</p>
-                              <p className="font-medium text-gray-900">
-                                {hoursRemaining <= 0
-                                  ? "Rental Completed"
-                                  : hoursRemaining < 24
-                                  ? `${Math.round(hoursRemaining)} hours`
-                                  : `${Math.floor(
-                                      hoursRemaining / 24
-                                    )} days, ${Math.round(
-                                      hoursRemaining % 24
-                                    )} hours`}
-                              </p>
-                            </div>
+                            <div className="space-y-3">
+                              {/* Status Update Button */}
+                              <div className="relative">
+                                <button
+                                  onClick={() =>
+                                    setShowStatusMenu(
+                                      rental.id === showStatusMenu
+                                        ? null
+                                        : rental.id
+                                    )
+                                  }
+                                  className="w-full flex items-center justify-between px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                                >
+                                  <span>Update Status</span>
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </button>
 
-                            <div className="flex items-center">
-                              <div
-                                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  hoursRemaining > 0 && hoursRemaining < 12
-                                    ? "bg-yellow-100 text-yellow-800"
-                                    : hoursRemaining <= 0
-                                    ? "bg-gray-100 text-gray-800"
-                                    : "bg-green-100 text-green-800"
-                                }`}
-                              >
-                                {hoursRemaining > 0 && hoursRemaining < 12 ? (
-                                  <AlertTriangle className="h-3 w-3 inline mr-1" />
-                                ) : hoursRemaining <= 0 ? (
-                                  <CheckCircle className="h-3 w-3 inline mr-1" />
-                                ) : (
-                                  <CheckCircle className="h-3 w-3 inline mr-1" />
+                                {showStatusMenu === rental.id && (
+                                  <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg border border-gray-200">
+                                    <div className="py-1">
+                                      {rental.status !== "pending" && (
+                                        <button
+                                          onClick={() =>
+                                            updateRentalStatus(
+                                              rental.id,
+                                              "pending"
+                                            )
+                                          }
+                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                          Set as Pending
+                                        </button>
+                                      )}
+                                      {rental.status !== "active" && (
+                                        <button
+                                          onClick={() =>
+                                            updateRentalStatus(
+                                              rental.id,
+                                              "active"
+                                            )
+                                          }
+                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                          Set as Active
+                                        </button>
+                                      )}
+                                      {rental.status !== "completed" && (
+                                        <button
+                                          onClick={() =>
+                                            updateRentalStatus(
+                                              rental.id,
+                                              "completed"
+                                            )
+                                          }
+                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                          Set as Completed
+                                        </button>
+                                      )}
+                                      {rental.status !== "late" && (
+                                        <button
+                                          onClick={() =>
+                                            updateRentalStatus(
+                                              rental.id,
+                                              "late"
+                                            )
+                                          }
+                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                          Set as Late
+                                        </button>
+                                      )}
+                                      {rental.status !== "completed-late" && (
+                                        <button
+                                          onClick={() =>
+                                            updateRentalStatus(
+                                              rental.id,
+                                              "completed-late"
+                                            )
+                                          }
+                                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                          Set as Completed Late
+                                        </button>
+                                      )}
+                                    </div>
+                                  </div>
                                 )}
-                                {hoursRemaining <= 0
-                                  ? "Completed"
-                                  : hoursRemaining < 12
-                                  ? "Ending Soon"
-                                  : "Active"}
                               </div>
-                            </div>
 
-                            <button
-                              onClick={() => handleViewDetails(rental.id)}
-                              className="mt-4 w-full flex items-center justify-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </button>
+                              {/* Cancel Button - Only show if not already cancelled or completed */}
+                              {rental.status !== "cancelled" &&
+                                rental.status !== "completed" &&
+                                rental.status !== "completed-late" && (
+                                  <button
+                                    onClick={() => cancelRental(rental.id)}
+                                    className="w-full flex items-center justify-center px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                  >
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Cancel Rental
+                                  </button>
+                                )}
+
+                              {/* View Details Button */}
+                              <button
+                                onClick={() => handleViewDetails(rental.id)}
+                                className="w-full flex items-center justify-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                View Details
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
