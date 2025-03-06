@@ -77,13 +77,8 @@ module.exports.contact = (sequelize, DataTypes) => {
 };
 
 module.exports.vehicle = (sequelize, DataTypes) => {
-    const Vehicle = sequelize.define('vehicle', {
+    const Vehicle = sequelize.define('vehicles', {
         uid: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        title: {
             type: DataTypes.STRING,
             allowNull: false,
             validate: { notEmpty: true }
@@ -100,11 +95,6 @@ module.exports.vehicle = (sequelize, DataTypes) => {
         },
         year: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        type: {
-            type: DataTypes.STRING,
             allowNull: false,
             validate: { notEmpty: true }
         },
@@ -137,30 +127,48 @@ module.exports.vehicle = (sequelize, DataTypes) => {
             type: DataTypes.TEXT,
             allowNull: false,
             validate: { notEmpty: true }
-        }
-    });
-
-    const VehicleImage = sequelize.define('vehicle_image', {
-        vehicleId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'vehicles',
-                key: 'id'
-            },
-            onDelete: 'CASCADE'
         },
-        image: {
-            type: DataTypes.BLOB('long'), // Storing images in binary format
+        own: {
+            type: DataTypes.TEXT,
             allowNull: false,
+            validate: { notEmpty: true }
+        },
+        mile: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        seat: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        cc: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
         }
     });
 
-
-    // Relationships
-    Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
-    VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
-
-    return { Vehicle, VehicleImage };
+    return Vehicle;
 };
 
+module.exports.vimg = (sequelize, DataTypes) => {
+const VehicleImage = sequelize.define('vehicle_image', {
+    vehicleId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'vehicles',
+            key: 'id'
+        },
+        onDelete: 'CASCADE'
+    },
+    image: {
+        type: DataTypes.BLOB('long'), // Storing images in binary format
+        allowNull: false,
+    }
+})
+
+return VehicleImage;
+}

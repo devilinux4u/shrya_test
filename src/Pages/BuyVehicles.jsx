@@ -1,14 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { X } from 'lucide-react'; 
-import Toyota from "../assets/Toyota.png";
+import Cookies from "js-cookie";
 import SellCarCard from "../Components/SellCarCard";
 import SellVehicleForm from "../Components/SellVehicleForm";
-import Cookies from "js-cookie";
 
 export default function VehicleDetails() {
   const navigate = useNavigate();
   const [showSellVehicleForm, setShowSellVehicleForm] = useState(false);
+  const [vehicle, setVehicle] = useState(null);  // state to store the vehicle data
 
   const handleSellVehicleClick = () => {
     const cookie = Cookies.get('sauto');
@@ -18,6 +17,32 @@ export default function VehicleDetails() {
       setShowSellVehicleForm(true);
     }
   };
+
+  useEffect(() => {
+    const fetchVehicle = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:3000/vehicles/random", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        setVehicle(data.msg); // Store fetched vehicle data in the state
+      } catch (error) {
+        console.error("Error fetching vehicle data:", error);
+      }
+    };
+
+    fetchVehicle();
+  }, []);
+
+  if (!vehicle) {
+    return <div>Loading...</div>;  // Render a loading message while the data is being fetched
+  }
+
+  // Log vehicle.img to check its content
+  console.log(vehicle);
 
   return (
     <div className="mt-12 container mx-auto px-4 py-8 relative">
@@ -35,9 +60,9 @@ export default function VehicleDetails() {
       <div className="max-w-7xl mx-auto">
         {/* Brand and Model */}
         <div className="text-center mb-4">
-          <h1 className="text-[#C84C27] text-3xl font-medium mb-2">TOYOTA</h1>
+          <h1 className="text-[#C84C27] text-3xl font-medium mb-2">{vehicle.make}</h1>
           <h2 className="text-4xl tracking-[0.5em] font-bold">
-            LAND CRUISER PRADO
+            {vehicle.model}
           </h2>
         </div>
 
@@ -46,8 +71,8 @@ export default function VehicleDetails() {
           {/* Vehicle Image */}
           <div>
             <img
-              src={Toyota || "/placeholder.svg"}
-              alt="Toyota Land Cruiser Prado"
+              src={vehicle.images[0].image || "/placeholder.svg"}  // Check if image exists in array and provide fallback
+              alt={vehicle.model}
               className="w-full h-auto"
             />
           </div>
@@ -60,19 +85,19 @@ export default function VehicleDetails() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-gray-500">Year:</p>
-                  <p className="font-medium">2024</p>
+                  <p className="font-medium">{vehicle.year}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Mileage:</p>
-                  <p className="font-medium">10 km/hr</p>
+                  <p className="font-medium">{vehicle.mile} km</p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Km:</p>
-                  <p className="font-medium">19000</p>
+                  <p className="text-gray-500">Fuel Type:</p>
+                  <p className="font-medium">{vehicle.fuel}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Price:</p>
-                  <p className="font-medium">Rs. 10,000,000</p>
+                  <p className="font-medium">Rs. {vehicle.price}</p>
                 </div>
               </div>
             </div>
@@ -99,9 +124,9 @@ export default function VehicleDetails() {
       <SellCarCard />
 
       {/* Sell Vehicle Form Modal */}
-      <SellVehicleForm 
-        isOpen={showSellVehicleForm} 
-        onClose={() => setShowSellVehicleForm(false)} 
+      <SellVehicleForm
+        isOpen={showSellVehicleForm}
+        onClose={() => setShowSellVehicleForm(false)}
       />
     </div>
   );

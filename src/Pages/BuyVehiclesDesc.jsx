@@ -1,46 +1,77 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
-import BuyNowForm from "../Components/BuyNowForm"
+import { useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import BuyNowForm from "../Components/BuyNowForm";
+import { useLocation } from "react-router-dom";
 
 export default function BuyVehiclesDesc() {
-  const [activeSection, setActiveSection] = useState("hero")
-  const [showBuyNowForm, setShowBuyNowForm] = useState(false)
-  const mainRef = useRef(null)
-  const sections = useRef({})
+  const [activeSection, setActiveSection] = useState("hero");
+  const [showBuyNowForm, setShowBuyNowForm] = useState(false);
+  const [vehicle, setVehicle] = useState(null); // Store fetched vehicle data
+  const mainRef = useRef(null);
+  const sections = useRef({});
 
   const { scrollYProgress } = useScroll({
     target: mainRef,
     offset: ["start start", "end end"],
-  })
+  });
+
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  const vehicleId = params.get("id"); // Get the vehicle ID from URL params
 
   useEffect(() => {
-    const observers = {}
-    const sectionIds = ["hero", "images", "specifications", "details"]
+    // Fetch vehicle data from the backend using the ID from the URL
+    const fetchVehicle = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/vehicles/one/${vehicleId}`); // Replace with your actual endpoint
+        const data = await response.json();
+        if (data.success) {
+          setVehicle(data.msg); // Set the vehicle data to the state
+        } else {
+          console.error("Vehicle not found");
+        }
+      } catch (error) {
+        console.error("Error fetching vehicle data:", error);
+      }
+    };
+
+    if (vehicleId) {
+      fetchVehicle(); // Fetch vehicle data when the component mounts or vehicleId changes
+    }
+  }, [vehicleId]);
+
+  useEffect(() => {
+    const observers = {};
+    const sectionIds = ["hero", "images", "specifications", "details"];
 
     sectionIds.forEach((id) => {
       observers[id] = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
-            setActiveSection(id)
+            setActiveSection(id);
           }
         },
-        { threshold: 0.5 },
-      )
+        { threshold: 0.5 }
+      );
 
       if (sections.current[id]) {
-        observers[id].observe(sections.current[id])
+        observers[id].observe(sections.current[id]);
       }
-    })
+    });
 
     return () => {
-      Object.values(observers).forEach((observer) => observer.disconnect())
-    }
-  }, [])
+      Object.values(observers).forEach((observer) => observer.disconnect());
+    };
+  }, []);
 
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8])
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
+
+  if (!vehicle) {
+    return <div>Loading...</div>; // Show loading state while data is being fetched
+  }
 
   return (
     <div ref={mainRef} className="relative">
@@ -53,11 +84,11 @@ export default function BuyVehiclesDesc() {
         <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <div>
-              <h1 className="text-red-600 text-2xl font-bold mb-2">TOYOTA</h1>
+              <h1 className="text-red-600 text-2xl font-bold mb-2">{vehicle.model}</h1>
               <h2 className="text-4xl font-bold tracking-wider">
-                LAND CRUISER
+                {vehicle.make}
                 <br />
-                PRADO
+                
               </h2>
             </div>
 
@@ -65,23 +96,23 @@ export default function BuyVehiclesDesc() {
               <div className="grid grid-cols-2 gap-8">
                 <div>
                   <p className="text-gray-500">Year:</p>
-                  <p className="text-xl">2023/2024</p>
+                  <p className="text-xl">{vehicle.year}</p>
                 </div>
                 <div>
                   <p className="text-gray-500">Km</p>
-                  <p className="text-xl">19000</p>
+                  <p className="text-xl">{vehicle.km}</p>
                 </div>
               </div>
 
               <div>
                 <p className="text-gray-500">Ownership</p>
-                <p className="text-xl">Single-Hand</p>
+                <p className="text-xl">{vehicle.own}</p>
               </div>
 
               <div>
                 <p className="text-gray-500">Price</p>
                 <p className="text-3xl font-bold">
-                  Rs. <span className="text-red-600">10,000,000</span>
+                  Rs. <span className="text-red-600">{vehicle.price}</span>
                 </p>
               </div>
             </div>
@@ -96,8 +127,8 @@ export default function BuyVehiclesDesc() {
 
           <div className="relative">
             <img
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-yYEfMtCEIUbS41feUOsWLakxRbQ3Xd.png"
-              alt="Toyota Land Cruiser Prado"
+              src={vehicle.images[0].image} // Use the first image from the vehicle images array
+              alt={vehicle.title}
               className="w-full h-auto"
             />
           </div>
@@ -111,7 +142,7 @@ export default function BuyVehiclesDesc() {
             <button
               key={section}
               onClick={() => {
-                sections.current[section]?.scrollIntoView({ behavior: "smooth" })
+                sections.current[section]?.scrollIntoView({ behavior: "smooth" });
               }}
               className={`relative text-lg font-medium uppercase ${
                 activeSection === section ? "text-red-600" : "text-gray-700"
@@ -137,11 +168,11 @@ export default function BuyVehiclesDesc() {
           transition={{ duration: 0.5 }}
           className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8"
         >
-          {[1, 2, 3, 4].map((index) => (
+          {vehicle.images.map((image, index) => (
             <div key={index} className="relative aspect-video">
               <img
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-yYEfMtCEIUbS41feUOsWLakxRbQ3Xd.png"
-                alt={`Toyota Land Cruiser Prado View ${index}`}
+                src={image.image}
+                alt={`${vehicle.type}-image`}
                 className="w-full h-full object-cover rounded-lg"
               />
             </div>
@@ -158,12 +189,13 @@ export default function BuyVehiclesDesc() {
           className="container mx-auto grid grid-cols-3 gap-x-16 gap-y-8"
         >
           {[
-            { label: "Mileage", value: "10 km/lr" },
-            { label: "Seat", value: "7 seater" },
-            { label: "Fuel", value: "Petrol" },
-            { label: "Transmission", value: "Auto" },
-            { label: "Engine CC", value: "3000" },
-            { label: "Color", value: "Silver" },
+            { label: "Mileage", value: vehicle.mile},
+            { label: "Seat", value: vehicle.seat },
+            { label: "Fuel", value: vehicle.fuel },
+            { label: "Transmission", value: vehicle.trans },
+            { label: "Engine CC", value: vehicle.cc },
+            { label: "Color", value: vehicle.color },
+            
           ].map((spec, index) => (
             <motion.div
               key={index}
@@ -187,16 +219,12 @@ export default function BuyVehiclesDesc() {
           className="container mx-auto grid md:grid-cols-2 gap-12"
         >
           <div className="prose max-w-none">
-            <p className="text-gray-600">
-              Et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque
-              corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt
-              in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.
-            </p>
+            <p className="text-gray-600">{vehicle.des}</p>
           </div>
           <div>
             <img
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-yYEfMtCEIUbS41feUOsWLakxRbQ3Xd.png"
-              alt="Toyota Land Cruiser Prado Rear View"
+              src={vehicle.images[0].image} // Display the first image again in details
+              alt={`${vehicle.title}-rear`}
               className="w-full h-auto rounded-lg mb-4"
             />
             <button
@@ -208,19 +236,19 @@ export default function BuyVehiclesDesc() {
           </div>
         </motion.div>
       </section>
+
       {showBuyNowForm && (
         <BuyNowForm
           vehicle={{
-            name: "Toyota Land Cruiser Prado",
-            year: "2023/2024",
-            mileage: "19000",
+            name: vehicle.title,
+            year: vehicle.year,
+            mileage: vehicle.km,
             ownership: "Single-Hand",
-            price: "10,000,000",
+            price: vehicle.price,
           }}
           onClose={() => setShowBuyNowForm(false)}
         />
       )}
     </div>
-  )
+  );
 }
- 
