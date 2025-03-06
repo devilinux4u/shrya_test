@@ -1,21 +1,21 @@
 const express = require('express')
 const router = express.Router()
 const multer = require("multer");
-const { vehicles, v_img } = require('../db/sequelize')
+const { sequelize, vehicles, v_img } = require('../db/sequelize')
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-router.post('/addVehicle', upload.array("images", 5), async (req, res) => {
+router.post('/addVehicle', upload.array("images"), async (req, res) => {
 
-    console.log(req.body);
+    console.log(req.files);
 
     try {
-        const { uid, title, make, model, year, type, color, km, fuel, trans, price, des } = req.body;
+        const { ownership, mileage, seats, engineCC, title, make, model, year, type, color, totalKm, fuelType, transmission, price, description } = req.body;
 
         // Create vehicle entry
         const vehicle = await vehicles.create({
-            uid, title, make, model, year, type, color, km, fuel, trans, price, des
+            uid: req.body.id, title: title, make: make, model: model, year: year, type: type, color: color, km: totalKm, fuel: fuelType, trans: transmission, price: price, des: description, own: ownership, mile: mileage, seat: seats, cc: engineCC,
         });
 
         // Save images as BLOBs
@@ -37,11 +37,46 @@ router.post('/addVehicle', upload.array("images", 5), async (req, res) => {
 
 
 // Route to Fetch Vehicle with Images
-router.get("/vehicles", async (req, res) => {
+router.get("/vehicles/random", async (req, res) => {
     try {
-        const vehicless = await vehicles.findAll({
+        const vehicless = await vehicles.findOne({
+            order: sequelize.literal("RAND()"),
             include: [{ model: v_img, attributes: ["id", "image"] }]
         });
+
+        if (!vehicless) {
+            return res.status(404).json({ success: false, msg: "No vehicle found" });
+        }
+
+        // Convert BLOBs to Base64
+        const formattedVehicle = {
+            ...vehicless.toJSON(),
+            images: vehicless.vehicle_images.map(img => ({
+                id: img.id,
+                image: `data:image/jpeg;base64,${img.image.toString("base64")}`
+            }))
+        };
+
+        res.json({ success: true, msg: formattedVehicle });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, msg: "Server error" });
+    }
+
+});
+
+router.get("/vehicles/three", async (req, res) => {
+    try {
+        const vehicless = await vehicles.findAll({
+            order: sequelize.literal("RAND()"),
+            limit: 3, // Fetch 3 random vehicles
+            include: [{ model: v_img, attributes: ["id", "image"] }]
+        });
+
+        if (!vehicless || vehicless.length === 0) {
+            return res.status(404).json({ success: false, msg: "No vehicles found" });
+        }
 
         // Convert BLOBs to Base64
         const formattedVehicles = vehicless.map(vehicle => ({
@@ -52,11 +87,74 @@ router.get("/vehicles", async (req, res) => {
             }))
         }));
 
-        res.json(formattedVehicles);
+        res.json({ success: true, msg: formattedVehicles });
+
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ success: false, msg: "Server error" });
     }
+
+});
+
+router.get("/vehicles/all", async (req, res) => {
+    try {
+        const vehicless = await vehicles.findAll({
+            order: sequelize.literal("RAND()"),
+            include: [{ model: v_img, attributes: ["id", "image"] }]
+        });
+
+        if (!vehicless || vehicless.length === 0) {
+            return res.status(404).json({ success: false, msg: "No vehicles found" });
+        }
+
+        // Convert BLOBs to Base64
+        const formattedVehicles = vehicless.map(vehicle => ({
+            ...vehicle.toJSON(),
+            images: vehicle.vehicle_images.map(img => ({
+                id: img.id,
+                image: `data:image/jpeg;base64,${img.image.toString("base64")}`
+            }))
+        }));
+
+        res.json({ success: true, msg: formattedVehicles });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, msg: "Server error" });
+    }
+
+});
+
+router.get("/vehicles/one/:vid", async (req, res) => {
+    try {
+        const vehicleId = req.params.vid;
+
+        const vehicle = await vehicles.findOne({
+            where: { id: vehicleId },
+            include: [{ model: v_img, attributes: ["id", "image"] }]
+        });
+
+        if (!vehicle) {
+            return res.status(404).json({ success: false, msg: "Vehicle not found" });
+        }
+
+        const formattedVehicle = {
+            ...vehicle.toJSON(),
+            images: vehicle.vehicle_images.map(img => ({
+                id: img.id,
+                image: `data:image/jpeg;base64,${img.image.toString("base64")}`
+            }))
+        };
+
+
+        res.json({ success: true, msg: formattedVehicle });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, msg: "Server error" });
+    }
+
+
 });
 
 

@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Camera, X, ChevronLeft, ChevronRight } from "lucide-react"
+import { Camera, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { toast } from "react-toastify"
+import Cookies from "js-cookie"
 
 export default function SellVehicleForm({ isOpen, onClose }) {
-  const [step, setStep] = useState(1)
   const [vehicle, setVehicle] = useState({
     make: "",
     model: "",
@@ -17,6 +17,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     price: "",
     description: "",
     images: [],
+    imagePreviewUrls: [],
     ownership: "",
     mileage: "",
     seats: "",
@@ -24,8 +25,8 @@ export default function SellVehicleForm({ isOpen, onClose }) {
   })
 
   const [errors, setErrors] = useState({})
+  const [step, setStep] = useState(1)
 
-  // Close modal with escape key
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") onClose()
@@ -34,42 +35,56 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     return () => window.removeEventListener("keydown", handleEsc)
   }, [onClose])
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "unset"
-    }
+    document.body.style.overflow = isOpen ? "hidden" : "unset"
     return () => {
       document.body.style.overflow = "unset"
     }
   }, [isOpen])
 
+  useEffect(() => {
+    return () => {
+      vehicle.imagePreviewUrls.forEach((url) => {
+        URL.revokeObjectURL(url)
+      })
+    }
+  }, [vehicle.imagePreviewUrls])
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setVehicle((prev) => ({ ...prev, [name]: value }))
-    // Clear the error for this field when the user starts typing
     setErrors((prev) => ({ ...prev, [name]: "" }))
   }
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files)
-    const imageUrls = files.map((file) => URL.createObjectURL(file))
-    setVehicle((prev) => ({ ...prev, images: [...prev.images, ...imageUrls] }))
+    const newPreviewUrls = files.map((file) =>  URL.createObjectURL(file))
+
+    setVehicle((prev) => ({
+      ...prev,
+      images: [...prev.images, ...files],
+      imagePreviewUrls: [...prev.imagePreviewUrls, ...newPreviewUrls],
+    }))
   }
 
   const handleImageRemove = (index) => {
-    setVehicle((prev) => ({
-      ...prev,
-      images: prev.images.filter((_, i) => i !== index),
-    }))
+    setVehicle((prev) => {
+      if (prev.imagePreviewUrls[index]) {
+        URL.revokeObjectURL(prev.imagePreviewUrls[index])
+      }
+
+      return {
+        ...prev,
+        images: prev.images.filter((_, i) => i !== index),
+        imagePreviewUrls: prev.imagePreviewUrls.filter((_, i) => i !== index),
+      }
+    })
   }
 
   const validateForm = () => {
     const newErrors = {}
     Object.keys(vehicle).forEach((key) => {
-      if (key !== "images" && !vehicle[key]) {
+      if (key !== "images" && key !== "imagePreviewUrls" && !vehicle[key]) {
         newErrors[key] = `${key.charAt(0).toUpperCase() + key.slice(1)} is required`
       }
     })
@@ -81,30 +96,55 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     e.preventDefault()
     if (validateForm()) {
       try {
-        // Simulate API call to list the vehicle
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+        const formData = new FormData()
 
-        console.log("Submitting vehicle:", vehicle)
-        toast.success("Vehicle listed successfully!")
-        onClose()
-        // Reset form state
-        setVehicle({
-          make: "",
-          model: "",
-          year: "",
-          color: "",
-          totalKm: "",
-          fuelType: "",
-          transmission: "",
-          price: "",
-          description: "",
-          images: [],
-          ownership: "",
-          mileage: "",
-          seats: "",
-          engineCC: "",
+        Object.entries(vehicle).forEach(([key, value]) => {
+          if (key !== "images" && key !== "imagePreviewUrls") {
+            formData.append(key, value)
+          }
         })
-        setStep(1)
+
+        // Add actual image files to FormData
+        if (vehicle.images.length > 0) {
+          vehicle.images.forEach((imageData) => {
+            formData.append(`images`, imageData)
+          })
+        }
+
+        formData.append("id", Cookies.get("sauto").split("-")[0])
+
+        console.log(formData)
+
+       
+        // Simulate API call to submit the form
+        const response = await fetch("http://127.0.0.1:3000/addVehicle", {
+          method: "POST",
+          body: formData,
+        })
+
+        const data = await response.json()
+
+        if (data.success) {
+          alert("Vehicle listed successfully!")
+          toast.success("Vehicle listed successfully!")
+          onClose()
+          setVehicle({
+            title: "",
+            make: "",
+            model: "",
+            year: "",
+            type: "",
+            color: "",
+            totalKm: "",
+            fuelType: "",
+            transmission: "",
+            price: "",
+            description: "",
+            images: [],
+          })
+          setStep(1)
+        }
+
       } catch (error) {
         console.error("Error listing vehicle:", error)
         toast.error("Failed to list vehicle. Please try again.")
@@ -133,8 +173,6 @@ export default function SellVehicleForm({ isOpen, onClose }) {
 
   const prevStep = () => setStep(step - 1)
   const nextStep = () => setStep(step + 1)
-
-  if (!isOpen) return null
 
   const renderStep = () => {
     switch (step) {
@@ -284,7 +322,7 @@ export default function SellVehicleForm({ isOpen, onClose }) {
               <textarea
                 id="description"
                 name="description"
-                rows="4"
+                rows={4}
                 value={vehicle.description}
                 onChange={handleChange}
                 className={`w-full rounded-lg border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] ${
@@ -321,10 +359,10 @@ export default function SellVehicleForm({ isOpen, onClose }) {
                 </div>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
-                {vehicle.images.map((image, index) => (
+                {vehicle.imagePreviewUrls.map((previewUrl, index) => (
                   <div key={index} className="relative group">
                     <img
-                      src={image || "/placeholder.svg"}
+                      src={previewUrl || "/placeholder.svg"}
                       alt={`Vehicle ${index + 1}`}
                       className="h-24 w-full object-cover rounded-lg"
                     />
@@ -346,20 +384,19 @@ export default function SellVehicleForm({ isOpen, onClose }) {
     }
   }
 
+  if (!isOpen) return null
+
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="relative bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
-        {/* Close button */}
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10">
           <X className="h-6 w-6" />
         </button>
 
-        {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200">
           <h1 className="text-2xl font-bold text-gray-900">Sell Your Vehicle</h1>
         </div>
 
-        {/* Progress bar */}
         <div className="px-6 py-4 bg-gray-50">
           <div className="flex space-x-2">
             {[1, 2, 3].map((stepNumber) => (
@@ -373,11 +410,9 @@ export default function SellVehicleForm({ isOpen, onClose }) {
           </div>
         </div>
 
-        {/* Form content */}
         <div className="px-6 py-6 overflow-y-auto" style={{ maxHeight: "calc(90vh - 180px)" }}>
           <form onSubmit={handleSubmit}>
             {renderStep()}
-            {/* Footer */}
             <div className="mt-6 flex justify-between">
               {step > 1 && (
                 <button
@@ -470,4 +505,3 @@ const SelectField = ({ label, name, value, onChange, options, error }) => (
     {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
   </div>
 )
-

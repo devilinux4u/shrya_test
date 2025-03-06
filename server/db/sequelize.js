@@ -5,7 +5,12 @@ const sequelize = new Sequelize(config.db_con);
 const model = require('./model');
 const user = model.user(sequelize, DataTypes);
 const contact = model.contact(sequelize, DataTypes);
-const {vehicle, VehicleImage} = model.vehicle(sequelize, DataTypes);
+const Vehicle = model.vehicle(sequelize, DataTypes);
+const VehicleImage = model.vimg(sequelize, DataTypes);
+
+
+Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
+VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
 
 try {
     sequelize.sync();
@@ -19,6 +24,6 @@ module.exports = {
     sequelize,
     users: user,
     contacts: contact,
-    vehicles: vehicle,
+    vehicles: Vehicle,
     v_img: VehicleImage
 }
