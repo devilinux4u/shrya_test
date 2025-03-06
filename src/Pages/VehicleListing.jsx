@@ -1,51 +1,36 @@
-import { useState } from "react";
-import Thar from "../assets/Thar.png";
-import SellSonata from "../assets/SellSonata.png";
-import Mazda from "../assets/Mazda.png";
+import { useState, useEffect } from "react";
 import Filter from "../Components/Filter";
 
-const vehicles = [
-  {
-    brand: "MAZDA",
-    model: "MAZDA6",
-    year: "2024",
-    mileage: "18000 Km",
-    price: 1900000,
-    image: Mazda,
-  },
-  {
-    brand: "HYUNDAI",
-    model: "SONATA",
-    year: "2021",
-    mileage: "5000 Km",
-    price: 8000000,
-    image: SellSonata,
-  },
-  {
-    brand: "MAHINDRA",
-    model: "THAR",
-    year: "2023",
-    mileage: "8000 Km",
-    price: 20000000,
-    image: Thar,
-  },
-];
-
-const brands = ["Mazda", "Hyundai", "Mahindra", "Toyota", "Honda"];
-const vehicleTypes = ["SUV", "Sedan", "Hatchback", "Luxury"];
-
 export default function VehicleListing() {
+  const [vehicles, setVehicles] = useState([]);
   const [minPrice, setMinPrice] = useState(0);
   const [maxPrice, setMaxPrice] = useState(25000000);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Duplicate vehicles array to match the image
-  const allVehicles = [...vehicles, ...vehicles, ...vehicles, ...vehicles];
+  // Fetch vehicles data from backend on component mount
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/vehicles/all"); // replace with your backend URL
+        const data = await response.json();
+        if (data.success) {
+          setVehicles(data.msg); // Assuming the response contains vehicles in `msg` field
+        } else {
+          console.error("Failed to fetch vehicles.");
+        }
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+      }
+    };
+
+    fetchVehicles();
+  }, []);
+
   const itemsPerPage = 9;
-  const totalPages = Math.ceil(allVehicles.length / itemsPerPage);
+  const totalPages = Math.ceil(vehicles.length / itemsPerPage);
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const displayedVehicles = allVehicles.slice(startIndex, startIndex + itemsPerPage);
+  const displayedVehicles = vehicles.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -87,16 +72,16 @@ export default function VehicleListing() {
             {displayedVehicles.map((vehicle, index) => (
               <div key={index} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                 <img
-                  src={vehicle.image || "/placeholder.svg"}
-                  alt={`${vehicle.brand} ${vehicle.model}`}
+                  src={vehicle.images[0].image || "/placeholder.svg"}
+                  alt={`${vehicle.model} ${vehicle.type}`}
                   className="w-full h-48 object-contain"
                 />
                 <div className="p-4">
-                  <h3 className="text-red-600 font-medium">{vehicle.brand}</h3>
-                  <p className="text-gray-600">{vehicle.model}</p>
+                  <h3 className="text-red-600 font-medium">{vehicle.model}</h3>
+                  <p className="text-gray-600">{vehicle.type}</p>
                   <div className="flex justify-between mt-2 text-sm text-gray-500">
                     <span>{vehicle.year}</span>
-                    <span>{vehicle.mileage}</span>
+                    <span>{vehicle.mile}</span>
                   </div>
                   <p className="mt-2 font-semibold">Rs. {vehicle.price.toLocaleString()}</p>
                 </div>
