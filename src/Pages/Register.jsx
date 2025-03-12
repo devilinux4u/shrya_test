@@ -32,7 +32,7 @@ export default function Register() {
 
     const { fullName, username, email, phoneNumber, password } = formData
 
-    try {
+    try { 
       const response = await fetch("http://127.0.0.1:3000/register", {
         method: "POST",
         headers: {
@@ -48,15 +48,17 @@ export default function Register() {
         sessionStorage.setItem(
           "pendingVerification",
           JSON.stringify({
-            userId: data.userId || "temp-id",
-            email,
-            phoneNumber,
+            userId: data.msg.id,
+            email: data.msg.email
           }),
         )
 
         // Navigate to verification page instead of login
-        navigate("/UserVerification")
         toast.success("Registration successful! Please verify your account.")
+
+        setTimeout(() => {
+          navigate("/UserVerification");
+        }, 1000);
       } else {
         toast.error(data.msg || "Registration failed. Please try again.")
       }

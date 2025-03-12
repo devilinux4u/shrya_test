@@ -14,7 +14,7 @@ function VehicleCard({ vehicle }) {
       }}
     >
       <img
-        src={(vehicle.images && vehicle.images.length > 0 && vehicle.images[0].image) || "default_image_url.jpg"} // Provide a default image
+        src={`../../server/controllers${vehicle.images[0].image}` || "default_image_url.jpg"} // Provide a default image
         alt={`${vehicle.make || "Unknown"} ${vehicle.model || ""}`}
         className="w-full max-w-xs object-cover rounded-lg hover:scale-105 transition-transform duration-300"
       />

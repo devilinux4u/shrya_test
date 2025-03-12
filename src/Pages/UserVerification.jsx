@@ -16,7 +16,7 @@ export default function UserVerification() {
   const [userData, setUserData] = useState(null)
   const [resendDisabled, setResendDisabled] = useState(true)
 
-  const inputRefs = useRef([])
+  const inputRefs = useRef([]) 
   const navigate = useNavigate()
 
   // Get user data from session storage
@@ -100,10 +100,6 @@ export default function UserVerification() {
     setError("")
 
     try {
-      // Simulate API call to verify OTP
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Replace with actual API call
       const response = await fetch("http://127.0.0.1:3000/verify-otp", {
         method: "POST",
         headers: {
@@ -113,26 +109,30 @@ export default function UserVerification() {
           userId: userData?.userId,
           otp: otpValue,
         }),
-      })
+      });
 
-      // For demo purposes, let's assume success
-      // In a real app, you would check the response
-      setSuccess(true)
+      // console.log(userData?.email, otpValue);
+
+      const data = await response.json();
+
+      if (!data.success) {
+        setError(data.msg)
+        throw new Error(data.msg);
+      }
+
+      toast.success("Account verified successfully!");
 
       // Clear session storage
-      sessionStorage.removeItem("pendingVerification")
-
-      // Show success message and redirect after delay
-      toast.success("Account verified successfully!")
+      sessionStorage.removeItem("pendingVerification");
 
       setTimeout(() => {
-        navigate("/login")
-      }, 2000)
+        navigate("/login");
+      }, 2000);
     } catch (err) {
-      console.error(err)
-      setError("Failed to verify OTP. Please try again.")
+      console.error(err);
+      toast.error("Failed to verify OTP. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
