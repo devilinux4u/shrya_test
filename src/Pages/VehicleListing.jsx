@@ -81,7 +81,7 @@ export default function VehicleListing() {
               {displayedVehicles.map((vehicle, index) => (
                 <div key={index} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
                   <img
-                    src={(vehicle.images && vehicle.images.length > 0 && vehicle.images[0].image) || "/placeholder.svg"}
+                    src={(vehicle.images && vehicle.images.length > 0 && `../../server/controllers${vehicle.images[0].image}`) || "/placeholder.svg"}
                     alt={`${vehicle.model} ${vehicle.type}`}
                     className="w-full h-48 object-contain"
                   />

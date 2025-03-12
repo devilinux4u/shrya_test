@@ -77,8 +77,7 @@ const NavMenu = () => {
   }, [])
 
   const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn")
-    localStorage.removeItem("userFullName")
+    Cookies.remove("sauto") 
     setIsLoggedIn(false)
     setUserFullName("")
     navigate("/Login")
