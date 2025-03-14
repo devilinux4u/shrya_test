@@ -47,7 +47,25 @@ export default function Login({ onLogin }) {
           toast.success("Admin Logged in!")
           navigate("/admin/dashboard")
         }
-        else {
+        else if (data.msg == 'pending') {
+          
+          sessionStorage.setItem(
+            "pendingVerification",
+            JSON.stringify({
+              userId: data.dd.id,
+              email: data.dd.email
+            }),
+          )
+  
+          // Navigate to verification page instead of login
+          toast.error("Please verify your account.")
+  
+          setTimeout(() => {
+            navigate("/UserVerification");
+          }, 1000);
+
+        }
+        else { 
           Cookies.set("sauto", data.cok, { expires: 10 })
           setError("")
           onLogin({ username: user, password: pass }) // Call onLogin with credentials

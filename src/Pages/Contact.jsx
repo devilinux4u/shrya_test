@@ -1,9 +1,11 @@
+"use client"
+
 import { MapPin, Phone, Mail, Send, Facebook, Instagram, Linkedin, MessageSquare } from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 
 const Contact = () => {
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     // Collect form data
@@ -12,27 +14,28 @@ const Contact = () => {
       email: e.target.email.value,
       phno: e.target.phone.value,
       msg: e.target.message.value,
-    };
+    }
 
     try {
-      const response = await fetch("http://localhost:3000/contact", {  
+      const response = await fetch("http://localhost:3000/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
       if (result.success) {
-        toast.success(result.msg);
+        toast.success(result.msg)
+        // Reset the form after successful submission
+        e.target.reset()
       } else {
-        toast.error(result.msg);
+        toast.error(result.msg)
       }
     } catch (error) {
-      toast.error("Error while sending message");
+      toast.error("Error while sending message")
     }
-
   }
 
   return (
@@ -221,3 +224,4 @@ const Contact = () => {
 }
 
 export default Contact
+

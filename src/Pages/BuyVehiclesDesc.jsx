@@ -130,7 +130,7 @@ export default function BuyVehiclesDesc() {
           <div className="relative">
             {vehicle.images && vehicle.images.length > 0 ? (
               <img
-                src={vehicle.images[0].image} // Use the first image from the vehicle images array
+                src={`../../server/controllers${vehicle.images[0].image}`} // Use the first image from the vehicle images array
                 alt={vehicle.title}
                 className="w-full h-auto"
               />
@@ -182,7 +182,7 @@ export default function BuyVehiclesDesc() {
             vehicle.images.map((image, index) => (
               <div key={index} className="relative aspect-video">
                 <img
-                  src={image.image}
+                  src={`../../server/controllers${image.image}`}
                   alt={`${vehicle.type}-image`}
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -243,7 +243,7 @@ export default function BuyVehiclesDesc() {
           <div>
             {vehicle.images && vehicle.images.length > 0 ? (
               <img
-                src={vehicle.images[0].image} // Display the first image again in details
+                src={`../../server/controllers${vehicle.images[0].image}`} // Display the first image again in details
                 alt={`${vehicle.title}-rear`}
                 className="w-full h-auto rounded-lg mb-4"
               />

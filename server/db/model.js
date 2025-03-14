@@ -1,4 +1,3 @@
-
 module.exports.user = (sequelize, DataTypes) => {
     const user = sequelize.define('user', {
         fname: {
@@ -35,6 +34,19 @@ module.exports.user = (sequelize, DataTypes) => {
             validate: {
                 notEmpty: true,
             }
+        },
+        otp: {
+            type: DataTypes.INTEGER, 
+            allowNull: false,
+            validate: {
+                notEmpty: true,
+                isNumeric: true, 
+            }
+        },
+        verified: {
+            type: DataTypes.BOOLEAN, 
+            allowNull: false,
+            defaultValue: false, 
         }
     })
     return user;
@@ -164,8 +176,8 @@ const VehicleImage = sequelize.define('vehicle_image', {
         onDelete: 'CASCADE'
     },
     image: {
-        type: DataTypes.BLOB('long'), // Storing images in binary format
-        allowNull: false,
+        type: DataTypes.STRING,
+        allowNull: true, 
     }
 })
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+import ItemBooking from "../Components/WishlistBookNow"
 import {
   Car,
   Calendar,
@@ -17,6 +18,7 @@ import {
   Tag,
   ShoppingBag,
   AlertCircle,
+  X, // Import the X icon
 } from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
@@ -27,28 +29,20 @@ const WishlistVehicleDetail = () => {
   const [vehicle, setVehicle] = useState(null)
   const [loading, setLoading] = useState(true)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [showBookingModal, setShowBookingModal] = useState(false) // State to control the visibility of the booking modal
 
   // Fetch vehicle data based on ID in the URL
   useEffect(() => {
-    // In a real app, you would get the ID from the URL and fetch from an API
-    // For this example, we'll simulate fetching data
     const fetchVehicle = async () => {
       try {
         setLoading(true)
-        // Get vehicle ID from URL params or location state
         const vehicleId =
           new URLSearchParams(location.search).get("id") ||
           (location.state && location.state.id) ||
           location.pathname.split("/").pop()
 
-        // Simulate API call delay
         await new Promise((resolve) => setTimeout(resolve, 800))
 
-        // This would be your API call in a real app
-        // const response = await fetch(`/api/vehicles/${id}`)
-        // const data = await response.json()
-
-        // Mock data for demonstration
         const mockVehicle = {
           id: vehicleId || 1,
           vehicleName: "Toyota Camry",
@@ -86,8 +80,7 @@ const WishlistVehicleDetail = () => {
   }, [location])
 
   const handleBook = () => {
-    // Navigate to the booking page with vehicle ID
-    navigate(`/VehicleBooking/${vehicle.id}`, { state: { id: vehicle.id } })
+    setShowBookingModal(true) // Show the booking modal
   }
 
   const nextImage = () => {
@@ -359,9 +352,23 @@ const WishlistVehicleDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Booking Modal */}
+      {showBookingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl">
+            <button
+              onClick={() => setShowBookingModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <ItemBooking vehicle={vehicle} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 export default WishlistVehicleDetail
-
