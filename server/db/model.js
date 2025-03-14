@@ -40,7 +40,6 @@ module.exports.user = (sequelize, DataTypes) => {
     return user;
 }
 
-
 module.exports.contact = (sequelize, DataTypes) => {
     const contact = sequelize.define('contact', {
         name: {
@@ -172,3 +171,65 @@ const VehicleImage = sequelize.define('vehicle_image', {
 
 return VehicleImage;
 }
+
+module.exports.VehicleWishlist = (sequelize, DataTypes) => {
+    const VehicleWishlist = sequelize.define('VehicleWishlist', {
+      purpose: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      vehicleType: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      brand: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      model: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      vehicleName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      year: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      color: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      budget: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+      },
+      duration: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      kmRun: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      ownership: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      fuelType: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      images: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: true,
+      },
+    });
+    return VehicleWishlist;
+  };

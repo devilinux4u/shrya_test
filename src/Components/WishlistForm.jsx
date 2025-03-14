@@ -139,36 +139,51 @@ const WishlistForm = ({ isOpen, onClose }) => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+  e.preventDefault();
 
-    if (!validateStep(3)) {
-      return
+  // Validate the form before submitting
+  if (!validateStep(3)) {
+    toast.error("Please fill in all required fields");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    // Create FormData to include all form fields and images
+    const formDataToSubmit = new FormData();
+
+    // Append all form fields to FormData
+    Object.entries(formData).forEach(([key, value]) => {
+      formDataToSubmit.append(key, value);
+    });
+
+    // Add images to FormData if they are selected
+    if (selectedImages.length > 0) {
+      selectedImages.forEach((image) => {
+        formDataToSubmit.append("images[]", image);
+      });
     }
 
-    setIsSubmitting(true)
+    // Send the request to the backend
+    const response = await fetch("http://localhost:3000/wishlistForm", {
+      method: "POST",
+      body: formDataToSubmit,
+    });
 
-    try {
-      // Create form data to include images
-      const submitData = new FormData()
+    // Check if the response is OK, if not throw an error
+    if (!response.ok) {
+      const errorDetails = await response.text();
+      throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
+    }
 
-      // Add all form fields
-      Object.keys(formData).forEach((key) => {
-        submitData.append(key, formData[key])
-      })
+    const data = await response.json();
+    console.log(data)
+    // Handle the success response from the server
+    if (data.success) { // Check the `success` property
+      toast.success("Added to your wishlist.");
 
-      // Add images
-      selectedImages.forEach((image, index) => {
-        submitData.append(`image-${index}`, image)
-      })
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      console.log("Form data:", formData)
-      console.log("Images:", selectedImages)
-
-      toast.success("Wishlist request submitted successfully!")
-
-      // Reset form
+      // Reset the form state including images
       setFormData({
         purpose: "",
         vehicleType: "",
@@ -183,23 +198,31 @@ const WishlistForm = ({ isOpen, onClose }) => {
         ownership: "",
         fuelType: "",
         description: "",
-      })
-      setSelectedImages([])
-      setPreviewImages([])
+      });
 
-      // Close modal and redirect after successful submission
+      // Clear selected images and previews
+      setSelectedImages([]);
+      setPreviewImages([]);
+
+      setCurrentStep(1); // Reset the form step
+      onClose(); // Close the form/modal
+
+      // Redirect to the wishlist page after a delay
       setTimeout(() => {
-        onClose()
-        navigate("/YourList")
-      }, 2000)
-    } catch (error) {
-      toast.error("Failed to submit wishlist request. Please try again.")
-    } finally {
-      setIsSubmitting(false)
+        navigate("/YourList");
+      }, 2000);
+    } else {
+      toast.error("Failed to list vehicle in Wishlist. Please try again.");
     }
+  } catch (error) {
+    console.error("Error submitting wishlist:", error);
+    toast.error(`Failed to submit wishlist request: ${error.message}`);
+  } finally {
+    setIsSubmitting(false); // Stop submitting
   }
+};
 
-  const renderStepIndicator = () => {
+const renderStepIndicator = () => {
     return (
       <div className="flex items-center justify-center mb-8">
         <div className="flex items-center">
