@@ -52,7 +52,6 @@ module.exports.user = (sequelize, DataTypes) => {
     return user;
 }
 
-
 module.exports.contact = (sequelize, DataTypes) => {
     const contact = sequelize.define('contact', {
         name: {
@@ -185,109 +184,64 @@ const VehicleImage = sequelize.define('vehicle_image', {
 return VehicleImage;
 }
 
-module.exports.wishlistVehicle = (sequelize, DataTypes) => {
-    const wishlistVehicle = sequelize.define('wishlistVehicle', {
-        userId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        vehicleId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        vehicleName: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        vehicleBrand: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        price: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-                isFloat: true
-            }
-        },
-        imageUrl: {
-            type: DataTypes.STRING,
-            allowNull: true, // Allowing null in case image is optional
-            validate: {
-                isUrl: true
-            }
-        }
+module.exports.VehicleWishlist = (sequelize, DataTypes) => {
+    const VehicleWishlist = sequelize.define('VehicleWishlist', {
+      purpose: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      vehicleType: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      brand: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      model: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      vehicleName: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      year: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      color: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      budget: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+      },
+      duration: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      kmRun: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      ownership: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      fuelType: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      images: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: true,
+      },
     });
-
-    return wishlistVehicle;
-};
-
-module.exports.lostAndFoundVehicle = (sequelize, DataTypes) => {
-    const lostAndFoundVehicle = sequelize.define('lostAndFoundVehicle', {
-        userId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        vehicleId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        vehicleName: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        vehicleBrand: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-            }
-        },
-        price: {
-            type: DataTypes.FLOAT,
-            allowNull: true, // Price might not be relevant for lost vehicles
-            validate: {
-                isFloat: true
-            }
-        },
-        imageUrl: {
-            type: DataTypes.STRING,
-            allowNull: true, // Image might not always be available
-            validate: {
-                isUrl: true
-            }
-        },
-        status: {
-            type: DataTypes.ENUM('lost', 'found', 'claimed'), // Status to track the vehicle
-            allowNull: false,
-            validate: {
-                notEmpty: true,
-                isIn: [['lost', 'found', 'claimed']]
-            }
-        }
-    });
-
-    return lostAndFoundVehicle;
-};
+    return VehicleWishlist;
+  };
