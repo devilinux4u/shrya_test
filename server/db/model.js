@@ -35,6 +35,10 @@ module.exports.user = (sequelize, DataTypes) => {
                 notEmpty: true,
             }
         },
+        profile: {
+            type: DataTypes.STRING,
+            allowNull: true, 
+        },
         otp: {
             type: DataTypes.INTEGER, 
             allowNull: false,
