@@ -2,28 +2,44 @@ const { Sequelize, DataTypes } = require('sequelize');
 const config = require('./config');
 const sequelize = new Sequelize(config.db_con);
 
-const model = require('./model');
+const model = require('./model'); // Import the model.js file
+
+// Initialize models
 const user = model.user(sequelize, DataTypes);
 const contact = model.contact(sequelize, DataTypes);
 const Vehicle = model.vehicle(sequelize, DataTypes);
 const VehicleImage = model.vimg(sequelize, DataTypes);
+const VehicleWishlist = model.VehicleWishlist(sequelize, DataTypes);
+const LostAndFound = model.LostAndFound(sequelize, DataTypes); // Initialize LostAndFound model
 
+// Debug log
+console.log('LostAndFound Model:', LostAndFound);
 
+// Associations
 Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
 VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
 
-try {
-    sequelize.sync();
-    console.log('Database synced succefully');
-} catch (error) {
-    console.error('Unable to connect to the database:\n', error);
-}
+VehicleWishlist.belongsTo(user, { foreignKey: 'userId' });
+user.hasMany(VehicleWishlist, { foreignKey: 'userId' });
 
+VehicleWishlist.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
+Vehicle.hasMany(VehicleWishlist, { foreignKey: 'vehicleId' });
+
+// Sync database
+sequelize.sync({ alter: true }) // Updates the schema without dropping tables // Use { force: true } to drop and recreate tables (use with caution in production)
+  .then(() => {
+    console.log('Database synced successfully');
+  })
+  .catch((error) => {
+    console.error('Unable to sync database:', error);
+  });
 
 module.exports = {
-    sequelize,
-    users: user,
-    contacts: contact,
-    vehicles: Vehicle,
-    v_img: VehicleImage
-}
+  sequelize,
+  users: user,
+  contacts: contact,
+  vehicles: Vehicle,
+  v_img: VehicleImage,
+  vehicleWishlist: VehicleWishlist,
+  LostAndFound, // Export LostAndFound model
+};
