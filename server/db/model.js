@@ -185,16 +185,8 @@ return VehicleImage;
 }
 
 module.exports.VehicleWishlist = (sequelize, DataTypes) => {
-    const VehicleWishlist = sequelize.define('VehicleWishlist', {
+    const VehicleWishlist = sequelize.define("VehicleWishlist", {
       purpose: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      vehicleType: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      brand: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -220,7 +212,7 @@ module.exports.VehicleWishlist = (sequelize, DataTypes) => {
       },
       duration: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true, // Allow null for buy purpose
       },
       kmRun: {
         type: DataTypes.INTEGER,
@@ -239,9 +231,29 @@ module.exports.VehicleWishlist = (sequelize, DataTypes) => {
         allowNull: true,
       },
       images: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.JSON, // Use JSON for storing arrays
         allowNull: true,
       },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        defaultValue: "pending", // Default value
+      },
     });
+  
     return VehicleWishlist;
+  };
+
+  module.exports.LostAndFound = (sequelize, DataTypes) => {
+    const LostAndFound = sequelize.define("LostAndFound", {
+      type: { type: DataTypes.STRING, allowNull: false },
+      title: { type: DataTypes.STRING, allowNull: false },
+      description: { type: DataTypes.TEXT, allowNull: false },
+      location: { type: DataTypes.STRING, allowNull: false },
+      date: { type: DataTypes.DATE, allowNull: false },
+      status: { type: DataTypes.STRING, defaultValue: "active" },
+      images: { type: DataTypes.JSON }, // Store image file paths as an array
+    });
+  
+    return LostAndFound;
   };
