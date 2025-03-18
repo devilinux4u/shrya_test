@@ -1,11 +1,14 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Camera, X } from "lucide-react"
-import { toast, ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+import { useState, useEffect } from "react";
+import { Camera, X } from "lucide-react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 
 const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
+  const navigate = useNavigate(); // ✅ Correct: Call useNavigate inside the component
+
   const [formData, setFormData] = useState({
     type: "lost",
     title: "",
@@ -13,9 +16,10 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
     location: "",
     date: "",
     images: [],
-  })
+  });
 
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState({});
+  const [selectedImages, setSelectedImages] = useState([]);
 
   // Close modal with escape key
   useEffect(() => {
@@ -74,25 +78,115 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
     return Object.keys(newErrors).length === 0
   }
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault()
+  //   if (validateForm()) {
+  //     try {
+  //       console.log("Form Data:", formData) // Log form data to the console
+  //       await onSubmit(formData)
+  //       toast.success("Report submitted successfully!")
+  //       onClose()
+  //     } catch (error) {
+  //       toast.error("An error occurred while submitting the report. Please try again.")
+  //     }
+  //   } else {
+  //     // Display toast for each error
+  //     Object.values(errors).forEach((error) => {
+  //       toast.error(error)
+  //     })
+  //   }
+  // }
+
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (validateForm()) {
-      try {
-        console.log("Form Data:", formData) // Log form data to the console
-        await onSubmit(formData)
-        toast.success("Report submitted successfully!")
-        onClose()
-      } catch (error) {
-        toast.error("An error occurred while submitting the report. Please try again.")
-      }
-    } else {
+    e.preventDefault();
+  
+    // Validate the form before submitting
+    if (!validateForm()) {
       // Display toast for each error
       Object.values(errors).forEach((error) => {
-        toast.error(error)
-      })
+        toast.error(error);
+      });
+      return;
     }
-  }
-
+   
+    try {
+      // Log form data to the console
+      console.log("Form Data:", formData);
+  
+      // Create FormData to include all form fields and images
+      const formDataToSubmit = new FormData();
+  
+      // Append all form fields to FormData
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key !== "images") { // Skip the "images" field for now
+          formDataToSubmit.append(key, value);
+        }
+      });
+  
+      // Add a default status = "active"
+      formDataToSubmit.append("status", "active");
+  
+      // Convert blob URLs to files and append them to FormData
+      if (formData.images && formData.images.length > 0) {
+        for (const image of formData.images) {
+          const response = await fetch(image);
+          const blob = await response.blob();
+          const file = new File([blob], "image.png", { type: blob.type });
+          formDataToSubmit.append("images", file);
+        }
+      }
+  
+      // Send the request to the backend
+      const response = await fetch("http://localhost:3000/api/lost-and-found", {
+        method: "POST",
+        body: formDataToSubmit,
+      }); 
+      // Check if the response is OK, if not throw an error
+      if (!response.ok) {
+        const errorDetails = await response.text();
+        console.error("HTTP error details:", errorDetails);
+        throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
+      }
+  
+      const data = await response.json();
+      console.log("API Response Data:", data);
+  
+      // Handle the success response from the server
+      if (data.success) { // Check the `success` property
+        console.log("Report submitted successfully!");
+        toast.success("Lost and Found report submitted successfully!");
+  
+        // Reset the form state including images
+        setFormData({
+          type: "lost",
+          title: "",
+          description: "",
+          location: "",
+          date: "",
+          images: [],
+        });
+  
+        //console.log("Form reset to initial state.");
+        // Clear selected images and previews
+        // setSelectedImages([]);
+        // setPreviewImages([]);
+        onClose(); // Close the form/modal
+        //console.log("Form/modal closed.");
+  
+        // Redirect to the lost and found page after a delay
+        setTimeout(() => {
+          navigate("/LostAndFound");
+          console.log("Redirecting to /lost-and-found...");
+        }, 2000);
+      } else {
+        console.error("Failed to submit the report. Server response:", data);
+        toast.error("Failed to submit the report. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      toast.error(`Failed to submit report: ${error.message}`);
+    }
+  };
   if (!isOpen) return null
 
   return (

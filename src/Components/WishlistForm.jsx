@@ -14,8 +14,6 @@ const WishlistForm = ({ isOpen, onClose }) => {
   const fileInputRef = useRef(null)
   const [formData, setFormData] = useState({
     purpose: "",
-    vehicleType: "",
-    brand: "",
     model: "",
     vehicleName: "",
     year: "",
@@ -25,12 +23,11 @@ const WishlistForm = ({ isOpen, onClose }) => {
     kmRun: "",
     ownership: "",
     fuelType: "",
-    description: "", // Renamed from additionalRequirements
+    description: "",
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Close modal with escape key
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") onClose()
@@ -39,7 +36,6 @@ const WishlistForm = ({ isOpen, onClose }) => {
     return () => window.removeEventListener("keydown", handleEsc)
   }, [onClose])
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden"
@@ -63,7 +59,6 @@ const WishlistForm = ({ isOpen, onClose }) => {
     const files = Array.from(e.target.files)
     setSelectedImages((prev) => [...prev, ...files])
 
-    // Create preview URLs
     const newPreviewImages = files.map((file) => URL.createObjectURL(file))
     setPreviewImages((prev) => [...prev, ...newPreviewImages])
   }
@@ -72,7 +67,6 @@ const WishlistForm = ({ isOpen, onClose }) => {
     const newSelectedImages = [...selectedImages]
     const newPreviewImages = [...previewImages]
 
-    // Revoke the object URL to avoid memory leaks
     URL.revokeObjectURL(newPreviewImages[index])
 
     newSelectedImages.splice(index, 1)
@@ -82,7 +76,6 @@ const WishlistForm = ({ isOpen, onClose }) => {
     setPreviewImages(newPreviewImages)
   }
 
-  // Clean up object URLs when component unmounts
   useEffect(() => {
     return () => {
       previewImages.forEach((url) => URL.revokeObjectURL(url))
@@ -98,7 +91,7 @@ const WishlistForm = ({ isOpen, onClose }) => {
         }
         return true
       case 2:
-        if (!formData.vehicleType || !formData.brand || !formData.model || !formData.vehicleName) {
+        if (!formData.model || !formData.vehicleName) {
           toast.error("Please fill in all required vehicle details")
           return false
         }
@@ -118,14 +111,6 @@ const WishlistForm = ({ isOpen, onClose }) => {
     }
   }
 
-  const validateEmail = (email) => {
-    return String(email)
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-      )
-  }
-
   const nextStep = () => {
     if (validateStep(currentStep)) {
       setCurrentStep(currentStep + 1)
@@ -139,90 +124,78 @@ const WishlistForm = ({ isOpen, onClose }) => {
   }
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Validate the form before submitting
-  if (!validateStep(3)) {
-    toast.error("Please fill in all required fields");
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    // Create FormData to include all form fields and images
-    const formDataToSubmit = new FormData();
-
-    // Append all form fields to FormData
-    Object.entries(formData).forEach(([key, value]) => {
-      formDataToSubmit.append(key, value);
-    });
-
-    // Add images to FormData if they are selected
-    if (selectedImages.length > 0) {
-      selectedImages.forEach((image) => {
-        formDataToSubmit.append("images[]", image);
-      });
+    if (!validateStep(3)) {
+      toast.error("Please fill in all required fields");
+      return;
     }
 
-    // Send the request to the backend
-    const response = await fetch("http://localhost:3000/wishlistForm", {
-      method: "POST",
-      body: formDataToSubmit,
-    });
+    setIsSubmitting(true);
 
-    // Check if the response is OK, if not throw an error
-    if (!response.ok) {
-      const errorDetails = await response.text();
-      throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
-    }
+    try {
+      const formDataToSubmit = new FormData();
 
-    const data = await response.json();
-    console.log(data)
-    // Handle the success response from the server
-    if (data.success) { // Check the `success` property
-      toast.success("Added to your wishlist.");
-
-      // Reset the form state including images
-      setFormData({
-        purpose: "",
-        vehicleType: "",
-        brand: "",
-        model: "",
-        vehicleName: "",
-        year: "",
-        color: "",
-        budget: "",
-        duration: "",
-        kmRun: "",
-        ownership: "",
-        fuelType: "",
-        description: "",
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSubmit.append(key, value);
       });
 
-      // Clear selected images and previews
-      setSelectedImages([]);
-      setPreviewImages([]);
+      if (selectedImages.length > 0) {
+        selectedImages.forEach((image) => {
+          formDataToSubmit.append("images[]", image);
+        });
+      }
 
-      setCurrentStep(1); // Reset the form step
-      onClose(); // Close the form/modal
+      const response = await fetch("http://localhost:3000/wishlistForm", {
+        method: "POST",
+        body: formDataToSubmit,
+      });
 
-      // Redirect to the wishlist page after a delay
-      setTimeout(() => {
-        navigate("/YourList");
-      }, 2000);
-    } else {
-      toast.error("Failed to list vehicle in Wishlist. Please try again.");
+      if (!response.ok) {
+        const errorDetails = await response.text();
+        throw new Error(`HTTP error! Status: ${response.status}, Details: ${errorDetails}`);
+      }
+
+      const data = await response.json();
+      console.log(data)
+      if (data.success) {
+        toast.success("Added to your wishlist.");
+
+        setFormData({
+          purpose: "",
+          model: "",
+          vehicleName: "",
+          year: "",
+          color: "",
+          budget: "",
+          duration: "",
+          kmRun: "",
+          ownership: "",
+          fuelType: "",
+          description: "",
+        });
+
+        setSelectedImages([]);
+        setPreviewImages([]);
+
+        setCurrentStep(1);
+        onClose();
+
+        setTimeout(() => {
+          navigate("/YourList");
+        }, 2000);
+      } else {
+        toast.error("Failed to list vehicle in Wishlist. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error submitting wishlist:", error);
+      toast.error(`Failed to submit wishlist request: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
-  } catch (error) {
-    console.error("Error submitting wishlist:", error);
-    toast.error(`Failed to submit wishlist request: ${error.message}`);
-  } finally {
-    setIsSubmitting(false); // Stop submitting
-  }
-};
+  };
 
-const renderStepIndicator = () => {
+  const renderStepIndicator = () => {
     return (
       <div className="flex items-center justify-center mb-8">
         <div className="flex items-center">
@@ -266,7 +239,6 @@ const renderStepIndicator = () => {
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
       <div className="relative bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 bg-gray-200 text-gray-800 rounded-full p-2 hover:bg-gray-300 transition-colors z-10"
@@ -275,7 +247,6 @@ const renderStepIndicator = () => {
         </button>
 
         <div className="p-6">
-          {/* Header */}
           <div className="text-center mb-4">
             <h1 className="text-3xl font-bold mb-2">
               <span className="text-[#ff6b00]">Can't</span>
@@ -286,13 +257,11 @@ const renderStepIndicator = () => {
             </p>
           </div>
 
-          {/* Step Indicator */}
           {renderStepIndicator()}
 
           <h2 className="text-xl font-semibold text-center mb-6">{renderStepTitle()}</h2>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Step 1: Purpose */}
             {currentStep === 1 && (
               <div className="space-y-6">
                 <div className="space-y-4">
@@ -343,7 +312,6 @@ const renderStepIndicator = () => {
               </div>
             )}
 
-            {/* Step 2: Vehicle Details */}
             {currentStep === 2 && (
               <div className="space-y-6">
                 <div className="flex items-center gap-2 text-lg font-semibold text-gray-900">
@@ -352,37 +320,6 @@ const renderStepIndicator = () => {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Type*</label>
-                    <select
-                      name="vehicleType"
-                      value={formData.vehicleType}
-                      onChange={handleChange}
-                      className="w-full p-2 border rounded-md"
-                      required
-                    >
-                      <option value="">Select vehicle type</option>
-                      <option value="sedan">Sedan</option>
-                      <option value="suv">SUV</option>
-                      <option value="luxury">Luxury</option>
-                      <option value="sports">Sports Car</option>
-                      <option value="van">Van</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Brand*</label>
-                    <input
-                      type="text"
-                      name="brand"
-                      value={formData.brand}
-                      onChange={handleChange}
-                      placeholder="e.g., Toyota, BMW"
-                      className="w-full p-2 border rounded-md"
-                      required
-                    />
-                  </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle Name*</label>
                     <input
@@ -412,11 +349,11 @@ const renderStepIndicator = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Km Run</label>
                     <input
-                      type="text"
+                      type="number"
                       name="kmRun"
                       value={formData.kmRun}
                       onChange={handleChange}
-                      placeholder="e.g., 50,000"
+                      placeholder="e.g., 50000"
                       className="w-full p-2 border rounded-md"
                     />
                   </div>
@@ -456,7 +393,7 @@ const renderStepIndicator = () => {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
                     <input
-                      type="text"
+                      type="number"
                       name="year"
                       value={formData.year}
                       onChange={handleChange}
@@ -484,7 +421,7 @@ const renderStepIndicator = () => {
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                       <input
-                        type="text"
+                        type="number"
                         name="budget"
                         value={formData.budget}
                         onChange={handleChange}
@@ -515,7 +452,6 @@ const renderStepIndicator = () => {
               </div>
             )}
 
-            {/* Step 3: Contact Information */}
             {currentStep === 3 && (
               <div className="space-y-6">
                 <div>
@@ -598,7 +534,6 @@ const renderStepIndicator = () => {
               </div>
             )}
 
-            {/* Navigation Buttons */}
             <div className="flex justify-between pt-4 border-t border-gray-200">
               {currentStep > 1 ? (
                 <button
@@ -642,4 +577,3 @@ const renderStepIndicator = () => {
 }
 
 export default WishlistForm
-
