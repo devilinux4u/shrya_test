@@ -1,156 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { CheckCircle, Clock, MapPin, Calendar, ChevronLeft, ChevronRight, Filter, Search } from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import LostAndFoundForm from "../Components/LostAndFoundForm"
 import { useNavigate } from "react-router-dom"
-
-// Sample data - In real app, this would come from an API
-const lostAndFoundItems = [
-  {
-    id: 1,
-    title: "Lost Purse",
-    description:
-      "aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae",
-    location: "Kalanki",
-    date: "2022-11-10",
-    type: "lost",
-    status: "active",
-    images: [
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-sNDHchJeiUfQ3xGjqBJBxVnLHkRdK1.png",
-      "/placeholder.svg?height=200&width=300",
-      "/placeholder.svg?height=200&width=300",
-    ],
-    dateSubmitted: "2024-02-01",
-    reporter: {
-      name: "Hari Ram",
-      contact: "9876543210",
-    },
-  },
-  {
-    id: 2,
-    title: "Found Wallet",
-    description: "Brown leather wallet with driver's license and credit cards.",
-    location: "City Park, Near Fountain",
-    date: "2024-02-03",
-    type: "found",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-03",
-    reporter: {
-      name: "John Doe",
-      contact: "555-987-6543",
-    },
-  },
-  {
-    id: 3,
-    title: "Lost iPhone 13",
-    description: "Black iPhone 13 with red case. Lock screen has mountain wallpaper.",
-    location: "Coffee Shop on Main Street",
-    date: "2024-02-10",
-    type: "lost",
-    status: "resolved",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-10",
-    reporter: {
-      name: "Michael Johnson",
-      contact: "555-456-7890",
-    },
-  },
-  {
-    id: 4,
-    title: "Found Backpack",
-    description: "Blue Jansport backpack with textbooks and a laptop inside.",
-    location: "University Library, 2nd Floor",
-    date: "2024-02-15",
-    type: "found",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-15",
-    reporter: {
-      name: "Emily Wilson",
-      contact: "555-234-5678",
-    },
-  },
-  {
-    id: 5,
-    title: "Lost Prescription Glasses",
-    description: "Black-framed prescription glasses in a red case.",
-    location: "Movie Theater, Cinema 3",
-    date: "2024-02-20",
-    type: "lost",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-20",
-    reporter: {
-      name: "David Brown",
-      contact: "555-345-6789",
-    },
-  },
-  {
-    id: 6,
-    title: "Found Car Keys",
-    description: "Toyota car keys with a rabbit foot keychain.",
-    location: "Shopping Mall Parking Lot",
-    date: "2024-02-25",
-    type: "found",
-    status: "resolved",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-25",
-    reporter: {
-      name: "Sarah Miller",
-      contact: "555-567-8901",
-    },
-  },
-  {
-    id: 7,
-    title: "Lost Laptop",
-    description: "Dell XPS 13 laptop with stickers on the cover.",
-    location: "Bus Stop on 5th Avenue",
-    date: "2024-03-01",
-    type: "lost",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-03-01",
-    reporter: {
-      name: "Robert Taylor",
-      contact: "555-678-9012",
-    },
-  },
-  {
-    id: 8,
-    title: "Found Headphones",
-    description: "Sony WH-1000XM4 noise-cancelling headphones in black.",
-    location: "Gym, Cardio Section",
-    date: "2024-03-05",
-    type: "found",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-03-05",
-    reporter: {
-      name: "Jessica Anderson",
-      contact: "555-789-0123",
-    },
-  },
-  {
-    id: 9,
-    title: "Lost Engagement Ring",
-    description: "Gold engagement ring with diamond. Very sentimental value.",
-    location: "Beach Boardwalk",
-    date: "2024-03-10",
-    type: "lost",
-    status: "active",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-03-10",
-    reporter: {
-      name: "Amanda Clark",
-      contact: "555-890-1234",
-    },
-  },
-  // Add more items as needed
-]
 
 const LostAndFound = () => {
   const navigate = useNavigate()
@@ -159,10 +14,26 @@ const LostAndFound = () => {
   const [selectedItem, setSelectedItem] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(6)
-  const [items, setItems] = useState(lostAndFoundItems)
+  const [items, setItems] = useState([])
   const [currentFilter, setCurrentFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  useEffect(() => {
+    // Fetch items from the backend
+    const fetchItems = async () => {
+      try {
+        const response = await fetch("/api/lost-and-found")
+        console.log(response)
+        const data = await response.json()
+        setItems(data)
+      } catch (error) {
+        console.error("Error fetching items:", error)
+      }
+    }
+
+    fetchItems()
+  }, [])
 
   // Filter items based on current filters and search query
   const filteredItems = items.filter((item) => {
@@ -254,7 +125,7 @@ const LostAndFound = () => {
   }
 
   // Function to handle adding a new lost and found item
-  const handleAddItem = (newItem) => {
+  const handleAddItem = async (newItem) => {
     const itemWithId = {
       ...newItem,
       id: Date.now(),
@@ -262,11 +133,29 @@ const LostAndFound = () => {
       status: "active",
     }
 
-    setItems([itemWithId, ...items])
+    try {
+      const response = await fetch("/api/lost-and-found", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(itemWithId),
+      })
 
-    toast.success(`Your ${newItem.type} item report has been submitted!`, {
-      icon: newItem.type === "lost" ? "🔍" : "✅",
-    })
+      if (response.ok) {
+        const addedItem = await response.json()
+        setItems([addedItem, ...items])
+
+        toast.success(`Your ${newItem.type} item report has been submitted!`, {
+          icon: newItem.type === "lost" ? "🔍" : "✅",
+        })
+      } else {
+        toast.error("Failed to submit the item report.")
+      }
+    } catch (error) {
+      console.error("Error adding item:", error)
+      toast.error("Failed to submit the item report.")
+    }
   }
 
   return (

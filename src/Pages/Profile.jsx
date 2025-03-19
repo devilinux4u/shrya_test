@@ -4,18 +4,20 @@ import { useState, useRef, useEffect } from "react"
 import { Mail, Phone, Calendar, Edit, Camera, Trash2, Upload, Save, X, Loader2 } from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import axios from "axios"
+
 import Cookies from "js-cookie"
 
 const userId = Cookies.get("sauto").split("-")[0]
 
 const Profile = () => {
   const [user, setUser] = useState({
-    name: "",
-    username: "",
+    fname: "",
+    uname: "",
     email: "",
-    phone: "",
-    joinDate: "",
-    profile: "",
+    num: "",
+    createdAt: "",
+    profile: "/placeholder.svg?height=200&width=200",
   })
 
   const [isEditing, setIsEditing] = useState(false)
@@ -89,8 +91,6 @@ const Profile = () => {
     try {
       setIsSaving(true)
 
-      console.log(user)
-
       const response = await fetch(`http://localhost:3000/profileChange/${userId}`, {
         method: "PUT",
         headers: {
@@ -130,11 +130,8 @@ const Profile = () => {
     const file = e.target.files[0]
     if (file) {
       try {
-        // Create FormData to send the file
         const formData = new FormData()
         formData.append("profile", file)
-
-        console.log(formData)
 
         setIsSaving(true)
         const response = await fetch(`http://localhost:3000/profile/${userId}/update-avatar`, {
@@ -181,7 +178,6 @@ const Profile = () => {
         throw new Error("Failed to delete avatar")
       }
 
-      const result = await response.json()
       setUser((prevUser) => ({
         ...prevUser,
         profile: "/placeholder.svg?height=200&width=200",
@@ -209,7 +205,6 @@ const Profile = () => {
   }
 
   const handleCancelEdit = () => {
-    // Fetch the original user data to revert changes
     const fetchUserData = async () => {
       try {
         setIsLoading(true)
@@ -349,7 +344,7 @@ const Profile = () => {
             {isEditing ? (
               <input
                 type="text"
-                name="name"
+                name="fname"
                 value={user.fname}
                 onChange={handleInputChange}
                 className="text-2xl sm:text-3xl font-bold text-gray-900 bg-gray-50 p-2 rounded-lg border border-gray-200 text-center w-full sm:w-2/3 mx-auto focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -364,7 +359,7 @@ const Profile = () => {
                   <span className="text-gray-500 mr-1">@</span>
                   <input
                     type="text"
-                    name="username"
+                    name="uname"
                     value={user.uname}
                     onChange={handleInputChange}
                     className="text-base sm:text-lg text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-200 text-center w-full sm:w-2/3 mx-auto focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -408,7 +403,7 @@ const Profile = () => {
                   {isEditing ? (
                     <input
                       type="tel"
-                      name="phone"
+                      name="num"
                       value={user.num}
                       onChange={handleInputChange}
                       className="w-full text-sm sm:text-base text-gray-600 bg-gray-50 p-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"

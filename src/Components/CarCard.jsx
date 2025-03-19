@@ -5,10 +5,8 @@ import Prado from '../assets/Prado.png';
 import Defender from '../assets/Defender.png';
 import Brezza from '../assets/Brezza.png';
 import Creta from '../assets/Creta.png';
-import Seat from '../assets/Seat.png';
-import Transmission from '../assets/Transmission.png';
-import Fuel from '../assets/Fuel.png';
 import { useNavigate } from 'react-router-dom';
+import { Users, Gauge, Fuel } from 'lucide-react'; // Import icons for seats, transmission, and fuel
 
 const CarCard = () => {
   const cars = [
@@ -78,6 +76,10 @@ const CarCard = () => {
     navigate('/RentalGallery');
   };
 
+  const handleRentNow = () => {
+    navigate('/RentalVehicleDesc');
+  };
+
   return (
     <section className="p-10 w-full h-full flex flex-col items-center">
       <div className="text-center mb-10">
@@ -92,7 +94,7 @@ const CarCard = () => {
             className="bg-white rounded-lg shadow-md hover:shadow-lg transition-transform transform hover:-translate-y-2 flex flex-col overflow-hidden"
           >
             <div className="p-6 flex justify-center items-center">
-              <img src={car.image} alt={car.name} className="w-full h-40 object-contain" />
+              <img src={car.image || "/placeholder.svg"} alt={car.name} className="w-full h-40 object-contain" />
             </div>
             <div className="p-4">
               <div className="bg-gray-200 text-gray-600 rounded-full px-3 py-1 text-xs mb-2 inline-block">{car.badge}</div>
@@ -100,19 +102,21 @@ const CarCard = () => {
               <p className="text-red-500 font-semibold text-base mb-4">Rs. {car.price}/-</p>
               <div className="flex justify-between items-center text-gray-500 text-sm mb-4">
                 <div className="flex items-center gap-2">
-                  <img src={Seat} alt="Seats" className="w-5 h-5" />
+                  <Users className="w-5 h-5" /> {/* Icon for seats */}
                   <span>{car.seats} Seats</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <img src={Transmission} alt="Transmission" className="w-5 h-5" />
+                  <Gauge className="w-5 h-5" /> {/* Icon for transmission */}
                   <span>{car.transmission}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <img src={Fuel} alt="Fuel" className="w-5 h-5" />
+                  <Fuel className="w-5 h-5" /> {/* Icon for fuel */}
                   <span>{car.fuel}</span>
                 </div>
               </div>
-              <button className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Rent Now</button>
+              <button
+              onClick={handleRentNow}
+              className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Rent Now</button>
             </div>
           </div>
         ))}
