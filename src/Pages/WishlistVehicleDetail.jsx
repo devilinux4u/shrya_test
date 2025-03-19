@@ -18,7 +18,7 @@ import {
   Tag,
   ShoppingBag,
   AlertCircle,
-  X, // Import the X icon
+  X,
 } from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
@@ -36,38 +36,22 @@ const WishlistVehicleDetail = () => {
     const fetchVehicle = async () => {
       try {
         setLoading(true)
-        const vehicleId =
-          new URLSearchParams(location.search).get("id") ||
-          (location.state && location.state.id) ||
-          location.pathname.split("/").pop()
 
-        await new Promise((resolve) => setTimeout(resolve, 800))
+        // const location = useLocation();
+        const searchParams = new URLSearchParams(location.search);
+        const vehicleId = searchParams.get('vid');
 
-        const mockVehicle = {
-          id: vehicleId || 1,
-          vehicleName: "Toyota Camry",
-          brand: "Toyota",
-          model: "Camry",
-          year: "2024",
-          kmRun: "50,000",
-          fuelType: "Petrol",
-          color: "Black",
-          budget: "45,000",
-          purpose: "buy",
-          status: "arrived",
-          ownership: "1st",
-          vehicleType: "sedan",
-          description:
-            "This is a well-maintained Toyota Camry with all service records. The car is in excellent condition with no mechanical issues. It comes with premium features including leather seats, sunroof, and advanced safety features.",
-          dateSubmitted: "2024-02-01",
-          images: [
-            "/placeholder.svg?height=400&width=600",
-            "/placeholder.svg?height=400&width=600&text=Interior",
-            "/placeholder.svg?height=400&width=600&text=Back",
-          ],
+        console.log(vehicleId)
+
+        // Replace the mock data with an actual API call
+        const response = await fetch(`http://127.0.0.1:3000/wishlist/one/${vehicleId}`)
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch vehicle data")
         }
 
-        setVehicle(mockVehicle)
+        const vehicleData = await response.json()
+        setVehicle(vehicleData.data)
       } catch (error) {
         console.error("Error fetching vehicle:", error)
         toast.error("Failed to load vehicle details")
@@ -150,9 +134,8 @@ const WishlistVehicleDetail = () => {
               <h1 className="text-3xl font-bold">{vehicle.vehicleName}</h1>
               <div className="flex items-center gap-3">
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    vehicle.purpose === "buy" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${vehicle.purpose === "buy" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"
+                    }`}
                 >
                   {vehicle.purpose === "buy" ? "Buy" : "Rent"}
                 </span>
@@ -170,7 +153,7 @@ const WishlistVehicleDetail = () => {
               </div>
             </div>
             <p className="text-gray-600 mt-2">
-              {vehicle.brand} {vehicle.model} • {vehicle.year}
+              {vehicle.model} • {vehicle.year}
             </p>
           </div>
 
@@ -180,7 +163,7 @@ const WishlistVehicleDetail = () => {
               <>
                 <div className="relative h-[400px] w-full">
                   <img
-                    src={vehicle.images[currentImageIndex] || "/placeholder.svg"}
+                    src={`../../server${vehicle.images[currentImageIndex].imageUrl}` || "/placeholder.svg"}
                     alt={`${vehicle.vehicleName} - Image ${currentImageIndex + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -216,12 +199,11 @@ const WishlistVehicleDetail = () => {
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border-2 transition-all ${
-                          currentImageIndex === index ? "border-orange-500 scale-105" : "border-transparent"
-                        }`}
+                        className={`w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border-2 transition-all ${currentImageIndex === index ? "border-orange-500 scale-105" : "border-transparent"
+                          }`}
                       >
                         <img
-                          src={image || "/placeholder.svg"}
+                          src={`../../server${image.imageUrl}` || "/placeholder.svg"}
                           alt={`Thumbnail ${index + 1}`}
                           className="w-full h-full object-cover"
                         />
@@ -240,11 +222,11 @@ const WishlistVehicleDetail = () => {
                 <h2 className="text-xl font-semibold mb-4">Vehicle Details</h2>
                 <div className="grid grid-cols-1 gap-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 flex items-center">
+                    {/* <h3 className="text-sm font-medium text-gray-500 flex items-center">
                       <Tag className="w-4 h-4 mr-2 text-gray-500" />
                       Brand
                     </h3>
-                    <p className="text-lg">{vehicle.brand}</p>
+                    <p className="text-lg">{vehicle.brand}</p> */}
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
@@ -261,11 +243,11 @@ const WishlistVehicleDetail = () => {
                     <p className="text-lg">{vehicle.year}</p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500 flex items-center">
+                    {/* <h3 className="text-sm font-medium text-gray-500 flex items-center">
                       <ShoppingBag className="w-4 h-4 mr-2 text-gray-500" />
                       Vehicle Type
                     </h3>
-                    <p className="text-lg capitalize">{vehicle.vehicleType || "Not specified"}</p>
+                    <p className="text-lg capitalize">{vehicle.vehicleType || "Not specified"}</p> */}
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
@@ -334,7 +316,7 @@ const WishlistVehicleDetail = () => {
                 <div className="bg-gray-50 p-4 rounded-lg mb-6">
                   <h3 className="font-medium mb-2">Request Details</h3>
                   <p className="text-sm text-gray-600">
-                    Requested on: {new Date(vehicle.dateSubmitted).toLocaleDateString()}
+                    Requested on: {new Date(vehicle.createdAt).toLocaleDateString()}
                   </p>
                 </div>
 
@@ -372,3 +354,4 @@ const WishlistVehicleDetail = () => {
 }
 
 export default WishlistVehicleDetail
+

@@ -11,19 +11,22 @@ const Vehicle = model.vehicle(sequelize, DataTypes);
 const VehicleImage = model.vimg(sequelize, DataTypes);
 const VehicleWishlist = model.VehicleWishlist(sequelize, DataTypes);
 const LostAndFound = model.LostAndFound(sequelize, DataTypes); // Initialize LostAndFound model
-
-// Debug log
-console.log('LostAndFound Model:', LostAndFound);
+const WishlistImage = model.WishlistImage(sequelize, DataTypes);
 
 // Associations
 Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
 VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
 
-VehicleWishlist.belongsTo(user, { foreignKey: 'userId' });
-user.hasMany(VehicleWishlist, { foreignKey: 'userId' });
-
-VehicleWishlist.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
-Vehicle.hasMany(VehicleWishlist, { foreignKey: 'vehicleId' });
+// Associations
+VehicleWishlist.hasMany(WishlistImage, {
+  foreignKey: 'wishlistId',
+  as: 'images',
+  onDelete: 'CASCADE',
+});
+WishlistImage.belongsTo(VehicleWishlist, {
+  foreignKey: 'wishlistId',
+  as: 'wishlist',
+});
 
 // Sync database
 sequelize.sync({ alter: true }) // Updates the schema without dropping tables // Use { force: true } to drop and recreate tables (use with caution in production)
@@ -41,5 +44,6 @@ module.exports = {
   vehicles: Vehicle,
   v_img: VehicleImage,
   vehicleWishlist: VehicleWishlist,
-  LostAndFound, // Export LostAndFound model
+  LostAndFound,
+  wishlistImage: WishlistImage // Export LostAndFound model
 };
