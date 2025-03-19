@@ -1,174 +1,60 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import {
-  CheckCircle,
-  Clock,
-  Car,
-  Calendar,
-  DollarSign,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  Trash2,
-  Filter,
-} from "lucide-react"
+import { CheckCircle, Clock, Car, Calendar, DollarSign, ChevronLeft, ChevronRight, Eye, Trash2, Filter, Loader2 } from 'lucide-react'
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import WishlistForm from "../Components/WishlistForm"
 import { useNavigate } from "react-router-dom"
+import Cookies from "js-cookie"
 
-// Sample data - In real app, this would come from an API
-const wishlistItems = [
-  {
-    id: 1,
-    vehicleName: "Toyota Camry",
-    brand: "Toyota",
-    model: "Camry",
-    year: "2024",
-    kmRun: "50,000",
-    fuelType: "Petrol",
-    color: "Black",
-    budget: "45,000",
-    purpose: "buy",
-    status: "arrived",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-01",
-  },
-  {
-    id: 2,
-    vehicleName: "BMW X5",
-    brand: "BMW",
-    model: "X5",
-    year: "2023",
-    kmRun: "30,000",
-    fuelType: "Diesel",
-    color: "White",
-    budget: "800",
-    purpose: "rent",
-    status: "pending",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-03",
-  },
-  {
-    id: 3,
-    vehicleName: "Mercedes-Benz E-Class",
-    brand: "Mercedes-Benz",
-    model: "E-Class",
-    year: "2022",
-    kmRun: "25,000",
-    fuelType: "Hybrid",
-    color: "Silver",
-    budget: "55,000",
-    purpose: "buy",
-    status: "arrived",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-10",
-  },
-  {
-    id: 4,
-    vehicleName: "Audi Q7",
-    brand: "Audi",
-    model: "Q7",
-    year: "2023",
-    kmRun: "15,000",
-    fuelType: "Diesel",
-    color: "Blue",
-    budget: "1,200",
-    purpose: "rent",
-    status: "pending",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-15",
-  },
-  {
-    id: 5,
-    vehicleName: "Honda Civic",
-    brand: "Honda",
-    model: "Civic",
-    year: "2024",
-    kmRun: "10,000",
-    fuelType: "Petrol",
-    color: "Red",
-    budget: "30,000",
-    purpose: "buy",
-    status: "arrived",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-20",
-  },
-  {
-    id: 6,
-    vehicleName: "Tesla Model 3",
-    brand: "Tesla",
-    model: "Model 3",
-    year: "2023",
-    kmRun: "8,000",
-    fuelType: "Electric",
-    color: "White",
-    budget: "52,000",
-    purpose: "buy",
-    status: "arrived",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-02-25",
-  },
-  {
-    id: 7,
-    vehicleName: "Porsche Cayenne",
-    brand: "Porsche",
-    model: "Cayenne",
-    year: "2022",
-    kmRun: "20,000",
-    fuelType: "Petrol",
-    color: "Black",
-    budget: "1,500",
-    purpose: "rent",
-    status: "pending",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-03-01",
-  },
-  {
-    id: 8,
-    vehicleName: "Ford Mustang",
-    brand: "Ford",
-    model: "Mustang",
-    year: "2023",
-    kmRun: "12,000",
-    fuelType: "Petrol",
-    color: "Yellow",
-    budget: "60,000",
-    purpose: "buy",
-    status: "arrived",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-03-05",
-  },
-  {
-    id: 9,
-    vehicleName: "Range Rover Sport",
-    brand: "Land Rover",
-    model: "Range Rover Sport",
-    year: "2024",
-    kmRun: "5,000",
-    fuelType: "Diesel",
-    color: "Green",
-    budget: "1,800",
-    purpose: "rent",
-    status: "pending",
-    image: "/placeholder.svg?height=200&width=300",
-    dateSubmitted: "2024-03-10",
-  },
-  // Add more items as needed
-]
 
 const YourList = () => {
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(6)
-  const [items, setItems] = useState(wishlistItems)
+  const [items, setItems] = useState([])
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState(null)
   const [currentFilter, setCurrentFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
   const [dropdownOpen, setDropdownOpen] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+
+  // Fetch data from backend
+  useEffect(() => {
+    const fetchWishlistItems = async () => {
+      setIsLoading(true)
+      setError(null)
+      
+      try {
+        // Replace with your actual API endpoint
+        const response = await fetch(`http://localhost:3000/wishlist/${Cookies.get("sauto").split("-")[0]}`)
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`)
+        }
+        
+        const data = await response.json()
+
+        console.log(data.data)
+
+        setItems(data.data)
+      } catch (err) {
+        console.error('Failed to fetch wishlist items:', err)
+        setError('Failed to load your wishlist. Please try again later.')
+        // Show error toast
+        toast.error('Failed to load your wishlist. Please try again later.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchWishlistItems()
+  }, [])
 
   // Filter items based on current filters
   const filteredItems = items.filter((item) => {
@@ -193,36 +79,52 @@ const YourList = () => {
 
   const handleBook = (id) => {
     console.log("Booking vehicle with id:", id)
-    navigate('/VehicleBooking');
-    }
-  
-  
+    navigate('/VehicleBooking')
+  }
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen)
   }
   
-    const handleView = () => {
-      navigate('/WishlistVehicleDetail');
-    };
-  
+  // const handleView = () => {
+  //   navigate('/WishlistVehicleDetail')
+  // }
 
   const handleDeleteClick = (item) => {
     setItemToDelete(item)
     setIsDeleteModalOpen(true)
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (itemToDelete) {
-      setItems(items.filter((item) => item.id !== itemToDelete.id))
-      setIsDeleteModalOpen(false)
+      setIsLoading(true)
+      
+      try {
+        // Replace with your actual delete API endpoint
+        const response = await fetch(`http://127.0.0.1:3000/wishlist/delete/${itemToDelete.id}`, {
+          method: 'DELETE',
+        })
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`)
+        }
+        
+        // Update local state after successful deletion
+        setItems(items.filter((item) => item.id !== itemToDelete.id))
+        setIsDeleteModalOpen(false)
 
-      // Show toast notification
-      toast.error(`${itemToDelete.vehicleName} has been removed from your wishlist`, {
-        icon: "🗑️",
-      })
+        // Show toast notification
+        toast.error(`${itemToDelete.vehicleName} has been removed from your wishlist`, {
+          icon: "🗑️",
+        })
 
-      setItemToDelete(null)
+        setItemToDelete(null)
+      } catch (err) {
+        console.error('Failed to delete wishlist item:', err)
+        toast.error('Failed to delete item. Please try again later.')
+      } finally {
+        setIsLoading(false)
+      }
     }
   }
 
@@ -283,12 +185,41 @@ const YourList = () => {
   }, [dropdownOpen])
 
   // Function to handle adding a new wishlist item
-  const handleAddWishlistItem = (newItem) => {
-    // This function would be passed to the WishlistForm component
-    // and called when a new item is submitted
-    toast.success(`${newItem.vehicleName || "New vehicle"} added to your wishlist!`, {
-      icon: "➕",
-    })
+  const handleAddWishlistItem = async (newItem) => {
+    setIsLoading(true)
+    
+    try {
+      // Replace with your actual API endpoint for adding items
+      const response = await fetch('/api/wishlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newItem),
+      })
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`)
+      }
+      
+      const addedItem = await response.json()
+      
+      // Update local state with the new item
+      setItems([...items, addedItem])
+      
+      // Close modal
+      setIsModalOpen(false)
+      
+      // Show success toast
+      toast.success(`${addedItem.vehicleName || "New vehicle"} added to your wishlist!`, {
+        icon: "➕",
+      })
+    } catch (err) {
+      console.error('Failed to add wishlist item:', err)
+      toast.error('Failed to add item to wishlist. Please try again later.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -318,6 +249,7 @@ const YourList = () => {
         <button
           onClick={toggleModal}
           className="bg-orange-500 text-white px-6 py-3 rounded-full shadow-lg hover:bg-orange-600 transition-colors"
+          disabled={isLoading}
         >
           Wish Vehicle
         </button>
@@ -343,6 +275,7 @@ const YourList = () => {
               className={`px-4 py-2 rounded-full transition-colors ${
                 currentFilter === "all" ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
+              disabled={isLoading}
             >
               All
             </button>
@@ -366,6 +299,7 @@ const YourList = () => {
                 className={`px-4 py-2 rounded-full transition-colors flex items-center ${
                   currentFilter === "buy" ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
+                disabled={isLoading}
               >
                 Buy
                 <ChevronLeft
@@ -434,6 +368,7 @@ const YourList = () => {
                 className={`px-4 py-2 rounded-full transition-colors flex items-center ${
                   currentFilter === "rent" ? "bg-purple-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
+                disabled={isLoading}
               >
                 Rent
                 <ChevronLeft
@@ -487,174 +422,205 @@ const YourList = () => {
           </div>
 
           <div className="ml-auto text-sm text-gray-500">
-            Showing {filteredItems.length} vehicle{filteredItems.length !== 1 ? "s" : ""}
-            {currentFilter !== "all" && <span> • {currentFilter === "buy" ? "Buy" : "Rent"}</span>}
-            {statusFilter !== "all" && <span> • {statusFilter === "arrived" ? "Arrived" : "Pending"}</span>}
+            {!isLoading && (
+              <>
+                Showing {filteredItems.length} vehicle{filteredItems.length !== 1 ? "s" : ""}
+                {currentFilter !== "all" && <span> • {currentFilter === "buy" ? "Buy" : "Rent"}</span>}
+                {statusFilter !== "all" && <span> • {statusFilter === "arrived" ? "Arrived" : "Pending"}</span>}
+              </>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Loading State */}
+      {isLoading && (
+        <div className="max-w-6xl mx-auto flex justify-center items-center py-20">
+          <div className="flex flex-col items-center">
+            <Loader2 className="w-12 h-12 text-orange-500 animate-spin mb-4" />
+            <p className="text-gray-600">Loading your wishlist...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !isLoading && (
+        <div className="max-w-6xl mx-auto bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {/* Wishlist Items */}
-      <div className="max-w-6xl mx-auto">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {currentItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
-            >
-              <div className="relative">
-                <img
-                  src={item.image || "/placeholder.svg"}
-                  alt={item.vehicleName}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="absolute top-4 right-4">
-                  {item.status === "arrived" ? (
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Arrived
-                    </span>
-                  ) : (
-                    <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
-                      <Clock className="w-4 h-4 mr-1" />
-                      Pending
-                    </span>
-                  )}
-                </div>
-                <div className="absolute top-4 left-4">
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      item.purpose === "buy" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"
-                    }`}
-                  >
-                    {item.purpose === "buy" ? "Buy" : "Rent"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-6">
-                <div className="mb-4">
-                  <h3 className="text-xl font-semibold mb-2">{item.vehicleName}</h3>
-                  <p className="text-gray-600">
-                    {item.brand} {item.model}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="flex items-center text-gray-600">
-                    <Car className="w-4 h-4 mr-2" />
-                    <span>{item.kmRun} km</span>
-                  </div>
-                  <div className="flex items-center text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span>{item.year}</span>
-                  </div>
-                  <div className="flex items-center text-gray-600">
-                    <span
-                      className="w-3 h-3 rounded-full bg-gray-400 mr-2"
-                      style={{ backgroundColor: item.color.toLowerCase() }}
-                    />
-                    <span>{item.color}</span>
-                  </div>
-                  <div className="flex items-center text-gray-600">
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    <span>${item.budget}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">
-                    Requested on: {new Date(item.dateSubmitted).toLocaleDateString()}
-                  </span>
-                  {item.status === "arrived" && (
-                    <button
-                      onClick={() => handleBook(item.id)}
-                      className="bg-[#4B3EAE] text-white px-6 py-2 rounded-lg hover:bg-[#3c318a] transition-colors"
-                    >
-                      Book Now
-                    </button>
-                  )}
-                </div>
-
-                {/* View and Delete buttons */}
-                <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
-                  <button
-                    onClick={handleView}
-                    className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <Eye className="w-4 h-4 mr-1" />
-                    View
-                  </button>
-                  <button
-                    onClick={() => handleDeleteClick(item)}
-                    className="flex items-center text-red-600 hover:text-red-800 transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {filteredItems.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-            <p className="text-gray-500">No vehicles match your current filter.</p>
-            <button
-              onClick={() => {
-                setCurrentFilter("all")
-                setStatusFilter("all")
-                toast.info(`Showing all ${items.length} vehicles`, {
-                  icon: "🔍",
-                })
-              }}
-              className="mt-4 text-orange-500 hover:text-orange-600 font-medium"
-            >
-              Show all vehicles
-            </button>
-          </div>
-        )}
-
-        {/* Pagination */}
-        {filteredItems.length > 0 && (
-          <div className="flex justify-center mt-10">
-            <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
-              <button
-                onClick={() => paginate(currentPage - 1)}
-                disabled={currentPage === 1}
-                className={`px-4 py-2 border-r border-gray-200 flex items-center ${
-                  currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-50"
-                }`}
+      {!isLoading && !error && (
+        <div className="max-w-6xl mx-auto">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {currentItems.map((item) => (
+              <div
+                key={item.id}
+                className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
               >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
+                <div className="relative">
+                  <img
+                    src={`../../server${item.images[0].imageUrl}` || "/placeholder.svg"}
+                    alt={item.vehicleName}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="absolute top-4 right-4">
+                    {item.status === "arrived" ? (
+                      <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        Arrived
+                      </span>
+                    ) : (
+                      <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
+                        <Clock className="w-4 h-4 mr-1" />
+                        Pending
+                      </span>
+                    )}
+                  </div>
+                  <div className="absolute top-4 left-4">
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        item.purpose === "buy" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"
+                      }`}
+                    >
+                      {item.purpose === "buy" ? "Buy" : "Rent"}
+                    </span>
+                  </div>
+                </div>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+                <div className="p-6">
+                  <div className="mb-4">
+                    <h3 className="text-xl font-semibold mb-2">{item.vehicleName}</h3>
+                    <p className="text-gray-600">
+                      {item.model}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="flex items-center text-gray-600">
+                      <Car className="w-4 h-4 mr-2" />
+                      <span>{item.kmRun} km</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <Calendar className="w-4 h-4 mr-2" />
+                      <span>{item.year}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <span
+                        className="w-3 h-3 rounded-full bg-gray-400 mr-2"
+                        style={{ backgroundColor: item.color.toLowerCase() }}
+                      />
+                      <span>{item.color}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      <span>${item.budget}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-500">
+                      Requested on: {new Date(item.createdAt).toLocaleDateString()}
+                    </span>
+                    {item.status === "arrived" && (
+                      <button
+                        onClick={() => handleBook(item.id)}
+                        className="bg-[#4B3EAE] text-white px-6 py-2 rounded-lg hover:bg-[#3c318a] transition-colors"
+                      >
+                        Book Now
+                      </button>
+                    )}
+                  </div>
+
+                  {/* View and Delete buttons */}
+                  <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
+                    <button
+                      onClick={() => {
+                        navigate(`/WishlistVehicleDetail?vid=${item.id}`);
+                      }}
+                      className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(item)}
+                      className="flex items-center text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredItems.length === 0 && !isLoading && (
+            <div className="text-center py-12 bg-white rounded-xl shadow-sm">
+              <p className="text-gray-500">No vehicles match your current filter.</p>
+              <button
+                onClick={() => {
+                  setCurrentFilter("all")
+                  setStatusFilter("all")
+                  toast.info(`Showing all ${items.length} vehicles`, {
+                    icon: "🔍",
+                  })
+                }}
+                className="mt-4 text-orange-500 hover:text-orange-600 font-medium"
+              >
+                Show all vehicles
+              </button>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {filteredItems.length > 0 && (
+            <div className="flex justify-center mt-10">
+              <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
                 <button
-                  key={number}
-                  onClick={() => paginate(number)}
-                  className={`px-4 py-2 border-r border-gray-200 ${
-                    currentPage === number ? "bg-orange-500 text-white font-medium" : "text-gray-700 hover:bg-gray-50"
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                    currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  {number}
+                  <ChevronLeft className="w-5 h-5" />
                 </button>
-              ))}
 
-              <button
-                onClick={() => paginate(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className={`px-4 py-2 flex items-center ${
-                  currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+                  <button
+                    key={number}
+                    onClick={() => paginate(number)}
+                    className={`px-4 py-2 border-r border-gray-200 ${
+                      currentPage === number ? "bg-orange-500 text-white font-medium" : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {number}
+                  </button>
+                ))}
+
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 flex items-center ${
+                    currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* WishlistForm Modal */}
       <WishlistForm isOpen={isModalOpen} onClose={toggleModal} onSubmit={handleAddWishlistItem} />
@@ -676,10 +642,16 @@ const YourList = () => {
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
                 className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                disabled={isLoading}
               >
                 Cancel
               </button>
-              <button onClick={confirmDelete} className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+              <button 
+                onClick={confirmDelete} 
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
+                disabled={isLoading}
+              >
+                {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                 Delete
               </button>
             </div>
@@ -689,5 +661,5 @@ const YourList = () => {
     </div>
   )
 }
-export default YourList
 
+export default YourList

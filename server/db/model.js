@@ -37,20 +37,20 @@ module.exports.user = (sequelize, DataTypes) => {
         },
         profile: {
             type: DataTypes.STRING,
-            allowNull: true, 
+            allowNull: true,
         },
         otp: {
-            type: DataTypes.INTEGER, 
+            type: DataTypes.INTEGER,
             allowNull: false,
             validate: {
                 notEmpty: true,
-                isNumeric: true, 
+                isNumeric: true,
             }
         },
         verified: {
-            type: DataTypes.BOOLEAN, 
+            type: DataTypes.BOOLEAN,
             allowNull: false,
-            defaultValue: false, 
+            defaultValue: false,
         }
     })
     return user;
@@ -169,95 +169,133 @@ module.exports.vehicle = (sequelize, DataTypes) => {
 };
 
 module.exports.vimg = (sequelize, DataTypes) => {
-const VehicleImage = sequelize.define('vehicle_image', {
-    vehicleId: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: 'vehicles',
-            key: 'id'
+    const VehicleImage = sequelize.define('vehicle_image', {
+        vehicleId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'vehicles',
+                key: 'id'
+            },
+            onDelete: 'CASCADE'
         },
-        onDelete: 'CASCADE'
-    },
-    image: {
-        type: DataTypes.STRING,
-        allowNull: true, 
-    }
-})
+        image: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        }
+    })
 
-return VehicleImage;
+    return VehicleImage;
 }
 
+
+// VehicleWishlist model
 module.exports.VehicleWishlist = (sequelize, DataTypes) => {
     const VehicleWishlist = sequelize.define("VehicleWishlist", {
-      purpose: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      model: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      vehicleName: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      year: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      color: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      budget: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false,
-      },
-      duration: {
-        type: DataTypes.STRING,
-        allowNull: true, // Allow null for buy purpose
-      },
-      kmRun: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-      },
-      ownership: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      fuelType: {
-        type: DataTypes.STRING,
-        allowNull: false,
-      },
-      description: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      images: {
-        type: DataTypes.JSON, // Use JSON for storing arrays
-        allowNull: true,
-      },
-      status: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: "pending", // Default value
-      },
+        uid: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        purpose: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        model: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        vehicleName: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        year: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        color: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        budget: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
+        },
+        duration: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        kmRun: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
+        ownership: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        fuelType: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        description: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "pending",
+        },
     });
-  
-    return VehicleWishlist;
-  };
 
-  module.exports.LostAndFound = (sequelize, DataTypes) => {
-    const LostAndFound = sequelize.define("LostAndFound", {
-      type: { type: DataTypes.STRING, allowNull: false },
-      title: { type: DataTypes.STRING, allowNull: false },
-      description: { type: DataTypes.TEXT, allowNull: false },
-      location: { type: DataTypes.STRING, allowNull: false },
-      date: { type: DataTypes.DATE, allowNull: false },
-      status: { type: DataTypes.STRING, defaultValue: "active" },
-      images: { type: DataTypes.JSON }, // Store image file paths as an array
+    VehicleWishlist.associate = (models) => {
+        VehicleWishlist.hasMany(models.WishlistImage, {
+            foreignKey: "wishlistId",
+            as: "images",
+            onDelete: "CASCADE",
+        });
+    };
+
+    return VehicleWishlist;
+};
+
+// WishlistImage model
+module.exports.WishlistImage = (sequelize, DataTypes) => {
+    const WishlistImage = sequelize.define("WishlistImage", {
+        imageUrl: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        wishlistId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+        },
     });
-  
+
+    WishlistImage.associate = (models) => {
+        WishlistImage.belongsTo(models.VehicleWishlist, {
+            foreignKey: "wishlistId",
+            as: "wishlist",
+            onDelete: "CASCADE",
+        });
+    };
+
+    return WishlistImage;
+};
+
+
+
+
+module.exports.LostAndFound = (sequelize, DataTypes) => {
+    const LostAndFound = sequelize.define("LostAndFound", {
+        type: { type: DataTypes.STRING, allowNull: false },
+        title: { type: DataTypes.STRING, allowNull: false },
+        description: { type: DataTypes.TEXT, allowNull: false },
+        location: { type: DataTypes.STRING, allowNull: false },
+        date: { type: DataTypes.DATE, allowNull: false },
+        status: { type: DataTypes.STRING, defaultValue: "active" },
+        images: { type: DataTypes.JSON }, // Store image file paths as an array
+    });
+
     return LostAndFound;
-  };
+};

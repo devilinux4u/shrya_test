@@ -5,6 +5,8 @@ import { Car, DollarSign, Camera, X, ArrowRight, ArrowLeft, Check } from "lucide
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import { useNavigate } from "react-router-dom"
+import Cookies from "js-cookie"
+
 
 const WishlistForm = ({ isOpen, onClose }) => {
   const navigate = useNavigate()
@@ -145,6 +147,8 @@ const WishlistForm = ({ isOpen, onClose }) => {
           formDataToSubmit.append("images[]", image);
         });
       }
+
+      formDataToSubmit.append("id", Cookies.get("sauto").split("-")[0])
 
       const response = await fetch("http://localhost:3000/wishlistForm", {
         method: "POST",
