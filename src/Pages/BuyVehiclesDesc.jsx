@@ -127,7 +127,7 @@ export default function BuyVehiclesDesc() {
               </div>
               <div>
                 <p className="text-gray-500">Posted Time</p>
-                <p className="text-xl">{new Date(vehicle.postedTime).toLocaleString()}</p>
+                <p className="text-xl">{new Date(vehicle.createdAt).toLocaleString()}</p>
               </div>
             </div>
 

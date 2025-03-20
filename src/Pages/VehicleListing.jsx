@@ -89,7 +89,10 @@ export default function VehicleListing() {
               {displayedVehicles.map((vehicle, index) => (
                 <div
                   key={index}
-                  onClick={() => navigate(`/BuyVehiclesDesc`, { state: { vehicle } })} // Correct route name
+                  onClick={() => {
+                    const vehicleParams = new URLSearchParams(vehicle);
+                    navigate(`/BuyVehiclesDesc?${vehicleParams}`)}
+                  } // Correct route name
                   className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col items-center text-center cursor-pointer"
                 >
                   <img
