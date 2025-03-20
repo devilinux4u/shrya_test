@@ -32,97 +32,13 @@ const ReportedItems = () => {
   // Mock data - replace with actual API call
   useEffect(() => {
     // Simulate API call
-    setTimeout(() => {
-      const mockItems = [
-        {
-          id: "LF-1001",
-          itemName: "MacBook Pro Laptop",
-          itemImage: "/placeholder.svg?height=200&width=300",
-          category: "Electronics",
-          reportType: "lost",
-          reportDate: "2024-03-10",
-          location: "Library, Pragati Marga",
-          description: "Silver MacBook Pro 13-inch with stickers on the lid. Last seen in the library study area.",
-          status: "active",
-          contactPhone: "+977 9812345678",
-        },
-        {
-          id: "LF-1002",
-          itemName: "Car Keys with Remote",
-          itemImage: "/placeholder.svg?height=200&width=300",
-          category: "Personal Items",
-          reportType: "found",
-          reportDate: "2024-03-05",
-          location: "Parking Lot, Pragati Marga",
-          description:
-            "Honda car keys with black remote and a small keychain. Found near the main entrance of the parking lot.",
-          status: "active",
-          contactPhone: "+977 9812345678",
-        },
-        {
-          id: "LF-1003",
-          itemName: "Blue Wallet",
-          itemImage: "/placeholder.svg?height=200&width=300",
-          category: "Personal Items",
-          reportType: "lost",
-          reportDate: "2024-02-28",
-          location: "Cafeteria, Pragati Marga",
-          description: "Navy blue leather wallet containing ID cards and some cash. Lost during lunch time.",
-          status: "resolved",
-          contactPhone: "+977 9812345678",
-        },
-        {
-          id: "LF-1004",
-          itemName: "iPhone 13 Pro",
-          itemImage: "/placeholder.svg?height=200&width=300",
-          category: "Electronics",
-          reportType: "found",
-          reportDate: "2024-03-12",
-          location: "Test Drive Area, Pragati Marga",
-          description: "Black iPhone 13 Pro with clear case. Found on the bench near the test drive area.",
-          status: "active",
-          contactPhone: "+977 9812345678",
-        },
-        {
-          id: "LF-1005",
-          itemName: "Prescription Glasses",
-          itemImage: "/placeholder.svg?height=200&width=300",
-          category: "Accessories",
-          reportType: "lost",
-          reportDate: "2024-03-08",
-          location: "Customer Lounge, Pragati Marga",
-          description: "Black-framed prescription glasses in a brown case. Needed urgently.",
-          status: "active",
-          contactPhone: "+977 9812345678",
-        },
-        {
-          id: "LF-1006",
-          itemName: "Wristwatch",
-          itemImage: "/placeholder.svg?height=200&width=300",
-          category: "Accessories",
-          reportType: "found",
-          reportDate: "2024-02-20",
-          location: "Washroom, Pragati Marga",
-          description: "Silver analog wristwatch with leather strap. Found in the men's washroom.",
-          status: "resolved",
-          contactPhone: "+977 9812345678",
-        },
-        {
-          id: "LF-1007",
-          itemName: "Backpack",
-          itemImage: "/placeholder.svg?height=200&width=300",
-          category: "Bags",
-          reportType: "lost",
-          reportDate: "2024-03-15",
-          location: "Reception Area, Pragati Marga",
-          description: "Black North Face backpack containing textbooks and a water bottle.",
-          status: "active",
-          contactPhone: "+977 9812345678",
-        },
-      ]
+    setTimeout(async () => {
 
-      setItems(mockItems)
-      setFilteredItems(mockItems)
+      const response = await fetch("http://localhost:3000/api/lost-and-found/all")
+      const mockItems = await response.json()
+
+      setItems(mockItems.data)
+      setFilteredItems(mockItems.data)
       setIsLoading(false)
     }, 1000)
   }, [])
@@ -202,10 +118,24 @@ const ReportedItems = () => {
     setIsUpdating(true)
 
     // Simulate API call to update status
-    setTimeout(() => {
-      setItems((prevItems) => prevItems.map((item) => (item.id === itemId ? { ...item, status: "resolved" } : item)))
-      setSelectedItem(null)
-      setIsUpdating(false)
+    setTimeout(async () => {
+      try {
+        const res = await fetch(`http://localhost:3000/api/lost-and-found/resolve/${itemId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        })
+
+        setItems((prevItems) => prevItems.map((item) => (item.id === itemId ? { ...item, status: "resolved" } : item)))
+        setSelectedItem(null)
+        setIsUpdating(false)
+      }
+      catch (error) {
+        console.error("Error updating status:", error)
+        setIsUpdating
+      }
+
     }, 1000)
   }
 
@@ -217,7 +147,7 @@ const ReportedItems = () => {
           <h1 className="text-3xl font-bold text-gray-900">Reported Items</h1>
           <p className="mt-2 text-gray-600">Track and manage your lost and found reports</p>
         </div>
-        
+
         {/* Search and Filters */}
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -245,41 +175,37 @@ const ReportedItems = () => {
             <div className={`sm:flex gap-2 ${showFilters ? "flex" : "hidden"} flex-wrap`}>
               <button
                 onClick={() => setActiveFilter("all")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  activeFilter === "all"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${activeFilter === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                  }`}
               >
                 All
               </button>
               <button
                 onClick={() => setActiveFilter("lost")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  activeFilter === "lost"
-                    ? "bg-red-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${activeFilter === "lost"
+                  ? "bg-red-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                  }`}
               >
                 Lost
               </button>
               <button
                 onClick={() => setActiveFilter("found")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  activeFilter === "found"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${activeFilter === "found"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                  }`}
               >
                 Found
               </button>
               <button
                 onClick={() => setActiveFilter("resolved")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  activeFilter === "resolved"
-                    ? "bg-green-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${activeFilter === "resolved"
+                  ? "bg-green-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                  }`}
               >
                 Resolved
               </button>
@@ -314,7 +240,7 @@ const ReportedItems = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {currentItems.map((item) => {
-                const statusBadge = getStatusBadge(item.status, item.reportType)
+                const statusBadge = getStatusBadge(item.status, item.type)
 
                 return (
                   <div
@@ -323,7 +249,7 @@ const ReportedItems = () => {
                   >
                     <div className="relative">
                       <img
-                        src={item.itemImage || "/placeholder.svg"}
+                        src={`../../server${item.images[0].imageUrl}` || "/placeholder.svg"}
                         alt={item.itemName}
                         className="w-full h-48 object-cover"
                       />
@@ -338,14 +264,14 @@ const ReportedItems = () => {
                     </div>
                     <div className="p-5">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">{item.itemName}</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
                         <span className="text-sm font-medium text-gray-500">#{item.id}</span>
                       </div>
 
                       <div className="space-y-2 mb-4">
                         <div className="flex items-center text-sm text-gray-600">
                           <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                          <span>Reported on {formatDate(item.reportDate)}</span>
+                          <span>Reported on {formatDate(item.createdAt)}</span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="w-4 h-4 mr-2 text-gray-400" />
@@ -389,9 +315,8 @@ const ReportedItems = () => {
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className={`p-2 rounded-md ${
-                      currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                    className={`p-2 rounded-md ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
+                      }`}
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -400,9 +325,8 @@ const ReportedItems = () => {
                     <button
                       key={i}
                       onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 rounded-md ${
-                        currentPage === i + 1 ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
-                      }`}
+                      className={`px-3 py-1 rounded-md ${currentPage === i + 1 ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
+                        }`}
                     >
                       {i + 1}
                     </button>
@@ -411,11 +335,10 @@ const ReportedItems = () => {
                   <button
                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className={`p-2 rounded-md ${
-                      currentPage === totalPages
-                        ? "text-gray-400 cursor-not-allowed"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
+                    className={`p-2 rounded-md ${currentPage === totalPages
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-100"
+                      }`}
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -431,7 +354,7 @@ const ReportedItems = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">{selectedItem.itemName}</h2>
+              <h2 className="text-2xl font-bold text-gray-900">{selectedItem.title}</h2>
               <button onClick={() => setSelectedItem(null)} className="p-1 rounded-full hover:bg-gray-100">
                 <X className="h-6 w-6 text-gray-500" />
               </button>
@@ -439,7 +362,7 @@ const ReportedItems = () => {
 
             <div className="mb-4 rounded-lg overflow-hidden">
               <img
-                src={selectedItem.itemImage || "/placeholder.svg"}
+                src={`../../server${selectedItem.images[0].imageUrl}` || "/placeholder.svg"}
                 alt={selectedItem.itemName}
                 className="w-full h-48 object-cover"
               />
@@ -454,17 +377,16 @@ const ReportedItems = () => {
               <div className="flex justify-between">
                 <span className="text-sm text-gray-500">Status</span>
                 <span
-                  className={`text-sm font-medium ${
-                    selectedItem.status === "resolved"
-                      ? "text-green-600"
-                      : selectedItem.reportType === "lost"
-                        ? "text-red-600"
-                        : "text-blue-600"
-                  }`}
+                  className={`text-sm font-medium ${selectedItem.status === "resolved"
+                    ? "text-green-600"
+                    : selectedItem.type === "lost"
+                      ? "text-red-600"
+                      : "text-blue-600"
+                    }`}
                 >
                   {selectedItem.status === "resolved"
                     ? "Resolved"
-                    : selectedItem.reportType === "lost"
+                    : selectedItem.type === "lost"
                       ? "Lost"
                       : "Found"}
                 </span>
@@ -477,7 +399,7 @@ const ReportedItems = () => {
 
               <div className="flex justify-between">
                 <span className="text-sm text-gray-500">Report Date</span>
-                <span className="text-sm font-medium">{formatDate(selectedItem.reportDate)}</span>
+                <span className="text-sm font-medium">{formatDate(selectedItem.createdAt)}</span>
               </div>
 
               <div className="flex justify-between">
@@ -508,9 +430,8 @@ const ReportedItems = () => {
                 <button
                   onClick={() => handleStatusChange(selectedItem.id)}
                   disabled={isUpdating}
-                  className={`px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center ${
-                    isUpdating ? "opacity-70 cursor-not-allowed" : ""
-                  }`}
+                  className={`px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center ${isUpdating ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
                 >
                   {isUpdating ? (
                     <>

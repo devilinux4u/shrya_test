@@ -23,10 +23,10 @@ const LostAndFound = () => {
     // Fetch items from the backend
     const fetchItems = async () => {
       try {
-        const response = await fetch("/api/lost-and-found")
+        const response = await fetch("http://localhost:3000/api/lost-and-found/all")
         console.log(response)
         const data = await response.json()
-        setItems(data)
+        setItems(data.data)
       } catch (error) {
         console.error("Error fetching items:", error)
       }
@@ -245,7 +245,7 @@ const LostAndFound = () => {
             >
               <div className="relative">
                 <img
-                  src={item.images?.[0] || "/placeholder.svg"}
+                  src={`../../server${item.images[0].imageUrl}` || "/placeholder.svg"}
                   alt={item.title}
                   className="w-full h-48 object-cover"
                 />
@@ -292,7 +292,7 @@ const LostAndFound = () => {
 
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">
-                    Reported on: {new Date(item.dateSubmitted).toLocaleDateString()}
+                    Reported on: {new Date(item.createdAt).toLocaleDateString()}
                   </span>
                   {item.status === "active" && (
                     <button

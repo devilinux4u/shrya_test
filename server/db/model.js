@@ -283,16 +283,42 @@ module.exports.WishlistImage = (sequelize, DataTypes) => {
     return WishlistImage;
 };
 
+// LostAndFound Model
 module.exports.LostAndFound = (sequelize, DataTypes) => {
     const LostAndFound = sequelize.define("LostAndFound", {
+        uid: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
         type: { type: DataTypes.STRING, allowNull: false },
         title: { type: DataTypes.STRING, allowNull: false },
         description: { type: DataTypes.TEXT, allowNull: false },
         location: { type: DataTypes.STRING, allowNull: false },
         date: { type: DataTypes.DATE, allowNull: false },
         status: { type: DataTypes.STRING, defaultValue: "active" },
-        images: { type: DataTypes.JSON }, // Store image file paths as an array
     });
 
     return LostAndFound;
+};
+
+// LostAndFoundImage Model
+module.exports.LostAndFoundImage = (sequelize, DataTypes) => {
+    const LostAndFoundImage = sequelize.define("LostAndFoundImage", {
+        imageUrl: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        lostAndFoundId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: "LostAndFounds", // Sequelize auto-pluralizes table names by default
+                key: "id"
+            },
+            onDelete: "CASCADE"
+        }
+    });
+
+    return LostAndFoundImage;
 };
