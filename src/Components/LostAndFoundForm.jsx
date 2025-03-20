@@ -5,6 +5,8 @@ import { Camera, X } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
+import Cookies from "js-cookie"
+
 
 const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   const navigate = useNavigate(); // ✅ Correct: Call useNavigate inside the component
@@ -117,6 +119,8 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
         }
       }
   
+      formDataToSubmit.append("id", Cookies.get("sauto").split("-")[0])
+
       // Send the request to the backend
       const response = await fetch("http://localhost:3000/api/lost-and-found", {
         method: "POST",
