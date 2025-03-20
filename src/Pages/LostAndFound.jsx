@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CheckCircle, Clock, MapPin, Calendar, ChevronLeft, ChevronRight, Filter, Search } from "lucide-react"
+import { CheckCircle, Clock, MapPin, Calendar, ChevronLeft, ChevronRight, Filter, Search, Phone, MessageSquare, X } from 'lucide-react'
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import LostAndFoundForm from "../Components/LostAndFoundForm"
@@ -24,11 +24,15 @@ const LostAndFound = () => {
     const fetchItems = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/lost-and-found/all")
-        console.log(response)
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`)
+        }
         const data = await response.json()
-        setItems(data.data)
+        setItems(data.data || [])
       } catch (error) {
         console.error("Error fetching items:", error)
+        toast.error("Failed to load lost and found items.")
+        setItems([]) // Set empty array on error
       }
     }
 
@@ -72,25 +76,39 @@ const LostAndFound = () => {
   }
 
   const nextImage = () => {
-    if (!selectedItem) return
+    if (!selectedItem || !selectedItem.images || selectedItem.images.length <= 1) return
     setCurrentImageIndex((prevIndex) => (prevIndex === selectedItem.images.length - 1 ? 0 : prevIndex + 1))
   }
 
   const prevImage = () => {
-    if (!selectedItem) return
+    if (!selectedItem || !selectedItem.images || selectedItem.images.length <= 1) return
     setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? selectedItem.images.length - 1 : prevIndex - 1))
   }
 
   const handleCallReporter = () => {
-    if (selectedItem) {
+    if (selectedItem?.reporter?.contact) {
+      // Use tel: protocol to initiate a phone call
       window.location.href = `tel:${selectedItem.reporter.contact}`
+    } else {
+      toast.error("Reporter contact information is not available.")
     }
   }
 
   const handleSendSMS = () => {
-    if (selectedItem) {
+    if (selectedItem?.reporter?.contact) {
+      // Use sms: protocol to open SMS app
       window.location.href = `sms:${selectedItem.reporter.contact}`
+    } else {
+      toast.error("Reporter contact information is not available.")
     }
+  }
+
+  const closeContactModal = () => {
+    setIsContactModalOpen(false)
+    // Optional: add a small delay before clearing the selected item
+    setTimeout(() => {
+      setSelectedItem(null)
+    }, 300)
   }
 
   const toggleModal = () => {
@@ -167,6 +185,16 @@ const LostAndFound = () => {
         <span className="text-blue-600">Lost</span> & <span className="text-blue-600">Found</span>
       </h1>
 
+      {/* Report Item Button */}
+      <div className="mb-6">
+        <button
+          onClick={toggleModal}
+          className="bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
+        >
+          Report Item
+        </button>
+      </div>
+
       {/* Search Bar */}
       <div className="mb-6 max-w-6xl mx-auto">
         <div className="relative">
@@ -179,16 +207,6 @@ const LostAndFound = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-      </div>
-
-      {/* Report Item Button */}
-      <div className="mb-6">
-        <button
-          onClick={toggleModal}
-          className="bg-blue-600 text-white px-6 py-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors"
-        >
-          Report Item
-        </button>
       </div>
 
       {/* Filter Options */}
@@ -223,14 +241,6 @@ const LostAndFound = () => {
             >
               Found
             </button>
-            <button
-              onClick={() => handleFilterChange("resolved")}
-              className={`px-4 py-2 rounded-full transition-colors ${
-                currentFilter === "resolved" ? "bg-gray-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              Resolved
-            </button>
           </div>
         </div>
       </div>
@@ -245,9 +255,12 @@ const LostAndFound = () => {
             >
               <div className="relative">
                 <img
-                  src={`../../server${item.images[0].imageUrl}` || "/placeholder.svg"}
+                  src={(item.images && item.images[0] && `../../server${item.images[0].imageUrl}`) || "/placeholder.svg"}
                   alt={item.title}
                   className="w-full h-48 object-cover"
+                  onError={(e) => {
+                    e.target.src = "/placeholder.svg"
+                  }}
                 />
                 <div className="absolute top-4 right-4">
                   {item.status === "resolved" ? (
@@ -294,7 +307,7 @@ const LostAndFound = () => {
                   <span className="text-sm text-gray-500">
                     Reported on: {new Date(item.createdAt).toLocaleDateString()}
                   </span>
-                  {item.status === "active" && (
+                  {item.status !== "resolved" && (
                     <button
                       onClick={() => handleContact(item)}
                       className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
@@ -324,7 +337,7 @@ const LostAndFound = () => {
         )}
 
         {/* Pagination */}
-        {filteredItems.length > 0 && (
+        {filteredItems.length > 0 && totalPages > 1 && (
           <div className="flex justify-center mt-10">
             <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
               <button
@@ -367,40 +380,46 @@ const LostAndFound = () => {
       <LostAndFoundForm isOpen={isModalOpen} onClose={toggleModal} onSubmit={handleAddItem} />
 
       {/* Contact Reporter Modal */}
-      {selectedItem && (
-        <div
-          className={`fixed inset-0 z-50 flex items-center justify-center ${isContactModalOpen ? "visible" : "invisible"}`}
-        >
-          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setIsContactModalOpen(false)}></div>
-          <div className="bg-white rounded-xl p-8 max-w-4xl w-full mx-4 z-10 relative">
+      {isContactModalOpen && selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={closeContactModal}></div>
+          <div className="bg-white rounded-xl p-6 md:p-8 max-w-4xl w-full mx-4 z-10 relative">
+            {/* Close button */}
+            <button 
+              onClick={closeContactModal}
+              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-500" />
+            </button>
+            
             <div className="grid md:grid-cols-2 gap-8">
               {/* Left side - Details */}
               <div>
-                <h2 className="text-3xl font-bold mb-6">{selectedItem.title}</h2>
+                <h2 className="text-2xl md:text-3xl font-bold mb-6">{selectedItem.title}</h2>
 
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-gray-600">Founder Name</h3>
-                    <p className="text-xl">{selectedItem.reporter.name}</p>
+                    <h3 className="text-gray-600 text-sm">Reporter Name</h3>
+                    <p className="text-xl font-medium">{selectedItem.reporter?.name || "Anonymous"}</p>
                   </div>
 
                   <div>
-                    <h3 className="text-gray-600">Found Date</h3>
-                    <p className="text-xl">{selectedItem.date}</p>
+                    <h3 className="text-gray-600 text-sm">{selectedItem.type === "lost" ? "Lost" : "Found"} Date</h3>
+                    <p className="text-xl font-medium">{new Date(selectedItem.date).toLocaleDateString()}</p>
                   </div>
 
                   <div>
-                    <h3 className="text-gray-600">Found Location</h3>
-                    <p className="text-xl">{selectedItem.location}</p>
+                    <h3 className="text-gray-600 text-sm">{selectedItem.type === "lost" ? "Lost" : "Found"} Location</h3>
+                    <p className="text-xl font-medium">{selectedItem.location}</p>
                   </div>
 
                   <div>
-                    <h3 className="text-gray-600">Contact</h3>
-                    <p className="text-xl">{selectedItem.reporter.contact}</p>
+                    <h3 className="text-gray-600 text-sm">Contact</h3>
+                    <p className="text-xl font-medium">{selectedItem.reporter?.contact || "Not provided"}</p>
                   </div>
 
                   <div>
-                    <h3 className="text-gray-600">Description</h3>
+                    <h3 className="text-gray-600 text-sm">Description</h3>
                     <p className="text-gray-700">{selectedItem.description}</p>
                   </div>
                 </div>
@@ -408,23 +427,27 @@ const LostAndFound = () => {
 
               {/* Right side - Image carousel */}
               <div>
-                <div className="relative">
+                <div className="relative bg-gray-100 rounded-lg">
                   <img
-                    src={selectedItem.images[currentImageIndex] || "/placeholder.svg"}
+                    src={(selectedItem.images && selectedItem.images[currentImageIndex] && 
+                      `../../server${selectedItem.images[currentImageIndex].imageUrl}`) || "/placeholder.svg"}
                     alt={selectedItem.title}
-                    className="w-full h-[400px] object-contain rounded-lg"
+                    className="w-full h-[300px] md:h-[400px] object-contain rounded-lg"
+                    onError={(e) => {
+                      e.target.src = "/placeholder.svg"
+                    }}
                   />
-                  {selectedItem.images.length > 1 && (
+                  {selectedItem.images && selectedItem.images.length > 1 && (
                     <>
                       <button
                         onClick={prevImage}
-                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
+                        className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
                       >
                         <ChevronLeft className="w-6 h-6" />
                       </button>
                       <button
                         onClick={nextImage}
-                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100"
                       >
                         <ChevronRight className="w-6 h-6" />
                       </button>
@@ -433,13 +456,13 @@ const LostAndFound = () => {
                 </div>
 
                 {/* Image dots */}
-                {selectedItem.images.length > 1 && (
+                {selectedItem.images && selectedItem.images.length > 1 && (
                   <div className="flex justify-center mt-4 gap-2">
                     {selectedItem.images.map((_, index) => (
                       <button
                         key={index}
                         onClick={() => setCurrentImageIndex(index)}
-                        className={`w-2 h-2 rounded-full ${
+                        className={`w-3 h-3 rounded-full ${
                           currentImageIndex === index ? "bg-blue-600" : "bg-gray-300"
                         }`}
                       />
@@ -450,21 +473,23 @@ const LostAndFound = () => {
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-4 mt-8">
+            <div className="flex flex-col sm:flex-row gap-4 mt-8">
               <button
                 onClick={handleCallReporter}
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
               >
+                <Phone className="w-5 h-5" />
                 Call Reporter
               </button>
               <button
                 onClick={handleSendSMS}
-                className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors"
+                className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
               >
+                <MessageSquare className="w-5 h-5" />
                 Send SMS
               </button>
               <button
-                onClick={() => setIsContactModalOpen(false)}
+                onClick={closeContactModal}
                 className="flex-1 bg-gray-100 text-gray-800 py-3 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Close
@@ -478,4 +503,3 @@ const LostAndFound = () => {
 }
 
 export default LostAndFound
-

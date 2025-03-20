@@ -2,20 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import {
-  Calendar,
-  MapPin,
-  Search,
-  Filter,
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle,
-  AlertTriangle,
-  Eye,
-  Package,
-  X,
-  RefreshCw,
-} from "lucide-react"
+import { Calendar, MapPin, Search, Filter, ChevronLeft, ChevronRight, CheckCircle, AlertTriangle, Eye, Package, X, RefreshCw } from 'lucide-react'
 
 const ReportedItems = () => {
   const [items, setItems] = useState([])
@@ -29,46 +16,76 @@ const ReportedItems = () => {
   const [isUpdating, setIsUpdating] = useState(false)
   const itemsPerPage = 6
 
-  // Mock data - replace with actual API call
+  // Fetch data from API
   useEffect(() => {
-    // Simulate API call
-    setTimeout(async () => {
+    const fetchItems = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch("http://localhost:3000/api/lost-and-found/all")
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        
+        if (data && data.data) {
+          console.log("Fetched items:", data.data) // Debug log
+          setItems(data.data)
+          setFilteredItems(data.data)
+        } else {
+          console.error("Invalid data format:", data)
+          setItems([])
+          setFilteredItems([])
+        }
+      } catch (error) {
+        console.error("Error fetching items:", error)
+        setItems([])
+        setFilteredItems([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
 
-      const response = await fetch("http://localhost:3000/api/lost-and-found/all")
-      const mockItems = await response.json()
-
-      setItems(mockItems.data)
-      setFilteredItems(mockItems.data)
-      setIsLoading(false)
-    }, 1000)
+    fetchItems()
   }, [])
 
-  // Filter items based on status, type and search query
+  // Filter items based on status and search query
   useEffect(() => {
-    let result = items
+    if (!items || items.length === 0) {
+      setFilteredItems([])
+      return
+    }
+
+    console.log("Filtering with:", { activeFilter, searchQuery }) // Debug log
+    
+    let result = [...items]
 
     // Filter by status
     if (activeFilter !== "all") {
-      if (activeFilter === "lost" || activeFilter === "found") {
-        result = result.filter((item) => item.reportType === activeFilter && item.status === "active")
-      } else {
-        result = result.filter((item) => item.status === activeFilter)
+      if (activeFilter === "lost") {
+        result = result.filter((item) => item.type === "lost" && item.status !== "resolved")
+      } else if (activeFilter === "found") {
+        result = result.filter((item) => item.type === "found" && item.status !== "resolved")
+      } else if (activeFilter === "resolved") {
+        result = result.filter((item) => item.status === "resolved")
       }
     }
 
     // Filter by search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
+      const query = searchQuery.toLowerCase().trim()
       result = result.filter(
         (item) =>
-          item.itemName.toLowerCase().includes(query) ||
-          item.id.toLowerCase().includes(query) ||
-          item.category.toLowerCase().includes(query) ||
-          item.description.toLowerCase().includes(query) ||
-          item.location.toLowerCase().includes(query),
+          (item.title && item.title.toLowerCase().includes(query)) ||
+          (item.id && String(item.id).toLowerCase().includes(query)) ||
+          (item.description && item.description.toLowerCase().includes(query)) ||
+          (item.location && item.location.toLowerCase().includes(query)) ||
+          (item.type && item.type.toLowerCase().includes(query))
       )
     }
 
+    console.log("Filtered results:", result) // Debug log
     setFilteredItems(result)
     setCurrentPage(1) // Reset to first page when filters change
   }, [activeFilter, searchQuery, items])
@@ -81,12 +98,19 @@ const ReportedItems = () => {
 
   // Format date to readable format
   const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "short", day: "numeric" }
-    return new Date(dateString).toLocaleDateString(undefined, options)
+    if (!dateString) return "Unknown date"
+    
+    try {
+      const options = { year: "numeric", month: "short", day: "numeric" }
+      return new Date(dateString).toLocaleDateString(undefined, options)
+    } catch (error) {
+      console.error("Error formatting date:", error)
+      return dateString
+    }
   }
 
   // Get status badge color and icon
-  const getStatusBadge = (status, reportType) => {
+  const getStatusBadge = (status, type) => {
     if (status === "resolved") {
       return {
         bgColor: "bg-green-100",
@@ -96,7 +120,7 @@ const ReportedItems = () => {
       }
     }
 
-    if (reportType === "lost") {
+    if (type === "lost") {
       return {
         bgColor: "bg-red-100",
         textColor: "text-red-800",
@@ -114,29 +138,43 @@ const ReportedItems = () => {
   }
 
   // Handle status change
-  const handleStatusChange = (itemId) => {
+  const handleStatusChange = async (itemId) => {
     setIsUpdating(true)
 
-    // Simulate API call to update status
-    setTimeout(async () => {
-      try {
-        const res = await fetch(`http://localhost:3000/api/lost-and-found/resolve/${itemId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          }
-        })
+    try {
+      const res = await fetch(`http://localhost:3000/api/lost-and-found/resolve/${itemId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
 
-        setItems((prevItems) => prevItems.map((item) => (item.id === itemId ? { ...item, status: "resolved" } : item)))
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`)
+      }
+
+      // Update local state
+      setItems((prevItems) => 
+        prevItems.map((item) => 
+          item.id === itemId ? { ...item, status: "resolved" } : item
+        )
+      )
+      
+      // Close modal if open
+      if (selectedItem && selectedItem.id === itemId) {
         setSelectedItem(null)
-        setIsUpdating(false)
       }
-      catch (error) {
-        console.error("Error updating status:", error)
-        setIsUpdating
-      }
+    } catch (error) {
+      console.error("Error updating status:", error)
+      alert("Failed to update item status. Please try again.")
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
-    }, 1000)
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value)
   }
 
   return (
@@ -159,7 +197,7 @@ const ReportedItems = () => {
                 type="text"
                 placeholder="Search items..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -175,37 +213,41 @@ const ReportedItems = () => {
             <div className={`sm:flex gap-2 ${showFilters ? "flex" : "hidden"} flex-wrap`}>
               <button
                 onClick={() => setActiveFilter("all")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${activeFilter === "all"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                  }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  activeFilter === "all"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                }`}
               >
                 All
               </button>
               <button
                 onClick={() => setActiveFilter("lost")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${activeFilter === "lost"
-                  ? "bg-red-600 text-white"
-                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                  }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  activeFilter === "lost"
+                    ? "bg-red-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                }`}
               >
                 Lost
               </button>
               <button
                 onClick={() => setActiveFilter("found")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${activeFilter === "found"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                  }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  activeFilter === "found"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                }`}
               >
                 Found
               </button>
               <button
                 onClick={() => setActiveFilter("resolved")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${activeFilter === "resolved"
-                  ? "bg-green-600 text-white"
-                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
-                  }`}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  activeFilter === "resolved"
+                    ? "bg-green-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                }`}
               >
                 Resolved
               </button>
@@ -249,9 +291,12 @@ const ReportedItems = () => {
                   >
                     <div className="relative">
                       <img
-                        src={`../../server${item.images[0].imageUrl}` || "/placeholder.svg"}
-                        alt={item.itemName}
+                        src={(item.images && item.images[0] && `../../server${item.images[0].imageUrl}`) || "/placeholder.svg"}
+                        alt={item.title}
                         className="w-full h-48 object-cover"
+                        onError={(e) => {
+                          e.target.src = "/placeholder.svg"
+                        }}
                       />
                       <div className="absolute top-3 right-3">
                         <span
@@ -281,7 +326,6 @@ const ReportedItems = () => {
                       </div>
 
                       <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-                        <div className="text-sm font-medium text-gray-700">{item.category}</div>
                         <div className="flex space-x-2">
                           <button
                             onClick={() => setSelectedItem(item)}
@@ -291,7 +335,7 @@ const ReportedItems = () => {
                             View
                           </button>
 
-                          {item.status === "active" && (
+                          {item.status !== "resolved" && (
                             <button
                               onClick={() => handleStatusChange(item.id)}
                               className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
@@ -315,8 +359,11 @@ const ReportedItems = () => {
                   <button
                     onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    className={`p-2 rounded-md ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-100"
-                      }`}
+                    className={`p-2 rounded-md ${
+                      currentPage === 1 
+                        ? "text-gray-400 cursor-not-allowed" 
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
@@ -325,8 +372,11 @@ const ReportedItems = () => {
                     <button
                       key={i}
                       onClick={() => setCurrentPage(i + 1)}
-                      className={`px-3 py-1 rounded-md ${currentPage === i + 1 ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-100"
-                        }`}
+                      className={`px-3 py-1 rounded-md ${
+                        currentPage === i + 1 
+                          ? "bg-blue-600 text-white" 
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}
                     >
                       {i + 1}
                     </button>
@@ -335,10 +385,11 @@ const ReportedItems = () => {
                   <button
                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    className={`p-2 rounded-md ${currentPage === totalPages
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-700 hover:bg-gray-100"
-                      }`}
+                    className={`p-2 rounded-md ${
+                      currentPage === totalPages
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -362,9 +413,12 @@ const ReportedItems = () => {
 
             <div className="mb-4 rounded-lg overflow-hidden">
               <img
-                src={`../../server${selectedItem.images[0].imageUrl}` || "/placeholder.svg"}
-                alt={selectedItem.itemName}
+                src={(selectedItem.images && selectedItem.images[0] && `../../server${selectedItem.images[0].imageUrl}`) || "/placeholder.svg"}
+                alt={selectedItem.title}
                 className="w-full h-48 object-cover"
+                onError={(e) => {
+                  e.target.src = "/placeholder.svg"
+                }}
               />
             </div>
 
@@ -377,12 +431,13 @@ const ReportedItems = () => {
               <div className="flex justify-between">
                 <span className="text-sm text-gray-500">Status</span>
                 <span
-                  className={`text-sm font-medium ${selectedItem.status === "resolved"
-                    ? "text-green-600"
-                    : selectedItem.type === "lost"
-                      ? "text-red-600"
-                      : "text-blue-600"
-                    }`}
+                  className={`text-sm font-medium ${
+                    selectedItem.status === "resolved"
+                      ? "text-green-600"
+                      : selectedItem.type === "lost"
+                        ? "text-red-600"
+                        : "text-blue-600"
+                  }`}
                 >
                   {selectedItem.status === "resolved"
                     ? "Resolved"
@@ -393,18 +448,8 @@ const ReportedItems = () => {
               </div>
 
               <div className="flex justify-between">
-                <span className="text-sm text-gray-500">Category</span>
-                <span className="text-sm font-medium">{selectedItem.category}</span>
-              </div>
-
-              <div className="flex justify-between">
                 <span className="text-sm text-gray-500">Report Date</span>
                 <span className="text-sm font-medium">{formatDate(selectedItem.createdAt)}</span>
-              </div>
-
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-500">Contact</span>
-                <span className="text-sm font-medium">{selectedItem.contactPhone}</span>
               </div>
 
               <div>
@@ -426,12 +471,13 @@ const ReportedItems = () => {
                 Close
               </button>
 
-              {selectedItem.status === "active" && (
+              {selectedItem.status !== "resolved" && (
                 <button
                   onClick={() => handleStatusChange(selectedItem.id)}
                   disabled={isUpdating}
-                  className={`px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center ${isUpdating ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
+                  className={`px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 flex items-center ${
+                    isUpdating ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
                 >
                   {isUpdating ? (
                     <>
@@ -455,4 +501,3 @@ const ReportedItems = () => {
 }
 
 export default ReportedItems
-
