@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Calendar, MapPin, Search, Filter, ChevronLeft, ChevronRight, CheckCircle, AlertTriangle, Eye, Package, X, RefreshCw } from 'lucide-react'
+import Cookies from "js-cookie"
 
 const ReportedItems = () => {
   const [items, setItems] = useState([])
@@ -21,7 +22,7 @@ const ReportedItems = () => {
     const fetchItems = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch("http://localhost:3000/api/lost-and-found/all")
+        const response = await fetch(`http://localhost:3000/api/lost-and-found/all2/${Cookies.get("sauto").split("-")[0]}`)
         
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`)

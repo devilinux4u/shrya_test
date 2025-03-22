@@ -151,6 +151,8 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
           images: [],
         });
   
+        window.location.reload();
+
         // Clear selected images and previews
         onClose(); // Close the form/modal
   

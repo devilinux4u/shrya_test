@@ -123,7 +123,7 @@ export default function BuyVehiclesDesc() {
               {/* Added Posted By and Posted Time */}
               <div>
                 <p className="text-gray-500">Posted By</p>
-                <p className="text-xl">{vehicle.postedBy}</p>
+                <p className="text-xl">{vehicle.user.fname}</p>
               </div>
               <div>
                 <p className="text-gray-500">Posted Time</p>

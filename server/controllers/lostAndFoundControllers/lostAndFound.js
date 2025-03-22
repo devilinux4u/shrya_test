@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const fs = require('fs');
-const { LostAndFound, LostAndFoundImage } = require("../../db/sequelize"); // import both models
+const { LostAndFound, LostAndFoundImage, users } = require("../../db/sequelize"); // import both models
 
 // Configure storage for uploaded files
 const uploadDir = path.join(__dirname, '../../uploads/lostAndFound');
@@ -76,10 +76,42 @@ router.post("/", upload.array("images"), async (req, res) => {
 router.get("/all", async (req, res) => {
   try {
     const reports = await LostAndFound.findAll({
+      where: { status: "active" },
       include: [
         {
           model: LostAndFoundImage,
-          as: "images", // make sure to use the alias from your association
+          as: "images",
+        },
+        {
+          model: users,
+          as: "user",
+          attributes: ['fname', 'num'], // Only fetch name and contact
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.status(200).json({ success: true, data: reports });
+  } catch (error) {
+    console.error("Error fetching Lost & Found reports:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch reports", error: error.message });
+  }
+});
+
+
+router.get("/all2/:id", async (req, res) => {
+  try {
+    const reports = await LostAndFound.findAll({
+      where: { uid: req.params.id },
+      include: [
+        {
+          model: LostAndFoundImage,
+          as: "images",
+        },
+        {
+          model: users,
+          as: "user",
+          attributes: ['fname', 'num'], // Only fetch name and contact
         },
       ],
       order: [['createdAt', 'DESC']],
