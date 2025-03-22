@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const multer = require("multer");
-const { sequelize, vehicles, v_img } = require('../../db/sequelize')
+const { sequelize, vehicles, v_img, users } = require('../../db/sequelize')
 const fs = require('fs')
 const path = require('path')
 
@@ -168,7 +168,17 @@ router.get("/vehicles/one/:vid", async (req, res) => {
 
         const vehicle = await vehicles.findOne({
             where: { id: vehicleId },
-            include: [{ model: v_img, attributes: ["id", "image"] }]
+            include: [
+                {
+                    model: v_img,
+                    attributes: ["id", "image"]
+                },
+                {
+                    model: users,
+                    as: "user",
+                    attributes: ["fname"] // Only fetch the fname field
+                }
+            ]
         });
 
         if (!vehicle) {

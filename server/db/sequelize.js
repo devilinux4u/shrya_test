@@ -32,6 +32,10 @@ WishlistImage.belongsTo(VehicleWishlist, {
 LostAndFound.hasMany(LostAndFoundImage, { foreignKey: 'lostAndFoundId', as: 'images' });
 LostAndFoundImage.belongsTo(LostAndFound, { foreignKey: 'lostAndFoundId' });
 
+LostAndFound.belongsTo(user, { foreignKey: 'uid', as: 'user' });
+
+Vehicle.belongsTo(user, { foreignKey: 'uid', as: 'user' });
+
 
 // Sync database
 sequelize.sync({ alter: true }) // Updates the schema without dropping tables // Use { force: true } to drop and recreate tables (use with caution in production)

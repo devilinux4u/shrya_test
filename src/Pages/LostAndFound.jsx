@@ -86,18 +86,18 @@ const LostAndFound = () => {
   }
 
   const handleCallReporter = () => {
-    if (selectedItem?.reporter?.contact) {
+    if (selectedItem?.user?.num) {
       // Use tel: protocol to initiate a phone call
-      window.location.href = `tel:${selectedItem.reporter.contact}`
+      window.location.href = `tel:${selectedItem.user.num}`
     } else {
       toast.error("Reporter contact information is not available.")
     }
   }
 
   const handleSendSMS = () => {
-    if (selectedItem?.reporter?.contact) {
+    if (selectedItem?.user?.num) {
       // Use sms: protocol to open SMS app
-      window.location.href = `sms:${selectedItem.reporter.contact}`
+      window.location.href = `sms:${selectedItem.user.num}`
     } else {
       toast.error("Reporter contact information is not available.")
     }
@@ -400,7 +400,7 @@ const LostAndFound = () => {
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-gray-600 text-sm">Reporter Name</h3>
-                    <p className="text-xl font-medium">{selectedItem.reporter?.name || "Anonymous"}</p>
+                    <p className="text-xl font-medium">{selectedItem.user.fname || "Anonymous"}</p>
                   </div>
 
                   <div>
@@ -415,7 +415,7 @@ const LostAndFound = () => {
 
                   <div>
                     <h3 className="text-gray-600 text-sm">Contact</h3>
-                    <p className="text-xl font-medium">{selectedItem.reporter?.contact || "Not provided"}</p>
+                    <p className="text-xl font-medium">{selectedItem.user.num || "Not provided"}</p>
                   </div>
 
                   <div>

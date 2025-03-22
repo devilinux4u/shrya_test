@@ -184,10 +184,14 @@ const WishlistForm = ({ isOpen, onClose }) => {
 
         setCurrentStep(1);
         onClose();
+    
 
         setTimeout(() => {
           navigate("/YourList");
         }, 2000);
+
+        window.location.reload();
+
       } else {
         toast.error("Failed to list vehicle in Wishlist. Please try again.");
       }
