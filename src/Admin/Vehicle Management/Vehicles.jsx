@@ -10,7 +10,7 @@ export default function Vehicles() {
   const [error, setError] = useState(null)
   const [displayedVehicles, setDisplayedVehicles] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [brandFilter, setBrandFilter] = useState("")
+  const [userFilter, setUserFilter] = useState("") // Replace brandFilter with userFilter
   const [statusFilter, setStatusFilter] = useState("")
   const [sortBy, setSortBy] = useState("")
 
@@ -88,7 +88,7 @@ export default function Vehicles() {
             year: "2021",
             price: 15000000,
             mile: 3000,
-            status: "Maintenance",
+            status: "Sold",
             location: "Bhaktapur, Nepal",
             postedBy: {
               name: "Sarah Williams",
@@ -126,10 +126,10 @@ export default function Vehicles() {
       )
     }
     
-    // Apply brand filter
-    if (brandFilter) {
+    // Apply user/admin filter
+    if (userFilter) {
       filtered = filtered.filter(vehicle => 
-        vehicle.make.toLowerCase() === brandFilter.toLowerCase()
+        vehicle.postedBy.role.toLowerCase() === userFilter.toLowerCase()
       )
     }
     
@@ -150,7 +150,10 @@ export default function Vehicles() {
           filtered.sort((a, b) => b.price - a.price)
           break
         case "newest":
-          filtered.sort((a, b) => parseInt(b.year) - parseInt(a.year))
+          filtered.sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt))
+          break
+        case "oldest":
+          filtered.sort((a, b) => new Date(a.postedAt) - new Date(b.postedAt))
           break
         default:
           break
@@ -158,19 +161,16 @@ export default function Vehicles() {
     }
     
     setDisplayedVehicles(filtered)
-  }, [vehicles, searchTerm, brandFilter, statusFilter, sortBy])
+  }, [vehicles, searchTerm, userFilter, statusFilter, sortBy])
 
   const handleAddVehicle = () => {
     navigate("/admin/addnewvehicles")
   }
 
-  const handleViewDetails = (vehicle) => {
-    navigate(`/admin/viewdetails/${vehicle.id}`)
+  const handleViewDetails = () => {
+    navigate("/admin/viewdetails")
   }
 
-  const handleEditVehicle = (vehicle) => {
-    navigate(`/admin/editvehicle/${vehicle.id}`, { state: { vehicle } })
-  }
 
   const handleDeleteVehicle = (vehicleId) => {
     // Add confirmation dialog
@@ -224,13 +224,12 @@ export default function Vehicles() {
             <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <select 
               className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent appearance-none bg-white"
-              value={brandFilter}
-              onChange={(e) => setBrandFilter(e.target.value)}
+              value={userFilter}
+              onChange={(e) => setUserFilter(e.target.value)}
             >
-              <option value="">Filter by Brand</option>
-              <option value="toyota">Toyota</option>
-              <option value="honda">Honda</option>
-              <option value="ford">Ford</option>
+              <option value="">Filter by User/Admin</option>
+              <option value="admin">Admin</option>
+              <option value="user">User</option>
             </select>
           </div>
           <div className="relative">
@@ -242,7 +241,6 @@ export default function Vehicles() {
               <option value="">Filter by Status</option>
               <option value="available">Available</option>
               <option value="sold">Sold</option>
-              <option value="maintenance">Maintenance</option>
             </select>
           </div>
           <div className="relative">
@@ -254,8 +252,81 @@ export default function Vehicles() {
               <option value="">Sort by</option>
               <option value="price-asc">Price: Low to High</option>
               <option value="price-desc">Price: High to Low</option>
-              <option value="newest">Newest First</option>
+              <option value="newest">Date: Latest</option>
+              <option value="oldest">Date: Oldest</option>
             </select>
+          </div>
+        </div>
+
+        {/* Filter Options */}
+        <div className="mb-8 max-w-6xl mx-auto">
+          <div className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap items-center gap-4">
+            <div className="flex items-center text-gray-700 font-medium">
+              <Filter className="w-5 h-5 mr-2" />
+              Filter by:
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => {
+                  setUserFilter("")
+                  setStatusFilter("")
+                  setSortBy("")
+                }}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  !userFilter && !statusFilter && !sortBy ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setUserFilter("admin")}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  userFilter === "admin" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Admin
+              </button>
+              <button
+                onClick={() => setUserFilter("user")}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  userFilter === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                User
+              </button>
+              <button
+                onClick={() => setStatusFilter("available")}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  statusFilter === "available" ? "bg-green-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Available
+              </button>
+              <button
+                onClick={() => setStatusFilter("sold")}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  statusFilter === "sold" ? "bg-red-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Sold
+              </button>
+              <button
+                onClick={() => setSortBy("newest")}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  sortBy === "newest" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Date: Latest
+              </button>
+              <button
+                onClick={() => setSortBy("oldest")}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  sortBy === "oldest" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Date: Oldest
+              </button>
+            </div>
           </div>
         </div>
 

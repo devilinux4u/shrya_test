@@ -30,10 +30,10 @@ export default function ViewDetails() {
             model: "LAND CRUISER PRADO",
             year: "2023",
             price: 10000000,
-            mile: 5000,
+            km: 5000,
             status: "Available",
             description: "This Toyota Land Cruiser Prado is in excellent condition with low mileage. It features a powerful engine, spacious interior, and advanced safety features. Perfect for both city driving and off-road adventures.",
-            features: ["Leather Seats", "Sunroof", "Navigation System", "Bluetooth", "Backup Camera", "Parking Sensors"],
+            ownership: "1st Owner",
             specifications: {
               engine: "2.8L Diesel",
               transmission: "Automatic",
@@ -42,7 +42,6 @@ export default function ViewDetails() {
               seatingCapacity: 7,
               color: "Pearl White"
             },
-            location: "Kathmandu, Nepal",
             postedBy: {
               name: "John Doe",
               role: "Admin",
@@ -148,10 +147,10 @@ export default function ViewDetails() {
               <span>{vehicle.year}</span>
               <span className="mx-2">•</span>
               <Gauge className="w-4 h-4" />
-              <span>{vehicle.mile.toLocaleString()} km</span>
+              <span>{vehicle.km.toLocaleString()} km</span>
               <span className="mx-2">•</span>
-              <MapPin className="w-4 h-4" />
-              <span>{vehicle.location}</span>
+              <Tag className="w-4 h-4" />
+              <span>{vehicle.ownership}</span>
             </div>
           </div>
           <div className="flex flex-col items-end">
@@ -170,22 +169,9 @@ export default function ViewDetails() {
           </div>
         </div>
 
-        {/* Posted information */}
-        <div className="bg-white p-4 rounded-lg shadow mb-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-            <div className="flex items-center gap-2">
-              <User className="w-5 h-5 text-gray-500" />
-              <span className="text-gray-700">Posted by: <span className="font-medium">{vehicle.postedBy.name}</span> ({vehicle.postedBy.role})</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-gray-500" />
-              <span className="text-gray-700">Posted on: {formatDate(vehicle.postedAt)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Image gallery */}
+        {/* Image gallery and Contact information side by side */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          {/* Image gallery - takes 2/3 of the width on medium screens and up */}
           <div className="md:col-span-2 bg-white rounded-lg shadow overflow-hidden">
             <div className="aspect-video relative">
               <img
@@ -194,6 +180,9 @@ export default function ViewDetails() {
                   "/placeholder.svg"}
                 alt={`${vehicle.make} ${vehicle.model}`}
                 className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.target.src = "/placeholder.svg"
+                }}
               />
             </div>
             {vehicle.images && vehicle.images.length > 1 && (
@@ -210,6 +199,9 @@ export default function ViewDetails() {
                       src={`../../server/controllers${img.image}`}
                       alt={`${vehicle.make} ${vehicle.model} thumbnail ${index + 1}`}
                       className="w-full h-full object-cover rounded"
+                      onError={(e) => {
+                        e.target.src = "/placeholder.svg"
+                      }}
                     />
                   </div>
                 ))}
@@ -217,15 +209,22 @@ export default function ViewDetails() {
             )}
           </div>
 
-          {/* Contact information */}
+          {/* Contact information - takes 1/3 of the width on medium screens and up */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Contact Information</h2>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <User className="w-5 h-5 text-[#4F46E5]" />
                 <div>
-                  <p className="text-gray-500 text-sm">Name</p>
-                  <p className="font-medium">{vehicle.postedBy.name}</p>
+                  <p className="text-gray-500 text-sm">Posted By</p>
+                  <p className="font-medium">{vehicle.postedBy.name} ({vehicle.postedBy.role})</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Clock className="w-5 h-5 text-[#4F46E5]" />
+                <div>
+                  <p className="text-gray-500 text-sm">Posted On</p>
+                  <p className="font-medium">{formatDate(vehicle.postedAt)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -242,14 +241,28 @@ export default function ViewDetails() {
                   <p className="font-medium">{vehicle.postedBy.email}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <MapPin className="w-5 h-5 text-[#4F46E5]" />
-                <div>
-                  <p className="text-gray-500 text-sm">Location</p>
-                  <p className="font-medium">{vehicle.location}</p>
-                </div>
-              </div>
             </div>
+
+            {/* Quick contact buttons */}
+            {vehicle.status === "Available" && (
+              <div className="mt-6 space-y-2">
+                <button
+                  onClick={() => window.location.href = `tel:${vehicle.postedBy.contact}`}
+                  className="w-full flex items-center justify-center gap-2 bg-[#4F46E5] text-white px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors"
+                >
+                  <Phone className="w-4 h-4" />
+                  Call Seller
+                </button>
+                <button
+                  onClick={() => window.location.href = `sms:${vehicle.postedBy.contact}`}
+                  className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <Mail className="w-4 h-4" />
+                  Send SMS
+                </button>
+               
+              </div>
+            )}
           </div>
         </div>
 
@@ -311,33 +324,25 @@ export default function ViewDetails() {
           </div>
         </div>
 
-        {/* Features */}
-        {vehicle.features && (
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <h2 className="text-lg font-semibold mb-4">Features</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {vehicle.features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-[#4F46E5]" />
-                  <span>{feature}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-4">
-          {vehicle.status === "Available" && (
-            <button className="flex-1 bg-[#4F46E5] text-white px-6 py-3 rounded-lg hover:bg-[#4338CA] transition-colors">
-              Contact Seller
-            </button>
-          )}
-          <button className="flex-1 bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors">
-            Share Vehicle
+          <button
+            className="flex-1 bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+            onClick={() => navigate(`/edit-vehicle/${vehicle.id}`)}
+          >
+            Edit Vehicle
           </button>
-          <button className="flex-1 bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors">
-            Report Listing
+          <button
+            className="flex-1 bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors"
+            onClick={() => {
+              if (window.confirm("Are you sure you want to delete this vehicle?")) {
+                // Add delete logic here
+                alert("Vehicle deleted successfully!");
+                navigate(-1);
+              }
+            }}
+          >
+            Delete Vehicle
           </button>
         </div>
       </div>

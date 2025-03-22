@@ -81,45 +81,16 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-  
+    e.preventDefault()
+
     // Validate the form before submitting
     if (!validateForm()) {
-      // Display toast for each error
       Object.values(errors).forEach((error) => {
-        toast.error(error);
-      });
-      return;
+        toast.error(error)
+      })
+      return
     }
-   
-    try {
-      // Log form data to the console
-      console.log("Form Data:", formData);
-  
-      // Create FormData to include all form fields and images
-      const formDataToSubmit = new FormData();
-  
-      // Append all form fields to FormData
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key !== "images") { // Skip the "images" field for now
-          formDataToSubmit.append(key, value);
-        }
-      });
-  
-      // Add a default status = "active"
-      formDataToSubmit.append("status", "active");
-  
-      // Convert blob URLs to files and append them to FormData
-      if (formData.images && formData.images.length > 0) {
-        for (const image of formData.images) {
-          const response = await fetch(image);
-          const blob = await response.blob();
-          const file = new File([blob], "image.png", { type: blob.type });
-          formDataToSubmit.append("images", file);
-        }
-      }
-  
-      formDataToSubmit.append("id", Cookies.get("sauto").split("-")[0])
+
 
       // Send the request to the backend
       const response = await fetch("http://localhost:3000/api/lost-and-found", {
@@ -170,6 +141,10 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
       toast.error(`Failed to submit report: ${error.message}`);
     }
   };
+    // Pass the form data to the parent component
+    onSubmit(formData)
+  }
+
   if (!isOpen) return null
 
   return (

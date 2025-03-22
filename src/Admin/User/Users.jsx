@@ -1,114 +1,84 @@
 "use client"
 
 import { useState } from "react"
-import {
-  Search,
-  UserPlus,
-  Trash2,
-  Shield,
-  User,
-  UsersIcon,
-  XCircle,
-  CheckCircle,
-  AlertTriangle,
-  Eye,
-} from "lucide-react"
+import { Search, UserPlus, Trash2, Shield, User, UsersIcon, XCircle, CheckCircle, AlertTriangle, Eye, Edit, Clock } from 'lucide-react'
 
-// Mock data for users
+// Mock data based on your database structure
 const initialUsers = [
   {
-    id: 1,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    role: "customer",
-    status: "active",
-    joinDate: "2024-01-15",
-    lastLogin: "2024-02-23",
-    rentals: 5,
-    totalSpent: 2500,
-    verified: true,
+    id: 4,
+    fname: "test",
+    uname: "test2",
+    email: "prabeshshrestha4693@gmail.com",
+    num: "987654322",
+    pass: "$2b$10$y8iX1I.O9taQmnYY0TMYIORgUi3R1.0B5GRLNqqVbfO...",
+    otp: "130154",
+    verified: 1,
+    createdAt: "2025-03-12 17:13:17",
+    updatedAt: "2025-03-12 17:13:46",
+    profile: null,
   },
   {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    phone: "+1 (555) 234-5678",
-    role: "admin",
-    status: "active",
-    joinDate: "2023-12-01",
-    lastLogin: "2024-02-22",
-    rentals: 0,
-    totalSpent: 0,
-    verified: true,
-  },
-  {
-    id: 3,
-    name: "Mike Wilson",
-    email: "mike.wilson@example.com",
-    phone: "+1 (555) 345-6789",
-    role: "customer",
-    status: "inactive",
-    joinDate: "2024-02-01",
-    lastLogin: "2024-02-20",
-    rentals: 0,
-    totalSpent: 0,
-    verified: false,
+    id: 8,
+    fname: "Prabesh Shrestha",
+    uname: "Prabesh100",
+    email: "sthaprabe20@gmail.com",
+    num: "9813245282",
+    pass: "$2b$10$P3QzjGlXhB7sWTiYIEp8rO7EisbEHZEhN5zlzpyoDxp...",
+    otp: "614553",
+    verified: 1,
+    createdAt: "2025-03-18 15:57:10",
+    updatedAt: "2025-03-20 16:32:45",
+    profile: "/uploads/profile/1742488365626-07564df3-461f-4b70-...",
   },
 ]
 
 export default function Users() {
   const [users, setUsers] = useState(initialUsers)
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterRole, setFilterRole] = useState("all")
-  const [filterStatus, setFilterStatus] = useState("all")
+  const [filterVerified, setFilterVerified] = useState("all")
   const [selectedUser, setSelectedUser] = useState(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
   const [showAddUser, setShowAddUser] = useState(false)
   const [newUser, setNewUser] = useState({
-    name: "",
+    fname: "",
+    uname: "",
     email: "",
-    phone: "",
-    role: "customer",
+    num: "",
+    pass: "",
   })
 
-  const getRoleColor = (role) => {
-    switch (role) {
-      case "admin":
-        return "bg-purple-100 text-purple-800"
-      case "customer":
-        return "bg-green-100 text-green-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
+  const getVerifiedStatus = (verified) => {
+    return verified === 1 ? (
+      <span className="bg-green-100 text-green-800 px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+        VERIFIED
+      </span>
+    ) : (
+      <span className="bg-yellow-100 text-yellow-800 px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+        UNVERIFIED
+      </span>
+    )
   }
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800"
-      case "inactive":
-        return "bg-red-100 text-red-800"
-      default:
-        return "bg-gray-100 text-gray-800"
-    }
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleString()
   }
 
   const handleAddUser = (e) => {
     e.preventDefault()
     const newUserData = {
-      id: users.length + 1,
+      id: users.length > 0 ? Math.max(...users.map(user => user.id)) + 1 : 1,
       ...newUser,
-      status: "active",
-      joinDate: new Date().toISOString().split("T")[0],
-      lastLogin: "-",
-      rentals: 0,
-      totalSpent: 0,
-      verified: false,
+      otp: Math.floor(100000 + Math.random() * 900000).toString(),
+      verified: 0,
+      createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      updatedAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      profile: null,
     }
     setUsers([...users, newUserData])
     setShowAddUser(false)
-    setNewUser({ name: "", email: "", phone: "", role: "customer" })
+    setNewUser({ fname: "", uname: "", email: "", num: "", pass: "" })
   }
 
   const handleDeleteUser = (id) => {
@@ -118,12 +88,16 @@ export default function Users() {
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.fname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.uname.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.phone.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesRole = filterRole === "all" || user.role === filterRole
-    const matchesStatus = filterStatus === "all" || user.status === filterStatus
-    return matchesSearch && matchesRole && matchesStatus
+      user.num.includes(searchTerm)
+    
+    const matchesVerified = filterVerified === "all" || 
+      (filterVerified === "verified" && user.verified === 1) ||
+      (filterVerified === "unverified" && user.verified === 0)
+    
+    return matchesSearch && matchesVerified
   })
 
   return (
@@ -144,10 +118,10 @@ export default function Users() {
 
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-gray-500">Active Users</h3>
+              <h3 className="text-gray-500">Verified Users</h3>
               <CheckCircle className="w-6 h-6 text-green-500" />
             </div>
-            <p className="text-2xl font-bold mt-2">{users.filter((u) => u.status === "active").length}</p>
+            <p className="text-2xl font-bold mt-2">{users.filter((u) => u.verified === 1).length}</p>
           </div>
         </div>
 
@@ -165,22 +139,13 @@ export default function Users() {
           </div>
           <div className="flex gap-4">
             <select
-              value={filterRole}
-              onChange={(e) => setFilterRole(e.target.value)}
+              value={filterVerified}
+              onChange={(e) => setFilterVerified(e.target.value)}
               className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Roles</option>
-              <option value="customer">Customers</option>
-              <option value="admin">Admins</option>
-            </select>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="all">All Users</option>
+              <option value="verified">Verified</option>
+              <option value="unverified">Unverified</option>
             </select>
             <button
               onClick={() => setShowAddUser(true)}
@@ -203,12 +168,14 @@ export default function Users() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Contact
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Join Date
+                  Created
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Last Updated
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -221,45 +188,61 @@ export default function Users() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          <User className="w-6 h-6 text-gray-500" />
-                        </div>
+                        {user.profile ? (
+                          <img 
+                            src={user.profile || "/placeholder.svg"} 
+                            alt={user.fname} 
+                            className="h-10 w-10 rounded-full object-cover"
+                            onError={(e) => {
+                              e.target.src = "/placeholder.svg?height=40&width=40";
+                            }}
+                          />
+                        ) : (
+                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <User className="w-6 h-6 text-gray-500" />
+                          </div>
+                        )}
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        {user.verified }
+                        <div className="text-sm font-medium text-gray-900">{user.fname}</div>
+                        <div className="text-sm text-gray-500">@{user.uname}</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">{user.email}</div>
-                    <div className="text-sm text-gray-500">{user.phone}</div>
+                    <div className="text-sm text-gray-500">{user.num}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(
-                        user.role,
-                      )}`}
-                    >
-                      {user.role.toUpperCase()}
-                    </span>
+                    {getVerifiedStatus(user.verified)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                        user.status,
-                      )}`}
-                    >
-                      {user.status.toUpperCase()}
-                    </span>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDate(user.createdAt)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.joinDate}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDate(user.updatedAt)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">
-                      <button onClick={() => setSelectedUser(user)} className="text-blue-600 hover:text-blue-900">
+                      <button 
+                        onClick={() => setSelectedUser(user)} 
+                        className="text-blue-600 hover:text-blue-900"
+                        title="View Details"
+                      >
                         <Eye className="w-5 h-5" />
                       </button>
-                      <button onClick={() => setShowDeleteConfirm(user.id)} className="text-red-600 hover:text-red-900">
+                      <button 
+                        onClick={() => alert("Edit functionality would go here")} 
+                        className="text-green-600 hover:text-green-900"
+                        title="Edit User"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button 
+                        onClick={() => setShowDeleteConfirm(user.id)} 
+                        className="text-red-600 hover:text-red-900"
+                        title="Delete User"
+                      >
                         <Trash2 className="w-5 h-5" />
                       </button>
                     </div>
@@ -284,13 +267,23 @@ export default function Users() {
 
             <form onSubmit={handleAddUser} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <label className="block text-sm font-medium text-gray-700">Full Name</label>
                 <input
                   type="text"
                   required
-                  value={newUser.name}
-                  onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  value={newUser.fname}
+                  onChange={(e) => setNewUser({ ...newUser, fname: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Username</label>
+                <input
+                  type="text"
+                  required
+                  value={newUser.uname}
+                  onChange={(e) => setNewUser({ ...newUser, uname: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                 />
               </div>
               <div>
@@ -300,29 +293,28 @@ export default function Users() {
                   required
                   value={newUser.email}
                   onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Phone</label>
+                <label className="block text-sm font-medium text-gray-700">Phone Number</label>
                 <input
                   type="tel"
                   required
-                  value={newUser.phone}
-                  onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  value={newUser.num}
+                  onChange={(e) => setNewUser({ ...newUser, num: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Role</label>
-                <select
-                  value={newUser.role}
-                  onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                >
-                  <option value="customer">Customer</option>
-                  <option value="admin">Admin</option>
-                </select>
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={newUser.pass}
+                  onChange={(e) => setNewUser({ ...newUser, pass: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                />
               </div>
 
               <div className="flex justify-end gap-3 mt-6">
@@ -345,78 +337,85 @@ export default function Users() {
       {/* User Detail Modal */}
       {selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-2xl">
+          <div className="bg-white rounded-xl p-6 w-full max-w-4xl">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">User Details</h2>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ${getRoleColor(
-                    selectedUser.role,
-                  )}`}
-                >
-                  {selectedUser.role.toUpperCase()}
-                </span>
+                {getVerifiedStatus(selectedUser.verified)}
               </div>
               <button onClick={() => setSelectedUser(null)} className="text-gray-500 hover:text-gray-700">
                 <XCircle className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Name</p>
-                  <p className="text-gray-800">{selectedUser.name}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Profile Image */}
+              <div className="flex flex-col items-center">
+                <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
+                  {selectedUser.profile ? (
+                    <img 
+                      src={selectedUser.profile || "/placeholder.svg"} 
+                      alt={selectedUser.fname} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = "/placeholder.svg?height=128&width=128";
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <User className="w-16 h-16 text-gray-500" />
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="text-gray-800">{selectedUser.email}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Phone</p>
-                  <p className="text-gray-800">{selectedUser.phone}</p>
-                </div>
+                <h3 className="text-xl font-semibold text-center">{selectedUser.fname}</h3>
+                <p className="text-gray-500 text-center">@{selectedUser.uname}</p>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-500">Join Date</p>
-                  <p className="text-gray-800">{selectedUser.joinDate}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Last Login</p>
-                  <p className="text-gray-800">{selectedUser.lastLogin}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Status</p>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                      selectedUser.status,
-                    )}`}
-                  >
-                    {selectedUser.status.toUpperCase()}
-                  </span>
-                </div>
-              </div>
-
-              {selectedUser.role === "customer" && (
-                <div className="col-span-2 space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-800">Activity Summary</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-sm text-gray-500">Total Rentals</p>
-                      <p className="text-2xl font-bold text-gray-800">{selectedUser.rentals}</p>
-                    </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="text-sm text-gray-500">Total Spent</p>
-                      <p className="text-2xl font-bold text-gray-800">${selectedUser.totalSpent}</p>
-                    </div>
+              {/* User Details */}
+              <div className="col-span-2 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">Email</p>
+                    <p className="text-gray-800">{selectedUser.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Phone Number</p>
+                    <p className="text-gray-800">{selectedUser.num}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">User ID</p>
+                    <p className="text-gray-800">{selectedUser.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">OTP</p>
+                    <p className="text-gray-800">{selectedUser.otp}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Created At</p>
+                    <p className="text-gray-800 flex items-center">
+                      <Clock className="w-4 h-4 mr-1 text-gray-400" />
+                      {formatDate(selectedUser.createdAt)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Last Updated</p>
+                    <p className="text-gray-800 flex items-center">
+                      <Clock className="w-4 h-4 mr-1 text-gray-400" />
+                      {formatDate(selectedUser.updatedAt)}
+                    </p>
                   </div>
                 </div>
-              )}
+              </div>
             </div>
 
             <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => alert("Edit functionality would go here")}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+              >
+                <Edit className="w-4 h-4" />
+                Edit User
+              </button>
               <button
                 onClick={() => setSelectedUser(null)}
                 className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
@@ -459,4 +458,3 @@ export default function Users() {
     </div>
   )
 }
-
