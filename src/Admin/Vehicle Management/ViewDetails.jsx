@@ -6,12 +6,16 @@ import { ArrowLeft, Calendar, User, Clock, MapPin, Tag, Fuel, Gauge, Settings, S
 
 export default function ViewDetails() {
   const { id } = useParams()
-  const location = useLocation()
+  // const location = useLocation()
   const navigate = useNavigate()
   const [vehicle, setVehicle] = useState(location.state?.vehicle || null)
   const [loading, setLoading] = useState(!location.state?.vehicle)
   const [error, setError] = useState(null)
   const [activeImage, setActiveImage] = useState(0)
+
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  const vehicleId = params.get("id");
 
   // Fetch vehicle data if not provided in location state
   useEffect(() => {
@@ -24,40 +28,19 @@ export default function ViewDetails() {
           // const data = await response.json()
           
           // Simulating API response with sample data
-          const data = {
-            id: parseInt(id),
-            make: "TOYOTA",
-            model: "LAND CRUISER PRADO",
-            year: "2023",
-            price: 10000000,
-            km: 5000,
-            status: "Available",
-            description: "This Toyota Land Cruiser Prado is in excellent condition with low mileage. It features a powerful engine, spacious interior, and advanced safety features. Perfect for both city driving and off-road adventures.",
-            ownership: "1st Owner",
-            specifications: {
-              engine: "2.8L Diesel",
-              transmission: "Automatic",
-              fuelType: "Diesel",
-              mileage: "12 km/l",
-              seatingCapacity: 7,
-              color: "Pearl White"
-            },
-            postedBy: {
-              name: "John Doe",
-              role: "Admin",
-              contact: "+977 9812345678",
-              email: "john.doe@example.com"
-            },
-            postedAt: "2023-08-15T10:30:00Z",
-            images: [
-              { image: "/uploads/prado.jpg" },
-              { image: "/uploads/prado_interior.jpg" },
-              { image: "/uploads/prado_rear.jpg" }
-            ]
-          }
+          const response = await fetch(`http://localhost:3000/vehicles/one/${vehicleId}`); // Replace with your actual endpoint
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.success) {
+          setVehicle(data.msg)
+          setLoading(false) // Set the vehicle data to the state
+        } else {
+          console.error("Vehicle not found");
+        }
           
-          setVehicle(data)
-          setLoading(false)
+          
         } catch (err) {
           console.error("Error fetching vehicle details:", err)
           setError("Failed to load vehicle details. Please try again later.")
@@ -150,7 +133,7 @@ export default function ViewDetails() {
               <span>{vehicle.km.toLocaleString()} km</span>
               <span className="mx-2">•</span>
               <Tag className="w-4 h-4" />
-              <span>{vehicle.ownership}</span>
+              <span>{vehicle.own}</span>
             </div>
           </div>
           <div className="flex flex-col items-end">
@@ -217,28 +200,28 @@ export default function ViewDetails() {
                 <User className="w-5 h-5 text-[#4F46E5]" />
                 <div>
                   <p className="text-gray-500 text-sm">Posted By</p>
-                  <p className="font-medium">{vehicle.postedBy.name} ({vehicle.postedBy.role})</p>
+                  <p className="font-medium">{vehicle.user.fname}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Clock className="w-5 h-5 text-[#4F46E5]" />
                 <div>
                   <p className="text-gray-500 text-sm">Posted On</p>
-                  <p className="font-medium">{formatDate(vehicle.postedAt)}</p>
+                  <p className="font-medium">{formatDate(vehicle.createdAt)}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-[#4F46E5]" />
                 <div>
                   <p className="text-gray-500 text-sm">Phone</p>
-                  <p className="font-medium">{vehicle.postedBy.contact}</p>
+                  <p className="font-medium">{vehicle.user.num}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-[#4F46E5]" />
                 <div>
                   <p className="text-gray-500 text-sm">Email</p>
-                  <p className="font-medium">{vehicle.postedBy.email}</p>
+                  <p className="font-medium">{vehicle.user.email}</p>
                 </div>
               </div>
             </div>
@@ -247,14 +230,14 @@ export default function ViewDetails() {
             {vehicle.status === "Available" && (
               <div className="mt-6 space-y-2">
                 <button
-                  onClick={() => window.location.href = `tel:${vehicle.postedBy.contact}`}
+                  onClick={() => window.location.href = `tel:${vehicle.user.num}`}
                   className="w-full flex items-center justify-center gap-2 bg-[#4F46E5] text-white px-4 py-2 rounded-lg hover:bg-[#4338CA] transition-colors"
                 >
                   <Phone className="w-4 h-4" />
                   Call Seller
                 </button>
                 <button
-                  onClick={() => window.location.href = `sms:${vehicle.postedBy.contact}`}
+                  onClick={() => window.location.href = `sms:${vehicle.user.num}`}
                   className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
                 >
                   <Mail className="w-4 h-4" />
@@ -271,7 +254,7 @@ export default function ViewDetails() {
           {/* Description */}
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Description</h2>
-            <p className="text-gray-700">{vehicle.description}</p>
+            <p className="text-gray-700">{vehicle.des}</p>
           </div>
 
           {/* Specifications */}
@@ -282,42 +265,42 @@ export default function ViewDetails() {
                 <Settings className="w-5 h-5 text-gray-500" />
                 <div>
                   <p className="text-gray-500 text-sm">Engine</p>
-                  <p className="font-medium">{vehicle.specifications?.engine || "Not specified"}</p>
+                  <p className="font-medium">{vehicle.cc || "Not specified"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Settings className="w-5 h-5 text-gray-500" />
                 <div>
                   <p className="text-gray-500 text-sm">Transmission</p>
-                  <p className="font-medium">{vehicle.specifications?.transmission || "Not specified"}</p>
+                  <p className="font-medium">{vehicle.trans || "Not specified"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Fuel className="w-5 h-5 text-gray-500" />
                 <div>
                   <p className="text-gray-500 text-sm">Fuel Type</p>
-                  <p className="font-medium">{vehicle.specifications?.fuelType || "Not specified"}</p>
+                  <p className="font-medium">{vehicle.fuel || "Not specified"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Gauge className="w-5 h-5 text-gray-500" />
                 <div>
                   <p className="text-gray-500 text-sm">Mileage</p>
-                  <p className="font-medium">{vehicle.specifications?.mileage || "Not specified"}</p>
+                  <p className="font-medium">{vehicle.mile || "Not specified"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <User className="w-5 h-5 text-gray-500" />
                 <div>
                   <p className="text-gray-500 text-sm">Seating Capacity</p>
-                  <p className="font-medium">{vehicle.specifications?.seatingCapacity || "Not specified"}</p>
+                  <p className="font-medium">{vehicle.seat || "Not specified"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <Tag className="w-5 h-5 text-gray-500" />
                 <div>
                   <p className="text-gray-500 text-sm">Color</p>
-                  <p className="font-medium">{vehicle.specifications?.color || "Not specified"}</p>
+                  <p className="font-medium">{vehicle.color || "Not specified"}</p>
                 </div>
               </div>
             </div>

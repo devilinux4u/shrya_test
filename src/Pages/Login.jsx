@@ -45,6 +45,7 @@ export default function Login({ onLogin }) {
       if (data.success) {
         if (data.msg == 'itsadmin') {
           toast.success("Admin Logged in!")
+          Cookies.set("sauto", data.cok, { expires: 10 })
           navigate("/admin/dashboard")
         }
         else if (data.msg == 'pending') {
