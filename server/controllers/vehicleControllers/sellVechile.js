@@ -137,7 +137,15 @@ router.get("/vehicles/all", async (req, res) => {
     try {
         const vehicless = await vehicles.findAll({
             order: sequelize.literal("RAND()"),
-            include: [{ model: v_img, attributes: ["id", "image"] }]
+            include: [
+                { model: v_img, 
+                    attributes: ["id", "image"] 
+                },
+                {
+                    model: users,
+                    as: "user",
+                    attributes: ["uname"] // Only fetch the fname field
+                }]
         });
 
         if (!vehicless || vehicless.length === 0) {
@@ -176,7 +184,7 @@ router.get("/vehicles/one/:vid", async (req, res) => {
                 {
                     model: users,
                     as: "user",
-                    attributes: ["fname"] // Only fetch the fname field
+                    attributes: ["fname", "uname", "email", "num"] // Only fetch the fname field
                 }
             ]
         });
