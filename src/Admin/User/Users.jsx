@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { Search, UserPlus, Trash2, Shield, User, UsersIcon, XCircle, CheckCircle, AlertTriangle, Eye, Edit, Clock } from 'lucide-react'
+import { Search, UserPlus, Trash2, User, UsersIcon, XCircle, CheckCircle, AlertTriangle, Eye, Edit } from "lucide-react"
+import { format, subMonths, subYears } from "date-fns" // Import date-fns for date manipulation
 
 // Mock data based on your database structure
 const initialUsers = [
@@ -28,7 +29,6 @@ const initialUsers = [
 export default function Users() {
   const [users, setUsers] = useState(initialUsers)
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterVerified, setFilterVerified] = useState("all")
   const [selectedUser, setSelectedUser] = useState(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
   const [showAddUser, setShowAddUser] = useState(false)
@@ -37,19 +37,10 @@ export default function Users() {
     uname: "",
     email: "",
     num: "",
+    password: "", // Removed profile field
   })
-
-  const getVerifiedStatus = (verified) => {
-    return verified === 1 ? (
-      <span className="bg-green-100 text-green-800 px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-        VERIFIED
-      </span>
-    ) : (
-      <span className="bg-yellow-100 text-yellow-800 px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-        UNVERIFIED
-      </span>
-    )
-  }
+  const [dateFilter, setDateFilter] = useState("all")
+  const [customDateRange, setCustomDateRange] = useState({ start: "", end: "" })
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
@@ -59,14 +50,13 @@ export default function Users() {
   const handleAddUser = (e) => {
     e.preventDefault()
     const newUserData = {
-      id: users.length > 0 ? Math.max(...users.map(user => user.id)) + 1 : 1,
+      id: users.length > 0 ? Math.max(...users.map((user) => user.id)) + 1 : 1,
       ...newUser,
-      profile: null,
-      createdAt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+      createdAt: new Date().toISOString().replace("T", " ").substring(0, 19),
     }
     setUsers([...users, newUserData])
     setShowAddUser(false)
-    setNewUser({ fname: "", uname: "", email: "", num: "" })
+    setNewUser({ fname: "", uname: "", email: "", num: "", password: "" }) // Removed profile reset
   }
 
   const handleDeleteUser = (id) => {
@@ -80,8 +70,21 @@ export default function Users() {
       user.uname.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.num.includes(searchTerm)
-    
-    return matchesSearch
+
+    const userDate = new Date(user.createdAt)
+    let matchesDate = true
+
+    if (dateFilter === "lastMonth") {
+      matchesDate = userDate >= subMonths(new Date(), 1)
+    } else if (dateFilter === "lastYear") {
+      matchesDate = userDate >= subYears(new Date(), 1)
+    } else if (dateFilter === "custom") {
+      const startDate = new Date(customDateRange.start)
+      const endDate = new Date(customDateRange.end)
+      matchesDate = userDate >= startDate && userDate <= endDate
+    }
+
+    return matchesSearch && matchesDate
   })
 
   return (
@@ -94,18 +97,9 @@ export default function Users() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
           <div className="bg-white rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-gray-500">Total Users</h3>
               <UsersIcon className="w-6 h-6 text-blue-500" />
             </div>
             <p className="text-2xl font-bold mt-2">{users.length}</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm p-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-gray-500">Verified Users</h3>
-              <CheckCircle className="w-6 h-6 text-green-500" />
-            </div>
-            <p className="text-2xl font-bold mt-2">{users.filter((u) => u.verified === 1).length}</p>
           </div>
         </div>
 
@@ -123,14 +117,31 @@ export default function Users() {
           </div>
           <div className="flex gap-4">
             <select
-              value={filterVerified}
-              onChange={(e) => setFilterVerified(e.target.value)}
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
               className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="all">All Users</option>
-              <option value="verified">Verified</option>
-              <option value="unverified">Unverified</option>
+              <option value="all">All Dates</option>
+              <option value="lastMonth">Joined Last Month</option>
+              <option value="lastYear">Joined Last Year</option>
+              <option value="custom">Custom Range</option>
             </select>
+            {dateFilter === "custom" && (
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={customDateRange.start}
+                  onChange={(e) => setCustomDateRange({ ...customDateRange, start: e.target.value })}
+                  className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <input
+                  type="date"
+                  value={customDateRange.end}
+                  onChange={(e) => setCustomDateRange({ ...customDateRange, end: e.target.value })}
+                  className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            )}
             <button
               onClick={() => setShowAddUser(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
@@ -148,13 +159,27 @@ export default function Users() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined Date</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  User ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Full Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Username
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Phone
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Joined Date
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -168,22 +193,22 @@ export default function Users() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(user.createdAt)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">
-                      <button 
-                        onClick={() => setSelectedUser(user)} 
+                      <button
+                        onClick={() => setSelectedUser(user)}
                         className="text-blue-600 hover:text-blue-900"
                         title="View Details"
                       >
                         <Eye className="w-5 h-5" />
                       </button>
-                      <button 
-                        onClick={() => alert("Edit functionality would go here")} 
+                      <button
+                        onClick={() => alert("Edit functionality would go here")}
                         className="text-green-600 hover:text-green-900"
                         title="Edit User"
                       >
                         <Edit className="w-5 h-5" />
                       </button>
-                      <button 
-                        onClick={() => setShowDeleteConfirm(user.id)} 
+                      <button
+                        onClick={() => setShowDeleteConfirm(user.id)}
                         className="text-red-600 hover:text-red-900"
                         title="Delete User"
                       >
@@ -250,6 +275,16 @@ export default function Users() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Password</label>
+                <input
+                  type="password"
+                  required
+                  value={newUser.password}
+                  onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border"
+                />
+              </div>
 
               <div className="flex justify-end gap-3 mt-6">
                 <button
@@ -275,7 +310,6 @@ export default function Users() {
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-gray-800">User Details</h2>
-                {getVerifiedStatus(selectedUser.verified)}
               </div>
               <button onClick={() => setSelectedUser(null)} className="text-gray-500 hover:text-gray-700">
                 <XCircle className="w-6 h-6" />
@@ -287,12 +321,12 @@ export default function Users() {
               <div className="flex flex-col items-center">
                 <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
                   {selectedUser.profile ? (
-                    <img 
-                      src={selectedUser.profile || "/placeholder.svg"} 
-                      alt={selectedUser.fname} 
+                    <img
+                      src={selectedUser.profile || "/placeholder.svg"}
+                      alt={selectedUser.fname}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.target.src = "/placeholder.svg?height=128&width=128";
+                        e.target.src = "/placeholder.svg?height=128&width=128"
                       }}
                     />
                   ) : (
@@ -302,12 +336,19 @@ export default function Users() {
                   )}
                 </div>
                 <h3 className="text-xl font-semibold text-center">{selectedUser.fname}</h3>
-                <p className="text-gray-500 text-center">@{selectedUser.uname}</p>
               </div>
 
               {/* User Details */}
               <div className="col-span-2 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-gray-500">User ID</p>
+                    <p className="text-gray-800">{selectedUser.id}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Username</p>
+                    <p className="text-gray-800">@{selectedUser.uname}</p>
+                  </div>
                   <div>
                     <p className="text-sm text-gray-500">Email</p>
                     <p className="text-gray-800">{selectedUser.email}</p>
@@ -317,8 +358,8 @@ export default function Users() {
                     <p className="text-gray-800">{selectedUser.num}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-500">User ID</p>
-                    <p className="text-gray-800">{selectedUser.id}</p>
+                    <p className="text-sm text-gray-500">Joined Date</p>
+                    <p className="text-gray-800">{formatDate(selectedUser.createdAt)}</p>
                   </div>
                 </div>
               </div>
@@ -374,3 +415,4 @@ export default function Users() {
     </div>
   )
 }
+

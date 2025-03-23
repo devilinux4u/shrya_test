@@ -1,11 +1,24 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CheckCircle, Clock, MapPin, Calendar, ChevronLeft, ChevronRight, Filter, Search, Phone, MessageSquare, X } from 'lucide-react'
+import {
+  CheckCircle,
+  Clock,
+  MapPin,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Search,
+  Phone,
+  MessageSquare,
+  X,
+} from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import LostAndFoundForm from "../Components/LostAndFoundForm"
 import { useNavigate } from "react-router-dom"
+import Cookies from "js-cookie"
 
 const LostAndFound = () => {
   const navigate = useNavigate()
@@ -18,6 +31,10 @@ const LostAndFound = () => {
   const [currentFilter, setCurrentFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+
+  const checkCookiesAvailable = () => {
+    return Cookies.get('sauto')
+  }
 
   useEffect(() => {
     // Fetch items from the backend
@@ -112,7 +129,11 @@ const LostAndFound = () => {
   }
 
   const toggleModal = () => {
-    setIsModalOpen(!isModalOpen)
+    if (checkCookiesAvailable()) {
+      setIsModalOpen(!isModalOpen)
+    } else {
+      navigate('/Login')
+    }
   }
 
   const paginate = (pageNumber) => {
@@ -255,7 +276,9 @@ const LostAndFound = () => {
             >
               <div className="relative">
                 <img
-                  src={(item.images && item.images[0] && `../../server${item.images[0].imageUrl}`) || "/placeholder.svg"}
+                  src={
+                    (item.images && item.images[0] && `../../server${item.images[0].imageUrl}`) || "/placeholder.svg"
+                  }
                   alt={item.title}
                   className="w-full h-48 object-cover"
                   onError={(e) => {
@@ -385,13 +408,13 @@ const LostAndFound = () => {
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={closeContactModal}></div>
           <div className="bg-white rounded-xl p-6 md:p-8 max-w-4xl w-full mx-4 z-10 relative">
             {/* Close button */}
-            <button 
+            <button
               onClick={closeContactModal}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
             >
               <X className="w-5 h-5 text-gray-500" />
             </button>
-            
+
             <div className="grid md:grid-cols-2 gap-8">
               {/* Left side - Details */}
               <div>
@@ -409,7 +432,9 @@ const LostAndFound = () => {
                   </div>
 
                   <div>
-                    <h3 className="text-gray-600 text-sm">{selectedItem.type === "lost" ? "Lost" : "Found"} Location</h3>
+                    <h3 className="text-gray-600 text-sm">
+                      {selectedItem.type === "lost" ? "Lost" : "Found"} Location
+                    </h3>
                     <p className="text-xl font-medium">{selectedItem.location}</p>
                   </div>
 
@@ -429,8 +454,12 @@ const LostAndFound = () => {
               <div>
                 <div className="relative bg-gray-100 rounded-lg">
                   <img
-                    src={(selectedItem.images && selectedItem.images[currentImageIndex] && 
-                      `../../server${selectedItem.images[currentImageIndex].imageUrl}`) || "/placeholder.svg"}
+                    src={
+                      (selectedItem.images &&
+                        selectedItem.images[currentImageIndex] &&
+                        `../../server${selectedItem.images[currentImageIndex].imageUrl}`) ||
+                      "/placeholder.svg"
+                    }
                     alt={selectedItem.title}
                     className="w-full h-[300px] md:h-[400px] object-contain rounded-lg"
                     onError={(e) => {
@@ -503,3 +532,4 @@ const LostAndFound = () => {
 }
 
 export default LostAndFound
+
