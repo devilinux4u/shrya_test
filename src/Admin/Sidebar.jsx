@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import {
   LayoutDashboard,
   Car,
@@ -17,6 +17,7 @@ import {
   Heart,
   Menu,
 } from "lucide-react"
+import Cookies from "js-cookie"
 
 const menuItems = [
   {
@@ -32,7 +33,7 @@ const menuItems = [
       { title: "Add New Vehicle", path: "/admin/addnewvehicles" }
     ],
   },
-  
+
   {
     title: "Rentals",
     icon: Key,
@@ -61,10 +62,11 @@ const menuItems = [
     icon: Heart,
     path: "/admin/adminwishlist",
   },
-  
+
 ]
 
 export default function Sidebar() {
+  const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [openSubmenu, setOpenSubmenu] = useState(null)
 
@@ -72,6 +74,13 @@ export default function Sidebar() {
   const toggleSubmenu = (index) => {
     setOpenSubmenu(openSubmenu === index ? null : index)
   }
+
+  const handleLogout = () => {
+    // Delete cookies
+    Cookies.remove("sauto") // Replace "your_cookie_name" with your actual cookie key(s)
+    // Navigate to login page
+    navigate("/Login");
+  };
 
   return (
     <>
@@ -126,10 +135,13 @@ export default function Sidebar() {
           ))}
         </nav>
         <div className="absolute bottom-0 w-full">
-          <Link to="/Login" className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center px-4 py-2 text-gray-300 hover:bg-gray-800 hover:text-white"
+          >
             <LogOut className="w-5 h-5 mr-4" />
             Logout
-          </Link>
+          </button>
         </div>
       </div>
     </>

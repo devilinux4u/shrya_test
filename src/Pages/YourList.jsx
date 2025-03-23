@@ -1,13 +1,24 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { CheckCircle, Clock, Car, Calendar, DollarSign, ChevronLeft, ChevronRight, Eye, Trash2, Filter, Loader2 } from 'lucide-react'
+import {
+  CheckCircle,
+  Clock,
+  Car,
+  Calendar,
+  DollarSign,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Trash2,
+  Filter,
+  Loader2,
+} from "lucide-react"
 import { ToastContainer, toast } from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
 import WishlistForm from "../Components/WishlistForm"
 import { useNavigate } from "react-router-dom"
 import Cookies from "js-cookie"
-
 
 const YourList = () => {
   const navigate = useNavigate()
@@ -23,31 +34,30 @@ const YourList = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-
   // Fetch data from backend
   useEffect(() => {
     const fetchWishlistItems = async () => {
       setIsLoading(true)
       setError(null)
-      
+
       try {
         // Replace with your actual API endpoint
         const response = await fetch(`http://localhost:3000/wishlist/${Cookies.get("sauto").split("-")[0]}`)
-        
+
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`)
         }
-        
+
         const data = await response.json()
 
         console.log(data.data)
 
         setItems(data.data)
       } catch (err) {
-        console.error('Failed to fetch wishlist items:', err)
-        setError('Failed to load your wishlist. Please try again later.')
+        console.error("Failed to fetch wishlist items:", err)
+        setError("Failed to load your wishlist. Please try again later.")
         // Show error toast
-        toast.error('Failed to load your wishlist. Please try again later.')
+        toast.error("Failed to load your wishlist. Please try again later.")
       } finally {
         setIsLoading(false)
       }
@@ -79,13 +89,21 @@ const YourList = () => {
 
   const handleBook = (id) => {
     console.log("Booking vehicle with id:", id)
-    navigate('/VehicleBooking')
+    navigate("/VehicleBooking")
   }
 
   const toggleModal = () => {
+    // Check if the cookie exists
+    if (!Cookies.get("sauto")) {
+      // If cookie doesn't exist, navigate to login page
+      navigate("/login")
+      return
+    }
+
+    // If cookie exists, open the modal
     setIsModalOpen(!isModalOpen)
   }
-  
+
   // const handleView = () => {
   //   navigate('/WishlistVehicleDetail')
   // }
@@ -98,17 +116,17 @@ const YourList = () => {
   const confirmDelete = async () => {
     if (itemToDelete) {
       setIsLoading(true)
-      
+
       try {
         // Replace with your actual delete API endpoint
         const response = await fetch(`http://127.0.0.1:3000/wishlist/delete/${itemToDelete.id}`, {
-          method: 'DELETE',
+          method: "DELETE",
         })
-        
+
         if (!response.ok) {
           throw new Error(`Error: ${response.status} ${response.statusText}`)
         }
-        
+
         // Update local state after successful deletion
         setItems(items.filter((item) => item.id !== itemToDelete.id))
         setIsDeleteModalOpen(false)
@@ -120,8 +138,8 @@ const YourList = () => {
 
         setItemToDelete(null)
       } catch (err) {
-        console.error('Failed to delete wishlist item:', err)
-        toast.error('Failed to delete item. Please try again later.')
+        console.error("Failed to delete wishlist item:", err)
+        toast.error("Failed to delete item. Please try again later.")
       } finally {
         setIsLoading(false)
       }
@@ -187,36 +205,36 @@ const YourList = () => {
   // Function to handle adding a new wishlist item
   const handleAddWishlistItem = async (newItem) => {
     setIsLoading(true)
-    
+
     try {
       // Replace with your actual API endpoint for adding items
-      const response = await fetch('/api/wishlist', {
-        method: 'POST',
+      const response = await fetch("/api/wishlist", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(newItem),
       })
-      
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`)
       }
-      
+
       const addedItem = await response.json()
-      
+
       // Update local state with the new item
       setItems([...items, addedItem])
-      
+
       // Close modal
       setIsModalOpen(false)
-      
+
       // Show success toast
       toast.success(`${addedItem.vehicleName || "New vehicle"} added to your wishlist!`, {
         icon: "➕",
       })
     } catch (err) {
-      console.error('Failed to add wishlist item:', err)
-      toast.error('Failed to add item to wishlist. Please try again later.')
+      console.error("Failed to add wishlist item:", err)
+      toast.error("Failed to add item to wishlist. Please try again later.")
     } finally {
       setIsLoading(false)
     }
@@ -447,8 +465,8 @@ const YourList = () => {
       {error && !isLoading && (
         <div className="max-w-6xl mx-auto bg-red-50 border border-red-200 rounded-xl p-6 text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
           >
             Retry
@@ -498,9 +516,7 @@ const YourList = () => {
                 <div className="p-6">
                   <div className="mb-4">
                     <h3 className="text-xl font-semibold mb-2">{item.vehicleName}</h3>
-                    <p className="text-gray-600">
-                      {item.model}
-                    </p>
+                    <p className="text-gray-600">{item.model}</p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mb-6">
@@ -543,7 +559,7 @@ const YourList = () => {
                   <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
                     <button
                       onClick={() => {
-                        navigate(`/WishlistVehicleDetail?vid=${item.id}`);
+                        navigate(`/WishlistVehicleDetail?vid=${item.id}`)
                       }}
                       className="flex items-center text-blue-600 hover:text-blue-800 transition-colors"
                     >
@@ -646,8 +662,8 @@ const YourList = () => {
               >
                 Cancel
               </button>
-              <button 
-                onClick={confirmDelete} 
+              <button
+                onClick={confirmDelete}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
                 disabled={isLoading}
               >
@@ -663,3 +679,4 @@ const YourList = () => {
 }
 
 export default YourList
+
