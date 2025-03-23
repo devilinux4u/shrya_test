@@ -107,7 +107,6 @@ export default function LostAndFound() {
         body: JSON.stringify({ status: newStatus }),
       });
 
-<<<<<<< HEAD
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
@@ -229,16 +228,16 @@ export default function LostAndFound() {
               <option value="found">Found</option>
               <option value="resolved">Resolved</option>
             </select>
-          <button
-            onClick={() => setShowAddItem(true)}
+            <button
+              onClick={() => setShowAddItem(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Add Item
-          </button>
+            >
+              <Plus className="w-5 h-5" />
+              Add Item
+            </button>
           </div>
         </div>
-        </div>
+      </div>
 
       {/* Loading State */}
       {isLoading && (
@@ -276,22 +275,6 @@ export default function LostAndFound() {
               Add Item
             </button>
           </div>
-          
-          {/* Clear Filters Button */}
-          {(statusFilter || userFilter) && (
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={() => {
-                  setStatusFilter("");
-                  setUserFilter("");
-                }}
-                className="text-sm text-blue-600 hover:text-blue-800 flex items-center"
-              >
-                <X className="w-4 h-4 mr-1" />
-                Clear all filters
-              </button>
-            </div>
-          )}
         </div>
       )}
 
@@ -388,21 +371,6 @@ export default function LostAndFound() {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* No items found message */}
-      {items.length === 0 && (
-        <div className="bg-white rounded-xl shadow-sm p-8 text-center">
-          <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <AlertTriangle className="w-8 h-8 text-gray-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-1">No items found</h3>
-          <p className="text-gray-500">
-            {searchTerm || statusFilter || userFilter
-              ? "Try adjusting your filters or search terms"
-              : "There are no lost and found items to display"}
-          </p>
         </div>
       )}
 
