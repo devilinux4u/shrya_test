@@ -38,6 +38,16 @@ const NavMenu = () => {
     setIsProfileMenuOpen(false)
   }
 
+  // New function to handle protected routes
+  const handleProtectedRoute = (route) => {
+    if (Cookies.get("sauto")) {
+      navigate(route)
+    } else {
+      navigate("/Login")
+    }
+    closeMenu()
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 20) {
@@ -77,7 +87,7 @@ const NavMenu = () => {
   }, [])
 
   const handleLogout = () => {
-    Cookies.remove("sauto") 
+    Cookies.remove("sauto")
     setIsLoggedIn(false)
     setUserFullName("")
     navigate("/Login")
@@ -129,12 +139,20 @@ const NavMenu = () => {
                       <NavLink to="/BuyVehicles" menuItem onClick={closeMenu}>
                         Buy And Sell
                       </NavLink>
-                      <NavLink to="/YourList" menuItem onClick={closeMenu}>
+                      {/* Modified to use handleProtectedRoute */}
+                      <button
+                        onClick={() => handleProtectedRoute("/YourList")}
+                        className="block w-full text-left px-4 py-2 text-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-300 ease-in-out"
+                      >
                         Wishlist
-                      </NavLink>
-                      <NavLink to="/LostAndFound" menuItem onClick={closeMenu}>
+                      </button>
+                      {/* Modified to use handleProtectedRoute */}
+                      <button
+                        onClick={() => handleProtectedRoute("/LostAndFound")}
+                        className="block w-full text-left px-4 py-2 text-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition duration-300 ease-in-out"
+                      >
                         Lost and Found
-                      </NavLink>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -264,12 +282,19 @@ const NavMenu = () => {
               <NavLink to="/BuyVehicles" mobile onClick={closeMenu}>
                 Buy And Sell
               </NavLink>
-              <NavLink to="/Wishlist" mobile onClick={closeMenu}>
+              {/* Modified mobile menu items */}
+              <button
+                onClick={() => handleProtectedRoute("/Wishlist")}
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium transition duration-300 ease-in-out hover:bg-blue-50 hover:text-blue-600"
+              >
                 Wishlist
-              </NavLink>
-              <NavLink to="/LostAndFound" mobile onClick={closeMenu}>
+              </button>
+              <button
+                onClick={() => handleProtectedRoute("/LostAndFound")}
+                className="block w-full text-left px-3 py-2 rounded-md text-base font-medium transition duration-300 ease-in-out hover:bg-blue-50 hover:text-blue-600"
+              >
                 Lost and Found
-              </NavLink>
+              </button>
             </div>
           )}
           <NavLink to="/AboutUs" mobile onClick={closeMenu}>
