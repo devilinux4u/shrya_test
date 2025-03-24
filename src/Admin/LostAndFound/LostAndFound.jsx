@@ -32,7 +32,7 @@ export default function LostAndFound() {
         }
 
         const data = await response.json();
-        setItems(data.data || []); // Ensure data.items is an array
+        setItems(data.data || []);
         setFilteredItems(data.data || []);
       } catch (err) {
         console.error("Error fetching lost and found items:", err);
@@ -53,46 +53,50 @@ export default function LostAndFound() {
     if (searchTerm) {
       filtered = filtered.filter(
         (item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
     if (userFilter) {
-      filtered = filtered.filter((item) => item.postedBy.role.toLowerCase() === userFilter.toLowerCase());
+      filtered = filtered.filter((item) => 
+        item.user.fname.toLowerCase() === userFilter.toLowerCase()
+      );
     }
 
     if (statusFilter) {
-      filtered = filtered.filter((item) => item.status === statusFilter);
+      if (statusFilter === "lost") {
+        filtered = filtered.filter((item) => item.type === "lost");
+      } else if (statusFilter === "found") {
+        filtered = filtered.filter((item) => item.type === "found");
+      } else if (statusFilter === "resolved") {
+        filtered = filtered.filter((item) => item.status !== "active");
+      }
     }
 
     setFilteredItems(filtered);
   }, [searchTerm, userFilter, statusFilter, items]);
 
   // Helper functions for status display
-  const getStatusColor = (status) => {
-    switch (status) {
+  const getStatusColor = (type) => {
+    switch (type) {
       case "lost":
         return "bg-yellow-100 text-yellow-800";
       case "found":
         return "bg-green-100 text-green-800";
-      case "resolved":
-        return "bg-blue-100 text-blue-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-blue-100 text-blue-800";
     }
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
+  const getStatusIcon = (type) => {
+    switch (type) {
       case "lost":
         return <Clock className="w-4 h-4 mr-1" />;
       case "found":
         return <CheckCircle className="w-4 h-4 mr-1" />;
-      case "resolved":
-        return <XCircle className="w-4 h-4 mr-1" />;
       default:
-        return <AlertTriangle className="w-4 h-4 mr-1" />;
+        return <XCircle className="w-4 h-4 mr-1" />;
     }
   };
 
@@ -104,7 +108,7 @@ export default function LostAndFound() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify({ status: newStatus === "resolved" ? "inactive" : "active" }),
       });
 
       if (!response.ok) {
@@ -121,24 +125,40 @@ export default function LostAndFound() {
   };
 
   // Delete item
-  const deleteItem = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/lost-and-found/${id}`, {
-        method: "DELETE",
-      });
+  // const deleteItem = async (id) => {
+  //   const confirmDelete = async () => {
+  //   if (itemToDelete) {
+  //     setIsLoading(true)
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+  //     try {
+  //       // Replace with your actual delete API endpoint
+  //       const response = await fetch(`http://127.0.0.1:3000/wishlist/delete/${itemToDelete.id}`, {
+  //         method: "DELETE",
+  //       })
 
-      setItems(items.filter((item) => item.id !== id));
-      setShowDeleteConfirm(null);
-      toast.success("Item deleted successfully");
-    } catch (err) {
-      console.error("Error deleting item:", err);
-      toast.error(`Failed to delete item: ${err.message}`);
-    }
-  };
+  //       if (!response.ok) {
+  //         throw new Error(`Error: ${response.status} ${response.statusText}`)
+  //       }
+
+  //       // Update local state after successful deletion
+  //       setItems(items.filter((item) => item.id !== itemToDelete.id))
+  //       setIsDeleteModalOpen(false)
+
+  //       // Show toast notification
+  //       toast.error(`${itemToDelete.vehicleName} has been removed from your wishlist`, {
+  //         icon: "🗑️",
+  //       })
+
+  //       setItemToDelete(null)
+  //     } catch (err) {
+  //       console.error("Failed to delete wishlist item:", err)
+  //       toast.error("Failed to delete item. Please try again later.")
+  //     } finally {
+  //       setIsLoading(false)
+  //     }
+  //   }
+  // }
+  // };
 
   // Add new item
   const handleAddItemSubmit = async (e) => {
@@ -187,7 +207,7 @@ export default function LostAndFound() {
 
   // Check if current user can contact the reporter (only contact if reporter is a user, not an admin)
   const canContact = (item) => {
-    return item.postedBy.role === "User" && item.postedBy.contact;
+    return item.user.fname === "User" && item.user.num;
   };
 
   return (
@@ -215,8 +235,8 @@ export default function LostAndFound() {
               className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">Filter by User/Admin</option>
-              <option value="admin">Admin</option>
-              <option value="user">User</option>
+              <option value="Admin">Admin</option>
+              <option value="User">User</option>
             </select>
             <select
               value={statusFilter}
@@ -302,11 +322,11 @@ export default function LostAndFound() {
                     <h3 className="text-lg font-semibold text-gray-800">{item.title}</h3>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        item.status
+                        item.type
                       )}`}
                     >
-                      {getStatusIcon(item.status)}
-                      <span className="ml-1">{item.status.toUpperCase()}</span>
+                      {getStatusIcon(item.type)}
+                      <span className="ml-1">{item.type.toUpperCase()}</span>
                     </span>
                   </div>
                   <div className="flex gap-2">
@@ -328,26 +348,24 @@ export default function LostAndFound() {
                       </button>
                     )}
 
-                    {item.status !== "resolved" && (
-                      <>
-                        <button
-                          onClick={() => updateStatus(item.id, "resolved")}
-                          className="p-2 hover:bg-gray-100 rounded-full"
-                          title="Mark as Resolved"
-                        >
-                          <CheckCircle className="w-5 h-5 text-blue-600" />
-                        </button>
+                    {canEdit(item) && (
+                      <button
+                        onClick={() => setShowDeleteConfirm(item.id)}
+                        className="p-2 hover:bg-gray-100 rounded-full"
+                        title="Delete Item"
+                      >
+                        <Trash2 className="w-5 h-5 text-gray-600" />
+                      </button>
+                    )}
 
-                        {canEdit(item) && (
-                          <button
-                            onClick={() => setShowDeleteConfirm(item.id)}
-                            className="p-2 hover:bg-gray-100 rounded-full"
-                            title="Delete Item"
-                          >
-                            <Trash2 className="w-5 h-5 text-gray-600" />
-                          </button>
-                        )}
-                      </>
+                    {item.status === "active" && (
+                      <button
+                        onClick={() => updateStatus(item.id, "resolved")}
+                        className="p-2 hover:bg-gray-100 rounded-full"
+                        title="Mark as Resolved"
+                      >
+                        <CheckCircle className="w-5 h-5 text-blue-600" />
+                      </button>
                     )}
                   </div>
                 </div>
@@ -359,7 +377,7 @@ export default function LostAndFound() {
                   </div>
                   <div className="flex items-center text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
-                    <span>{item.date}</span>
+                    <span>{new Date(item.date).toLocaleDateString()}</span>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <User className="w-4 h-4 mr-2" />
@@ -392,15 +410,15 @@ export default function LostAndFound() {
 
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold mb-6">{selectedItem.name}</h2>
+                <h2 className="text-2xl md:text-3xl font-bold mb-6">{selectedItem.title}</h2>
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-gray-600 text-sm">Location</h3>
                     <p className="text-xl font-medium">{selectedItem.location}</p>
                   </div>
                   <div>
-                    <h3 className="text-gray-600 text-sm">Date Found</h3>
-                    <p className="text-xl font-medium">{selectedItem.dateFound}</p>
+                    <h3 className="text-gray-600 text-sm">Date</h3>
+                    <p className="text-xl font-medium">{new Date(selectedItem.date).toLocaleDateString()}</p>
                   </div>
                   <div>
                     <h3 className="text-gray-600 text-sm">Description</h3>
@@ -410,19 +428,19 @@ export default function LostAndFound() {
                     <h3 className="text-gray-600 text-sm">Status</h3>
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                        selectedItem.status
+                        selectedItem.type
                       )}`}
                     >
-                      {getStatusIcon(selectedItem.status)}
-                      <span className="ml-1">{selectedItem.status.toUpperCase()}</span>
+                      {getStatusIcon(selectedItem.type)}
+                      <span className="ml-1">{selectedItem.type.toUpperCase()}</span>
                     </span>
                   </div>
                   <div>
                     <h3 className="text-gray-600 text-sm">Reporter</h3>
                     <p className="text-gray-700">
-                      {selectedItem.postedBy.name} ({selectedItem.postedBy.role})
-                      {selectedItem.postedBy.contact && canContact(selectedItem) && (
-                        <span className="ml-2 text-sm text-blue-600">{selectedItem.postedBy.contact}</span>
+                      {selectedItem.user.fname}
+                      {selectedItem.user.num && canContact(selectedItem) && (
+                        <span className="ml-2 text-sm text-blue-600">{selectedItem.user.num}</span>
                       )}
                     </p>
                   </div>
@@ -431,8 +449,8 @@ export default function LostAndFound() {
 
               <div>
                 <div className="relative bg-gray-100 rounded-lg">
-                  <img
-                    src={selectedItem.image || "/placeholder.svg"}
+                <img
+                    src={(selectedItem.images && selectedItem.images[0] && `../../server${selectedItem.images[0].imageUrl}`) || "/placeholder.svg"}
                     alt={selectedItem.name}
                     className="w-full h-[300px] md:h-[400px] object-contain rounded-lg"
                     onError={(e) => {
@@ -447,14 +465,14 @@ export default function LostAndFound() {
               {canContact(selectedItem) && (
                 <>
                   <button
-                    onClick={() => handleCallReporter(selectedItem)}
+                    onClick={() => window.location.href = `tel:${selectedItem.user.num}`}
                     className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     <Phone className="w-5 h-5" />
                     Call Reporter
                   </button>
                   <button
-                    onClick={() => handleSendSMS(selectedItem)}
+                    onClick={() => window.location.href = `sms:${selectedItem.user.num}`}
                     className="flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
                   >
                     <MessageSquare className="w-5 h-5" />

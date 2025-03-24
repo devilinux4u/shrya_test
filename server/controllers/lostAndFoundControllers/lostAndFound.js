@@ -69,9 +69,6 @@ router.post("/", upload.array("images"), async (req, res) => {
   }
 });
 
-
-
-
 // GET all Lost & Found entries with images
 router.get("/all", async (req, res) => {
   try {
@@ -98,7 +95,6 @@ router.get("/all", async (req, res) => {
   }
 });
 
-
 router.get("/all2/:id", async (req, res) => {
   try {
     const reports = await LostAndFound.findAll({
@@ -123,7 +119,6 @@ router.get("/all2/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch reports", error: error.message });
   }
 });
-
 
 // PUT route to mark a report as resolved
 router.put("/resolve/:id", async (req, res) => {
