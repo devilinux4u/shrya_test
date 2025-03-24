@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 /server/.env
+
+/server/uploads/lostAndFound
+/server/controllers/uploads
