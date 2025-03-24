@@ -96,6 +96,7 @@ function App() {
         <Route path="/admin/adminwishlist" element={<AdminWishlist />} />
      
       </Routes> {/* Closing the Routes tag */}
+      {!isAdminRoute && !isAuthRoute && <Footer />} {/* Footer for non-admin and non-auth routes */}
     </>
   );
 }

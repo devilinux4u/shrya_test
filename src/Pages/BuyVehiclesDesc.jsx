@@ -1,81 +1,80 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import BuyNowForm from "../Components/BuyNowForm";
-import { useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react"
+import { motion, useScroll, useTransform } from "framer-motion"
+import BuyNowForm from "../Components/BuyNowForm"
+import { useLocation } from "react-router-dom"
 
 export default function BuyVehiclesDesc() {
-  const [activeSection, setActiveSection] = useState("hero");
-  const [showBuyNowForm, setShowBuyNowForm] = useState(false);
-  const [vehicle, setVehicle] = useState(null); // Store fetched vehicle data
-  const mainRef = useRef(null);
-  const sections = useRef({});
-
-  const { search } = useLocation();
-  const params = new URLSearchParams(search);
-  const vehicleId = params.get("id"); // Get the vehicle ID from URL params
+  const [activeSection, setActiveSection] = useState("hero")
+  const [showBuyNowForm, setShowBuyNowForm] = useState(false)
+  const [vehicle, setVehicle] = useState(null) // Store fetched vehicle data
+  const mainRef = useRef(null)
+  const sections = useRef({})
+  const { search } = useLocation()
+  const params = new URLSearchParams(search)
+  const vehicleId = params.get("id") // Get the vehicle ID from URL params
 
   // Move useScroll here with layoutEffect: false
   const { scrollYProgress } = useScroll({
     target: mainRef,
     offset: ["start start", "end end"],
     layoutEffect: false,
-  });
+  })
 
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0])
+  const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8])
 
   useEffect(() => {
     // Fetch vehicle data from the backend using the ID from the URL
     const fetchVehicle = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/vehicles/one/${vehicleId}`); // Replace with your actual endpoint
+        const response = await fetch(`http://localhost:3000/vehicles/one/${vehicleId}`) // Replace with your actual endpoint
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
-        const data = await response.json();
+        const data = await response.json()
         if (data.success) {
-          setVehicle(data.msg); // Set the vehicle data to the state
+          setVehicle(data.msg) // Set the vehicle data to the state
         } else {
-          console.error("Vehicle not found");
+          console.error("Vehicle not found")
         }
       } catch (error) {
-        console.error("Error fetching vehicle data:", error);
+        console.error("Error fetching vehicle data:", error)
       }
-    };
+    }
 
     if (vehicleId) {
-      fetchVehicle(); // Fetch vehicle data when the component mounts or vehicleId changes
+      fetchVehicle() // Fetch vehicle data when the component mounts or vehicleId changes
     }
-  }, [vehicleId]);
+  }, [vehicleId])
 
   useEffect(() => {
-    const observers = {};
-    const sectionIds = ["hero", "images", "specifications", "details"];
+    const observers = {}
+    const sectionIds = ["hero", "images", "specifications", "details"]
 
     sectionIds.forEach((id) => {
       observers[id] = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting) {
-            setActiveSection(id);
+            setActiveSection(id)
           }
         },
-        { threshold: 0.5 }
-      );
+        { threshold: 0.3 },
+      )
 
       if (sections.current[id]) {
-        observers[id].observe(sections.current[id]);
+        observers[id].observe(sections.current[id])
       }
-    });
+    })
 
     return () => {
-      Object.values(observers).forEach((observer) => observer.disconnect());
-    };
-  }, []);
+      Object.values(observers).forEach((observer) => observer.disconnect())
+    }
+  }, [])
 
   if (!vehicle) {
-    return <div>Loading...</div>; // Show loading state while data is being fetched
+    return <div>Loading...</div> // Show loading state while data is being fetched
   }
 
   return (
@@ -84,9 +83,9 @@ export default function BuyVehiclesDesc() {
       <motion.section
         ref={(el) => (sections.current.hero = el)}
         style={{ opacity, scale }}
-        className="min-h-screen relative flex items-center py-20 px-8"
+        className="min-h-screen relative flex items-center py-20 px-8" // Added pl-16 for left padding
       >
-        <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="container mx-auto grid md:grid-cols-2 gap-12 items-center pl-12">
           <div className="space-y-8">
             <div>
               <h1 className="text-red-600 text-2xl font-bold mb-2">{vehicle.model}</h1>
@@ -120,7 +119,7 @@ export default function BuyVehiclesDesc() {
                 </p>
               </div>
 
-              {/* Added Posted By and Posted Time */}
+             
               <div>
                 <p className="text-gray-500">Posted By</p>
                 <p className="text-xl">{vehicle.user.fname}</p>
@@ -147,24 +146,20 @@ export default function BuyVehiclesDesc() {
                 className="w-full h-auto"
               />
             ) : (
-              <img
-                src="/placeholder.svg"
-                alt="Placeholder"
-                className="w-full h-auto"
-              />
+              <img src="/placeholder.svg" alt="Placeholder" className="w-full h-auto" />
             )}
           </div>
         </div>
       </motion.section>
 
       {/* Navigation */}
-      <div className="fixed left-8 top-1/2 -translate-y-1/2 space-y-8 z-50">
+      <div className="fixed top-1/2 -translate-y-1/2 space-y-8 z-50 "> 
         <div className="flex flex-col items-start space-y-6">
           {["images", "specifications", "details"].map((section) => (
             <button
               key={section}
               onClick={() => {
-                sections.current[section]?.scrollIntoView({ behavior: "smooth" });
+                sections.current[section]?.scrollIntoView({ behavior: "smooth" })
               }}
               className={`relative text-lg font-medium uppercase ${
                 activeSection === section ? "text-red-600" : "text-gray-700"
@@ -183,7 +178,7 @@ export default function BuyVehiclesDesc() {
       </div>
 
       {/* Images Section */}
-      <section ref={(el) => (sections.current.images = el)} className="min-h-screen py-20 px-8">
+      <section ref={(el) => (sections.current.images = el)} className="min-h-screen py-20 px-8 pl-12"> {/* Removed left padding */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -202,23 +197,19 @@ export default function BuyVehiclesDesc() {
             ))
           ) : (
             <div className="relative aspect-video">
-              <img
-                src="/placeholder.svg"
-                alt="Placeholder"
-                className="w-full h-full object-cover rounded-lg"
-              />
+              <img src="/placeholder.svg" alt="Placeholder" className="w-full h-full object-cover rounded-lg" />
             </div>
           )}
         </motion.div>
       </section>
 
       {/* Specifications Section */}
-      <section ref={(el) => (sections.current.specifications = el)} className="min-h-screen py-20 px-8">
+      <section ref={(el) => (sections.current.specifications = el)} className="min-h-[80vh] py-24 px-8 "> 
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="container mx-auto grid grid-cols-3 gap-x-16 gap-y-8"
+          className="container mx-auto grid grid-cols-3 gap-x-16 gap-y-8 pl-12"
         >
           {[
             { label: "Mileage", value: vehicle.mile },
@@ -242,12 +233,12 @@ export default function BuyVehiclesDesc() {
       </section>
 
       {/* Details Section */}
-      <section ref={(el) => (sections.current.details = el)} className="min-h-screen py-20 px-8">
+      <section ref={(el) => (sections.current.details = el)} className="min-h-[80vh] py-24 px-8 "> 
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="container mx-auto grid md:grid-cols-2 gap-12"
+          className="container mx-auto grid md:grid-cols-2 gap-12 pl-12"
         >
           <div className="prose max-w-none">
             <p className="text-gray-600">{vehicle.des}</p>
@@ -260,11 +251,7 @@ export default function BuyVehiclesDesc() {
                 className="w-full h-auto rounded-lg mb-4"
               />
             ) : (
-              <img
-                src="/placeholder.svg"
-                alt="Placeholder"
-                className="w-full h-auto rounded-lg mb-4"
-              />
+              <img src="/placeholder.svg" alt="Placeholder" className="w-full h-auto rounded-lg mb-4" />
             )}
             <button
               onClick={() => setShowBuyNowForm(true)}
@@ -289,5 +276,6 @@ export default function BuyVehiclesDesc() {
         />
       )}
     </div>
-  );
+  )
 }
+

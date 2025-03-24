@@ -13,7 +13,7 @@ const Footer = () => {
               Your trusted partner in automotive excellence. Quality vehicles, exceptional service.
             </p>
             <div className="flex space-x-4">
-              <SocialIcon href="#" Icon={Facebook} />
+              <SocialIcon href="https://www.facebook.com/profile.php?id=100057713250606" Icon={Facebook} />
               <SocialIcon href="#" Icon={Twitter} />
               <SocialIcon href="#" Icon={Instagram} />
               <SocialIcon href="#" Icon={Linkedin} />
@@ -40,7 +40,7 @@ const Footer = () => {
               <FooterLink href="/BuyVehicles">Sell Your Car</FooterLink>
               <FooterLink href="/RentalGallery">Rent a Vehicle</FooterLink>
               <FooterLink href="/LostAndFound">Lost and Found</FooterLink>
-              <FooterLink href="/Yourlist">Wish List</FooterLink>
+              <FooterLink href="/Yourlist">Wishlist</FooterLink>
             </ul>
           </div>
 
