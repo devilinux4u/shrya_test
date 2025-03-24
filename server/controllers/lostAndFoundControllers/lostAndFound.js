@@ -142,4 +142,55 @@ router.put("/resolve/:id", async (req, res) => {
   }
 });
 
+router.delete('/all2/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // First find the item by its primary key (id)
+    const item = await LostAndFound.findByPk(id, {
+      include: [{
+        model: LostAndFoundImage,
+        as: 'images' // This must match your association alias
+      }]
+    });
+
+    if (!item) {
+      return res.status(404).json({ 
+        success: false,
+        message: `Item with ID ${id} not found`
+      });
+    }
+
+    // Delete associated images from filesystem
+    if (item.images?.length > 0) {
+      for (const image of item.images) {
+        try {
+          const filePath = path.join(__dirname, '../../', image.imageUrl);
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        } catch (fsError) {
+          console.error('Error deleting image:', fsError);
+          // Continue with DB deletion even if file deletion fails
+        }
+      }
+    }
+
+    // Delete the item from database
+    await item.destroy();
+
+    res.status(200).json({ 
+      success: true,
+      message: `Item ${id} deleted successfully`
+    });
+
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Server error during deletion',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
 module.exports = router;
