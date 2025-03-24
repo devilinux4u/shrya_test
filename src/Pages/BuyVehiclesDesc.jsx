@@ -161,8 +161,8 @@ export default function BuyVehiclesDesc() {
               onClick={() => {
                 sections.current[section]?.scrollIntoView({ behavior: "smooth" })
               }}
-              className={`relative text-lg font-medium uppercase ${
-                activeSection === section ? "text-red-600" : "text-gray-700"
+              className={`relative text-lg font-medium uppercase transition duration-300 ease-in-out ${
+                activeSection === section ? "text-red-600" : "text-gray-700 hover:text-blue-600"
               }`}
             >
               {section}

@@ -20,7 +20,7 @@ const sendOtpEmail = async (recipientEmail, otp) => {
         from: process.env.EMAIL_USER, // Sender email
         to: recipientEmail, // Recipient email
         subject: 'Your OTP Code',
-        text: `Your OTP code is: ${otp}. It is valid for 5 minutes.`,
+        text: `Your One-Time Password (OTP) is: ${otp}. Please use this code within 5 minutes to complete your verification process.`,
     };
 
     try {
