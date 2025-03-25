@@ -24,81 +24,13 @@ export default function AdminWishlist() {
       try {
         setLoading(true)
         // In a real app, you would fetch from your API
-        // const response = await fetch('/api/admin/wishlist')
-        // const data = await response.json()
+        const response = await fetch('http://localhost:3000/admin/wishlist/all')
+        const data = await response.json()
 
-        // Mock data
-        const mockData = [
-          {
-            id: 1,
-            userId: 4,
-            userName: "John Doe",
-            userEmail: "john.doe@example.com",
-            userPhone: "+977 9812345678",
-            purpose: "buy",
-            model: "Toyota",
-            vehicleName: "Land Cruiser",
-            year: "2023",
-            color: "White",
-            budget: "10000000",
-            kmRun: "5000",
-            ownership: "1st",
-            fuelType: "diesel",
-            description:
-              "Looking for a Toyota Land Cruiser in excellent condition with low mileage. Prefer white color and diesel engine.",
-            images: ["/placeholder.svg?height=200&width=300", "/placeholder.svg?height=200&width=300"],
-            status: "pending",
-            createdAt: "2025-03-15 14:30:22",
-            updatedAt: "2025-03-15 14:30:22",
-          },
-          {
-            id: 2,
-            userId: 8,
-            userName: "Jane Smith",
-            userEmail: "jane.smith@example.com",
-            userPhone: "+977 9876543210",
-            purpose: "rent",
-            model: "Honda",
-            vehicleName: "Civic",
-            year: "2022",
-            color: "Black",
-            budget: "5000",
-            duration: "monthly",
-            kmRun: "",
-            ownership: "",
-            fuelType: "petrol",
-            description: "Need a Honda Civic for monthly rental. Prefer black color and recent model.",
-            images: ["/placeholder.svg?height=200&width=300"],
-            status: "available",
-            createdAt: "2025-03-10 09:15:45",
-            updatedAt: "2025-03-18 11:20:33",
-          },
-          {
-            id: 3,
-            userId: 12,
-            userName: "Robert Johnson",
-            userEmail: "robert.j@example.com",
-            userPhone: "+977 9845123678",
-            purpose: "buy",
-            model: "Hyundai",
-            vehicleName: "Tucson",
-            year: "2021",
-            color: "Blue",
-            budget: "4500000",
-            kmRun: "15000",
-            ownership: "2nd",
-            fuelType: "hybrid",
-            description:
-              "Looking for a used Hyundai Tucson in good condition. Blue color preferred but open to other options.",
-            images: ["/placeholder.svg?height=200&width=300", "/placeholder.svg?height=200&width=300"],
-            status: "pending",
-            createdAt: "2025-03-17 16:45:10",
-            updatedAt: "2025-03-17 16:45:10",
-          },
-        ]
+        
 
-        setWishlistItems(mockData)
-        setFilteredItems(mockData)
+        setWishlistItems(data.data)
+        setFilteredItems(data.data)
         setLoading(false)
       } catch (error) {
         console.error("Error fetching wishlist items:", error)
@@ -131,7 +63,7 @@ export default function AdminWishlist() {
         (item) =>
           item.vehicleName.toLowerCase().includes(search) ||
           item.model.toLowerCase().includes(search) ||
-          item.userName.toLowerCase().includes(search) ||
+          item.user.fname.toLowerCase().includes(search) ||
           item.description.toLowerCase().includes(search),
       )
     }
@@ -435,7 +367,7 @@ export default function AdminWishlist() {
                 </div>
                 {item.images && item.images.length > 0 ? (
                   <img
-                    src={item.images[0] || "/placeholder.svg"}
+                    src={(`../../server${item.images[0].imageUrl}`) || "/placeholder.svg"}
                     alt={item.vehicleName}
                     className="w-full h-full object-cover"
                   />
@@ -470,7 +402,7 @@ export default function AdminWishlist() {
                   </div>
                 </div>
                 
-                <p className="text-gray-500 text-sm mb-5">Requested by: {item.userName}</p>
+                <p className="text-gray-500 text-sm mb-5">Requested by: {item.user.fname}</p>
                 
                 <div className="flex justify-between items-center">
                   <button
@@ -539,26 +471,26 @@ export default function AdminWishlist() {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-gray-500">Name</p>
-                    <p className="font-medium">{selectedItem.userName}</p>
+                    <p className="font-medium">{selectedItem.user.fname}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Email</p>
-                    <p className="font-medium">{selectedItem.userEmail}</p>
+                    <p className="font-medium">{selectedItem.user.email}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Phone</p>
-                    <p className="font-medium">{selectedItem.userPhone}</p>
+                    <p className="font-medium">{selectedItem.user.num}</p>
                   </div>
                   <div className="pt-3 flex gap-2">
                     <a
-                      href={`mailto:${selectedItem.userEmail}`}
+                      href={`mailto:${selectedItem.user.email}`}
                       className="flex items-center gap-1 text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-md hover:bg-blue-200"
                     >
                       <Mail className="w-3 h-3" />
                       Email
                     </a>
                     <a
-                      href={`tel:${selectedItem.userPhone}`}
+                      href={`tel:${selectedItem.user.num}`}
                       className="flex items-center gap-1 text-sm bg-green-100 text-green-700 px-3 py-1 rounded-md hover:bg-green-200"
                     >
                       <Phone className="w-3 h-3" />
@@ -640,7 +572,7 @@ export default function AdminWishlist() {
                       {selectedItem.images.map((image, index) => (
                         <img
                           key={index}
-                          src={image || "/placeholder.svg"}
+                          src={(`../../server${image.imageUrl}`) || "/placeholder.svg"}
                           alt={`Reference ${index + 1}`}
                           className="h-24 w-full object-cover rounded-md border"
                         />

@@ -1,33 +1,13 @@
 "use client"
 
-import { useState } from "react"
-import { Search, UserPlus, Trash2, User, UsersIcon, XCircle, CheckCircle, AlertTriangle, Eye, Edit } from "lucide-react"
-import { format, subMonths, subYears } from "date-fns" // Import date-fns for date manipulation
-
-// Mock data based on your database structure
-const initialUsers = [
-  {
-    id: 4,
-    fname: "test",
-    uname: "test2",
-    email: "prabeshshrestha4693@gmail.com",
-    num: "987654322",
-    profile: null,
-    createdAt: "2025-03-12 17:13:17",
-  },
-  {
-    id: 8,
-    fname: "Prabesh Shrestha",
-    uname: "Prabesh100",
-    email: "sthaprabe20@gmail.com",
-    num: "9813245282",
-    profile: "/uploads/profile/1742488365626-07564df3-461f-4b70-...",
-    createdAt: "2025-03-18 15:57:10",
-  },
-]
+import { useState, useEffect } from "react"
+import { Search, UserPlus, Trash2, User, UsersIcon, XCircle, AlertTriangle, Eye, Edit } from "lucide-react"
+import { subMonths, subYears } from "date-fns" // Import date-fns for date manipulation
 
 export default function Users() {
-  const [users, setUsers] = useState(initialUsers)
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedUser, setSelectedUser] = useState(null)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null)
@@ -37,34 +17,92 @@ export default function Users() {
     uname: "",
     email: "",
     num: "",
-    password: "", // Removed profile field
+    password: "",
   })
   const [dateFilter, setDateFilter] = useState("all")
   const [customDateRange, setCustomDateRange] = useState({ start: "", end: "" })
+
+  // Fetch users from the database
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch("http://localhost:3000/users/all")
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch users")
+        }
+
+        const data = await response.json()
+        setUsers(data.data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred")
+        console.error("Error fetching users:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUsers()
+  }, [])
 
   const formatDate = (dateString) => {
     const date = new Date(dateString)
     return date.toLocaleString()
   }
 
-  const handleAddUser = (e) => {
+  // Handle adding a new user via API
+  const handleAddUser = async (e) => {
     e.preventDefault()
-    const newUserData = {
-      id: users.length > 0 ? Math.max(...users.map((user) => user.id)) + 1 : 1,
-      ...newUser,
-      createdAt: new Date().toISOString().replace("T", " ").substring(0, 19),
+
+    try {
+      const response = await fetch("http://localhost:3000/admin/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newUser),
+      })
+
+      if (!response.ok) {
+        alert(response.msg)
+        throw new Error("Failed to add user")
+      }
+
+      const addedUser = await response.json()
+
+      // Update the local state with the new user from the server
+      setUsers([...users, addedUser.msg])
+      setShowAddUser(false)
+      setNewUser({ fname: "", uname: "", email: "", num: "", password: "" })
+    } catch (err) {
+      console.error("Error adding user:", err)
+      alert(err instanceof Error ? err.message : "Failed to add user")
     }
-    setUsers([...users, newUserData])
-    setShowAddUser(false)
-    setNewUser({ fname: "", uname: "", email: "", num: "", password: "" }) // Removed profile reset
   }
 
-  const handleDeleteUser = (id) => {
-    setUsers(users.filter((user) => user.id !== id))
-    setShowDeleteConfirm(null)
+  // Handle deleting a user via API
+  const handleDeleteUser = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:3000/admin/user/delete/${id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to delete user")
+      }
+
+      // Update the local state by removing the deleted user
+      setUsers(users.filter((user) => user.id !== id))
+      setShowDeleteConfirm(null)
+    } catch (err) {
+      console.error("Error deleting user:", err)
+      alert(err instanceof Error ? err.message : "Failed to delete user")
+    }
   }
 
   const filteredUsers = users.filter((user) => {
+    
     const matchesSearch =
       user.fname.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.uname.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -79,8 +117,8 @@ export default function Users() {
     } else if (dateFilter === "lastYear") {
       matchesDate = userDate >= subYears(new Date(), 1)
     } else if (dateFilter === "custom") {
-      const startDate = new Date(customDateRange.start)
-      const endDate = new Date(customDateRange.end)
+      const startDate = customDateRange.start ? new Date(customDateRange.start) : new Date(0)
+      const endDate = customDateRange.end ? new Date(customDateRange.end) : new Date()
       matchesDate = userDate >= startDate && userDate <= endDate
     }
 
@@ -100,6 +138,7 @@ export default function Users() {
               <UsersIcon className="w-6 h-6 text-blue-500" />
             </div>
             <p className="text-2xl font-bold mt-2">{users.length}</p>
+            <p className="text-gray-500">Total Users</p>
           </div>
         </div>
 
@@ -155,72 +194,94 @@ export default function Users() {
 
       {/* Users Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Full Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Username
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Phone
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Joined Date
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.fname}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@{user.uname}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.num}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(user.createdAt)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => setSelectedUser(user)}
-                        className="text-blue-600 hover:text-blue-900"
-                        title="View Details"
-                      >
-                        <Eye className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => alert("Edit functionality would go here")}
-                        className="text-green-600 hover:text-green-900"
-                        title="Edit User"
-                      >
-                        <Edit className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={() => setShowDeleteConfirm(user.id)}
-                        className="text-red-600 hover:text-red-900"
-                        title="Delete User"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
+        {loading ? (
+          <div className="p-8 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p>Loading users...</p>
+          </div>
+        ) : error ? (
+          <div className="p-8 text-center text-red-500">
+            <AlertTriangle className="w-12 h-12 mx-auto mb-4" />
+            <p>{error}</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    User ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Full Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Username
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Phone
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Joined Date
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
+                      No users found
+                    </td>
+                  </tr>
+                ) : (
+                  filteredUsers.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.fname}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@{user.uname}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.num}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(user.createdAt)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => setSelectedUser(user)}
+                            className="text-blue-600 hover:text-blue-900"
+                            title="View Details"
+                          >
+                            <Eye className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => alert("Edit functionality would go here")}
+                            className="text-green-600 hover:text-green-900"
+                            title="Edit User"
+                          >
+                            <Edit className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => setShowDeleteConfirm(user.id)}
+                            className="text-red-600 hover:text-red-900"
+                            title="Delete User"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Add User Modal */}
@@ -322,7 +383,7 @@ export default function Users() {
                 <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 mb-4">
                   {selectedUser.profile ? (
                     <img
-                      src={selectedUser.profile || "/placeholder.svg"}
+                      src={`../../server/controllers${selectedUser.profile}` || "/placeholder.svg?height=128&width=128"}
                       alt={selectedUser.fname}
                       className="w-full h-full object-cover"
                       onError={(e) => {

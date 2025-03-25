@@ -140,8 +140,8 @@ export default function ViewDetails() {
             </div>
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${
-                vehicle.status === "Available" ? "bg-green-100 text-green-800" : 
-                vehicle.status === "Sold" ? "bg-red-100 text-red-800" : 
+                vehicle.status === "available" ? "bg-green-100 text-green-800" : 
+                vehicle.status === "sold" ? "bg-red-100 text-red-800" : 
                 "bg-yellow-100 text-yellow-800"
               }`}
             >
@@ -225,7 +225,7 @@ export default function ViewDetails() {
             </div>
 
             {/* Quick contact buttons */}
-            {vehicle.status === "Available" && (
+            {vehicle.status === "available" && (
               <div className="mt-6 space-y-2">
                 <button
                   onClick={() => window.location.href = `tel:${vehicle.user.num}`}
@@ -318,7 +318,22 @@ export default function ViewDetails() {
             onClick={() => {
               if (window.confirm("Are you sure you want to delete this vehicle?")) {
                 // Add delete logic here
-                alert("Vehicle deleted successfully!");
+                const deleteVehicle = async () => {
+                  try {
+                    await fetch(`http://localhost:3000/vehicles/delete/${vehicle.id}`, {
+                      method: 'DELETE'
+                    })
+                    // setVehicle(vehicles.filter(v => v.id !== vehicleId))
+                  } catch (err) {
+                    console.error("Error deleting vehicle:", err)
+                    alert("Failed to delete vehicle. Please try again.")
+                  }
+                }
+                deleteVehicle()
+          
+                // For now, just filter out the vehicle from the state
+                // setVehicle(vehicles.filter(v => v.id !== vehicleId))
+                window.location.reload();
                 navigate(-1);
               }
             }}

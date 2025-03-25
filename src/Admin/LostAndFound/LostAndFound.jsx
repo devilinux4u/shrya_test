@@ -25,7 +25,7 @@ export default function LostAndFound() {
     const fetchItems = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch("http://localhost:3000/api/lost-and-found/all")
+        const response = await fetch("http://localhost:3000/api/lost-and-found/admin/all")
 
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`)
@@ -98,23 +98,29 @@ export default function LostAndFound() {
       case "found": return <CheckCircle className="w-4 h-4 mr-1" />
       default: return <XCircle className="w-4 h-4 mr-1" />
     }
-  }
+  } 
 
   // Update item status
   const updateStatus = async (id, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/lost-and-found/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus === "resolved" ? "inactive" : "active" }),
+      const response = await fetch(`http://localhost:3000/api/lost-and-found/resolve/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        }
       })
+      
 
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`)
+        throw new Error(`HTTP error! Status: ${response.message}`)
       }
       const updatedItem = await response.json()
-      setItems(items.map((item) => (item.id === id ? {...updatedItem, userType: item.userType} : item)))
-      toast.success(`Item status updated to ${newStatus}!`)
+      // setItems(items.map((item) => (item.id === id ? {...updatedItem.data} : item)))
+
+      window.location.reload();
+
+
+      toast.success(`Item status updated`)
     } catch (err) {
       console.error("Error updating item status:", err)
       toast.error(`Failed to update status: ${err.message}`)
@@ -375,7 +381,7 @@ export default function LostAndFound() {
                   </div>
                   <div className="flex items-center text-gray-600">
                     <User className="w-4 h-4 mr-2" />
-                    <span>Posted by: {item.userType}</span>
+                    <span>Posted by: {item.user.fname}</span>
                   </div>
                 </div>
               </div>
@@ -426,7 +432,7 @@ export default function LostAndFound() {
                   <div>
                     <h3 className="text-gray-600 text-sm">Reporter</h3>
                     <p className="text-gray-700">
-                      {selectedItem.userType}
+                      {selectedItem.user.fname}
                       {selectedItem.user.num && canContact(selectedItem) && (
                         <span className="ml-2 text-sm text-blue-600">{selectedItem.user.num}</span>
                       )}

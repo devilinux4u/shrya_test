@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const router = express.Router();
-const { vehicleWishlist, wishlistImage } = require('../../db/sequelize');
+const { vehicleWishlist, wishlistImage, users } = require('../../db/sequelize');
 const path = require('path');
 const fs = require('fs');
 
@@ -191,6 +191,43 @@ router.get('/wishlist/one/:wishlistId', async (req, res) => {
       res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 });
+
+
+router.get('/admin/wishlist/all', async (req, res) => {
+  
+    try {
+        const wishlists = await vehicleWishlist.findAll({
+            include: [
+                {
+                    model: wishlistImage,
+                    as: 'images',
+                    attributes: ['id', 'imageUrl'], // Customize fields you want from image
+                },
+                {
+                    model: users,
+                    as: "user",
+                    attributes: ['fname', 'num', 'email'], // Only fetch name and contact
+                  },
+            ],
+            
+            order: [['createdAt', 'DESC']], // Optional: order by latest first
+        });
+  
+        if (!wishlists || wishlists.length === 0) {
+            return res.status(404).json({ success: false, message: 'No wishlists found for this user.' });
+        }
+        
+  
+        return res.json({ success: true, data: wishlists });
+    } catch (error) {
+        console.error('Error fetching user wishlists:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message,
+        });
+    }
+  });
 
 
 module.exports = router;

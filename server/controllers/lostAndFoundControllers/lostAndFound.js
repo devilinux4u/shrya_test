@@ -95,6 +95,33 @@ router.get("/all", async (req, res) => {
   }
 });
 
+
+router.get("/admin/all", async (req, res) => {
+  try {
+    const reports = await LostAndFound.findAll({
+      include: [
+        {
+          model: LostAndFoundImage,
+          as: "images",
+        },
+        {
+          model: users,
+          as: "user",
+          attributes: ['fname', 'num'], // Only fetch name and contact
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    res.status(200).json({ success: true, data: reports });
+  } catch (error) {
+    console.error("Error fetching Lost & Found reports:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch reports", error: error.message });
+  }
+});
+
+
+
 router.get("/all2/:id", async (req, res) => {
   try {
     const reports = await LostAndFound.findAll({

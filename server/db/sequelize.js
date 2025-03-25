@@ -36,6 +36,11 @@ LostAndFound.belongsTo(user, { foreignKey: 'uid', as: 'user' });
 
 Vehicle.belongsTo(user, { foreignKey: 'uid', as: 'user' });
 
+// Define Associations
+// user.hasMany(VehicleWishlist, { foreignKey: "uid", as: "wishlists" });
+VehicleWishlist.belongsTo(user, { foreignKey: "uid", as: "user" });
+
+
 
 // Sync database
 sequelize.sync({ alter: true }) // Updates the schema without dropping tables // Use { force: true } to drop and recreate tables (use with caution in production)
