@@ -27,3 +27,5 @@ dist-ssr
 
 /server/uploads/lostAndFound
 /server/controllers/uploads
+/server/uploads/license
+/server/uploads/vehicle

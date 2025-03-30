@@ -155,72 +155,95 @@ export default function AddVehicle() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      try {
-        const formData = new FormData();
-
-        Object.entries(vehicle).forEach(([key, value]) => {
-          if (
-            key !== "images" &&
-            key !== "imagePreviewUrls" &&
-            key !== "specs" &&
-            key !== "price"
-          ) {
-            formData.append(key, value);
-          }
-        });
-
-        Object.entries(vehicle.specs).forEach(([key, value]) => {
-          formData.append(key, value);
-        });
-
-        Object.entries(vehicle.price).forEach(([key, value]) => {
-          formData.append(`price_${key}`, value);
-        });
-
-        vehicle.images.forEach((image) => {
-          formData.append("images", image);
-        });
-
-        const response = await fetch("http://127.0.0.1:3000/addRentalVehicle", {
-          method: "POST",
-          body: formData,
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          toast.success("Rental vehicle added successfully!");
-          setVehicle({
-            make: "",
-            model: "",
-            year: "",
-            numberPlate: "",
-            price: { day: "", hour: "", week: "", month: "" },
-            images: [],
-            imagePreviewUrls: [],
-            specs: {
-              seats: "",
-              doors: "",
-              transmission: "",
-              fuel: "",
-              mileage: "",
-              engine: "",
-              power: "",
-            },
-            features: "",
-            description: "",
-          });
-        } else {
-          toast.error("Failed to add rental vehicle. Please try again.");
-        }
-      } catch (error) {
-        console.error("Error adding rental vehicle:", error);
-        toast.error("Failed to add rental vehicle. Please try again.");
+    
+    if (!validateForm()) {
+      return;
+    }
+  
+    try {
+      // Log the form data before sending
+      console.log("Form data being submitted:", {
+        ...vehicle,
+        specs: vehicle.specs,
+        price: vehicle.price
+      });
+  
+      const formData = new FormData();
+  
+      // Append basic fields
+      formData.append('make', vehicle.make);
+      formData.append('model', vehicle.model);
+      formData.append('year', vehicle.year);
+      formData.append('numberPlate', vehicle.numberPlate);
+      formData.append('description', vehicle.description);
+      formData.append('features', vehicle.features);
+  
+      // Append specs
+      Object.entries(vehicle.specs).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+  
+      // Append prices
+      Object.entries(vehicle.price).forEach(([key, value]) => {
+        formData.append(`price_${key}`, value);
+      });
+  
+      // Append images
+      vehicle.images.forEach((image, index) => {
+        formData.append(`images`, image);
+      });
+  
+      const response = await fetch("http://localhost:3000/api/add-vehicle", {
+        method: "POST",
+        body: formData,
+        // Don't set Content-Type header - let the browser set it with boundary
+      });
+  
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('Received non-JSON response:', text);
+        throw new Error('Server returned non-JSON response');
       }
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        console.error('Server error:', data);
+        throw new Error(data.message || 'Failed to add vehicle');
+      }
+  
+      console.log('Success response:', data);
+      toast.success("Vehicle added successfully!");
+  
+      // Reset form
+      setVehicle({
+        make: "",
+        model: "",
+        year: "",
+        numberPlate: "",
+        price: { day: "", hour: "", week: "", month: "" },
+        images: [],
+        imagePreviewUrls: [],
+        specs: {
+          seats: "",
+          doors: "",
+          transmission: "",
+          fuel: "",
+          mileage: "",
+          engine: "",
+          power: "",
+        },
+        features: "",
+        description: "",
+      });
+  
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast.error(error.message || "Failed to add vehicle. Please try again.");
     }
   };
-
   const goBack = () => {
     window.history.back();
   };

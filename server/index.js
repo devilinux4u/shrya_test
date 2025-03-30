@@ -20,7 +20,8 @@ const wishlist = require('./controllers/vehicleControllers/wishlist');
 const sell = require('./controllers/vehicleControllers/sellVechile');
 const profile = require('./controllers/profileController/profile');
 const lostAndFound = require('./controllers/lostAndFoundControllers/lostAndFound');
-
+const bookingRouter = require('./controllers/rentControllers/booking');
+const addVehicle = require('./controllers/rentControllers/addVehicles.js');
 app.use('/uploads', express.static(path.join(__dirname, 'controllers/uploads')));
 
 
@@ -31,6 +32,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use('/', login, register, message, wishlist, sell, profile, aReg);
 app.use('/', login, register, message, wishlist, sell);
 app.use('/api/lost-and-found', lostAndFound);
+app.use('/api/bookings', bookingRouter);
+app.use('/api/add-vehicle', addVehicle);
 
 app.get('*', (req, res) => {
     res.send('404-error not found');

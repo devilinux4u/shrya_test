@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Calendar,
   Clock,
@@ -12,11 +12,12 @@ import {
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import axios from 'axios';
 
-const RentalBookingForm = () => {
-  // Get vehicle data from URL params or context in a real app
-  const vehicle = {
-    id: "v1",
+const RentalBookingForm = ({ vehicleId }) => {
+  // Vehicle data state
+  const [vehicle, setVehicle] = useState({
+    id: vehicleId || "v1",
     name: "Land Rover Defender",
     model: "2023",
     imageUrl: "/placeholder.svg?height=400&width=600",
@@ -31,9 +32,11 @@ const RentalBookingForm = () => {
       doors: "4",
       transmission: "Automatic",
       fuel: "Diesel",
+      type: "SUV"
     },
-  };
+  });
 
+  // Form state
   const [bookingData, setBookingData] = useState({
     pickupLocation: "",
     dropoffLocation: "",
@@ -41,8 +44,8 @@ const RentalBookingForm = () => {
     pickupTime: "",
     returnDate: "",
     returnTime: "",
-    rentalType: "day", // hour, day, week, month
-    driveOption: "selfDrive", // selfDrive or hireDriver
+    rentalType: "day",
+    driveOption: "selfDrive",
     drivingLicense: "",
     licenseImage: null,
     paymentMethod: "creditCard",
@@ -53,11 +56,14 @@ const RentalBookingForm = () => {
     termsAccepted: false,
   });
 
+  // UI state
   const [errors, setErrors] = useState({});
   const [currentStep, setCurrentStep] = useState(1);
   const [totalAmount, setTotalAmount] = useState(0);
   const [rentalDuration, setRentalDuration] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [verifyingVehicle, setVerifyingVehicle] = useState(false);
+  const [availableVehicles, setAvailableVehicles] = useState([]);
 
   // Calculate total amount whenever rental details change
   useEffect(() => {
@@ -67,7 +73,6 @@ const RentalBookingForm = () => {
   const calculateTotal = () => {
     let basePrice = 0;
 
-    // Calculate base price based on rental type and duration
     switch (bookingData.rentalType) {
       case "hour":
         basePrice = vehicle.price.hour * rentalDuration;
@@ -85,21 +90,20 @@ const RentalBookingForm = () => {
         basePrice = vehicle.price.day * rentalDuration;
     }
 
-    // Add driver charge if "hireDriver" is selected
     let driverCost = 0;
     if (bookingData.driveOption === "hireDriver") {
       switch (bookingData.rentalType) {
         case "hour":
-          driverCost = 200 * rentalDuration; // Rs. 200/hour
+          driverCost = 200 * rentalDuration;
           break;
         case "day":
-          driverCost = 2000 * rentalDuration; // Rs. 2000/day
+          driverCost = 2000 * rentalDuration;
           break;
         case "week":
-          driverCost = 7500 * rentalDuration; // Rs. 7500/week
+          driverCost = 7500 * rentalDuration;
           break;
         case "month":
-          driverCost = 25000 * rentalDuration; // Rs. 25000/month
+          driverCost = 25000 * rentalDuration;
           break;
         default:
           driverCost = 0;
@@ -124,7 +128,6 @@ const RentalBookingForm = () => {
       }));
     }
 
-    // Clear error when field is updated
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
@@ -158,8 +161,6 @@ const RentalBookingForm = () => {
 
   const handleDateChange = (e) => {
     handleChange(e);
-
-    // Calculate duration whenever dates change
     setTimeout(() => {
       const duration = calculateDuration();
       setRentalDuration(duration > 0 ? duration : 1);
@@ -183,7 +184,6 @@ const RentalBookingForm = () => {
       if (!bookingData.returnTime)
         newErrors.returnTime = "Return time is required";
 
-      // Check if return date is after pickup date
       if (bookingData.pickupDate && bookingData.returnDate) {
         const pickup = new Date(
           `${bookingData.pickupDate}T${bookingData.pickupTime || "00:00"}`
@@ -245,46 +245,146 @@ const RentalBookingForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!validateStep(currentStep)) return;
-
+    
+    if (!validateStep(3)) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+  
     setLoading(true);
-
+  
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Success
-      toast.success("Booking successful! Redirecting to confirmation page...");
-
-      // In a real app, you would redirect to a confirmation page or dashboard
-      setTimeout(() => {
-        window.location.href = "/booking-confirmation";
-      }, 2000);
+      const formData = new FormData();
+      
+      // Append all form data
+      formData.append('pickupLocation', bookingData.pickupLocation);
+      formData.append('dropoffLocation', bookingData.dropoffLocation);
+      formData.append('pickupDate', bookingData.pickupDate);
+      formData.append('pickupTime', bookingData.pickupTime);
+      formData.append('returnDate', bookingData.returnDate);
+      formData.append('returnTime', bookingData.returnTime);
+      formData.append('rentalType', bookingData.rentalType);
+      formData.append('driveOption', bookingData.driveOption);
+      formData.append('drivingLicense', bookingData.drivingLicense);
+      formData.append('paymentMethod', bookingData.paymentMethod);
+      formData.append('totalAmount', totalAmount.toString());
+      formData.append('rentalDuration', rentalDuration.toString());
+      formData.append('termsAccepted', bookingData.termsAccepted.toString());
+      
+      // Handle file upload
+      if (bookingData.licenseImage) {
+        formData.append('licenseImage', bookingData.licenseImage);
+      }
+  
+      // Convert vehicle ID format if needed
+      const vehicleId = vehicle.id.startsWith('v') ? vehicle.id : `v${vehicle.id}`;
+      formData.append('vehicleId', vehicleId);
+  
+      // Get user ID from cookie
+      const userCookie = document.cookie.split('; ').find(row => row.startsWith('sauto='));
+      const userId = userCookie ? userCookie.split('=')[1].split('-')[0] : null;
+      formData.append('userId', userId || '');
+  
+      const response = await axios.post('http://localhost:3000/api/bookings', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+  
+      if (response.data.success) {
+        toast.success("Booking request submitted successfully!");
+        // Reset form or redirect
+      }
+  
     } catch (error) {
       console.error("Booking error:", error);
-      toast.error("Failed to complete booking. Please try again.");
+      toast.error(error.response?.data?.message || "Booking failed");
+    } finally {
       setLoading(false);
     }
   };
 
   const formatCurrency = (amount) => {
-    return `Rs. ${amount.toLocaleString()}`;
+    return `Rs. ${amount?.toLocaleString?.() || '0'}`;
   };
 
   const getDriverCost = () => {
     switch (bookingData.rentalType) {
       case "hour":
-        return 200 * rentalDuration; // Rs. 200/hour
+        return 200 * rentalDuration;
       case "day":
-        return 2000 * rentalDuration; // Rs. 2000/day
+        return 2000 * rentalDuration;
       case "week":
-        return 7500 * rentalDuration; // Rs. 7500/week
+        return 7500 * rentalDuration;
       case "month":
-        return 25000 * rentalDuration; // Rs. 25000/month
+        return 25000 * rentalDuration;
       default:
         return 0;
     }
+  };
+
+  const renderAvailableVehicles = () => {
+    // Ensure availableVehicles is always an array
+    const vehicles = Array.isArray(availableVehicles) ? availableVehicles : [];
+
+    if (vehicles.length === 0) return null;
+
+    return (
+      <div className="mt-4 bg-orange-50 border border-orange-200 p-4 rounded-lg">
+        <div className="flex items-start mb-3">
+          <AlertTriangle className="h-5 w-5 text-orange-500 mt-0.5 mr-2 flex-shrink-0" />
+          <div>
+            <h3 className="text-lg font-medium text-orange-800">
+              Vehicle Not Available
+            </h3>
+            <p className="text-sm text-orange-700">
+              The vehicle you selected is not available. Please choose one of these alternatives:
+            </p>
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {vehicles.map((avVehicle) => (
+            <div key={avVehicle.id} className="border border-gray-200 rounded-lg p-3 hover:shadow-md transition-shadow">
+              <div className="font-medium">{avVehicle.make} {avVehicle.model}</div>
+              <div className="text-sm text-gray-600 mb-2">Year: {avVehicle.year}</div>
+              <div className="flex justify-between items-center">
+                <span className="font-bold text-[#ff6b00]">
+                  {formatCurrency(avVehicle.price?.day)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVehicle({
+                      ...avVehicle,
+                      name: `${avVehicle.make} ${avVehicle.model}`,
+                      model: avVehicle.year,
+                      price: {
+                        hour: avVehicle.price?.hour || Math.round((avVehicle.price?.day || 0) / 24),
+                        day: avVehicle.price?.day || 0,
+                        week: avVehicle.price?.week || Math.round((avVehicle.price?.day || 0) * 5),
+                        month: avVehicle.price?.month || Math.round((avVehicle.price?.day || 0) * 30)
+                      },
+                      specs: {
+                        seats: avVehicle.specs?.seats || "5",
+                        doors: avVehicle.specs?.doors || "4",
+                        transmission: avVehicle.specs?.transmission || "Automatic",
+                        fuel: avVehicle.specs?.fuel || "Petrol",
+                        type: avVehicle.specs?.type || "SUV"
+                      }
+                    });
+                    setAvailableVehicles([]);
+                  }}
+                  className="px-3 py-1 bg-[#ff6b00] text-white rounded hover:bg-[#ff8533] text-sm"
+                >
+                  Select
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   const renderStep1 = () => (
@@ -297,6 +397,7 @@ const RentalBookingForm = () => {
           </h2>
         </div>
         <div className="p-6">
+          {renderAvailableVehicles()}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>
               <label
@@ -982,6 +1083,8 @@ const RentalBookingForm = () => {
 
   const renderStep4 = () => (
     <div className="space-y-6">
+      {renderAvailableVehicles()}
+
       <div className="bg-white rounded-xl shadow-md overflow-hidden">
         <div className="bg-gradient-to-r from-[#ff6b00] to-[#ff8533] px-6 py-4">
           <h2 className="text-white text-lg font-semibold flex items-center">
@@ -990,18 +1093,16 @@ const RentalBookingForm = () => {
           </h2>
         </div>
         <div className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
-            <div className="w-full sm:w-1/3 h-40 bg-gray-100 rounded-lg overflow-hidden">
+          <div className="flex flex-col sm:flex-row gap-6 mb-8">
+            <div className="w-full sm:w-1/3 h-48 bg-gray-100 rounded-lg overflow-hidden">
               <img
-                src={vehicle.imageUrl || "/placeholder.svg"}
+                src={vehicle.imageUrl || "/placeholder-car.jpg"}
                 alt={vehicle.name}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-gray-900">
-                {vehicle.name}
-              </h3>
+              <h3 className="text-xl font-bold text-gray-900">{vehicle.name}</h3>
               <p className="text-gray-600">{vehicle.model} Model</p>
 
               <div className="grid grid-cols-2 gap-4 mt-4">
@@ -1026,20 +1127,26 @@ const RentalBookingForm = () => {
           </div>
 
           <div className="border-t border-gray-200 pt-6 mt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Rental Details
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Rental Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-gray-600">Pickup Location</p>
+                <p className="font-medium text-gray-900">{bookingData.pickupLocation}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Drop-off Location</p>
+                <p className="font-medium text-gray-900">{bookingData.dropoffLocation}</p>
+              </div>
               <div>
                 <p className="text-sm text-gray-600">Pickup Date & Time</p>
                 <p className="font-medium text-gray-900">
-                  {bookingData.pickupDate} at {bookingData.pickupTime}
+                  {new Date(bookingData.pickupDate).toLocaleDateString()} at {bookingData.pickupTime}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Return Date & Time</p>
                 <p className="font-medium text-gray-900">
-                  {bookingData.returnDate} at {bookingData.returnTime}
+                  {new Date(bookingData.returnDate).toLocaleDateString()} at {bookingData.returnTime}
                 </p>
               </div>
               <div>
@@ -1052,80 +1159,82 @@ const RentalBookingForm = () => {
               <div>
                 <p className="text-sm text-gray-600">Service Type</p>
                 <p className="font-medium text-gray-900">
-                  {bookingData.driveOption === "selfDrive"
-                    ? "Self Drive"
-                    : "With Driver"}
+                  {bookingData.driveOption === "selfDrive" ? "Self Drive" : "With Driver"}
                 </p>
               </div>
             </div>
           </div>
 
+          {/* License Information (if self drive) */}
           {bookingData.driveOption === "selfDrive" && (
             <div className="border-t border-gray-200 pt-6 mt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                License Information
-              </h3>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">License Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm text-gray-600">License Number</p>
-                  <p className="font-medium text-gray-900">
-                    {bookingData.drivingLicense}
-                  </p>
+                  <p className="font-medium text-gray-900">{bookingData.drivingLicense}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">License Image</p>
                   <p className="font-medium text-gray-900">
-                    {bookingData.licenseImage
-                      ? bookingData.licenseImage.name
-                      : "Not provided"}
+                    {bookingData.licenseImage ? (
+                      <span className="text-[#ff6b00]">✓ Uploaded</span>
+                    ) : (
+                      <span className="text-red-500">Not provided</span>
+                    )}
                   </p>
                 </div>
               </div>
             </div>
           )}
 
+          {/* Payment Information */}
           <div className="border-t border-gray-200 pt-6 mt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Payment Information
-            </h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Payment Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <p className="text-sm text-gray-600">Payment Method</p>
                 <p className="font-medium text-gray-900">
-                  {bookingData.paymentMethod === "creditCard"
-                    ? "Credit/Debit Card"
-                    : "Pay at Pickup"}
+                  {bookingData.paymentMethod === "creditCard" ? "Credit/Debit Card" : "Pay at Pickup"}
                 </p>
               </div>
               {bookingData.paymentMethod === "creditCard" && (
-                <div>
-                  <p className="text-sm text-gray-600">Card Number</p>
-                  <p className="font-medium text-gray-900">
-                    **** **** **** {bookingData.cardNumber.slice(-4)}
-                  </p>
-                </div>
+                <>
+                  <div>
+                    <p className="text-sm text-gray-600">Cardholder Name</p>
+                    <p className="font-medium text-gray-900">{bookingData.cardName}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Card Number</p>
+                    <p className="font-medium text-gray-900">
+                      **** **** **** {bookingData.cardNumber.slice(-4)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Expiry Date</p>
+                    <p className="font-medium text-gray-900">{bookingData.expiryDate}</p>
+                  </div>
+                </>
               )}
             </div>
           </div>
 
+          {/* Price Breakdown */}
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h3 className="font-medium text-gray-900 mb-3">Price Breakdown</h3>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
+            <div className="space-y-3">
+              <div className="flex justify-between">
                 <span className="text-gray-600">
                   {vehicle.name} ({rentalDuration} {bookingData.rentalType}
                   {rentalDuration > 1 ? "s" : ""})
                 </span>
                 <span className="font-medium text-gray-900">
-                  {formatCurrency(
-                    vehicle.price[bookingData.rentalType] * rentalDuration
-                  )}
+                  {formatCurrency(vehicle.price[bookingData.rentalType] * rentalDuration)}
                 </span>
               </div>
 
               {bookingData.driveOption === "hireDriver" && (
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between">
                   <span className="text-gray-600">Driver Service</span>
                   <span className="font-medium text-gray-900">
                     {formatCurrency(getDriverCost())}
@@ -1135,9 +1244,7 @@ const RentalBookingForm = () => {
 
               <div className="border-t border-gray-200 pt-2 mt-2">
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-900">
-                    Total Amount
-                  </span>
+                  <span className="font-medium text-gray-900">Total Amount</span>
                   <span className="font-bold text-[#ff6b00]">
                     {formatCurrency(totalAmount)}
                   </span>
@@ -1146,6 +1253,7 @@ const RentalBookingForm = () => {
             </div>
           </div>
 
+          {/* Pay at pickup notice */}
           {bookingData.paymentMethod === "payLater" && (
             <div className="mt-4 bg-yellow-50 p-4 rounded-lg">
               <div className="flex items-start">
@@ -1166,6 +1274,7 @@ const RentalBookingForm = () => {
         </div>
       </div>
 
+      {/* Navigation Buttons */}
       <div className="flex justify-between">
         <button
           type="button"
@@ -1178,13 +1287,13 @@ const RentalBookingForm = () => {
         <button
           type="submit"
           onClick={handleSubmit}
-          disabled={loading}
+          disabled={loading || verifyingVehicle}
           className="px-6 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] font-medium transition-colors shadow-sm flex items-center"
         >
-          {loading ? (
+          {loading || verifyingVehicle ? (
             <>
               <Clock className="animate-spin h-4 w-4 mr-2" />
-              Processing...
+              {verifyingVehicle ? "Verifying..." : "Processing..."}
             </>
           ) : (
             <>Complete Booking</>
@@ -1197,128 +1306,61 @@ const RentalBookingForm = () => {
   return (
     <>
       <ToastContainer position="top-right" theme="colored" />
-      <div className="max-w-7xl mx-auto px-4 py-8 min-h-screen">
-        <div className="mb-8">
-          <a
-            href="#"
-            onClick={() => window.history.back()}
-            className="inline-flex items-center text-gray-600 hover:text-[#ff6b00]"
-          >
-            <ChevronLeft className="h-5 w-5 mr-1" />
-            Back to Vehicle
-          </a>
-          <h1 className="text-3xl font-bold text-gray-900 mt-4">
-            Book Your Rental
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Complete the form below to reserve your {vehicle.name}
-          </p>
-        </div>
+        <div className="max-w-8xl mx-auto px-4 py-0 my-3 min-h-screen"> 
+          <div className="mb-0"> 
+            <a href="#" onClick={() => window.history.back()}  className="inline-flex items-center text-gray-600 hover:text-[#ff6b00]">
+              <ChevronLeft className="h-5 w-5 mr-1" />
+             Back to Vehicle
+            </a>
+            <h1 className="text-3xl font-bold text-gray-900 mt-2"> {/* Changed mt-4 to mt-2 */}
+              Book Your Rental
+            </h1>
+            <p className="text-gray-600 mt-1"> {/* Changed mt-2 to mt-1 */}
+              Complete the form below to reserve your {vehicle.name}
+            </p>
+          </div>
 
         {/* Progress Steps */}
-        <div className="mb-8">
+        <div className="mb-4">
           <div className="flex items-center justify-between">
-            <div className="flex flex-col items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  currentStep >= 1
-                    ? "bg-[#ff6b00] text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <Calendar className="h-5 w-5" />
-              </div>
-              <span
-                className={`text-sm mt-2 ${
-                  currentStep >= 1
-                    ? "text-[#ff6b00] font-medium"
-                    : "text-gray-500"
-                }`}
-              >
-                Rental Details
-              </span>
-            </div>
+            {[1, 2, 3, 4].map((step) => (
+              <React.Fragment key={step}>
+                <div className="flex flex-col items-center">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      currentStep >= step
+                        ? "bg-[#ff6b00] text-white"
+                        : "bg-gray-200 text-gray-600"
+                    }`}
+                  >
+                    {step === 1 && <Calendar className="h-5 w-5" />}
+                    {step === 2 && <Car className="h-5 w-5" />}
+                    {step === 3 && <CreditCard className="h-5 w-5" />}
+                    {step === 4 && <Info className="h-5 w-5" />}
+                  </div>
+                  <span
+                    className={`text-sm mt-2 ${
+                      currentStep >= step
+                        ? "text-[#ff6b00] font-medium"
+                        : "text-gray-500"
+                    }`}
+                  >
+                    {step === 1 && "Rental Details"}
+                    {step === 2 && "Service Options"}
+                    {step === 3 && "Payment"}
+                    {step === 4 && "Summary"}
+                  </span>
+                </div>
 
-            <div
-              className={`flex-1 h-1 mx-2 ${
-                currentStep >= 2 ? "bg-[#ff6b00]" : "bg-gray-200"
-              }`}
-            />
-
-            <div className="flex flex-col items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  currentStep >= 2
-                    ? "bg-[#ff6b00] text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <Car className="h-5 w-5" />
-              </div>
-              <span
-                className={`text-sm mt-2 ${
-                  currentStep >= 2
-                    ? "text-[#ff6b00] font-medium"
-                    : "text-gray-500"
-                }`}
-              >
-                Service Options
-              </span>
-            </div>
-
-            <div
-              className={`flex-1 h-1 mx-2 ${
-                currentStep >= 3 ? "bg-[#ff6b00]" : "bg-gray-200"
-              }`}
-            />
-
-            <div className="flex flex-col items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  currentStep >= 3
-                    ? "bg-[#ff6b00] text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <CreditCard className="h-5 w-5" />
-              </div>
-              <span
-                className={`text-sm mt-2 ${
-                  currentStep >= 3
-                    ? "text-[#ff6b00] font-medium"
-                    : "text-gray-500"
-                }`}
-              >
-                Payment
-              </span>
-            </div>
-
-            <div
-              className={`flex-1 h-1 mx-2 ${
-                currentStep >= 4 ? "bg-[#ff6b00]" : "bg-gray-200"
-              }`}
-            />
-
-            <div className="flex flex-col items-center">
-              <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  currentStep >= 4
-                    ? "bg-[#ff6b00] text-white"
-                    : "bg-gray-200 text-gray-600"
-                }`}
-              >
-                <Info className="h-5 w-5" />
-              </div>
-              <span
-                className={`text-sm mt-2 ${
-                  currentStep >= 4
-                    ? "text-[#ff6b00] font-medium"
-                    : "text-gray-500"
-                }`}
-              >
-                Summary
-              </span>
-            </div>
+                {step < 4 && (
+                  <div
+                    className={`flex-1 h-1 mx-2 ${
+                      currentStep > step ? "bg-[#ff6b00]" : "bg-gray-200"
+                    }`}
+                  />
+                )}
+              </React.Fragment>
+            ))}
           </div>
         </div>
 
@@ -1328,7 +1370,7 @@ const RentalBookingForm = () => {
           {currentStep === 3 && renderStep3()}
           {currentStep === 4 && renderStep4()}
         </form>
-      </div>
+        </div>
     </>
   );
 };
