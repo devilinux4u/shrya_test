@@ -2,7 +2,7 @@ const { Sequelize, DataTypes } = require('sequelize');
 const config = require('./config');
 const sequelize = new Sequelize(config.db_con);
 
-const model = require('./model'); // Import the model.js file
+const model = require('./model');
 
 // Initialize models
 const user = model.user(sequelize, DataTypes);
@@ -14,11 +14,11 @@ const LostAndFound = model.LostAndFound(sequelize, DataTypes); // Initialize Los
 const WishlistImage = model.WishlistImage(sequelize, DataTypes);
 const LostAndFoundImage = model.LostAndFoundImage(sequelize, DataTypes);
 
-// Associations
+const booking = model.booking(sequelize, DataTypes);
+const booking_image = model.booking_image(sequelize, DataTypes);
 Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
 VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
 
-// Associations
 VehicleWishlist.hasMany(WishlistImage, {
   foreignKey: 'wishlistId',
   as: 'images',
@@ -33,23 +33,12 @@ LostAndFound.hasMany(LostAndFoundImage, { foreignKey: 'lostAndFoundId', as: 'ima
 LostAndFoundImage.belongsTo(LostAndFound, { foreignKey: 'lostAndFoundId' });
 
 LostAndFound.belongsTo(user, { foreignKey: 'uid', as: 'user' });
-
 Vehicle.belongsTo(user, { foreignKey: 'uid', as: 'user' });
-
-// Define Associations
-// user.hasMany(VehicleWishlist, { foreignKey: "uid", as: "wishlists" });
 VehicleWishlist.belongsTo(user, { foreignKey: "uid", as: "user" });
 
-
-
-// Sync database
-sequelize.sync({ alter: true }) // Updates the schema without dropping tables // Use { force: true } to drop and recreate tables (use with caution in production)
-  .then(() => {
-    console.log('Database synced successfully');
-  })
-  .catch((error) => {
-    console.error('Unable to sync database:', error);
-  });
+sequelize.sync({ alter: true })
+  .then(() => console.log('Database synced successfully'))
+  .catch(error => console.error('Unable to sync database:', error));
 
 module.exports = {
   sequelize,
@@ -60,5 +49,7 @@ module.exports = {
   vehicleWishlist: VehicleWishlist,
   LostAndFound,
   wishlistImage: WishlistImage, // Export LostAndFound model
-  LostAndFoundImage
+  LostAndFoundImage,
+  booking,
+  booking_image
 };

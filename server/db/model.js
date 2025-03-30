@@ -348,3 +348,117 @@ module.exports.LostAndFoundImage = (sequelize, DataTypes) => {
 
     return LostAndFoundImage;
 };
+
+
+// rental model
+module.exports.booking = (sequelize, DataTypes) => {
+    const Booking = sequelize.define('booking', {
+        userId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'users',
+                key: 'id'
+            },
+            onDelete: 'CASCADE'
+        },
+        vehicleId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'vehicles',
+                key: 'id'
+            },
+            onDelete: 'CASCADE'
+        },
+        pickupLocation: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        dropoffLocation: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        pickupDate: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        pickupTime: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        returnDate: {
+            type: DataTypes.DATE,
+            allowNull: false
+        },
+        returnTime: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        rentalType: {
+            type: DataTypes.ENUM('hour', 'day', 'week', 'month'),
+            allowNull: false
+        },
+        driveOption: {
+            type: DataTypes.ENUM('selfDrive', 'hireDriver'),
+            allowNull: false
+        },
+        paymentMethod: {
+            type: DataTypes.ENUM('creditCard', 'payLater'),
+            allowNull: false
+        },
+        cardLastFour: {
+            type: DataTypes.STRING
+        },
+        totalAmount: {
+            type: DataTypes.FLOAT,
+            allowNull: false
+        },
+        rentalDuration: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        status: {
+            type: DataTypes.ENUM('pending', 'confirmed', 'cancelled', 'completed'),
+            defaultValue: 'confirmed'
+        }
+    });
+
+    // Associations
+    Booking.associate = (models) => {
+        Booking.belongsTo(models.user, { foreignKey: 'userId' });
+        Booking.belongsTo(models.vehicles, { foreignKey: 'vehicleId' });
+        Booking.hasMany(models.booking_image, { foreignKey: 'bookingId' });
+    };
+
+    return Booking;
+};
+//rental image model
+module.exports.booking_image = (sequelize, DataTypes) => {
+    const BookingImage = sequelize.define('booking_image', {
+        imageUrl: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        imageType: {
+            type: DataTypes.ENUM('license', 'receipt', 'other'),
+            allowNull: false
+        },
+        bookingId: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            references: {
+                model: 'bookings',
+                key: 'id'
+            },
+            onDelete: 'CASCADE'
+        }
+    });
+
+    // Association
+    BookingImage.associate = (models) => {
+        BookingImage.belongsTo(models.booking, { foreignKey: 'bookingId' });
+    };
+
+    return BookingImage;
+};
