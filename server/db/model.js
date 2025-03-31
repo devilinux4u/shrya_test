@@ -351,8 +351,8 @@ module.exports.LostAndFoundImage = (sequelize, DataTypes) => {
 
 
 // rental model
-module.exports.booking = (sequelize, DataTypes) => {
-    const Booking = sequelize.define('booking', {
+module.exports.rental = (sequelize, DataTypes) => {
+    const Rental = sequelize.define('rental', {
         userId: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -424,18 +424,18 @@ module.exports.booking = (sequelize, DataTypes) => {
         }
     });
 
-    // Associations
-    Booking.associate = (models) => {
-        Booking.belongsTo(models.user, { foreignKey: 'userId' });
-        Booking.belongsTo(models.vehicles, { foreignKey: 'vehicleId' });
-        Booking.hasMany(models.booking_image, { foreignKey: 'bookingId' });
+    Rental.associate = (models) => {
+        Rental.belongsTo(models.user, { foreignKey: 'userId' });
+        Rental.belongsTo(models.vehicles, { foreignKey: 'vehicleId' });
+        Rental.hasMany(models.rentl_Vimg, { foreignKey: 'rentalId' });
     };
 
-    return Booking;
+    return Rental;
 };
-//rental image model
-module.exports.booking_image = (sequelize, DataTypes) => {
-    const BookingImage = sequelize.define('booking_image', {
+
+// rental image model
+module.exports.rentl_Vimg = (sequelize, DataTypes) => {
+    const RentalImage = sequelize.define('rentl_Vimg', {
         imageUrl: {
             type: DataTypes.STRING,
             allowNull: false
@@ -444,21 +444,20 @@ module.exports.booking_image = (sequelize, DataTypes) => {
             type: DataTypes.ENUM('license', 'receipt', 'other'),
             allowNull: false
         },
-        bookingId: {
+        rentalId: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'bookings',
+                model: 'rentals',
                 key: 'id'
             },
             onDelete: 'CASCADE'
         }
     });
 
-    // Association
-    BookingImage.associate = (models) => {
-        BookingImage.belongsTo(models.booking, { foreignKey: 'bookingId' });
+    RentalImage.associate = (models) => {
+        RentalImage.belongsTo(models.rental, { foreignKey: 'rentalId' });
     };
 
-    return BookingImage;
+    return RentalImage;
 };
