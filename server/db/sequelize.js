@@ -13,9 +13,9 @@ const VehicleWishlist = model.VehicleWishlist(sequelize, DataTypes);
 const LostAndFound = model.LostAndFound(sequelize, DataTypes); // Initialize LostAndFound model
 const WishlistImage = model.WishlistImage(sequelize, DataTypes);
 const LostAndFoundImage = model.LostAndFoundImage(sequelize, DataTypes);
+const rental = model.rental(sequelize, DataTypes);
+const rentl_Vimg = model.rentl_Vimg(sequelize, DataTypes);
 
-const booking = model.booking(sequelize, DataTypes);
-const booking_image = model.booking_image(sequelize, DataTypes);
 Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
 VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
 
@@ -50,6 +50,6 @@ module.exports = {
   LostAndFound,
   wishlistImage: WishlistImage, // Export LostAndFound model
   LostAndFoundImage,
-  booking,
-  booking_image
+  rental,
+  rentl_Vimg
 };
