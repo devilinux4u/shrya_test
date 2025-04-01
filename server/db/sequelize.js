@@ -1,55 +1,116 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const config = require('./config');
-const sequelize = new Sequelize(config.db_con);
+
+// Initialize Sequelize with explicit naming conventions
+const sequelize = new Sequelize({
+  ...config.db_con,  // Ensure this contains proper connection details
+  define: {
+    freezeTableName: true,  // Prevent pluralization
+    underscored: true      // Use snake_case for automatic table names
+  },
+  dialectOptions: {
+    // Additional MySQL-specific options if needed
+  }
+});
 
 const model = require('./model');
 
-// Initialize models
+// Initialize models - using exact names from model.js
 const user = model.user(sequelize, DataTypes);
 const contact = model.contact(sequelize, DataTypes);
-const Vehicle = model.vehicle(sequelize, DataTypes);
+const vehicles = model.vehicle(sequelize, DataTypes);
 const VehicleImage = model.vimg(sequelize, DataTypes);
 const VehicleWishlist = model.VehicleWishlist(sequelize, DataTypes);
-const LostAndFound = model.LostAndFound(sequelize, DataTypes); // Initialize LostAndFound model
 const WishlistImage = model.WishlistImage(sequelize, DataTypes);
+const LostAndFound = model.LostAndFound(sequelize, DataTypes);
 const LostAndFoundImage = model.LostAndFoundImage(sequelize, DataTypes);
 const rental = model.rental(sequelize, DataTypes);
-const rentl_Vimg = model.rentl_Vimg(sequelize, DataTypes);
+const RentalAllVehicles = model.rentalAllVehicles(sequelize, DataTypes);
+const RentalAllVehicleImages = model.rentalAllVehicleImages(sequelize, DataTypes);
 
-Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
-VehicleImage.belongsTo(Vehicle, { foreignKey: 'vehicleId' });
-
-VehicleWishlist.hasMany(WishlistImage, {
-  foreignKey: 'wishlistId',
+// Fix the Vehicle-VehicleImage association with explicit table names
+vehicles.hasMany(VehicleImage, {
+  foreignKey: 'vehicleId',
+  sourceKey: 'id',
   as: 'images',
   onDelete: 'CASCADE',
+  hooks: true
+});
+
+VehicleImage.belongsTo(vehicles, {
+  foreignKey: 'vehicleId',
+  targetKey: 'id',
+  as: 'vehicle',
+  onDelete: 'CASCADE',
+  hooks: true
+});
+
+// Other associations remain the same but with explicit references
+user.hasMany(vehicles, { foreignKey: 'uid' });
+user.hasMany(VehicleWishlist, { foreignKey: 'uid' });
+user.hasMany(LostAndFound, { foreignKey: 'uid' });
+user.hasMany(rental, { foreignKey: 'userId' });
+
+// VehicleWishlist associations
+VehicleWishlist.hasMany(WishlistImage, {
+  foreignKey: 'wishlistId',
+  onDelete: 'CASCADE'
 });
 WishlistImage.belongsTo(VehicleWishlist, {
-  foreignKey: 'wishlistId',
-  as: 'wishlist',
+  foreignKey: 'wishlistId'
 });
 
-LostAndFound.hasMany(LostAndFoundImage, { foreignKey: 'lostAndFoundId', as: 'images' });
-LostAndFoundImage.belongsTo(LostAndFound, { foreignKey: 'lostAndFoundId' });
+// LostAndFound associations
+LostAndFound.hasMany(LostAndFoundImage, {
+  foreignKey: 'lostAndFoundId',
+  onDelete: 'CASCADE'
+});
+LostAndFoundImage.belongsTo(LostAndFound, {
+  foreignKey: 'lostAndFoundId'
+});
 
-LostAndFound.belongsTo(user, { foreignKey: 'uid', as: 'user' });
-Vehicle.belongsTo(user, { foreignKey: 'uid', as: 'user' });
-VehicleWishlist.belongsTo(user, { foreignKey: "uid", as: "user" });
+// Rental associations
+rental.belongsTo(user, { foreignKey: 'userId' });
+rental.belongsTo(vehicles, { foreignKey: 'vehicleId' });
 
-sequelize.sync({ alter: true })
-  .then(() => console.log('Database synced successfully'))
-  .catch(error => console.error('Unable to sync database:', error));
+// RentalAllVehicles associations
+RentalAllVehicles.hasMany(RentalAllVehicleImages, {
+  foreignKey: 'vehicleId',
+  onDelete: 'CASCADE'
+});
+RentalAllVehicleImages.belongsTo(RentalAllVehicles, {
+  foreignKey: 'vehicleId'
+});
+
+// Sync with error handling
+(async () => {
+  try {
+    // First sync with force: true to reset (only in development)
+    await sequelize.sync({ force: true });
+    console.log('Database tables created!');
+    
+    // Then switch to alter: true for future syncs
+    // await sequelize.sync({ alter: true });
+  } catch (error) {
+    console.error('Database sync error:', error);
+    if (error.parent) {
+      console.error('Database error details:', error.parent.sqlMessage);
+      console.error('Failed SQL:', error.parent.sql);
+    }
+  }
+})();
 
 module.exports = {
   sequelize,
-  users: user,
-  contacts: contact,
-  vehicles: Vehicle,
-  v_img: VehicleImage,
-  vehicleWishlist: VehicleWishlist,
+  user,
+  contact,
+  vehicles,
+  VehicleImage,
+  VehicleWishlist,
+  WishlistImage,
   LostAndFound,
-  wishlistImage: WishlistImage, // Export LostAndFound model
   LostAndFoundImage,
   rental,
-  rentl_Vimg
+  RentalAllVehicles,
+  RentalAllVehicleImages
 };

@@ -13,19 +13,23 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from 'axios';
+import Cookies from 'js-cookie';
+import { useNavigate } from 'react-router-dom';
 
 const RentalBookingForm = ({ vehicleId }) => {
+  const navigate = useNavigate();
   // Vehicle data state
   const [vehicle, setVehicle] = useState({
     id: vehicleId || "v1",
     name: "Land Rover Defender",
     model: "2023",
     imageUrl: "/placeholder.svg?height=400&width=600",
-    price: {
+    price: 3000, 
+    priceDetails: { 
       hour: 500,
-      day: 3000,
+      day: 3000, 
       week: 18000,
-      month: 70000,
+      month: 70000
     },
     specs: {
       seats: "5",
@@ -33,10 +37,10 @@ const RentalBookingForm = ({ vehicleId }) => {
       transmission: "Automatic",
       fuel: "Diesel",
       type: "SUV"
-    },
+    }
   });
 
-  // Form state
+  
   const [bookingData, setBookingData] = useState({
     pickupLocation: "",
     dropoffLocation: "",
@@ -75,19 +79,19 @@ const RentalBookingForm = ({ vehicleId }) => {
 
     switch (bookingData.rentalType) {
       case "hour":
-        basePrice = vehicle.price.hour * rentalDuration;
+        basePrice = vehicle.priceDetails.hour * rentalDuration;
         break;
       case "day":
-        basePrice = vehicle.price.day * rentalDuration;
+        basePrice = vehicle.priceDetails.day * rentalDuration;
         break;
       case "week":
-        basePrice = vehicle.price.week * rentalDuration;
+        basePrice = vehicle.priceDetails.week * rentalDuration;
         break;
       case "month":
-        basePrice = vehicle.price.month * rentalDuration;
+        basePrice = vehicle.priceDetails.month * rentalDuration;
         break;
       default:
-        basePrice = vehicle.price.day * rentalDuration;
+        basePrice = vehicle.priceDetails.day * rentalDuration;
     }
 
     let driverCost = 0;
@@ -242,68 +246,79 @@ const RentalBookingForm = ({ vehicleId }) => {
     setCurrentStep((prev) => prev - 1);
     window.scrollTo(0, 0);
   };
+  
+  function calculateRentalDays() {
+    const start = new Date(`${bookingData.pickupDate}T${bookingData.pickupTime}`);
+    const end = new Date(`${bookingData.returnDate}T${bookingData.returnTime}`);
+    return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateStep(3)) {
-      toast.error("Please fill in all required fields");
-      return;
-    }
-  
-    setLoading(true);
-  
     try {
+      const payload = {
+        userId: Cookies.get('sauto')?.split('-')[0],
+        vehicleId: vehicle.id,
+        pickupLocation: bookingData.pickupLocation,
+        dropoffLocation: bookingData.dropoffLocation,
+        pickupDate: bookingData.pickupDate,
+        pickupTime: bookingData.pickupTime,
+        returnDate: bookingData.returnDate,
+        returnTime: bookingData.returnTime,
+        rentalType: bookingData.rentalType || 'day',
+        driveOption: bookingData.driveOption || 'selfDrive',
+        paymentMethod: bookingData.paymentMethod || 'payLater',
+        termsAccepted: bookingData.termsAccepted,
+        totalAmount: vehicle.price * calculateRentalDays(), 
+        rentalDuration: calculateRentalDays(),
+        status: 'confirmed' 
+      };
+  
       const formData = new FormData();
+      for (const [key, value] of Object.entries(payload)) {
+        formData.append(key, value);
+      }
       
-      // Append all form data
-      formData.append('pickupLocation', bookingData.pickupLocation);
-      formData.append('dropoffLocation', bookingData.dropoffLocation);
-      formData.append('pickupDate', bookingData.pickupDate);
-      formData.append('pickupTime', bookingData.pickupTime);
-      formData.append('returnDate', bookingData.returnDate);
-      formData.append('returnTime', bookingData.returnTime);
-      formData.append('rentalType', bookingData.rentalType);
-      formData.append('driveOption', bookingData.driveOption);
-      formData.append('drivingLicense', bookingData.drivingLicense);
-      formData.append('paymentMethod', bookingData.paymentMethod);
-      formData.append('totalAmount', totalAmount.toString());
-      formData.append('rentalDuration', rentalDuration.toString());
-      formData.append('termsAccepted', bookingData.termsAccepted.toString());
-      
-      // Handle file upload
-      if (bookingData.licenseImage) {
+      if (bookingData.driveOption === 'selfDrive' && bookingData.licenseImage) {
         formData.append('licenseImage', bookingData.licenseImage);
       }
-  
-      // Convert vehicle ID format if needed
-      const vehicleId = vehicle.id.startsWith('v') ? vehicle.id : `v${vehicle.id}`;
-      formData.append('vehicleId', vehicleId);
-  
-      // Get user ID from cookie
-      const userCookie = document.cookie.split('; ').find(row => row.startsWith('sauto='));
-      const userId = userCookie ? userCookie.split('=')[1].split('-')[0] : null;
-      formData.append('userId', userId || '');
-  
-      const response = await axios.post('http://localhost:3000/api/bookings', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-  
-      if (response.data.success) {
-        toast.success("Booking request submitted successfully!");
-        // Reset form or redirect
-      }
-  
-    } catch (error) {
-      console.error("Booking error:", error);
-      toast.error(error.response?.data?.message || "Booking failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+    
+      // console.log('Attempting to POST to:', 'http://localhost:3000/api/rentals');
+    const response = await axios.post('http://localhost:3000/api/rentals', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      timeout: 5000
+    });
 
+    // console.log('Response received:', response);
+    
+    if (response.status === 201) {
+      toast.success("Booking confirmed!");
+      navigate("/RentalVehicleDesc");
+      return;
+    }
+
+    throw new Error(response.data.message || "Unexpected response");
+
+  } catch (error) {
+    if (error.response) {
+      // Proper server response with error
+      console.error('Server error:', {
+        status: error.response.status,
+        data: error.response.data
+      });
+      toast.error(error.response.data?.message || 'Booking failed');
+    } else {
+      // Network or other errors
+      console.error('Request error:', error.message);
+      toast.error('Network error. Please try again.');
+    }
+  } finally {
+    setLoading(false);
+  }
+  };
+  
   const formatCurrency = (amount) => {
     return `Rs. ${amount?.toLocaleString?.() || '0'}`;
   };
@@ -350,7 +365,7 @@ const RentalBookingForm = ({ vehicleId }) => {
               <div className="text-sm text-gray-600 mb-2">Year: {avVehicle.year}</div>
               <div className="flex justify-between items-center">
                 <span className="font-bold text-[#ff6b00]">
-                  {formatCurrency(avVehicle.price?.day)}
+                  {formatCurrency(avVehicle.priceDetails?.day)}
                 </span>
                 <button
                   type="button"
@@ -360,10 +375,10 @@ const RentalBookingForm = ({ vehicleId }) => {
                       name: `${avVehicle.make} ${avVehicle.model}`,
                       model: avVehicle.year,
                       price: {
-                        hour: avVehicle.price?.hour || Math.round((avVehicle.price?.day || 0) / 24),
-                        day: avVehicle.price?.day || 0,
-                        week: avVehicle.price?.week || Math.round((avVehicle.price?.day || 0) * 5),
-                        month: avVehicle.price?.month || Math.round((avVehicle.price?.day || 0) * 30)
+                        hour: avVehicle.priceDetails?.hour || Math.round((avVehicle.priceDetails?.day || 0) / 24),
+                        day: avVehicle.priceDetails?.day || 0,
+                        week: avVehicle.priceDetails?.week || Math.round((avVehicle.priceDetails?.day || 0) * 5),
+                        month: avVehicle.priceDetails?.month || Math.round((avVehicle.priceDetails?.day || 0) * 30)
                       },
                       specs: {
                         seats: avVehicle.specs?.seats || "5",
@@ -465,14 +480,14 @@ const RentalBookingForm = ({ vehicleId }) => {
                 className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3"
               >
                 <option value="hour">
-                  Hourly (Rs. {vehicle.price.hour}/hour)
+                  Hourly (Rs. {vehicle.priceDetails.hour}/hour)
                 </option>
-                <option value="day">Daily (Rs. {vehicle.price.day}/day)</option>
+                <option value="day">Daily (Rs. {vehicle.priceDetails.day}/day)</option>
                 <option value="week">
-                  Weekly (Rs. {vehicle.price.week}/week)
+                  Weekly (Rs. {vehicle.priceDetails.week}/week)
                 </option>
                 <option value="month">
-                  Monthly (Rs. {vehicle.price.month}/month)
+                  Monthly (Rs. {vehicle.priceDetails.month}/month)
                 </option>
               </select>
             </div>
@@ -587,7 +602,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                   <p className="text-sm text-gray-600">Base Price:</p>
                   <p className="text-xl font-bold text-[#ff6b00]">
                     {formatCurrency(
-                      vehicle.price[bookingData.rentalType] * rentalDuration
+                      vehicle.priceDetails[bookingData.rentalType] * rentalDuration
                     )}
                   </p>
                 </div>
@@ -1032,7 +1047,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                 </span>
                 <span className="font-medium text-gray-900">
                   {formatCurrency(
-                    vehicle.price[bookingData.rentalType] * rentalDuration
+                    vehicle.priceDetails[bookingData.rentalType] * rentalDuration
                   )}
                 </span>
               </div>
@@ -1229,7 +1244,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                   {rentalDuration > 1 ? "s" : ""})
                 </span>
                 <span className="font-medium text-gray-900">
-                  {formatCurrency(vehicle.price[bookingData.rentalType] * rentalDuration)}
+                  {formatCurrency(vehicle.priceDetails[bookingData.rentalType] * rentalDuration)}
                 </span>
               </div>
 
