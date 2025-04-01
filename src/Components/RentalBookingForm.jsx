@@ -20,7 +20,7 @@ const RentalBookingForm = ({ vehicleId }) => {
   const navigate = useNavigate();
   // Vehicle data state
   const [vehicle, setVehicle] = useState({
-    id: vehicleId || "v1",
+    id: vehicleId || "1",
     name: "Land Rover Defender",
     model: "2023",
     imageUrl: "/placeholder.svg?height=400&width=600",
@@ -284,12 +284,12 @@ const RentalBookingForm = ({ vehicleId }) => {
       }
     
       // console.log('Attempting to POST to:', 'http://localhost:3000/api/rentals');
-    const response = await axios.post('http://localhost:3000/api/rentals', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      },
-      timeout: 5000
-    });
+      const response = await axios.post('http://localhost:3000/api/rentals', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        timeout: 5000
+      });
 
     // console.log('Response received:', response);
     

@@ -349,6 +349,105 @@ module.exports.LostAndFoundImage = (sequelize, DataTypes) => {
     return LostAndFoundImage;
 };
 
+//added Rental vehicles
+// Rental All Vehicles Model
+module.exports.rentalAllVehicles = (sequelize, DataTypes) => {
+    const Vehicle = sequelize.define('rentVehicle', {
+        make: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        model: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        year: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        color: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        km: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        fuel: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        trans: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        price: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        des: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        own: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        mile: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        seat: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        cc: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "available",
+        },
+    });
+    
+
+    return Vehicle;
+};
+
+// Rental All Vehicle Images Model
+module.exports.rentalAllVehicleImages = (sequelize, DataTypes) => {
+    const RentVehicleImages = sequelize.define("rentVehicleImages", {
+        id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+        vehicleId: { type: DataTypes.INTEGER, allowNull: false },
+        image: { type: DataTypes.STRING },
+      });
+    
+      RentVehicleImages.associate = (models) => {
+        RentVehicleImages.belongsTo(models.rentVehicle, {
+          foreignKey: "vehicleId",
+          onDelete: "CASCADE",
+        });
+      };
+
+    return RentVehicleImages;
+};
+
+
 // rental model
 module.exports.rental = (sequelize, DataTypes) => {
     const Rental = sequelize.define('rental', {
@@ -433,104 +532,4 @@ module.exports.rental = (sequelize, DataTypes) => {
     };
 
     return Rental;
-};
-
-//added Rental vehicles
-// Rental All Vehicles Model
-module.exports.rentalAllVehicles = (sequelize, DataTypes) => {
-    const Vehicle = sequelize.define('Vehicle', {
-        make: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        model: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        year: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        color: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        km: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        fuel: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        trans: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        price: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        des: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        own: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        mile: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        seat: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        cc: {
-            type: DataTypes.TEXT,
-            allowNull: false,
-            validate: { notEmpty: true }
-        },
-        status: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            defaultValue: "available",
-        },
-    });
-
-    return Vehicle;
-};
-
-// Rental All Vehicle Images Model
-module.exports.rentalAllVehicleImages = (sequelize, DataTypes) => {
-    const VehicleImage = sequelize.define('VehicleImage', {
-        vehicleId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'Vehicle',
-                key: 'id'
-            },
-            onDelete: 'CASCADE'
-        },
-        image: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        }
-    });
-
-    return VehicleImage;
 };
