@@ -206,12 +206,12 @@ const YourList = () => {
       message = "Showing vehicles with all statuses";
     } else {
       message = `Showing ${
-        status === "arrived" ? "arrived" : "pending"
+        status === "available" ? "Arrived" : "pending"
       } vehicles`;
     }
 
     toast.info(message, {
-      icon: status === "arrived" ? "✅" : "⏳",
+      icon: status === "available" ? "✅" : "⏳",
     });
   };
 
@@ -432,10 +432,10 @@ const YourList = () => {
                   </button>
                   <button
                     onClick={() => {
-                      handleStatusFilterChange("arrived");
+                      handleStatusFilterChange("available");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
-                      statusFilter === "arrived" && currentFilter === "buy"
+                      statusFilter === "available" && currentFilter === "buy"
                         ? "bg-blue-50 text-blue-700 font-medium"
                         : ""
                     }`}
@@ -509,10 +509,10 @@ const YourList = () => {
                   </button>
                   <button
                     onClick={() => {
-                      handleStatusFilterChange("arrived");
+                      handleStatusFilterChange("available");
                     }}
                     className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
-                      statusFilter === "arrived" && currentFilter === "rent"
+                      statusFilter === "available" && currentFilter === "rent"
                         ? "bg-purple-50 text-purple-700 font-medium"
                         : ""
                     }`}
@@ -549,7 +549,7 @@ const YourList = () => {
                 {statusFilter !== "all" && (
                   <span>
                     {" "}
-                    • {statusFilter === "arrived" ? "Arrived" : "Pending"}
+                    • {statusFilter === "available" ? "Arrived" : "Pending"}
                   </span>
                 )}
               </>
@@ -601,7 +601,7 @@ const YourList = () => {
                     className="w-full h-48 object-cover"
                   />
                   <div className="absolute top-4 right-4">
-                    {item.status === "arrived" ? (
+                    {item.status === "available" ? (
                       <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
                         <CheckCircle className="w-4 h-4 mr-1" />
                         Arrived
@@ -665,7 +665,7 @@ const YourList = () => {
                       Requested on:{" "}
                       {new Date(item.createdAt).toLocaleDateString()}
                     </span>
-                    {item.status === "arrived" && (
+                    {item.status === "available" && (
                       <button
                         onClick={() => handleBook(item.id)}
                         className="bg-[#4B3EAE] text-white px-6 py-2 rounded-lg hover:bg-[#3c318a] transition-colors"
