@@ -3,113 +3,178 @@ const router = express.Router();
 const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
-const { rental, rentl_Vimg, vehicles, users } = require("../../db/sequelize");
+const db = require("../../db/sequelize"); // Import the entire db object
 
-// Image routes
-router.get("/:id", async (req, res) => {
-  try {
-    const image = await rentl_Vimg.findByPk(req.params.id);
-    if (!image) return res.status(404).json({ success: false, message: "Image not found" });
-    const imagePath = path.join(__dirname, '..', image.imageUrl);
-    if (!fs.existsSync(imagePath)) return res.status(404).json({ success: false, message: "File not found" });
-    res.sendFile(imagePath);
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
-  }
-});
-
-router.delete("/:id", async (req, res) => {
-  try {
-    const image = await rentl_Vimg.findByPk(req.params.id);
-    if (!image) return res.status(404).json({ success: false, message: "Image not found" });
-    const imagePath = path.join(__dirname, '..', image.imageUrl);
-    if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
-    await image.destroy();
-    res.status(200).json({ success: true, message: "Image deleted" });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Delete failed", error: error.message });
-  }
-});
-
-// Rental routes
+// =============================================
+// FILE UPLOAD CONFIGURATION
+// =============================================
 const uploadDir = path.join(__dirname, '../../uploads/licenses');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname);
     cb(null, `license-${Date.now()}${ext}`);
   }
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
 });
+
+// =============================================
+// HELPER FUNCTIONS
+// =============================================
+async function getVehicle(vehicleId) {
+  if (!vehicleId) {
+    throw new Error('Vehicle ID is required');
+  }
+
+  const rawId = parseInt(vehicleId.toString().replace(/^[rv]/, ''));
+  if (isNaN(rawId)) {
+    throw new Error('Invalid vehicle ID format');
+  }
+
+  // Check if it's a rental vehicle
+  if (vehicleId.toString().startsWith('r')) {
+    const vehicle = await db.Vehicle.findByPk(rawId);
+    if (!vehicle) throw new Error(`Rental vehicle with ID ${vehicleId} not found`);
+    return { vehicle, isRental: true };
+  }
+
+  // Check regular vehicles first
+  const vehicle = await db.vehicles.findByPk(rawId);
+  if (vehicle) return { vehicle, isRental: false };
+
+  // Fallback to rental vehicles if not found in regular vehicles
+  const rentalVehicle = await db.RentalAllVehicles.findByPk(rawId);
+  if (rentalVehicle) return { vehicle: rentalVehicle, isRental: true };
+
+  throw new Error(`Vehicle with ID ${vehicleId} not found`);
+}
+
+// =============================================
+// ROUTES
+// =============================================
 
 router.post('/', upload.single('licenseImage'), async (req, res) => {
   try {
-    const vehicleId = req.body.vehicleId.toString().startsWith('v') 
-      ? parseInt(req.body.vehicleId.substring(1))
-      : parseInt(req.body.vehicleId);
-
-    // Verify vehicle exists
-    const vehicle = await vehicles.findByPk(vehicleId);
-    if (!vehicle) {
-      return res.status(404).json({
+    // Validate required fields
+    if (!req.body.vehicleId || !req.body.userId) {
+      return res.status(400).json({
         success: false,
-        message: 'Specified vehicle does not exist'
+        message: 'Vehicle ID and User ID are required'
       });
     }
 
-    // Verify user exists
-    const user = await users.findByPk(parseInt(req.body.userId));
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
+    // Get vehicle
+    const { vehicle, isRental } = await getVehicle(req.body.vehicleId);
 
-    // Create rental
-    const newRental = await rental.create({
-      userId: user.id,
+    // Prepare rental data
+    const rentalData = {
+      userId: parseInt(req.body.userId),
       vehicleId: vehicle.id,
       pickupLocation: req.body.pickupLocation,
-      dropoffLocation: req.body.dropoffLocation,
-      pickupDate: new Date(`${req.body.pickupDate}T${req.body.pickupTime}`),
-      pickupTime: req.body.pickupTime,
-      returnDate: new Date(`${req.body.returnDate}T${req.body.returnTime}`),
-      returnTime: req.body.returnTime,
-      rentalType: req.body.rentalType,
-      driveOption: req.body.driveOption,
-      paymentMethod: req.body.paymentMethod,
-      totalAmount: parseFloat(req.body.totalAmount),
-      rentalDuration: parseInt(req.body.rentalDuration),
-      status: 'confirmed' // Changed from 'pending' to match model default
-    });
+      dropoffLocation: req.body.dropoffLocation || req.body.pickupLocation,
+      pickupDate: req.body.pickupDate,
+      pickupTime: req.body.pickupTime || '12:00',
+      returnDate: req.body.returnDate,
+      returnTime: req.body.returnTime || '12:00',
+      rentalType: req.body.rentalType || 'day',
+      driveOption: req.body.driveOption || 'selfDrive',
+      paymentMethod: req.body.paymentMethod || 'payLater',
+      totalAmount: parseFloat(req.body.totalAmount) || 0,
+      rentalDuration: parseInt(req.body.rentalDuration) || 1,
+      status: 'confirmed',
+      licenseImageUrl: req.file ? `/uploads/licenses/${req.file.filename}` : null,
+      metadata: JSON.stringify({
+        vehicleType: isRental ? 'rental' : 'regular'
+      })
+    };
 
-    // Handle license image
-    if (req.file && req.body.driveOption === 'selfDrive') {
-      await rentl_Vimg.create({
-        imageUrl: `/uploads/licenses/${req.file.filename}`,
-        rentalId: newRental.id,
-        imageType: 'license'
-      });
-    }
-
-    return res.status(201).json({
+    // Create rental
+    const newRental = await db.rental.create(rentalData);
+    
+    res.status(201).json({
       success: true,
-      message: 'Rental created successfully',
-      rentalId: newRental.id
+      data: {
+        ...newRental.toJSON(),
+        vehicle: vehicle
+      }
     });
 
   } catch (error) {
-    console.error('Rental error:', error);
-    return res.status(500).json({
+    console.error('Rental creation error:', error);
+    
+    // Clean up uploaded file if error occurred
+    if (req.file) {
+      fs.unlink(req.file.path, () => {});
+    }
+
+    const statusCode = error.message.includes('not found') ? 404 : 500;
+    res.status(statusCode).json({
       success: false,
-      message: error.message || 'Internal server error'
+      message: error.message
+    });
+  }
+});
+
+router.get('/:id', async (req, res) => {
+  try {
+    const rentalRecord = await db.rental.findByPk(req.params.id, {
+      include: [
+        { model: db.users, as: 'user' }
+      ]
+    });
+
+    if (!rentalRecord) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Rental not found' 
+      });
+    }
+
+    // Parse metadata
+    const metadata = rentalRecord.metadata ? JSON.parse(rentalRecord.metadata) : {};
+    const isRental = metadata.vehicleType === 'rental';
+
+    // Get vehicle
+    const VehicleModel = isRental ? db.RentalAllVehicles : db.vehicles;
+    const vehicle = await VehicleModel.findByPk(rentalRecord.vehicleId);
+
+    if (!vehicle) {
+      return res.status(404).json({
+        success: false,
+        message: 'Associated vehicle not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        ...rentalRecord.toJSON(),
+        vehicle: vehicle
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching rental:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch rental' 
     });
   }
 });

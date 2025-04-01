@@ -349,6 +349,104 @@ module.exports.LostAndFoundImage = (sequelize, DataTypes) => {
     return LostAndFoundImage;
 };
 
+//added Rental vehicles
+// Rental All Vehicles Model
+module.exports.rentalAllVehicles = (sequelize, DataTypes) => {
+    const Vehicle = sequelize.define('rentVehicle', {
+        make: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        model: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        year: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        color: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        km: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        fuel: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        trans: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        price: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        des: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        own: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        mile: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        seat: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        cc: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            validate: { notEmpty: true }
+        },
+        status: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: "available",
+        },
+    });
+    
+
+    return Vehicle;
+};
+
+// Rental All Vehicle Images Model
+module.exports.rentalAllVehicleImages = (sequelize, DataTypes) => {
+    const RentVehicleImages = sequelize.define("rentVehicleImages", {
+        id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+        vehicleId: { type: DataTypes.INTEGER, allowNull: false },
+        image: { type: DataTypes.STRING },
+      });
+    
+      RentVehicleImages.associate = (models) => {
+        RentVehicleImages.belongsTo(models.rentVehicle, {
+          foreignKey: "vehicleId",
+          onDelete: "CASCADE",
+        });
+      };
+
+    return RentVehicleImages;
+};
+
 
 // rental model
 module.exports.rental = (sequelize, DataTypes) => {
@@ -403,6 +501,10 @@ module.exports.rental = (sequelize, DataTypes) => {
             type: DataTypes.ENUM('selfDrive', 'hireDriver'),
             allowNull: false
         },
+        licenseImageUrl: {  
+            type: DataTypes.STRING,
+            allowNull: true
+        },
         paymentMethod: {
             type: DataTypes.ENUM('creditCard', 'payLater'),
             allowNull: false
@@ -427,37 +529,7 @@ module.exports.rental = (sequelize, DataTypes) => {
     Rental.associate = (models) => {
         Rental.belongsTo(models.user, { foreignKey: 'userId' });
         Rental.belongsTo(models.vehicles, { foreignKey: 'vehicleId' });
-        Rental.hasMany(models.rentl_Vimg, { foreignKey: 'rentalId' });
     };
 
     return Rental;
-};
-
-// rental image model
-module.exports.rentl_Vimg = (sequelize, DataTypes) => {
-    const RentalImage = sequelize.define('rentl_Vimg', {
-        imageUrl: {
-            type: DataTypes.STRING,
-            allowNull: false
-        },
-        imageType: {
-            type: DataTypes.ENUM('license', 'receipt', 'other'),
-            allowNull: false
-        },
-        rentalId: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: 'rentals',
-                key: 'id'
-            },
-            onDelete: 'CASCADE'
-        }
-    });
-
-    RentalImage.associate = (models) => {
-        RentalImage.belongsTo(models.rental, { foreignKey: 'rentalId' });
-    };
-
-    return RentalImage;
 };
