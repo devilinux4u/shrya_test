@@ -8,7 +8,7 @@ function RentalVehicles() {
 
   useEffect(() => {
     // Fetch car data from API
-    fetch("https://api.example.com/cars/sonata") // Replace with actual API endpoint
+    fetch("http://127.0.0.1:3000/rent/ran1") // Replace with actual API endpoint
       .then((response) => response.json())
       .then((data) => setCarData(data))
       .catch((error) => console.error("Error fetching car data:", error));
@@ -31,7 +31,7 @@ function RentalVehicles() {
           {/* Brand and Model */}
           <div>
             <h2 className="text-[#E94A35] font-semibold text-3xl lg:text-4xl">
-              {carData.brand.toUpperCase()}
+              {carData.make.toUpperCase()}
             </h2>
             <h1 className="text-black text-5xl lg:text-6xl font-extrabold tracking-wider">
               {carData.model.toUpperCase()}
@@ -46,7 +46,7 @@ function RentalVehicles() {
           {/* Price */}
           <div className="flex items-baseline space-x-2">
             <span className="text-[#E94A35] text-3xl lg:text-4xl font-bold">
-              Rs. {carData.price}
+              Rs. {carData.priceHour}
             </span>
             <span className="text-gray-600 text-lg">/hr</span>
           </div>
@@ -63,8 +63,8 @@ function RentalVehicles() {
         {/* Car Image */}
         <div className="relative">
           <img
-            src={carData.image}
-            alt={`${carData.brand} ${carData.model}`}
+            src={`../../server${carData.rentVehicleImages[0].image}`}
+            alt={`${carData.make} ${carData.model}`}
             className="w-full h-auto max-w-full object-contain"
           />
         </div>
