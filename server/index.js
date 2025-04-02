@@ -26,7 +26,6 @@ const vehiclesRouter = require('./controllers/rentControllers/vehicles');
 
 app.use('/uploads', express.static(path.join(__dirname, 'controllers/uploads')));
 
-
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
