@@ -30,6 +30,27 @@ export default function AdminRentalVehicles() {
   const [postedByFilter, setPostedByFilter] = useState("all");
   const [sortByFilter, setSortByFilter] = useState("default");
 
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [updatedVehicleData, setUpdatedVehicleData] = useState({
+    make: '',
+    model: '',
+    year: '',
+    price: { hour: 0, day: 0, week: 0, month: 0 },
+    specs: {
+      seats: 0,
+      doors: 0,
+      transmission: '',
+      fuel: '',
+      mileage: 0,
+      engine: '',
+      power: 0
+    },
+    features: '',
+    description: '',
+    numberPlate: ''
+  });
+
   useEffect(() => {
     fetchVehicles();
   }, []);
@@ -37,13 +58,16 @@ export default function AdminRentalVehicles() {
   const fetchVehicles = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const response = await fetch("http://localhost:3000/api/vehicles");
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
       
-      const data = await response.json();
+      const { data } = await response.json();
       
       const transformedVehicles = data.map(vehicle => ({
         _id: vehicle.id.toString(),
@@ -51,36 +75,43 @@ export default function AdminRentalVehicles() {
         model: vehicle.model || 'Unknown',
         year: vehicle.year || new Date().getFullYear(),
         price: {
-          hour: vehicle.price ? vehicle.price / 5 : 0,
-          day: vehicle.price || 0,
-          week: vehicle.price ? vehicle.price * 6 : 0,
-          month: vehicle.price ? vehicle.price * 25 : 0,
+          hour: vehicle.priceHour || 0,
+          day: vehicle.priceDay || 0,
+          week: vehicle.priceWeek || 0,
+          month: vehicle.priceMonth || 0,
         },
         specs: {
-          seats: vehicle.seat || 4,
-          doors: 4,
-          transmission: vehicle.trans || 'Automatic',
-          fuel: vehicle.fuel || 'Petrol',
-          mileage: vehicle.mile || vehicle.km || 0,
-          engine: vehicle.cc || "N/A",
-          power: 0,
+          seats: vehicle.seats || 4,
+          doors: vehicle.doors || 4,
+          transmission: vehicle.transmission || 'Automatic',
+          fuel: vehicle.fuelType || 'Petrol',
+          mileage: vehicle.mileage || 0,
+          engine: vehicle.engine || "N/A",
+          power: vehicle.power || 0,
         },
-        features: vehicle.des ? vehicle.des.split("\n\nFeatures: ")[1] || "N/A" : "N/A",
-        description: vehicle.des ? vehicle.des.split("\n\nFeatures: ")[0] || "N/A" : "N/A",
-        imagePreviewUrls: vehicle.Images ? vehicle.Images.map(img => img.image) : ["/placeholder.svg"],
+        features: vehicle.features || "N/A",
+        description: vehicle.description || "N/A",
+        // Update this line to match the alias from your backend
+        imagePreviewUrls: vehicle.rentVehicleImages 
+          ? vehicle.rentVehicleImages.map(img => 
+              img.image.startsWith('http') 
+                ? img.image 
+                : `http://localhost:3000/uploads/${img.image}`
+            ) 
+          : ["/placeholder.svg"],
         createdAt: vehicle.createdAt || new Date().toISOString(),
         status: vehicle.status || "available",
-        postedBy: vehicle.user ? vehicle.user.uname.toLowerCase() : "admin",
+        postedBy: "admin",
         numberPlate: vehicle.numberPlate || "N/A",
-        vehicle_images: vehicle.Images || []
+        vehicle_images: vehicle.rentVehicleImages || [] // Update this reference too
       }));
       
       setVehicles(transformedVehicles);
-      setLoading(false);
-      setError(null);
     } catch (error) {
       console.error("Error fetching vehicles:", error);
       setError(error.message);
+      toast.error(`Failed to load vehicles: ${error.message}`);
+    } finally {
       setLoading(false);
     }
   };

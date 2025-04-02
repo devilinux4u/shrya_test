@@ -1,28 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../../db/sequelize'); // Import your sequelize instance with models
+const db = require('../../db/sequelize');
 
-// GET all vehicles
+// GET all rental vehicles
 router.get('/', async (req, res) => {
   try {
-    const vehiclesData = await db.vehicles.findAll({
+    const vehiclesData = await db.RentalAllVehicles.findAll({
       include: [
         { 
-          model: db.v_img,
-          as: 'vehicle_images' // Use the alias from sequelize.js
-        },
-        {
-          model: db.users,
-          as: 'user',
-          attributes: ['id', 'fname', 'uname', 'email']
+          model: db.RentalAllVehicleImages,
+          as: 'rentVehicleImages' // Match this with your association alias
         }
       ],
       order: [['createdAt', 'DESC']]
     });
     
-    res.json(vehiclesData);
+    res.json({
+      success: true,
+      data: vehiclesData
+    });
   } catch (error) {
-    console.error('Error fetching vehicles:', error);
+    console.error('Error fetching rental vehicles:', error);
     res.status(500).json({ 
       success: false,
       error: 'Internal server error',
@@ -31,19 +29,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET single vehicle
+// GET single rental vehicle
 router.get('/:id', async (req, res) => {
   try {
-    const vehicle = await db.vehicles.findByPk(req.params.id, {
+    const vehicle = await db.RentalAllVehicles.findByPk(req.params.id, {
       include: [
         { 
-          model: db.v_img,
-          as: 'vehicle_images' // Use the alias from sequelize.js
-        },
-        {
-          model: db.users,
-          as: 'user',
-          attributes: ['id', 'fname', 'uname', 'email']
+          model: db.RentalAllVehicleImages,
+          as: 'images'
         }
       ]
     });
@@ -51,7 +44,7 @@ router.get('/:id', async (req, res) => {
     if (!vehicle) {
       return res.status(404).json({ 
         success: false,
-        error: 'Vehicle not found' 
+        error: 'Rental vehicle not found' 
       });
     }
     
@@ -60,7 +53,7 @@ router.get('/:id', async (req, res) => {
       data: vehicle
     });
   } catch (error) {
-    console.error('Error fetching vehicle:', error);
+    console.error('Error fetching rental vehicle:', error);
     res.status(500).json({ 
       success: false,
       error: 'Internal server error',
@@ -69,32 +62,32 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// DELETE a vehicle
+// DELETE a rental vehicle
 router.delete('/:id', async (req, res) => {
   try {
     // First delete associated images
-    await db.v_img.destroy({
+    await db.RentalAllVehicleImages.destroy({
       where: { vehicleId: req.params.id }
     });
     
     // Then delete the vehicle
-    const result = await db.vehicles.destroy({
+    const result = await db.RentalAllVehicles.destroy({
       where: { id: req.params.id }
     });
     
     if (result === 0) {
       return res.status(404).json({ 
         success: false,
-        error: 'Vehicle not found' 
+        error: 'Rental vehicle not found' 
       });
     }
     
     res.json({ 
       success: true,
-      message: 'Vehicle deleted successfully' 
+      message: 'Rental vehicle deleted successfully' 
     });
   } catch (error) {
-    console.error('Error deleting vehicle:', error);
+    console.error('Error deleting rental vehicle:', error);
     res.status(500).json({ 
       success: false,
       error: 'Internal server error',
