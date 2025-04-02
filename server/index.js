@@ -37,6 +37,9 @@ app.use('/api/rentals', rentalRoute);
 app.use('/api/add-vehicle', addVehicle);
 app.use('/api/vehicles', vehiclesRouter);
 
+const rentVehiclesController = require('./controllers/rentControllers/rentVehiclesController');
+app.use('/rent', rentVehiclesController);
+
 app.get('*', (req, res) => {
     res.send('404-error not found');
 })
