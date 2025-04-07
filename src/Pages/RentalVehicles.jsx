@@ -14,8 +14,9 @@ function RentalVehicles() {
       .catch((error) => console.error("Error fetching car data:", error));
   }, []);
 
-  const handleRentNow = () => {
-    navigate(`/RentalVehicleDesc`);
+  const handleRentNow = (data) => {
+    const vehicleParams = new URLSearchParams({ id: data.id });
+    navigate(`/RentalVehicleDesc?${vehicleParams.toString()}`);
   };
 
   if (!carData) {
@@ -53,7 +54,7 @@ function RentalVehicles() {
 
           {/* Rent Now Button */}
           <button
-            onClick={handleRentNow}
+            onClick={() =>handleRentNow(carData)}
             className="bg-[#5B5FDD] text-white px-8 py-3 rounded-md text-lg font-medium hover:bg-[#4A4EC9] transition-colors"
           >
             Rent Now

@@ -24,8 +24,9 @@ const CarCard = () => {
     navigate('/RentalGallery');
   };
 
-  const handleRentNow = () => {
-    navigate('/RentalVehicleDesc');
+  const handleRentNow = (data) => {
+    const vehicleParams = new URLSearchParams({ id: data.id });
+    navigate(`/RentalVehicleDesc?${vehicleParams.toString()}`);
   };
 
   return (
@@ -63,7 +64,7 @@ const CarCard = () => {
                 </div>
               </div>
               <button
-              onClick={handleRentNow}
+              onClick={()=>handleRentNow(car)}
               className="w-full py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Rent Now</button>
             </div>
           </div>
