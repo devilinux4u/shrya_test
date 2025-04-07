@@ -66,4 +66,22 @@ router.get('/all', async (req, res) => {
     }
 });
 
+// Route to get one rental vehicles info
+router.get('/one/:id', async (req, res) => {
+    try {
+        const allVehicles = await RentalAllVehicles.findAll({
+            where: { id: req.params.id },
+            include: [
+                {
+                    model: RentalAllVehicleImages,
+                    as: 'rentVehicleImages' // Match this with your association alias
+                }
+            ],
+    });
+        res.json(allVehicles);
+    } catch (error) {
+        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+    }
+});
+
 module.exports = router;

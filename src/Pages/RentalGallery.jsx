@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   ChevronLeft,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 
 const RentalGallery = () => {
+  const navigate = useNavigate();
   const [carsData, setCarsData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
@@ -98,6 +100,11 @@ const RentalGallery = () => {
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+  };
+
+  const handleRentNow = (data) => {
+    const vehicleParams = new URLSearchParams({ id: data.id });
+    navigate(`/RentalVehicleDesc?${vehicleParams.toString()}`);
   };
 
   const handleFeatureToggle = (feature) => {
@@ -265,7 +272,9 @@ const RentalGallery = () => {
                         </span>
                       ))}
                     </div>
-                    <button className="w-full py-2 bg-[#ff6b00] text-white rounded-md hover:bg-[#ff8533] transition">
+                    <button 
+                    onClick={() =>handleRentNow(car)}
+                    className="w-full py-2 bg-[#ff6b00] text-white rounded-md hover:bg-[#ff8533] transition">
                       Rent Now
                     </button>
                   </div>
