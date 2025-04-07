@@ -11,6 +11,8 @@ import {
   AlertTriangle,
   Eye,
   Edit,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { subMonths, subYears } from "date-fns"; // Import date-fns for date manipulation
 
@@ -42,6 +44,8 @@ export default function Users() {
     email: "",
     num: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(10);
 
   // Fetch users from the database
   useEffect(() => {
@@ -206,6 +210,14 @@ export default function Users() {
     return matchesSearch && matchesDate;
   });
 
+  // Pagination logic
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div className="min-h-screen bg-gray-100 ml-64 p-8">
       {/* Header Section */}
@@ -326,7 +338,7 @@ export default function Users() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredUsers.length === 0 ? (
+                {currentUsers.length === 0 ? (
                   <tr>
                     <td
                       colSpan={7}
@@ -336,7 +348,7 @@ export default function Users() {
                     </td>
                   </tr>
                 ) : (
-                  filteredUsers.map((user) => (
+                  currentUsers.map((user) => (
                     <tr key={user.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {user.id}
@@ -389,6 +401,53 @@ export default function Users() {
           </div>
         )}
       </div>
+
+      {/* Pagination Component */}
+      {filteredUsers.length > 0 && (
+        <div className="flex justify-center mt-10">
+          <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              (number) => (
+                <button
+                  key={number}
+                  onClick={() => paginate(number)}
+                  className={`px-4 py-2 border-r border-gray-200 ${
+                    currentPage === number
+                      ? "bg-orange-500 text-white font-medium"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {number}
+                </button>
+              )
+            )}
+
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 flex items-center ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Add User Modal */}
       {showAddUser && (

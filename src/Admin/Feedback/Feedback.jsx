@@ -8,6 +8,8 @@ const Feedback = () => {
   const [error, setError] = useState(null);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [feedbackToDelete, setFeedbackToDelete] = useState(null);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -19,10 +21,7 @@ const Feedback = () => {
       try {
         const response = await fetch("http://localhost:3000/contact"); // Fetch messages from backend
         const data = await response.json();
-        const sortedData = data.sort(
-          (a, b) => new Date(b.date) - new Date(a.date)
-        ); // Sort by date descending
-        setFeedbacks(sortedData); // Use the sorted data
+        setFeedbacks(data); // Set fetched data as feedbacks
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch feedbacks");
@@ -33,24 +32,8 @@ const Feedback = () => {
     fetchFeedbacks();
   }, []);
 
-  const handleFeedbackClick = async (feedback) => {
-    if (feedback.status === "new") {
-      try {
-        await fetch(`http://localhost:3000/contact/${feedback.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: "read" }),
-        });
-        setFeedbacks(
-          feedbacks.map((fb) =>
-            fb.id === feedback.id ? { ...fb, status: "read" } : fb
-          )
-        );
-      } catch (err) {
-        console.error("Failed to update feedback status:", err);
-      }
-    }
-    setSelectedFeedback({ ...feedback, status: "read" });
+  const handleFeedbackClick = (feedback) => {
+    setSelectedFeedback(feedback);
   };
 
   const handleCloseDetails = () => {
@@ -70,19 +53,37 @@ const Feedback = () => {
   };
 
   const handleDelete = (id) => {
-    setFeedbacks(feedbacks.filter((feedback) => feedback.id !== id));
+    setFeedbackToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
 
-    if (selectedFeedback && selectedFeedback.id === id) {
-      setSelectedFeedback(null);
+  const confirmDelete = async () => {
+    if (!feedbackToDelete) return;
+
+    try {
+      await fetch(`http://localhost:3000/contact/${feedbackToDelete}`, {
+        method: "DELETE",
+      });
+
+      setFeedbacks(
+        feedbacks.filter((feedback) => feedback.id !== feedbackToDelete)
+      );
+
+      if (selectedFeedback && selectedFeedback.id === feedbackToDelete) {
+        setSelectedFeedback(null);
+      }
+
+      setIsDeleteModalOpen(false);
+      setFeedbackToDelete(null);
+    } catch (err) {
+      console.error("Failed to delete feedback:", err);
     }
   };
 
   const filteredFeedbacks =
-    Array.isArray(feedbacks) && feedbacks.length > 0
-      ? filter === "all"
-        ? feedbacks
-        : feedbacks.filter((feedback) => feedback.status === filter)
-      : []; // Default to an empty array if feedbacks is not valid
+    filter === "all"
+      ? feedbacks
+      : feedbacks.filter((feedback) => feedback.status === filter);
 
   if (loading)
     return (
@@ -251,6 +252,66 @@ const Feedback = () => {
           </div>
         </div>
       </div>
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 transform transition-all">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-red-100 p-3 rounded-full">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8 text-red-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-xl font-bold text-center text-gray-900 mb-2">
+              Confirm Deletion
+            </h3>
+            <p className="text-gray-600 text-center mb-6">
+              Are you sure you want to delete this feedback? This action cannot
+              be undone.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors flex items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4 mr-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                Delete Feedback
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

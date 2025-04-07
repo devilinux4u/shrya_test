@@ -12,6 +12,8 @@ import {
   Clock,
   DollarSign,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -46,6 +48,9 @@ export default function Vehicles() {
 
   // Add this new state variable near the top with your other state declarations
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
 
   // Fetch vehicles data
   useEffect(() => {
@@ -238,6 +243,21 @@ export default function Vehicles() {
     setStatusFilter("");
     setSortBy("");
     setSearchTerm("");
+  };
+
+  // Calculate pagination values
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = displayedVehicles.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
+  const totalPages = Math.ceil(displayedVehicles.length / itemsPerPage);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
   };
 
   return (
@@ -466,7 +486,7 @@ export default function Vehicles() {
             <p className="text-center text-gray-600">Loading vehicles...</p>
           ) : displayedVehicles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayedVehicles.map((vehicle) => (
+              {currentItems.map((vehicle) => (
                 <div
                   key={vehicle.id}
                   className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow flex flex-col overflow-hidden"
@@ -558,6 +578,53 @@ export default function Vehicles() {
             </div>
           )}
         </div>
+
+        {/* Pagination */}
+        {displayedVehicles.length > 0 && (
+          <div className="flex justify-center mt-10">
+            <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (number) => (
+                  <button
+                    key={number}
+                    onClick={() => paginate(number)}
+                    className={`px-4 py-2 border-r border-gray-200 ${
+                      currentPage === number
+                        ? "bg-orange-500 text-white font-medium"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {number}
+                  </button>
+                )
+              )}
+
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 flex items-center ${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Edit Vehicle Modal */}

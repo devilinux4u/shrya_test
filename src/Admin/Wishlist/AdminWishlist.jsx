@@ -17,6 +17,8 @@ import {
   CalendarDays,
   AlertTriangle,
   Edit3,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -46,6 +48,9 @@ export default function AdminWishlist() {
     budget: "",
     description: "",
   });
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
 
   // Mock data - replace with actual API call
   useEffect(() => {
@@ -102,12 +107,14 @@ export default function AdminWishlist() {
 
   const handleStatusChange = async (id, newStatus) => {
     try {
-
-      const response = await fetch(`http://localhost:3000/wishlist/${id}/available`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-      })
-      const data = await response.json()
+      const response = await fetch(
+        `http://localhost:3000/wishlist/${id}/available`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      const data = await response.json();
 
       // setWishlistItems(updatedItems);
       toast.success(`Status updated to ${newStatus}`);
@@ -261,6 +268,18 @@ export default function AdminWishlist() {
     } catch (error) {
       console.error("Error updating item:", error);
       toast.error("Failed to update item. Please try again.");
+    }
+  };
+
+  // Calculate pagination values
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
     }
   };
 
@@ -455,7 +474,7 @@ export default function AdminWishlist() {
       </div>
 
       {/* Wishlist Items - Card Layout */}
-      {filteredItems.length === 0 ? (
+      {currentItems.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm p-8 text-center">
           <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
             <Car className="w-8 h-8 text-gray-400" />
@@ -471,7 +490,7 @@ export default function AdminWishlist() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredItems.map((item) => (
+          {currentItems.map((item) => (
             <div
               key={item.id}
               className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow"
@@ -565,6 +584,53 @@ export default function AdminWishlist() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Pagination */}
+      {filteredItems.length > 0 && (
+        <div className="flex justify-center mt-10">
+          <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+            <button
+              onClick={() => paginate(currentPage - 1)}
+              disabled={currentPage === 1}
+              className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              (number) => (
+                <button
+                  key={number}
+                  onClick={() => paginate(number)}
+                  className={`px-4 py-2 border-r border-gray-200 ${
+                    currentPage === number
+                      ? "bg-orange-500 text-white font-medium"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  {number}
+                </button>
+              )
+            )}
+
+            <button
+              onClick={() => paginate(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className={`px-4 py-2 flex items-center ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       )}
 

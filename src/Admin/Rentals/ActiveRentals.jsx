@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   Loader2,
   Filter,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -170,6 +172,8 @@ export default function ActiveRentals() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(6);
 
   useEffect(() => {
     // Simulate API call with dummy data
@@ -257,6 +261,18 @@ export default function ActiveRentals() {
     if (filterType === "all") return searchMatch;
     return searchMatch && rental.rentalPeriod.type === filterType;
   });
+
+  // Calculate pagination values
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredRentals.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredRentals.length / itemsPerPage);
+
+  const paginate = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
 
   // Filter button component
   const FilterButton = ({ active, onClick, children }) => (
@@ -387,7 +403,7 @@ export default function ActiveRentals() {
             </div>
           ) : (
             <div className="space-y-6">
-              {filteredRentals.map((rental) => (
+              {currentItems.map((rental) => (
                 <div
                   key={rental._id}
                   className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100"
@@ -552,6 +568,53 @@ export default function ActiveRentals() {
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          {filteredRentals.length > 0 && (
+            <div className="flex justify-center mt-10">
+              <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+                <button
+                  onClick={() => paginate(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                    currentPage === 1
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (number) => (
+                    <button
+                      key={number}
+                      onClick={() => paginate(number)}
+                      className={`px-4 py-2 border-r border-gray-200 ${
+                        currentPage === number
+                          ? "bg-orange-500 text-white font-medium"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      {number}
+                    </button>
+                  )
+                )}
+
+                <button
+                  onClick={() => paginate(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className={`px-4 py-2 flex items-center ${
+                    currentPage === totalPages
+                      ? "text-gray-400 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           )}
         </div>

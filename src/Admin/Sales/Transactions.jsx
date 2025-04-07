@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 import {
   Search,
   CreditCard,
@@ -10,7 +10,9 @@ import {
   RefreshCcw,
   FileText,
   XCircle,
-} from "lucide-react"
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 // Mock data for transactions
 const initialTransactions = [
@@ -56,59 +58,77 @@ const initialTransactions = [
     customer: "Sarah Williams",
     cardLast4: "1234",
   },
-]
+];
 
 export default function Transactions() {
-  const [transactions, setTransactions] = useState(initialTransactions)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filterType, setFilterType] = useState("all")
-  const [filterStatus, setFilterStatus] = useState("all")
-  const [selectedTransaction, setSelectedTransaction] = useState(null)
+  const [transactions, setTransactions] = useState(initialTransactions);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const transactionsPerPage = 5;
 
   const getStatusColor = (status) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "pending":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "failed":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "refunded":
-        return "bg-purple-100 text-purple-800"
+        return "bg-purple-100 text-purple-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   const getPaymentMethodIcon = (method) => {
     switch (method) {
       case "credit_card":
-        return <CreditCard className="w-5 h-5" />
+        return <CreditCard className="w-5 h-5" />;
       case "paypal":
-        return <DollarSign className="w-5 h-5" />
+        return <DollarSign className="w-5 h-5" />;
       case "bank_transfer":
-        return <ArrowUpRight className="w-5 h-5" />
+        return <ArrowUpRight className="w-5 h-5" />;
       default:
-        return <DollarSign className="w-5 h-5" />
+        return <DollarSign className="w-5 h-5" />;
     }
-  }
+  };
 
   // Calculate total amounts
-  const totalAmount = transactions.reduce((sum, trx) => sum + trx.amount, 0)
+  const totalAmount = transactions.reduce((sum, trx) => sum + trx.amount, 0);
   const completedAmount = transactions
     .filter((trx) => trx.status === "completed")
-    .reduce((sum, trx) => sum + trx.amount, 0)
-  const pendingAmount = transactions.filter((trx) => trx.status === "pending").reduce((sum, trx) => sum + trx.amount, 0)
+    .reduce((sum, trx) => sum + trx.amount, 0);
+  const pendingAmount = transactions
+    .filter((trx) => trx.status === "pending")
+    .reduce((sum, trx) => sum + trx.amount, 0);
 
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch =
       transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.orderId.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesType = filterType === "all" || transaction.type === filterType
-    const matchesStatus = filterStatus === "all" || transaction.status === filterStatus
-    return matchesSearch && matchesType && matchesStatus
-  })
+      transaction.orderId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = filterType === "all" || transaction.type === filterType;
+    const matchesStatus =
+      filterStatus === "all" || transaction.status === filterStatus;
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
+  // Pagination logic
+  const indexOfLastTransaction = currentPage * transactionsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  const currentTransactions = filteredTransactions.slice(
+    indexOfFirstTransaction,
+    indexOfLastTransaction
+  );
+  const totalPages = Math.ceil(
+    filteredTransactions.length / transactionsPerPage
+  );
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     // Add ml-64 to offset the fixed sidebar
@@ -117,7 +137,9 @@ export default function Transactions() {
       <div className="p-8">
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Transaction Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            Transaction Management
+          </h1>
 
           {/* Analytics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -128,8 +150,12 @@ export default function Transactions() {
                   <DollarSign className="w-6 h-6 text-[#4F46E5]" />
                 </div>
               </div>
-              <p className="text-2xl font-bold mt-2">Rs. {totalAmount.toLocaleString()}</p>
-              <div className="mt-2 text-sm text-gray-600">{transactions.length} transactions</div>
+              <p className="text-2xl font-bold mt-2">
+                Rs. {totalAmount.toLocaleString()}
+              </p>
+              <div className="mt-2 text-sm text-gray-600">
+                {transactions.length} transactions
+              </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6">
@@ -139,8 +165,12 @@ export default function Transactions() {
                   <ArrowUpRight className="w-6 h-6 text-green-600" />
                 </div>
               </div>
-              <p className="text-2xl font-bold mt-2">Rs. {completedAmount.toLocaleString()}</p>
-              <div className="mt-2 text-sm text-green-600">Successfully processed</div>
+              <p className="text-2xl font-bold mt-2">
+                Rs. {completedAmount.toLocaleString()}
+              </p>
+              <div className="mt-2 text-sm text-green-600">
+                Successfully processed
+              </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6">
@@ -150,8 +180,12 @@ export default function Transactions() {
                   <ArrowDownRight className="w-6 h-6 text-yellow-600" />
                 </div>
               </div>
-              <p className="text-2xl font-bold mt-2">Rs. {pendingAmount.toLocaleString()}</p>
-              <div className="mt-2 text-sm text-yellow-600">Awaiting completion</div>
+              <p className="text-2xl font-bold mt-2">
+                Rs. {pendingAmount.toLocaleString()}
+              </p>
+              <div className="mt-2 text-sm text-yellow-600">
+                Awaiting completion
+              </div>
             </div>
           </div>
 
@@ -223,22 +257,30 @@ export default function Transactions() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredTransactions.map((transaction) => (
+                {currentTransactions.map((transaction) => (
                   <tr key={transaction.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{transaction.id}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {transaction.id}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">{transaction.customer}</div>
-                      <div className="text-sm text-gray-500">{transaction.orderId}</div>
+                      <div className="text-sm text-gray-900">
+                        {transaction.customer}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {transaction.orderId}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">Rs. {transaction.amount.toLocaleString()}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        Rs. {transaction.amount.toLocaleString()}
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
                         className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                          transaction.status,
+                          transaction.status
                         )}`}
                       >
                         {transaction.status.toUpperCase()}
@@ -248,12 +290,17 @@ export default function Transactions() {
                       <div className="flex items-center text-sm text-gray-900">
                         {getPaymentMethodIcon(transaction.paymentMethod)}
                         <span className="ml-2">
-                          {transaction.paymentMethod.replace("_", " ").toUpperCase()}
-                          {transaction.cardLast4 && ` (*${transaction.cardLast4})`}
+                          {transaction.paymentMethod
+                            .replace("_", " ")
+                            .toUpperCase()}
+                          {transaction.cardLast4 &&
+                            ` (*${transaction.cardLast4})`}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{transaction.date}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {transaction.date}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         <button
@@ -276,19 +323,76 @@ export default function Transactions() {
           </div>
         </div>
 
+        {/* Pagination Component */}
+        {filteredTransactions.length > 0 && (
+          <div className="flex justify-center mt-10">
+            <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (number) => (
+                  <button
+                    key={number}
+                    onClick={() => paginate(number)}
+                    className={`px-4 py-2 border-r border-gray-200 ${
+                      currentPage === number
+                        ? "bg-orange-500 text-white font-medium"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {number}
+                  </button>
+                )
+              )}
+
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 flex items-center ${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Transaction Detail Modal */}
         {selectedTransaction && (
           <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
             onClick={() => setSelectedTransaction(null)}
           >
-            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="bg-white rounded-xl shadow-lg p-6 w-full max-w-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Transaction Details</h2>
-                  <p className="text-sm text-gray-500 mt-1">View transaction information and process refunds</p>
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Transaction Details
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    View transaction information and process refunds
+                  </p>
                 </div>
-                <button onClick={() => setSelectedTransaction(null)} className="p-2 text-gray-400 hover:text-gray-600">
+                <button
+                  onClick={() => setSelectedTransaction(null)}
+                  className="p-2 text-gray-400 hover:text-gray-600"
+                >
                   <XCircle className="w-6 h-6" />
                 </button>
               </div>
@@ -296,15 +400,25 @@ export default function Transactions() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Transaction ID</h3>
-                    <p className="text-lg font-medium text-gray-900">{selectedTransaction.id}</p>
+                    <h3 className="text-sm font-medium text-gray-500">
+                      Transaction ID
+                    </h3>
+                    <p className="text-lg font-medium text-gray-900">
+                      {selectedTransaction.id}
+                    </p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Order ID</h3>
-                    <p className="text-lg font-medium text-gray-900">{selectedTransaction.orderId}</p>
+                    <h3 className="text-sm font-medium text-gray-500">
+                      Order ID
+                    </h3>
+                    <p className="text-lg font-medium text-gray-900">
+                      {selectedTransaction.orderId}
+                    </p>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Amount</h3>
+                    <h3 className="text-sm font-medium text-gray-500">
+                      Amount
+                    </h3>
                     <p className="text-lg font-medium text-gray-900">
                       Rs. {selectedTransaction.amount.toLocaleString()}
                     </p>
@@ -313,28 +427,37 @@ export default function Transactions() {
 
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Status</h3>
+                    <h3 className="text-sm font-medium text-gray-500">
+                      Status
+                    </h3>
                     <span
                       className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                        selectedTransaction.status,
+                        selectedTransaction.status
                       )}`}
                     >
                       {selectedTransaction.status.toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <h3 className="text-sm font-medium text-gray-500">Payment Method</h3>
+                    <h3 className="text-sm font-medium text-gray-500">
+                      Payment Method
+                    </h3>
                     <div className="flex items-center mt-1">
                       {getPaymentMethodIcon(selectedTransaction.paymentMethod)}
                       <span className="ml-2 text-gray-900">
-                        {selectedTransaction.paymentMethod.replace("_", " ").toUpperCase()}
-                        {selectedTransaction.cardLast4 && ` (*${selectedTransaction.cardLast4})`}
+                        {selectedTransaction.paymentMethod
+                          .replace("_", " ")
+                          .toUpperCase()}
+                        {selectedTransaction.cardLast4 &&
+                          ` (*${selectedTransaction.cardLast4})`}
                       </span>
                     </div>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500">Date</h3>
-                    <p className="text-lg font-medium text-gray-900">{selectedTransaction.date}</p>
+                    <p className="text-lg font-medium text-gray-900">
+                      {selectedTransaction.date}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -357,6 +480,5 @@ export default function Transactions() {
         )}
       </div>
     </div>
-  )
+  );
 }
-
