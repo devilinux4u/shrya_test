@@ -42,7 +42,10 @@ export default function ActiveRentals() {
           throw new Error("Failed to fetch rentals data");
         }
         const data = await response.json();
-        setRentals(data.data.length > 0 ? data.data : []); // Ensure empty array if no rentals
+
+        console.log(data.data);
+
+        setRentals(data.length > 0 ? data.data : []); // Ensure empty array if no rentals
         setError(null);
       } catch (err) {
         setError(err.message);
@@ -131,16 +134,16 @@ export default function ActiveRentals() {
   const filteredRentals = rentals.filter((rental) => {
     // Search filter
     const searchMatch =
-      rental.vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rental.rentVehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      rental.rentVehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
       rental.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      rental.vehicle.numberPlate
+      rental.rentVehicle.numberPlate
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
     // Type filter
     if (filterType === "all") return searchMatch;
-    return searchMatch && rental.rentalPeriod.type === filterType;
+    return searchMatch && rental.rentalType === filterType;
   });
 
   // Calculate pagination values
@@ -300,8 +303,8 @@ export default function ActiveRentals() {
                           style={{ minHeight: "200px" }}
                         />
                         <div className="absolute top-0 left-0 bg-[#ff6b00] text-white px-3 py-1 rounded-br-lg font-medium">
-                          {rental.rentalPeriod.type.charAt(0).toUpperCase() +
-                            rental.rentalPeriod.type.slice(1)}
+                          {rental.rentalType.charAt(0).toUpperCase() +
+                            rental.rentalType.slice(1)}
                         </div>
                       </div>
                     </div>

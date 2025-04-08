@@ -90,6 +90,8 @@ const RentalBookingForm = ({ vehicleId }) => {
         }
         const data = await response.json();
 
+        console.log(data)
+
         // Ensure we have the vehicle data with price fields
         if (data && data[0]) {
           const vehicleData = data[0];
@@ -313,7 +315,7 @@ const RentalBookingForm = ({ vehicleId }) => {
       formData.append("termsAccepted", bookingData.termsAccepted);
       formData.append("totalAmount", totalAmount);
       formData.append("rentalDuration", duration);
-      formData.append("status", "confirmed");
+      formData.append("status", "active");
 
       if (bookingData.driveOption === "selfDrive" && bookingData.licenseImage) {
         formData.append("licenseImage", bookingData.licenseImage);
@@ -1119,17 +1121,17 @@ const RentalBookingForm = ({ vehicleId }) => {
             <div className="w-full sm:w-1/3 h-36 sm:h-48 bg-gray-100 rounded-lg overflow-hidden">
               <img
                 src={
-                  vehicle?.rentVehicleImages?.image?.[0] ||
+                  `../../server${vehicle.rentVehicleImages[0].image}` ||
                   "/placeholder-car.jpg" ||
                   "/placeholder.svg"
                 }
-                alt={vehicle.name || "Vehicle"}
+                alt={vehicle.make || "Vehicle"}
                 className="w-full h-full object-cover"
               />
             </div>
             <div className="flex-1">
               <h3 className="text-lg sm:text-xl font-bold text-gray-900">
-                {vehicle.name || "Unknown Vehicle"}
+                {vehicle.make || "Unknown Vehicle"}
               </h3>
               <p className="text-sm text-gray-600">
                 {vehicle.model || "Unknown Model"} Model
