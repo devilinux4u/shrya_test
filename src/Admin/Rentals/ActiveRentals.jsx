@@ -35,12 +35,12 @@ export default function ActiveRentals() {
     const fetchRentals = async () => {
       setLoading(true);
       try {
-        const response = await fetch("https://api.example.com/rentals/active"); // Replace with your API endpoint
+        const response = await fetch("http://localhost:3000/api/vehicles/active/all"); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error("Failed to fetch rentals data");
         }
         const data = await response.json();
-        setRentals(data);
+        setRentals(data.data);
         setError(null);
       } catch (err) {
         setError(err.message);
@@ -55,12 +55,12 @@ export default function ActiveRentals() {
   const fetchRentals = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://api.example.com/rentals/active"); // Replace with your API endpoint
+      const response = await fetch("http://localhost:3000/api/vehicles/active/all"); // Replace with your API endpoint
       if (!response.ok) {
         throw new Error("Failed to fetch rentals data");
       }
       const data = await response.json();
-      setRentals(data);
+      setRentals(data.data);
       setError(null);
     } catch (err) {
       setError(err.message);

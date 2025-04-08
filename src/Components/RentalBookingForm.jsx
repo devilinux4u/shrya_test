@@ -27,10 +27,10 @@ const RentalBookingForm = ({ vehicleId }) => {
     imageUrl: "/placeholder.svg?height=400&width=600",
     price: 3000,
     priceDetails: {
-      hour: 500,
-      day: 3000,
-      week: 18000,
-      month: 70000,
+      priceHour: 500,
+      priceDay: 3000,
+      priceWeek: 18000,
+      priceMonth: 70000,
     },
     specs: {
       seats: "5",
@@ -94,16 +94,20 @@ const RentalBookingForm = ({ vehicleId }) => {
 
   useEffect(() => {
     const fetchVehicleData = async () => {
+
       try {
         setVerifyingVehicle(true);
         const response = await fetch(
-          `http://localhost:3000/api/vehicles/${vehicleId}`
+          `http://localhost:3000/rent/one/${vehicleId}`
         );
         if (!response.ok) {
           throw new Error("Failed to fetch vehicle data");
         }
         const data = await response.json();
-        setVehicle(data);
+
+        console.log(data)
+
+        setVehicle(data[0]);
       } catch (error) {
         console.error("Error fetching vehicle data:", error);
         toast.error("Unable to load vehicle data. Please try again later.");
@@ -121,19 +125,19 @@ const RentalBookingForm = ({ vehicleId }) => {
 
     switch (bookingData.rentalType) {
       case "hour":
-        basePrice = vehicle.priceDetails.hour * calculatedDuration;
+        basePrice = vehicle.priceHour * calculatedDuration;
         break;
       case "day":
-        basePrice = vehicle.priceDetails.day * calculatedDuration;
+        basePrice = vehicle.priceDay * calculatedDuration;
         break;
       case "week":
-        basePrice = vehicle.priceDetails.week * calculatedDuration;
+        basePrice = vehicle.priceWeek * calculatedDuration;
         break;
       case "month":
-        basePrice = vehicle.priceDetails.month * calculatedDuration;
+        basePrice = vehicle.priceMonth * calculatedDuration;
         break;
       default:
-        basePrice = vehicle.priceDetails.day * calculatedDuration;
+        basePrice = vehicle.priceDay * calculatedDuration;
     }
 
     let driverCost = 0;
@@ -363,7 +367,7 @@ const RentalBookingForm = ({ vehicleId }) => {
 
       if (response.status === 201) {
         toast.success("Booking confirmed!");
-        navigate("/RentalVehicleDesc");
+        window.location.reload();
         return;
       }
 
@@ -482,16 +486,16 @@ const RentalBookingForm = ({ vehicleId }) => {
               className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3"
             >
               <option value="hour">
-                Hourly (Rs. {vehicle.priceDetails.hour}/hour)
+                Hourly (Rs. {vehicle.priceHour}/hour)
               </option>
               <option value="day">
-                Daily (Rs. {vehicle.priceDetails.day}/day)
+                Daily (Rs. {vehicle.priceDay}/day)
               </option>
               <option value="week">
-                Weekly (Rs. {vehicle.priceDetails.week}/week)
+                Weekly (Rs. {vehicle.priceWeek}/week)
               </option>
               <option value="month">
-                Monthly (Rs. {vehicle.priceDetails.month}/month)
+                Monthly (Rs. {vehicle.priceMonth}/month)
               </option>
             </select>
           </div>
@@ -620,7 +624,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                     </p>
                     <p className="text-lg sm:text-xl font-bold text-[#ff6b00]">
                       {formatCurrency(
-                        vehicle.priceDetails[bookingData.rentalType] *
+                        vehicle[bookingData.rentalType] *
                           rentalDuration
                       )}
                     </p>
@@ -1080,7 +1084,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                 </span>
                 <span className="font-medium text-gray-900">
                   {formatCurrency(
-                    vehicle.priceDetails[bookingData.rentalType] *
+                    vehicle[bookingData.rentalType] *
                       rentalDuration
                   )}
                 </span>
@@ -1143,7 +1147,7 @@ const RentalBookingForm = ({ vehicleId }) => {
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-6 sm:mb-8">
             <div className="w-full sm:w-1/3 h-36 sm:h-48 bg-gray-100 rounded-lg overflow-hidden">
               <img
-                src={vehicle.imageUrl || "/placeholder-car.jpg"}
+                src={`../../server${vehicle.rentVehicleImages.image[0]}` || "/placeholder-car.jpg"}
                 alt={vehicle.name}
                 className="w-full h-full object-cover"
               />
@@ -1157,19 +1161,19 @@ const RentalBookingForm = ({ vehicleId }) => {
               <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
                 <div className="flex items-center text-xs sm:text-sm text-gray-600">
                   <span className="font-medium">Seats:</span>
-                  <span className="ml-1">{vehicle.specs.seats}</span>
+                  <span className="ml-1">{vehicle.seats}</span>
                 </div>
                 <div className="flex items-center text-xs sm:text-sm text-gray-600">
                   <span className="font-medium">Doors:</span>
-                  <span className="ml-1">{vehicle.specs.doors}</span>
+                  <span className="ml-1">{vehicle.doors}</span>
                 </div>
                 <div className="flex items-center text-xs sm:text-sm text-gray-600">
                   <span className="font-medium">Transmission:</span>
-                  <span className="ml-1">{vehicle.specs.transmission}</span>
+                  <span className="ml-1">{vehicle.transmission}</span>
                 </div>
                 <div className="flex items-center text-xs sm:text-sm text-gray-600">
                   <span className="font-medium">Fuel:</span>
-                  <span className="ml-1">{vehicle.specs.fuel}</span>
+                  <span className="ml-1">{vehicle.fuelType}</span>
                 </div>
               </div>
             </div>
@@ -1322,7 +1326,7 @@ const RentalBookingForm = ({ vehicleId }) => {
                 </span>
                 <span className="font-medium text-gray-900">
                   {formatCurrency(
-                    vehicle.priceDetails[bookingData.rentalType] *
+                    vehicle[bookingData.rentalType] *
                       rentalDuration
                   )}
                 </span>

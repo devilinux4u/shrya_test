@@ -98,7 +98,7 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
       paymentMethod: req.body.paymentMethod || 'payLater',
       totalAmount: parseFloat(req.body.totalAmount) || 0,
       rentalDuration: parseInt(req.body.rentalDuration) || 1,
-      status: 'confirmed',
+      status: 'active',
       licenseImageUrl: req.file ? `/uploads/licenses/${req.file.filename}` : null,
       metadata: JSON.stringify({
         vehicleType: isRental ? 'rental' : 'regular'

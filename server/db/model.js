@@ -493,9 +493,6 @@ module.exports.rental = (sequelize, DataTypes) => {
             type: DataTypes.ENUM('creditCard', 'payLater'),
             allowNull: false
         },
-        cardLastFour: {
-            type: DataTypes.STRING
-        },
         totalAmount: {
             type: DataTypes.FLOAT,
             allowNull: false
@@ -505,14 +502,14 @@ module.exports.rental = (sequelize, DataTypes) => {
             allowNull: false
         },
         status: {
-            type: DataTypes.ENUM('pending', 'confirmed', 'cancelled', 'completed'),
-            defaultValue: 'confirmed'
+            type: DataTypes.ENUM('pending', 'active', 'cancelled', 'completed'),
+            defaultValue: 'active'
         }
     });
 
     Rental.associate = (models) => {
         Rental.belongsTo(models.user, { foreignKey: 'userId' });
-        Rental.belongsTo(models.vehicles, { foreignKey: 'vehicleId' });
+        Rental.belongsTo(models.rentVehicle, { foreignKey: 'vehicleId' });
     };
 
     return Rental;

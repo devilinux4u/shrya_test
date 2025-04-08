@@ -433,7 +433,7 @@ const RentalVehicleDesc = ({ id }) => {
                 />
               </svg>
             </button>
-            <RentalBookingForm vehicleId={id} vehicle={vehicle} />
+            <RentalBookingForm vehicleId={vehicleId} vehicle={vehicle} />
           </div>
         </div>
       )}

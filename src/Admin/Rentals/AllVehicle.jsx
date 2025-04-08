@@ -911,7 +911,7 @@ export default function AdminRentalVehicles() {
                       src={
                         viewedVehicle.vehicle_images[0].image.startsWith("http")
                           ? viewedVehicle.vehicle_images[0].image
-                          : `http://localhost:3000/uploads/${viewedVehicle.vehicle_images[0].image}`
+                          : `../../server${viewedVehicle.vehicle_images[0].image}`
                       }
                       alt={`${viewedVehicle.make} ${viewedVehicle.model}`}
                       className="w-full h-full object-cover"
