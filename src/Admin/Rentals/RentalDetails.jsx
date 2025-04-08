@@ -41,12 +41,12 @@ export default function RentalDetails() {
   const fetchRentalDetails = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/rentals/${id}`);
+      const response = await fetch(`http://localhost:3000/api/vehicles/active/one${id}`);
       if (!response.ok) {
         throw new Error("Failed to fetch rental details");
       }
       const data = await response.json();
-      setRental(data);
+      setRental(data.data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching rental details:", error);
