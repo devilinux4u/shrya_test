@@ -195,6 +195,40 @@ router.get('/active/one/:id', async (req, res) => {
   }
 });
 
+// GET all rental vehicles for rental history
+router.get('/history/all', async (req, res) => {
+  try {
+    const vehiclesData = await db.rental.findAll({
+      include: [
+        {
+          model: db.users,
+          attributes: ['id', 'fname', 'uname', 'email'] // customize fields as needed
+        },
+        {
+          model: db.RentalAllVehicles,
+          include: [
+            { 
+              model: db.RentalAllVehicleImages,
+            }
+          ]
+        }
+      ]
+    });
+
+    res.json({
+      success: true,
+      data: vehiclesData
+    });
+  } catch (error) {
+    console.error('Error fetching rental vehicles:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error.message
+    });
+  }
+});
+
 
 
 module.exports = router;
