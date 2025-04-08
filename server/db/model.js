@@ -448,7 +448,7 @@ module.exports.rental = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'vehicles',
+                model: 'rentVehicles',
                 key: 'id'
             },
             onDelete: 'CASCADE'

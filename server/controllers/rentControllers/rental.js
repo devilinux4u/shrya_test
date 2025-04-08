@@ -85,8 +85,8 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
 
     // Prepare rental data
     const rentalData = {
-      userId: parseInt(req.body.userId),
-      vehicleId: vehicle.id,
+      userId: req.body.userId,
+      vehicleId: req.body.vehicleId,
       pickupLocation: req.body.pickupLocation,
       dropoffLocation: req.body.dropoffLocation || req.body.pickupLocation,
       pickupDate: req.body.pickupDate,
@@ -100,9 +100,6 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
       rentalDuration: parseInt(req.body.rentalDuration) || 1,
       status: 'active',
       licenseImageUrl: req.file ? `/uploads/licenses/${req.file.filename}` : null,
-      metadata: JSON.stringify({
-        vehicleType: isRental ? 'rental' : 'regular'
-      })
     };
 
     // Create rental
