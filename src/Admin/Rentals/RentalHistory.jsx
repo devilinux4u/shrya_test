@@ -32,12 +32,12 @@ export default function RentalHistory() {
   useEffect(() => {
     const fetchRentals = async () => {
       try {
-        const response = await fetch("/api/rentals"); // Replace with your API endpoint
+        const response = await fetch("http://localhost:3000/api/vehicles/history/all"); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error("Failed to fetch rental data");
         }
         const data = await response.json();
-        setRentals(data);
+        setRentals(data.data);
       } catch (error) {
         console.error("Error fetching rental data:", error);
       }
