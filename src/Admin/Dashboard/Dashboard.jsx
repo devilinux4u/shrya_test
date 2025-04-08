@@ -105,13 +105,16 @@ export default function Dashboard() {
   };
 
   return (
-    // Add ml-64 to offset the fixed sidebar and remove the original p-8 padding
-    <div className="flex-1 ml-64 min-h-screen bg-gray-50">
-      {/* Add padding inside this container instead */}
-      <div className="p-8">
-        <h1 className="text-2xl font-semibold mb-8">Dashboard</h1>
+    <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <div className="border-l-4 border-[#ff6b00] pl-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Dashboard
+            </h1>
+          </div>
+        </div>
 
-        {/* Keep all the existing content exactly the same */}
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <OverviewCard
@@ -137,7 +140,6 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Rest of the component remains exactly the same */}
         {/* Earnings Summary */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <EarningSummaryCard
@@ -181,7 +183,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Transactions */}
+        {/* Recent Transactions and Notifications */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h2 className="text-lg font-semibold mb-6">Recent Transactions</h2>

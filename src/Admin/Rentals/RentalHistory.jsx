@@ -137,98 +137,97 @@ export default function RentalHistory() {
   };
 
   return (
-    // Add ml-64 to offset the fixed sidebar
-    <div className="flex-1 ml-64 min-h-screen bg-gray-50">
-      {/* Add padding inside this container */}
-      <div className="p-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            Rental History
-          </h1>
+    <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <div className="border-l-4 border-[#ff6b00] pl-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Rental History
+            </h1>
+          </div>
+        </div>
 
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-gray-500">Total Rentals</h3>
-                <div className="p-3 bg-[#4F46E5]/10 rounded-full">
-                  <Car className="w-6 h-6 text-[#4F46E5]" />
-                </div>
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-gray-500">Total Rentals</h3>
+              <div className="p-3 bg-[#4F46E5]/10 rounded-full">
+                <Car className="w-6 h-6 text-[#4F46E5]" />
               </div>
-              <p className="text-2xl font-bold mt-2">{rentals.length}</p>
             </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-gray-500">Completed</h3>
-                <div className="p-3 bg-green-100 rounded-full">
-                  <CheckCircle className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold mt-2">
-                {rentals.filter((r) => r.status === "completed").length}
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-gray-500">Late Returns</h3>
-                <div className="p-3 bg-[#4F46E5]/10 rounded-full">
-                  <Clock className="w-6 h-6 text-[#4F46E5]" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold mt-2">
-                {rentals.filter((r) => r.status === "completed_late").length}
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-gray-500">Cancelled</h3>
-                <div className="p-3 bg-red-100 rounded-full">
-                  <Ban className="w-6 h-6 text-red-600" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold mt-2">
-                {rentals.filter((r) => r.status === "cancelled").length}
-              </p>
-            </div>
+            <p className="text-2xl font-bold mt-2">{rentals.length}</p>
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search rentals..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
-              />
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-gray-500">Completed</h3>
+              <div className="p-3 bg-green-100 rounded-full">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
             </div>
-            <div className="flex gap-4">
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
-              >
-                <option value="all">All Status</option>
-                <option value="completed">Completed</option>
-                <option value="completed_late">Late Returns</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-              <button
-                onClick={() => {
-                  console.log("Exporting data...");
-                }}
-                className="px-4 py-2 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] transition-colors flex items-center gap-2"
-              >
-                <Download className="w-5 h-5" />
-                Export
-              </button>
+            <p className="text-2xl font-bold mt-2">
+              {rentals.filter((r) => r.status === "completed").length}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-gray-500">Late Returns</h3>
+              <div className="p-3 bg-[#4F46E5]/10 rounded-full">
+                <Clock className="w-6 h-6 text-[#4F46E5]" />
+              </div>
             </div>
+            <p className="text-2xl font-bold mt-2">
+              {rentals.filter((r) => r.status === "completed_late").length}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-gray-500">Cancelled</h3>
+              <div className="p-3 bg-red-100 rounded-full">
+                <Ban className="w-6 h-6 text-red-600" />
+              </div>
+            </div>
+            <p className="text-2xl font-bold mt-2">
+              {rentals.filter((r) => r.status === "cancelled").length}
+            </p>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search rentals..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
+            />
+          </div>
+          <div className="flex gap-4">
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F46E5] focus:border-transparent"
+            >
+              <option value="all">All Status</option>
+              <option value="completed">Completed</option>
+              <option value="completed_late">Late Returns</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <button
+              onClick={() => {
+                console.log("Exporting data...");
+              }}
+              className="px-4 py-2 bg-[#4F46E5] text-white rounded-lg hover:bg-[#4338CA] transition-colors flex items-center gap-2"
+            >
+              <Download className="w-5 h-5" />
+              Export
+            </button>
           </div>
         </div>
 

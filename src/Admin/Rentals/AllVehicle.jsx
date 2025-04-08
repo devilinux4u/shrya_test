@@ -285,285 +285,280 @@ export default function AdminRentalVehicles() {
   );
 
   return (
-    <>
-      <ToastContainer position="top-right" theme="colored" />
-      <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
-        <div className="p-4 sm:p-6 md:p-8">
-          <div className="mb-6 md:mb-8">
-            <div className="border-l-4 border-[#ff6b00] pl-4">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                Rental Vehicles
-              </h1>
-              <p className="mt-2 text-gray-600">
-                Manage your rental vehicle inventory
-              </p>
-            </div>
+    <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 md:p-8">
+        <div className="mb-6 md:mb-8">
+          <div className="border-l-4 border-[#ff6b00] pl-4">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
+              Rental Vehicles
+            </h1>
+            <p className="mt-2 text-gray-600">
+              Manage your rental vehicle inventory
+            </p>
           </div>
-
-          <div className="bg-white rounded-xl shadow-md mb-6">
-            <div className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
-              <div className="relative w-full sm:w-auto flex-1 max-w-md">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search vehicles by make, model, year or plate..."
-                  className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-
-              <button
-                onClick={handleAddNew}
-                className="flex items-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                <span>Add Vehicle</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md mb-6 p-5">
-            <div className="flex items-center mb-4">
-              <Filter className="h-5 w-5 mr-2 text-indigo-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Sort By</h2>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <div className="flex flex-wrap gap-2">
-                  <FilterButton
-                    active={sortByFilter === "default"}
-                    onClick={() => setSortByFilter("default")}
-                  >
-                    Default
-                  </FilterButton>
-                  <FilterButton
-                    active={sortByFilter === "price-low"}
-                    onClick={() => setSortByFilter("price-low")}
-                  >
-                    <DollarSign className="h-4 w-4 mr-1 inline" /> Price: Low to
-                    High
-                  </FilterButton>
-                  <FilterButton
-                    active={sortByFilter === "price-high"}
-                    onClick={() => setSortByFilter("price-high")}
-                  >
-                    <DollarSign className="h-4 w-4 mr-1 inline" /> Price: High
-                    to Low
-                  </FilterButton>
-                  <FilterButton
-                    active={sortByFilter === "date-latest"}
-                    onClick={() => setSortByFilter("date-latest")}
-                  >
-                    <Calendar className="h-4 w-4 mr-1 inline" /> Date: Latest
-                  </FilterButton>
-                  <FilterButton
-                    active={sortByFilter === "date-oldest"}
-                    onClick={() => setSortByFilter("date-oldest")}
-                  >
-                    <Clock className="h-4 w-4 mr-1 inline" /> Date: Oldest
-                  </FilterButton>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <Loader2 className="h-8 w-8 text-[#ff6b00] animate-spin" />
-              <span className="ml-2 text-lg text-gray-600">
-                Loading vehicles...
-              </span>
-            </div>
-          ) : error ? (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex items-start">
-              <AlertCircle className="h-6 w-6 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-lg font-medium text-red-800">
-                  Error loading vehicles
-                </h3>
-                <p className="mt-1 text-red-700">{error}</p>
-                <button
-                  onClick={fetchVehicles}
-                  className="mt-3 text-sm font-medium text-red-800 hover:text-red-900"
-                >
-                  Try again
-                </button>
-              </div>
-            </div>
-          ) : filteredVehicles.length === 0 ? (
-            <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
-              <Car className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No vehicles found
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {searchTerm || postedByFilter !== "all"
-                  ? "Try adjusting your search or filters"
-                  : "Add your first rental vehicle to get started"}
-              </p>
-              <button
-                onClick={handleAddNew}
-                className="inline-flex items-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                <span>Add Vehicle</span>
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentVehicles.map((vehicle) => (
-                <div
-                  key={vehicle._id}
-                  className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
-                >
-                  <div className="relative h-48 overflow-hidden bg-gray-200">
-                    {vehicle.vehicle_images && vehicle.vehicle_images[0] ? (
-                      <img
-                        src={
-                          vehicle.vehicle_images[0].image.startsWith("http")
-                            ? vehicle.vehicle_images[0].image
-                            : `../../server${vehicle.vehicle_images[0].image}`
-                        }
-                        alt={`${vehicle.make} ${vehicle.model}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.src = "/placeholder.svg";
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                        <Car className="h-16 w-16 text-gray-400" />
-                      </div>
-                    )}
-                    <div className="absolute top-0 right-0 bg-[#ff6b00] text-white px-3 py-1 rounded-bl-lg font-medium">
-                      Rs. {vehicle.price.day}/day
-                    </div>
-                    {vehicle.status === "sold" && (
-                      <div className="absolute top-0 left-0 bg-red-500 text-white px-3 py-1 rounded-br-lg font-medium">
-                        Sold
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-5">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="text-lg font-bold text-gray-900">
-                          {vehicle.make} {vehicle.model}
-                        </h3>
-                        <div className="flex items-center text-gray-600 mt-1">
-                          <Calendar className="h-4 w-4 mr-1" />
-                          <span>{vehicle.year}</span>
-                          <span className="mx-2">•</span>
-                          <Users className="h-4 w-4 mr-1" />
-                          <span className="capitalize">{vehicle.postedBy}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-sm text-gray-500">Hourly</span>
-                        <span className="font-semibold text-gray-900">
-                          Rs. {vehicle.price.hour}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <span className="font-medium">Seats:</span>
-                        <span className="ml-1">{vehicle.specs.seats}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <span className="font-medium">Fuel:</span>
-                        <span className="ml-1">{vehicle.specs.fuel}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <span className="font-medium">Trans:</span>
-                        <span className="ml-1">
-                          {vehicle.specs.transmission}
-                        </span>
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <span className="font-medium">Engine:</span>
-                        <span className="ml-1">{vehicle.specs.engine}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between pt-4 border-t border-gray-100">
-                      <button
-                        onClick={() => handleView(vehicle)}
-                        className="text-gray-600 hover:text-[#ff6b00] transition-colors"
-                      >
-                        <Eye className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(vehicle)}
-                        className="text-gray-600 hover:text-blue-600 transition-colors"
-                      >
-                        <Edit className="h-5 w-5" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(vehicle._id)}
-                        className="text-gray-600 hover:text-red-600 transition-colors"
-                      >
-                        <Trash2 className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {filteredVehicles.length > 0 && (
-            <div className="flex justify-center mt-10">
-              <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
-                <button
-                  onClick={() => paginate(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${
-                    currentPage === 1
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (number) => (
-                    <button
-                      key={number}
-                      onClick={() => paginate(number)}
-                      className={`px-4 py-2 border-r border-gray-200 ${
-                        currentPage === number
-                          ? "bg-orange-500 text-white font-medium"
-                          : "text-gray-700 hover:bg-gray-50"
-                      }`}
-                    >
-                      {number}
-                    </button>
-                  )
-                )}
-
-                <button
-                  onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 flex items-center ${
-                    currentPage === totalPages
-                      ? "text-gray-400 cursor-not-allowed"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )}
         </div>
+
+        <div className="bg-white rounded-xl shadow-md mb-6">
+          <div className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full sm:w-auto flex-1 max-w-md">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search vehicles by make, model, year or plate..."
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff6b00] focus:border-transparent"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <button
+              onClick={handleAddNew}
+              className="flex items-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              <span>Add Vehicle</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-md mb-6 p-5">
+          <div className="flex items-center mb-4">
+            <Filter className="h-5 w-5 mr-2 text-indigo-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Sort By</h2>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <div className="flex flex-wrap gap-2">
+                <FilterButton
+                  active={sortByFilter === "default"}
+                  onClick={() => setSortByFilter("default")}
+                >
+                  Default
+                </FilterButton>
+                <FilterButton
+                  active={sortByFilter === "price-low"}
+                  onClick={() => setSortByFilter("price-low")}
+                >
+                  <DollarSign className="h-4 w-4 mr-1 inline" /> Price: Low to
+                  High
+                </FilterButton>
+                <FilterButton
+                  active={sortByFilter === "price-high"}
+                  onClick={() => setSortByFilter("price-high")}
+                >
+                  <DollarSign className="h-4 w-4 mr-1 inline" /> Price: High to
+                  Low
+                </FilterButton>
+                <FilterButton
+                  active={sortByFilter === "date-latest"}
+                  onClick={() => setSortByFilter("date-latest")}
+                >
+                  <Calendar className="h-4 w-4 mr-1 inline" /> Date: Latest
+                </FilterButton>
+                <FilterButton
+                  active={sortByFilter === "date-oldest"}
+                  onClick={() => setSortByFilter("date-oldest")}
+                >
+                  <Clock className="h-4 w-4 mr-1 inline" /> Date: Oldest
+                </FilterButton>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 text-[#ff6b00] animate-spin" />
+            <span className="ml-2 text-lg text-gray-600">
+              Loading vehicles...
+            </span>
+          </div>
+        ) : error ? (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 flex items-start">
+            <AlertCircle className="h-6 w-6 text-red-500 mr-3 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-lg font-medium text-red-800">
+                Error loading vehicles
+              </h3>
+              <p className="mt-1 text-red-700">{error}</p>
+              <button
+                onClick={fetchVehicles}
+                className="mt-3 text-sm font-medium text-red-800 hover:text-red-900"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
+        ) : filteredVehicles.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
+            <Car className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No vehicles found
+            </h3>
+            <p className="text-gray-600 mb-6">
+              {searchTerm || postedByFilter !== "all"
+                ? "Try adjusting your search or filters"
+                : "Add your first rental vehicle to get started"}
+            </p>
+            <button
+              onClick={handleAddNew}
+              className="inline-flex items-center px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff8533] transition-colors"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              <span>Add Vehicle</span>
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentVehicles.map((vehicle) => (
+              <div
+                key={vehicle._id}
+                className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow"
+              >
+                <div className="relative h-48 overflow-hidden bg-gray-200">
+                  {vehicle.vehicle_images && vehicle.vehicle_images[0] ? (
+                    <img
+                      src={
+                        vehicle.vehicle_images[0].image.startsWith("http")
+                          ? vehicle.vehicle_images[0].image
+                          : `../../server${vehicle.vehicle_images[0].image}`
+                      }
+                      alt={`${vehicle.make} ${vehicle.model}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = "/placeholder.svg";
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <Car className="h-16 w-16 text-gray-400" />
+                    </div>
+                  )}
+                  <div className="absolute top-0 right-0 bg-[#ff6b00] text-white px-3 py-1 rounded-bl-lg font-medium">
+                    Rs. {vehicle.price.day}/day
+                  </div>
+                  {vehicle.status === "sold" && (
+                    <div className="absolute top-0 left-0 bg-red-500 text-white px-3 py-1 rounded-br-lg font-medium">
+                      Sold
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-5">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">
+                        {vehicle.make} {vehicle.model}
+                      </h3>
+                      <div className="flex items-center text-gray-600 mt-1">
+                        <Calendar className="h-4 w-4 mr-1" />
+                        <span>{vehicle.year}</span>
+                        <span className="mx-2">•</span>
+                        <Users className="h-4 w-4 mr-1" />
+                        <span className="capitalize">{vehicle.postedBy}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-sm text-gray-500">Hourly</span>
+                      <span className="font-semibold text-gray-900">
+                        Rs. {vehicle.price.hour}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium">Seats:</span>
+                      <span className="ml-1">{vehicle.specs.seats}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium">Fuel:</span>
+                      <span className="ml-1">{vehicle.specs.fuel}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium">Trans:</span>
+                      <span className="ml-1">{vehicle.specs.transmission}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <span className="font-medium">Engine:</span>
+                      <span className="ml-1">{vehicle.specs.engine}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between pt-4 border-t border-gray-100">
+                    <button
+                      onClick={() => handleView(vehicle)}
+                      className="text-gray-600 hover:text-[#ff6b00] transition-colors"
+                    >
+                      <Eye className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => handleEdit(vehicle)}
+                      className="text-gray-600 hover:text-blue-600 transition-colors"
+                    >
+                      <Edit className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(vehicle._id)}
+                      className="text-gray-600 hover:text-red-600 transition-colors"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {filteredVehicles.length > 0 && (
+          <div className="flex justify-center mt-10">
+            <div className="flex items-center bg-white rounded-lg shadow-sm overflow-hidden">
+              <button
+                onClick={() => paginate(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 border-r border-gray-200 flex items-center ${
+                  currentPage === 1
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (number) => (
+                  <button
+                    key={number}
+                    onClick={() => paginate(number)}
+                    className={`px-4 py-2 border-r border-gray-200 ${
+                      currentPage === number
+                        ? "bg-orange-500 text-white font-medium"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {number}
+                  </button>
+                )
+              )}
+
+              <button
+                onClick={() => paginate(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className={`px-4 py-2 flex items-center ${
+                  currentPage === totalPages
+                    ? "text-gray-400 cursor-not-allowed"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {isEditModalOpen && selectedVehicle && (
@@ -714,7 +709,6 @@ export default function AdminRentalVehicles() {
                     setUpdatedVehicleData({
                       ...updatedVehicleData,
                       specs: {
-                        ...updatedVehicleData.specs,
                         seats: e.target.value,
                       },
                     })
@@ -731,7 +725,6 @@ export default function AdminRentalVehicles() {
                     setUpdatedVehicleData({
                       ...updatedVehicleData,
                       specs: {
-                        ...updatedVehicleData.specs,
                         doors: e.target.value,
                       },
                     })
@@ -750,7 +743,6 @@ export default function AdminRentalVehicles() {
                     setUpdatedVehicleData({
                       ...updatedVehicleData,
                       specs: {
-                        ...updatedVehicleData.specs,
                         transmission: e.target.value,
                       },
                     })
@@ -767,7 +759,6 @@ export default function AdminRentalVehicles() {
                     setUpdatedVehicleData({
                       ...updatedVehicleData,
                       specs: {
-                        ...updatedVehicleData.specs,
                         fuel: e.target.value,
                       },
                     })
@@ -784,7 +775,6 @@ export default function AdminRentalVehicles() {
                     setUpdatedVehicleData({
                       ...updatedVehicleData,
                       specs: {
-                        ...updatedVehicleData.specs,
                         mileage: e.target.value,
                       },
                     })
@@ -801,7 +791,6 @@ export default function AdminRentalVehicles() {
                     setUpdatedVehicleData({
                       ...updatedVehicleData,
                       specs: {
-                        ...updatedVehicleData.specs,
                         engine: e.target.value,
                       },
                     })
@@ -818,7 +807,6 @@ export default function AdminRentalVehicles() {
                     setUpdatedVehicleData({
                       ...updatedVehicleData,
                       specs: {
-                        ...updatedVehicleData.specs,
                         power: e.target.value,
                       },
                     })
@@ -1078,6 +1066,6 @@ export default function AdminRentalVehicles() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
