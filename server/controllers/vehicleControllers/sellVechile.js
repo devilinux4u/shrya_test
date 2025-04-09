@@ -261,6 +261,29 @@ router.put("/vehicles/edit/:id", async (req, res) => {
 });
 
 
+// PUT route to mark a vechile as sold
+router.put("/vehicles/sold/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      // Find the item
+      const report = await vehicles.findByPk(id);
+      if (!report) {
+        return res.status(404).json({ success: false, message: "Item not found" });
+      }
+  
+      // Update the status to 'resolved'
+      report.status = "sold";
+      await report.save();
+  
+      res.status(200).json({ success: true, message: "Item marked as resolved", data: report });
+    } catch (error) {
+      console.error("Error updating item status:", error);
+      res.status(500).json({ success: false, message: "Failed to update status", error: error.message });
+    }
+  });
+
+
 
 
 //Route to get mySales vechile
