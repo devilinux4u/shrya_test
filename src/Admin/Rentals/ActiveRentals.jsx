@@ -42,6 +42,8 @@ export default function ActiveRentals() {
       }
       const data = await response.json();
 
+      console.log(data)
+
       // Check if data.data exists and is an array
       if (!data.data || !Array.isArray(data.data)) {
         throw new Error("Invalid data format received from API");
@@ -87,7 +89,7 @@ export default function ActiveRentals() {
           lname: rental.user?.lname || "",
           uname: rental.user?.uname || "",
           email: rental.user?.email || "",
-          phone: rental.user?.phone || "",
+          phone: rental.user?.num || "",
         },
       }));
 
@@ -282,8 +284,7 @@ export default function ActiveRentals() {
                         <div className="h-full">
                           <img
                             src={
-                              rental.rentVehicle.rentVehicleImages[0]
-                                ?.imageUrl || "/placeholder.svg"
+                              `../../server${rental.rentVehicle.rentVehicleImages[0].image}` || "/placeholder.svg"
                             }
                             alt={`${rental.rentVehicle.make} ${rental.rentVehicle.model}`}
                             className="w-full h-full object-cover md:h-full"

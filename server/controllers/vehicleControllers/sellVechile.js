@@ -260,4 +260,45 @@ router.put("/vehicles/edit/:id", async (req, res) => {
     }
 });
 
+
+
+
+//Route to get mySales vechile
+router.get("/vehicles/user/all/:uid", async (req, res) => {
+    try {
+        const userId = req.params.uid;
+
+        const vehicle = await vehicles.findOne({
+            where: { uid: userId },
+            include: [
+                {
+                    model: v_img,
+                    attributes: ["id", "image"]
+                },
+            ]
+        });
+
+        if (!vehicle) {
+            return res.status(404).json({ success: false, msg: "Vehicle not found" });
+        }
+
+        const formattedVehicle = {
+            ...vehicle.toJSON(),
+            images: vehicle.vehicle_images.map(img => ({
+                id: img.id,
+                image: img.image
+            }))
+        };
+
+
+        res.json({ success: true, data: formattedVehicle });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, msg: "Server error" });
+    }
+
+
+});
+
 module.exports = router;
