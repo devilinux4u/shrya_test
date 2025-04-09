@@ -77,6 +77,7 @@ router.post('/addVehicle', upload.array('images'), async (req, res) => {
 router.get("/vehicles/random", async (req, res) => {
     try {
         const vehicless = await vehicles.findOne({
+            where: { status: "available" },
             order: sequelize.literal("RAND()"),
             include: [{ model: v_img, attributes: ["id", "image"] }]
         });
@@ -106,6 +107,7 @@ router.get("/vehicles/random", async (req, res) => {
 router.get("/vehicles/three", async (req, res) => {
     try {
         const vehicless = await vehicles.findAll({
+            where: { status: "available" },
             order: sequelize.literal("RAND()"),
             limit: 3, // Fetch 3 random vehicles
             include: [{ model: v_img, attributes: ["id", "image"] }]
@@ -136,6 +138,7 @@ router.get("/vehicles/three", async (req, res) => {
 router.get("/vehicles/all", async (req, res) => {
     try {
         const vehicless = await vehicles.findAll({
+            where: { status: "available" },
             order: sequelize.literal("RAND()"),
             include: [
                 { model: v_img, 
