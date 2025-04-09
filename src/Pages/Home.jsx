@@ -77,12 +77,12 @@ export default function Home() {
           className="absolute inset-0 w-full h-full object-cover brightness-75"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/90"></div>
-        <div className="container relative z-10 h-full flex flex-col justify-center items-start px-4 md:px-6 mx-auto">
+        <div className="container relative z-10 h-full flex flex-col justify-center items-end px-4 md:px-6 mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="max-w-xl"
+            className="max-w-xl text-right"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
               Your Journey, Your Choice
@@ -91,7 +91,7 @@ export default function Home() {
               Rent, buy, or sell vehicles with ease. Find exactly what you need
               or list what you don't.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-end">
               <button
                 onClick={handleRentNow}
                 className="px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-700 rounded-md font-medium transition-colors"
