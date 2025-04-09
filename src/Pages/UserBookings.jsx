@@ -16,6 +16,7 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const UserBookings = () => {
   const navigate = useNavigate();
@@ -40,12 +41,15 @@ const UserBookings = () => {
     const fetchBookings = async () => {
       setLoading(true);
       try {
-        const response = await fetch("http://localhost:3000/api/bookings");
+        const response = await fetch(`http://localhost:3000/api/vehicles/active/user/all/${Cookies.get("sauto").split("-")[0]}`);
         if (!response.ok) {
           throw new Error("Failed to fetch bookings");
         }
         const data = await response.json();
-        setBookings(data.length > 0 ? data : []); // Ensure empty array if no bookings
+
+        console.log(data.data)
+
+        setBookings(data.data.length > 0 ? data.data : []); // Ensure empty array if no bookings
       } catch (err) {
         console.error("Error fetching bookings:", err);
         setError("Failed to load your bookings. Please try again later.");
@@ -170,16 +174,13 @@ const UserBookings = () => {
 
     try {
       // In a real app, you would call your API
-      // await fetch(`http://localhost:3000/api/bookings/${selectedBooking.id}/cancel`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ reason: cancelReason }),
-      // })
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await fetch(`http://localhost:3000/api/vehicles/cancel/${selectedBooking.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reason: cancelReason }),
+      })
 
       // Update local state
       setBookings((prevBookings) =>
@@ -261,7 +262,7 @@ const UserBookings = () => {
                 All
               </button>
               <button
-                onClick={() => setStatusFilter("confirmed")}
+                onClick={() => setStatusFilter("active")}
                 className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all duration-200 ${
                   statusFilter === "confirmed"
                     ? "bg-green-500 text-white shadow-md"
@@ -382,7 +383,7 @@ const UserBookings = () => {
                 className="bg-white rounded-xl shadow-sm overflow-hidden relative"
               >
                 {/* Cancel Booking Button */}
-                {(booking.status === "confirmed" ||
+                {(booking.status === "active" ||
                   booking.status === "pending") && (
                   <button
                     onClick={() => handleCancelBooking(booking)}
@@ -397,7 +398,7 @@ const UserBookings = () => {
                     {/* Vehicle Image */}
                     <div className="w-full md:w-1/4 h-48 bg-gray-100 rounded-lg overflow-hidden">
                       <img
-                        src={booking.vehicleImage || "/placeholder.svg"}
+                        src={`../../server${booking.rentVehicle.rentVehicleImages[0].image}` || "/placeholder.svg"}
                         alt={booking.vehicleName}
                         className="w-full h-full object-cover"
                       />
@@ -407,12 +408,12 @@ const UserBookings = () => {
                     <div className="flex-1">
                       <div className="mb-4">
                         <h3 className="text-xl font-bold text-gray-900">
-                          {booking.vehicleName}
+                          {booking.rentVehicle.make}
                         </h3>
                         <p className="text-gray-600">
-                          {booking.vehicleDetails.make}{" "}
-                          {booking.vehicleDetails.model} (
-                          {booking.vehicleDetails.year})
+                          {booking.rentVehicle.make}{" "}
+                          {booking.rentVehicle.model} (
+                          {booking.rentVehicle.year})
                         </p>
                       </div>
 

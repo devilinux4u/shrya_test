@@ -502,8 +502,8 @@ module.exports.rental = (sequelize, DataTypes) => {
             allowNull: false
         },
         status: {
-            type: DataTypes.ENUM('pending', 'active', 'cancelled', 'completed'),
-            defaultValue: 'active'
+            type: DataTypes.ENUM('pending', 'active', 'late', 'completed', 'cancelled', 'completed_late'),
+            defaultValue: 'pending'
         }
     });
 

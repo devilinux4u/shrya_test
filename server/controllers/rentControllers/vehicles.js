@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../../db/sequelize');
+const { rental } = require('../../db/model');
 
 // GET all rental vehicles
 router.get('/', async (req, res) => {
@@ -219,6 +220,62 @@ router.get('/history/all', async (req, res) => {
       error: 'Internal server error',
       message: error.message
     });
+  }
+});
+
+
+
+// GET all active rental vehicles for MyBooking :client side
+router.get('/active/user/all/:id', async (req, res) => {
+  try {
+    const vehiclesData = await db.rental.findAll({
+      where: { userId: req.params.id },
+      include: [
+        {
+          model: db.RentalAllVehicles,
+          include: [
+            { 
+              model: db.RentalAllVehicleImages,
+            }
+          ]
+        }
+      ]
+    });
+
+    res.json({
+      success: true,
+      data: vehiclesData
+    });
+  } catch (error) {
+    console.error('Error fetching rental vehicles:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      message: error.message
+    });
+  }
+});
+
+
+// PUT route to cancel a booking
+router.put("/cancel/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the item
+    const report = await db.rental.findByPk(id);
+    if (!report) {
+      return res.status(404).json({ success: false, message: "Item not found" });
+    }
+
+    // Update the status to 'resolved'
+    report.status = "cancelled";
+    await report.save();
+
+    res.status(200).json({ success: true, message: "Item marked as resolved", data: report });
+  } catch (error) {
+    console.error("Error updating item status:", error);
+    res.status(500).json({ success: false, message: "Failed to update status", error: error.message });
   }
 });
 
