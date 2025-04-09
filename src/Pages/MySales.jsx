@@ -38,8 +38,7 @@ function VehicleCard({
           src={
             (vehicle.images &&
               vehicle.images.length > 0 &&
-              `../../server/controllers${
-                vehicle.images[0].image || "/placeholder.svg"
+              `../../server/controllers${vehicle.images[0].image || "/placeholder.svg"
               }`) ||
             "/placeholder.svg"
           }
@@ -51,13 +50,12 @@ function VehicleCard({
         />
         <div className="absolute top-4 right-4">
           <span
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              vehicle.status === "available"
+            className={`px-3 py-1 rounded-full text-sm font-medium ${vehicle.status === "available"
                 ? "bg-green-100 text-green-800"
                 : vehicle.status === "sold"
-                ? "bg-red-100 text-red-800"
-                : "bg-yellow-100 text-yellow-800"
-            }`}
+                  ? "bg-red-100 text-red-800"
+                  : "bg-yellow-100 text-yellow-800"
+              }`}
           >
             {vehicle.status}
           </span>
@@ -169,13 +167,12 @@ function VehicleDetailsModal({
                 Rs. {vehicle.price ? vehicle.price.toLocaleString() : "N/A"}
               </div>
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  vehicle.status === "available"
+                className={`px-3 py-1 rounded-full text-sm font-medium ${vehicle.status === "available"
                     ? "bg-green-100 text-green-800"
                     : vehicle.status === "sold"
-                    ? "bg-red-100 text-red-800"
-                    : "bg-yellow-100 text-yellow-800"
-                }`}
+                      ? "bg-red-100 text-red-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
               >
                 {vehicle.status}
               </span>
@@ -190,10 +187,9 @@ function VehicleDetailsModal({
                 <img
                   src={
                     vehicle.images && vehicle.images.length > 0
-                      ? `../../server/controllers${
-                          vehicle.images[activeImage]?.image ||
-                          "/placeholder.svg"
-                        }`
+                      ? `../../server/controllers${vehicle.images[activeImage]?.image ||
+                      "/placeholder.svg"
+                      }`
                       : "/placeholder.svg"
                   }
                   alt={`${vehicle.make} ${vehicle.model}`}
@@ -208,20 +204,17 @@ function VehicleDetailsModal({
                   {vehicle.images.map((img, index) => (
                     <div
                       key={index}
-                      className={`w-20 h-20 flex-shrink-0 cursor-pointer border-2 rounded ${
-                        activeImage === index
+                      className={`w-20 h-20 flex-shrink-0 cursor-pointer border-2 rounded ${activeImage === index
                           ? "border-indigo-500"
                           : "border-transparent"
-                      }`}
+                        }`}
                       onClick={() => setActiveImage(index)}
                     >
                       <img
-                        src={`../../server/controllers${
-                          img.image || "/placeholder.svg"
-                        }`}
-                        alt={`${vehicle.make} ${vehicle.model} thumbnail ${
-                          index + 1
-                        }`}
+                        src={`../../server/controllers${img.image || "/placeholder.svg"
+                          }`}
+                        alt={`${vehicle.make} ${vehicle.model} thumbnail ${index + 1
+                          }`}
                         className="w-full h-full object-cover rounded"
                         onError={(e) => {
                           e.target.src = "/placeholder.svg";
@@ -365,20 +358,18 @@ export default function MySales() {
     const fetchVehicles = async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:3000/vehicles/user/all/${
-            Cookies.get("sauto").split("-")[0]
+          `http://127.0.0.1:3000/vehicles/user/all/${Cookies.get("sauto").split("-")[0]
           }`
         ); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error("Failed to fetch vehicles");
         }
-        const text = await response.text(); // Read response as text
-        const data = JSON.parse(text); // Parse JSON manually
+        const data = await response.json(); // Read response as text
 
-        console.log(data.data);
+        // console.log(data.data.make);
 
         // Ensure vehicles is always an array
-        setVehicles(Array.isArray(data.data) ? data.data : []);
+        setVehicles(Array.isArray(data) ? data.data : [data.data]);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
         // Initialize with empty array on error
@@ -433,19 +424,43 @@ export default function MySales() {
     setIsEditing(true);
   };
 
-  const handleUpdateData = () => {
+  const handleUpdateData = async () => {
     if (!selectedVehicle) return;
 
-    setVehicles((prevVehicles) =>
-      prevVehicles.map((vehicle) =>
-        vehicle.id === selectedVehicle.id
-          ? { ...vehicle, ...updatedData }
-          : vehicle
-      )
-    );
-    setIsEditing(false);
-    setSelectedVehicle(null);
-    toast.success("Vehicle updated successfully!");
+    try {
+      const response = await fetch(
+        `http://localhost:3000/vehicles/edit/${selectedVehicle.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update vehicle");
+      }
+
+      const updatedVehicle = await response.json();
+
+      // Update the local state with the edited vehicle
+      setVehicles((prevVehicles) =>
+        prevVehicles.map((vehicle) =>
+          vehicle.id === selectedVehicle.id
+            ? { ...vehicle, ...updatedData }
+            : vehicle
+        )
+      );
+      
+      toast.success("Vehicle updated successfully!");
+      setIsEditing(false);
+      setSelectedVehicle(null);
+    } catch (error) {
+      console.error("Error updating vehicle:", error);
+      alert("Failed to update vehicle. Please try again.");
+    }
   };
 
   const handleDeleteVehicle = (vehicle) => {
@@ -453,8 +468,16 @@ export default function MySales() {
     setIsDeleteModalOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!selectedVehicle) return;
+
+    await fetch(`http://localhost:3000/vehicles/delete/${selectedVehicle.id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(),
+    })
 
     setVehicles((prevVehicles) =>
       prevVehicles.filter((v) => v.id !== selectedVehicle.id)
@@ -464,7 +487,15 @@ export default function MySales() {
     toast.success("Vehicle deleted successfully!");
   };
 
-  const handleMarkAsSold = (vehicle) => {
+  const handleMarkAsSold = async (vehicle) => {
+    await fetch(`http://localhost:3000/vehicles/sold/${vehicle.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(),
+    })
+
     setVehicles((prevVehicles) =>
       prevVehicles.map((v) =>
         v.id === vehicle.id ? { ...v, status: "sold" } : v
@@ -514,23 +545,23 @@ export default function MySales() {
   // Ensure vehicles is an array before filtering
   const filteredVehicles = Array.isArray(vehicles)
     ? vehicles.filter((vehicle) => {
-        // Filter by status
-        if (statusFilter !== "all" && vehicle.status !== statusFilter) {
-          return false;
-        }
+      // Filter by status
+      if (statusFilter !== "all" && vehicle.status !== statusFilter) {
+        return false;
+      }
 
-        // Filter by search query
-        if (searchTerm) {
-          const query = searchTerm.toLowerCase();
-          return (
-            (vehicle.make && vehicle.make.toLowerCase().includes(query)) ||
-            (vehicle.model && vehicle.model.toLowerCase().includes(query)) ||
-            (vehicle.year && vehicle.year.toString().includes(query))
-          );
-        }
+      // Filter by search query
+      if (searchTerm) {
+        const query = searchTerm.toLowerCase();
+        return (
+          (vehicle.make && vehicle.make.toLowerCase().includes(query)) ||
+          (vehicle.model && vehicle.model.toLowerCase().includes(query)) ||
+          (vehicle.year && vehicle.year.toString().includes(query))
+        );
+      }
 
-        return true;
-      })
+      return true;
+    })
     : [];
 
   // Apply sorting
@@ -625,31 +656,28 @@ export default function MySales() {
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={() => setStatusFilter("all")}
-                  className={`px-4 py-2 rounded-full transition-colors ${
-                    statusFilter === "all"
+                  className={`px-4 py-2 rounded-full transition-colors ${statusFilter === "all"
                       ? "bg-indigo-500 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                    }`}
                 >
                   All
                 </button>
                 <button
                   onClick={() => setStatusFilter("available")}
-                  className={`px-4 py-2 rounded-full transition-colors ${
-                    statusFilter === "available"
+                  className={`px-4 py-2 rounded-full transition-colors ${statusFilter === "available"
                       ? "bg-green-500 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                    }`}
                 >
                   Available
                 </button>
                 <button
                   onClick={() => setStatusFilter("sold")}
-                  className={`px-4 py-2 rounded-full transition-colors ${
-                    statusFilter === "sold"
+                  className={`px-4 py-2 rounded-full transition-colors ${statusFilter === "sold"
                       ? "bg-red-500 text-white"
                       : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
+                    }`}
                 >
                   Sold
                 </button>
@@ -713,11 +741,10 @@ export default function MySales() {
                 <button
                   onClick={() => paginate(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${
-                    currentPage === 1
+                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${currentPage === 1
                       ? "text-gray-400 cursor-not-allowed"
                       : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -727,11 +754,10 @@ export default function MySales() {
                     <button
                       key={number}
                       onClick={() => paginate(number)}
-                      className={`px-4 py-2 border-r border-gray-200 ${
-                        currentPage === number
+                      className={`px-4 py-2 border-r border-gray-200 ${currentPage === number
                           ? "bg-indigo-500 text-white font-medium"
                           : "text-gray-700 hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       {number}
                     </button>
@@ -741,11 +767,10 @@ export default function MySales() {
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 flex items-center ${
-                    currentPage === totalPages
+                  className={`px-4 py-2 flex items-center ${currentPage === totalPages
                       ? "text-gray-400 cursor-not-allowed"
                       : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -814,11 +839,10 @@ export default function MySales() {
                     }) => (
                       <div
                         key={field}
-                        className={`mb-2 ${
-                          fullWidth
+                        className={`mb-2 ${fullWidth
                             ? "col-span-1 sm:col-span-2 lg:col-span-3"
                             : ""
-                        }`}
+                          }`}
                       >
                         <label
                           htmlFor={field}
