@@ -125,7 +125,7 @@ router.get('/active/all', async (req, res) => {
       include: [
         {
           model: db.users,
-          attributes: ['id', 'fname', 'uname', 'email'], // customize fields as needed
+          attributes: ['id', 'fname', 'uname', 'email', 'num'], // customize fields as needed
         },
         {
           model: db.RentalAllVehicles,
@@ -161,7 +161,7 @@ router.get('/active/one/:id', async (req, res) => {
       include: [
         {
           model: db.users,
-          attributes: ['id', 'fname', 'uname', 'email'] // customize fields as needed
+          attributes: ['id', 'fname', 'uname', 'email', 'num'] // customize fields as needed
         },
         {
           model: db.RentalAllVehicles,
@@ -195,7 +195,7 @@ router.get('/history/all', async (req, res) => {
       include: [
         {
           model: db.users,
-          attributes: ['id', 'fname', 'uname', 'email'] // customize fields as needed
+          attributes: ['id', 'fname', 'uname', 'email', 'num'] // customize fields as needed
         },
         {
           model: db.RentalAllVehicles,

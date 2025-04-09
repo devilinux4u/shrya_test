@@ -24,6 +24,7 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SellVehicleForm from "../Components/SellVehicleForm";
+import Cookies from "js-cookie";
 
 function VehicleCard({
   vehicle,
@@ -53,7 +54,7 @@ function VehicleCard({
         <div className="absolute top-4 right-4">
           <span
             className={`px-3 py-1 rounded-full text-sm font-medium ${
-              vehicle.status === "active"
+              vehicle.status === "available"
                 ? "bg-green-100 text-green-800"
                 : vehicle.status === "sold"
                 ? "bg-red-100 text-red-800"
@@ -171,7 +172,7 @@ function VehicleDetailsModal({
               </div>
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  vehicle.status === "active"
+                  vehicle.status === "available"
                     ? "bg-green-100 text-green-800"
                     : vehicle.status === "sold"
                     ? "bg-red-100 text-red-800"
@@ -365,13 +366,16 @@ export default function MySales() {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        const response = await fetch("/api/vehicles"); // Replace with your API endpoint
+        const response = await fetch(`http://127.0.0.1:3000/vehicles/user/all/${Cookies.get("sauto").split("-")[0]}`); // Replace with your API endpoint
         if (!response.ok) {
           throw new Error("Failed to fetch vehicles");
         }
         const text = await response.text(); // Read response as text
         const data = JSON.parse(text); // Parse JSON manually
-        setVehicles(data);
+
+        console.log(data.data)
+
+        setVehicles(data.data);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
         // Removed toast.error for no vehicles

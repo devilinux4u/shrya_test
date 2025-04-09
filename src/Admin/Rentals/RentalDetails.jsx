@@ -48,7 +48,8 @@ export default function RentalDetails() {
         throw new Error("Failed to fetch rental details");
       }
       const data = await response.json();
-      console.log("API Response:", data);
+
+      // console.log(data.data[0]);
 
       if (!data.data) {
         throw new Error("No rental data found");
@@ -63,12 +64,10 @@ export default function RentalDetails() {
           fuelType: data.data.rentVehicle?.fuelType || "petrol",
           transmission: data.data.rentVehicle?.transmission || "manual",
           engine: data.data.rentVehicle?.engine || "N/A",
-          rentVehicleImages: data.data.rentVehicle?.rentVehicleImages || [],
+          rentVehicleImages: data.data[0].rentVehicle?.rentVehicleImages || [],
         },
         user: {
-          ...data.data.user,
-          phone: data.data.user?.phone || "N/A",
-          address: data.data.user?.address || "N/A",
+          ...data.data[0].user,
         },
         paymentDetails: {
           method: data.data.paymentMethod || "payLater",
@@ -96,7 +95,9 @@ export default function RentalDetails() {
         additionalServices: [], // Add if available in API
       };
 
-      setRental(mappedRental);
+      console.log(mappedRental[0])
+
+      setRental(mappedRental[0]);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching rental details:", error);
@@ -259,8 +260,7 @@ export default function RentalDetails() {
                   {rental.rentVehicle?.rentVehicleImages?.length > 0 ? (
                     <img
                       src={
-                        rental.rentVehicle.rentVehicleImages[activeImage]
-                          ?.image || "/placeholder.svg"
+                        `../../server${rental.rentVehicle.rentVehicleImages[activeImage].image}` || "/placeholder.svg"
                       }
                       alt={`${rental.rentVehicle?.make} ${rental.rentVehicle?.model}`}
                       className="w-full h-full object-contain"
@@ -392,7 +392,7 @@ export default function RentalDetails() {
                         </h4>
                         <p className="font-medium text-gray-900 flex items-center mt-1">
                           <CreditCard className="h-4 w-4 mr-2 text-[#ff6b00]" />
-                          {rental.paymentDetails?.method || "N/A"}
+                          {rental.paymentMethod || "N/A"}
                         </p>
                       </div>
 
@@ -401,7 +401,7 @@ export default function RentalDetails() {
                           Payment Date
                         </h4>
                         <p className="font-medium text-gray-900 mt-1">
-                          {formatDate(rental.paymentDetails?.date) || "N/A"}
+                          {formatDate(rental.pickupDate) || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -500,7 +500,7 @@ export default function RentalDetails() {
                       <div>
                         <p className="text-gray-600">Phone</p>
                         <p className="font-medium text-gray-900">
-                          {rental.user?.phone || "N/A"}
+                          {rental.user.num || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -522,7 +522,7 @@ export default function RentalDetails() {
                         <p className="font-medium text-gray-900">
                           {rental.licenseImageUrl ? (
                             <img
-                              src={rental.licenseImageUrl}
+                              src={`../../server${rental.licenseImageUrl}`}
                               alt="Driving License"
                               className="h-32 w-32 object-cover rounded-md border cursor-pointer hover:opacity-90 transition-opacity"
                               onClick={() => setIsLicensePreviewOpen(true)}
