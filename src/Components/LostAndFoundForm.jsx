@@ -13,9 +13,12 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     type: "lost",
     title: "",
-    description: "",
+    vehicleModel: "",
+    vehicleMake: "",
+    numberPlate: "",
     location: "",
     date: "",
+    description: "",
     images: [],
   });
 
@@ -70,6 +73,12 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
     const newErrors = {};
     if (!formData.type) newErrors.type = "Type is required";
     if (!formData.title.trim()) newErrors.title = "Title is required";
+    if (!formData.vehicleMake.trim())
+      newErrors.vehicleMake = "Vehicle make is required";
+    if (!formData.vehicleModel.trim())
+      newErrors.vehicleModel = "Vehicle model is required";
+    if (!formData.numberPlate.trim())
+      newErrors.numberPlate = "Number plate is required";
     if (!formData.description.trim())
       newErrors.description = "Description is required";
     if (!formData.location.trim()) newErrors.location = "Location is required";
@@ -84,6 +93,11 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
 
     // Validate the form before submitting
     if (!validateForm()) {
+      // Show toast notifications for each error
+      if (errors.vehicleMake) toast.error(errors.vehicleMake);
+      if (errors.vehicleModel) toast.error(errors.vehicleModel);
+      if (errors.numberPlate) toast.error(errors.numberPlate);
+
       Object.values(errors).forEach((error) => {
         toast.error(error);
       });
@@ -141,9 +155,12 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
         setFormData({
           type: "lost",
           title: "",
-          description: "",
+          vehicleModel: "",
+          vehicleMake: "",
+          numberPlate: "",
           location: "",
           date: "",
+          description: "",
           images: [],
         });
 
@@ -206,6 +223,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
             style={{ maxHeight: "calc(90vh - 180px)" }}
           >
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Type and Title */}
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <SelectField
                   label="Type"
@@ -226,6 +244,50 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
                 />
               </div>
 
+              {/* Vehicle Information */}
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                <InputField
+                  label="Vehicle Model"
+                  name="vehicleModel"
+                  value={formData.vehicleModel}
+                  onChange={handleChange}
+                  placeholder="e.g., Corolla, Civic"
+                />
+                <InputField
+                  label="Vehicle Make"
+                  name="vehicleMake"
+                  value={formData.vehicleMake}
+                  onChange={handleChange}
+                  placeholder="e.g., Toyota, Honda"
+                />
+                <InputField
+                  label="Number Plate"
+                  name="numberPlate"
+                  value={formData.numberPlate}
+                  onChange={handleChange}
+                  placeholder="e.g., ABC-123"
+                />
+              </div>
+
+              {/* Location and Date */}
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <InputField
+                  label="Location"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  placeholder="Where was it lost/found?"
+                />
+                <InputField
+                  label="Date"
+                  name="date"
+                  type="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Description */}
               <div>
                 <label
                   htmlFor="description"
@@ -244,23 +306,7 @@ const LostAndFoundForm = ({ isOpen, onClose, onSubmit }) => {
                 ></textarea>
               </div>
 
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <InputField
-                  label="Location"
-                  name="location"
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="Where was it lost/found?"
-                />
-                <InputField
-                  label="Date"
-                  name="date"
-                  type="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                />
-              </div>
-
+              {/* Images */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Item Images

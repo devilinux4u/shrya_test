@@ -13,6 +13,7 @@ import {
   Phone,
   MessageSquare,
   X,
+  Car,
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -76,7 +77,11 @@ const LostAndFound = () => {
       return (
         item.title.toLowerCase().includes(query) ||
         item.description.toLowerCase().includes(query) ||
-        item.location.toLowerCase().includes(query)
+        item.location.toLowerCase().includes(query) ||
+        (item.vehicleMake && item.vehicleMake.toLowerCase().includes(query)) ||
+        (item.vehicleModel &&
+          item.vehicleModel.toLowerCase().includes(query)) ||
+        (item.numberPlate && item.numberPlate.toLowerCase().includes(query))
       );
     }
 
@@ -304,7 +309,9 @@ const LostAndFound = () => {
                   src={
                     (item.images &&
                       item.images[0] &&
-                      `../../server${item.images[0].imageUrl}`) ||
+                      `../../server${
+                        item.images[0].imageUrl || "/placeholder.svg"
+                      }`) ||
                     "/placeholder.svg"
                   }
                   alt={item.title}
@@ -352,10 +359,15 @@ const LostAndFound = () => {
                     <MapPin className="w-4 h-4 mr-2" />
                     <span>{item.location}</span>
                   </div>
-                  <div className="flex items-center text-gray-600">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span>{new Date(item.date).toLocaleDateString()}</span>
-                  </div>
+                  {item.vehicleMake && (
+                    <div className="flex items-center text-gray-600">
+                      <Car className="w-4 h-4 mr-2" />
+                      <span>
+                        {item.vehicleMake} {item.vehicleModel}
+                        {item.numberPlate && ` (${item.numberPlate})`}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -466,12 +478,12 @@ const LostAndFound = () => {
 
             <div className="grid md:grid-cols-2 gap-8">
               {/* Left side - Details */}
-              <div>
+              <div className="overflow-y-auto max-h-[70vh]">
                 <h2 className="text-2xl md:text-3xl font-bold mb-6">
                   {selectedItem.title}
                 </h2>
 
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <div>
                     <h3 className="text-gray-600 text-sm">Reporter Name</h3>
                     <p className="text-xl font-medium">
@@ -497,6 +509,33 @@ const LostAndFound = () => {
                     </p>
                   </div>
 
+                  {selectedItem.vehicleMake && (
+                    <div>
+                      <h3 className="text-gray-600 text-sm">Vehicle Make</h3>
+                      <p className="text-xl font-medium">
+                        {selectedItem.vehicleMake}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedItem.vehicleModel && (
+                    <div>
+                      <h3 className="text-gray-600 text-sm">Vehicle Model</h3>
+                      <p className="text-xl font-medium">
+                        {selectedItem.vehicleModel}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedItem.numberPlate && (
+                    <div>
+                      <h3 className="text-gray-600 text-sm">Number Plate</h3>
+                      <p className="text-xl font-medium">
+                        {selectedItem.numberPlate}
+                      </p>
+                    </div>
+                  )}
+
                   <div>
                     <h3 className="text-gray-600 text-sm">Contact</h3>
                     <p className="text-xl font-medium">
@@ -508,6 +547,13 @@ const LostAndFound = () => {
                     <h3 className="text-gray-600 text-sm">Description</h3>
                     <p className="text-gray-700">{selectedItem.description}</p>
                   </div>
+
+                  <div>
+                    <h3 className="text-gray-600 text-sm">Report Date</h3>
+                    <p className="text-gray-700">
+                      {new Date(selectedItem.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -518,7 +564,10 @@ const LostAndFound = () => {
                     src={
                       (selectedItem.images &&
                         selectedItem.images[currentImageIndex] &&
-                        `../../server${selectedItem.images[currentImageIndex].imageUrl}`) ||
+                        `../../server${
+                          selectedItem.images[currentImageIndex].imageUrl ||
+                          "/placeholder.svg"
+                        }`) ||
                       "/placeholder.svg"
                     }
                     alt={selectedItem.title}
