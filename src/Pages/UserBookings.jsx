@@ -193,7 +193,7 @@ const UserBookings = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ reason: cancelReason, data: selectedBooking }),
+          body: JSON.stringify({ reason: cancelReason, data: selectedBooking, isAdmin: false }),
         }
       );
 
