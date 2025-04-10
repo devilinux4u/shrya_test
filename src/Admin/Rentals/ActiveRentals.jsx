@@ -139,18 +139,18 @@ export default function ActiveRentals() {
   const updateRentalStatus = async (rentalId, newStatus) => {
     try {
       setLoading(true);
-      // In a real application, you would make an API call here
-      // const response = await fetch(`http://localhost:3000/api/rentals/${rentalId}/status`, {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ status: newStatus }),
-      // });
 
-      // if (!response.ok) {
-      //   throw new Error('Failed to update rental status');
-      // }
+      const response = await fetch(`http://localhost:3000/api/vehicles/update/${rentalId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update rental status');
+      }
 
       // For demo purposes, we'll just update the state directly
       setRentals((prevRentals) =>
@@ -180,18 +180,21 @@ export default function ActiveRentals() {
 
     try {
       setIsCancelling(true);
-      // In a real application, you would make an API call here
-      // const response = await fetch(`http://localhost:3000/api/rentals/${selectedRental.id}/cancel`, {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({ reason: cancelReason }),
-      // });
 
-      // if (!response.ok) {
-      //   throw new Error('Failed to cancel rental');
-      // }
+      const response = await fetch(
+        `http://localhost:3000/api/vehicles/cancel/${selectedRental.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reason: cancelReason, data: selectedRental, isAdmin: true }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to cancel rental');
+      }
 
       // For demo purposes, we'll just update the state directly
       setRentals((prevRentals) =>
@@ -300,11 +303,10 @@ export default function ActiveRentals() {
   const FilterButton = ({ value, label, active, onClick }) => (
     <button
       onClick={() => onClick(value)}
-      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-        active
+      className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${active
           ? "bg-[#ff6b00] text-white"
           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-      }`}
+        }`}
     >
       {label}
     </button>
@@ -433,10 +435,9 @@ export default function ActiveRentals() {
                             src={
                               (rental.rentVehicle.rentVehicleImages &&
                                 rental.rentVehicle.rentVehicleImages.length >
-                                  0 &&
-                                `../../server${
-                                  rental.rentVehicle.rentVehicleImages[0]
-                                    .image || "/placeholder.svg"
+                                0 &&
+                                `../../server${rental.rentVehicle.rentVehicleImages[0]
+                                  .image || "/placeholder.svg"
                                 }`) ||
                               "/placeholder.svg"
                             }
@@ -641,7 +642,7 @@ export default function ActiveRentals() {
                                           onClick={() =>
                                             updateRentalStatus(
                                               rental.id,
-                                              "completed-late"
+                                              "completed_late"
                                             )
                                           }
                                           className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -693,11 +694,10 @@ export default function ActiveRentals() {
                 <button
                   onClick={() => paginate(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${
-                    currentPage === 1
+                  className={`px-4 py-2 border-r border-gray-200 flex items-center ${currentPage === 1
                       ? "text-gray-400 cursor-not-allowed"
                       : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -707,11 +707,10 @@ export default function ActiveRentals() {
                     <button
                       key={number}
                       onClick={() => paginate(number)}
-                      className={`px-4 py-2 border-r border-gray-200 ${
-                        currentPage === number
+                      className={`px-4 py-2 border-r border-gray-200 ${currentPage === number
                           ? "bg-orange-500 text-white font-medium"
                           : "text-gray-700 hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       {number}
                     </button>
@@ -721,11 +720,10 @@ export default function ActiveRentals() {
                 <button
                   onClick={() => paginate(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 flex items-center ${
-                    currentPage === totalPages
+                  className={`px-4 py-2 flex items-center ${currentPage === totalPages
                       ? "text-gray-400 cursor-not-allowed"
                       : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
