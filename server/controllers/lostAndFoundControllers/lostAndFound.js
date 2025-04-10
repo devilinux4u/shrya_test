@@ -36,7 +36,7 @@ const upload = multer({ storage, fileFilter });
 // Handle POST request for form submission
 router.post("/", upload.array("images"), async (req, res) => {
   try {
-    const { id, type, title, description, location, date } = req.body;
+    const { id, type, title, description, location, vehicleModel, vehicleMake, numberPlate, date } = req.body;
 
     // Create a new LostAndFound record
     const newReport = await LostAndFound.create({
@@ -45,6 +45,9 @@ router.post("/", upload.array("images"), async (req, res) => {
       title,
       description,
       location,
+      model: vehicleModel,
+      make: vehicleMake,
+      nplate: numberPlate,
       date,
     });
 
@@ -173,7 +176,7 @@ router.put("/resolve/:id", async (req, res) => {
 router.put("/edit/:itemId", async (req, res) => {
   try {
     const { itemId } = req.params;
-    const { title, description, location, date, type } = req.body;
+    const { title, description, location, date, type, vehicleMake, vehicleModel, numberPlate } = req.body;
 
     // Find the item
     const report = await LostAndFound.findByPk(itemId);
@@ -187,6 +190,9 @@ router.put("/edit/:itemId", async (req, res) => {
     report.location = location || report.location;
     report.date = date || report.date;
     report.type = type || report.type;
+    report.make = vehicleMake || report.make;
+    report.model = vehicleModel || report.model;
+    report.nplate = numberPlate || report.nplate;
 
     await report.save();
 

@@ -287,6 +287,9 @@ module.exports.LostAndFound = (sequelize, DataTypes) => {
         title: { type: DataTypes.STRING, allowNull: false },
         description: { type: DataTypes.TEXT, allowNull: false },
         location: { type: DataTypes.STRING, allowNull: false },
+        model: { type: DataTypes.STRING, allowNull: false },
+        make: { type: DataTypes.STRING, allowNull: false },
+        nplate: { type: DataTypes.STRING, allowNull: false },
         date: { type: DataTypes.DATE, allowNull: false },
         status: { type: DataTypes.STRING, defaultValue: "active" },
     });

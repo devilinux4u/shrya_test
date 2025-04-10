@@ -78,10 +78,10 @@ const LostAndFound = () => {
         item.title.toLowerCase().includes(query) ||
         item.description.toLowerCase().includes(query) ||
         item.location.toLowerCase().includes(query) ||
-        (item.vehicleMake && item.vehicleMake.toLowerCase().includes(query)) ||
-        (item.vehicleModel &&
-          item.vehicleModel.toLowerCase().includes(query)) ||
-        (item.numberPlate && item.numberPlate.toLowerCase().includes(query))
+        (item.make && item.make.toLowerCase().includes(query)) ||
+        (item.model &&
+          item.model.toLowerCase().includes(query)) ||
+        (item.nplate && item.nplate.toLowerCase().includes(query))
       );
     }
 
@@ -359,12 +359,12 @@ const LostAndFound = () => {
                     <MapPin className="w-4 h-4 mr-2" />
                     <span>{item.location}</span>
                   </div>
-                  {item.vehicleMake && (
+                  {item.make && (
                     <div className="flex items-center text-gray-600">
                       <Car className="w-4 h-4 mr-2" />
                       <span>
-                        {item.vehicleMake} {item.vehicleModel}
-                        {item.numberPlate && ` (${item.numberPlate})`}
+                        {item.make} {item.model}
+                        {item.nplate && ` (${item.nplate})`}
                       </span>
                     </div>
                   )}
@@ -509,29 +509,29 @@ const LostAndFound = () => {
                     </p>
                   </div>
 
-                  {selectedItem.vehicleMake && (
+                  {selectedItem.make && (
                     <div>
                       <h3 className="text-gray-600 text-sm">Vehicle Make</h3>
                       <p className="text-xl font-medium">
-                        {selectedItem.vehicleMake}
+                        {selectedItem.make}
                       </p>
                     </div>
                   )}
 
-                  {selectedItem.vehicleModel && (
+                  {selectedItem.model && (
                     <div>
                       <h3 className="text-gray-600 text-sm">Vehicle Model</h3>
                       <p className="text-xl font-medium">
-                        {selectedItem.vehicleModel}
+                        {selectedItem.model}
                       </p>
                     </div>
                   )}
 
-                  {selectedItem.numberPlate && (
+                  {selectedItem.nplate && (
                     <div>
                       <h3 className="text-gray-600 text-sm">Number Plate</h3>
                       <p className="text-xl font-medium">
-                        {selectedItem.numberPlate}
+                        {selectedItem.nplate}
                       </p>
                     </div>
                   )}

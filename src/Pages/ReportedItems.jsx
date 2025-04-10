@@ -119,11 +119,11 @@ const ReportedItems = () => {
             item.description.toLowerCase().includes(query)) ||
           (item.location && item.location.toLowerCase().includes(query)) ||
           (item.type && item.type.toLowerCase().includes(query)) ||
-          (item.vehicleMake &&
-            item.vehicleMake.toLowerCase().includes(query)) ||
-          (item.vehicleModel &&
-            item.vehicleModel.toLowerCase().includes(query)) ||
-          (item.numberPlate && item.numberPlate.toLowerCase().includes(query))
+          (item.make &&
+            item.make.toLowerCase().includes(query)) ||
+          (item.model &&
+            item.model.toLowerCase().includes(query)) ||
+          (item.nplate && item.nplate.toLowerCase().includes(query))
       );
     }
 
@@ -431,14 +431,14 @@ const ReportedItems = () => {
                           <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                           <span>{item.location}</span>
                         </div>
-                        {(item.vehicleMake ||
-                          item.vehicleModel ||
-                          item.numberPlate) && (
+                        {(item.make ||
+                          item.model ||
+                          item.nplate) && (
                           <div className="flex items-center text-sm text-gray-600">
                             <Car className="w-4 h-4 mr-2 text-gray-400" />
                             <span>
-                              {item.vehicleMake} {item.vehicleModel}
-                              {item.numberPlate && ` (${item.numberPlate})`}
+                              {item.make} {item.model}
+                              {item.nplate && ` (${item.nplate})`}
                             </span>
                           </div>
                         )}
@@ -480,9 +480,9 @@ const ReportedItems = () => {
                               description: item.description,
                               location: item.location,
                               date: item.createdAt,
-                              vehicleMake: item.vehicleMake || "",
-                              vehicleModel: item.vehicleModel || "",
-                              numberPlate: item.numberPlate || "",
+                              vehicleMake: item.make || "",
+                              vehicleModel: item.model || "",
+                              numberPlate: item.nplate || "",
                             });
                           }}
                           className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 justify-end"
@@ -678,33 +678,33 @@ const ReportedItems = () => {
                       Vehicle Information
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
-                      {selectedItem.vehicleMake && (
+                      {selectedItem.make && (
                         <div>
                           <p className="text-xs text-gray-500">Make</p>
                           <p className="text-sm font-medium">
-                            {selectedItem.vehicleMake}
+                            {selectedItem.make}
                           </p>
                         </div>
                       )}
-                      {selectedItem.vehicleModel && (
+                      {selectedItem.model && (
                         <div>
                           <p className="text-xs text-gray-500">Model</p>
                           <p className="text-sm font-medium">
-                            {selectedItem.vehicleModel}
+                            {selectedItem.model}
                           </p>
                         </div>
                       )}
-                      {selectedItem.numberPlate && (
+                      {selectedItem.nplate && (
                         <div>
                           <p className="text-xs text-gray-500">Number Plate</p>
                           <p className="text-sm font-medium">
-                            {selectedItem.numberPlate}
+                            {selectedItem.nplate}
                           </p>
                         </div>
                       )}
-                      {!selectedItem.vehicleMake &&
-                        !selectedItem.vehicleModel &&
-                        !selectedItem.numberPlate && (
+                      {!selectedItem.make &&
+                        !selectedItem.model &&
+                        !selectedItem.nplate && (
                           <div className="col-span-2">
                             <p className="text-sm text-gray-500">
                               No vehicle information provided
