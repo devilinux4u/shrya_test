@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../db/sequelize');
 const { rental } = require('../../db/model');
+const cancelEmail = require('../../helpers/cancelMsg');
+
 
 // GET all rental vehicles
 router.get('/', async (req, res) => {
@@ -232,6 +234,10 @@ router.get('/active/user/all/:id', async (req, res) => {
       where: { userId: req.params.id },
       include: [
         {
+          model: db.users,
+          attributes: ['id', 'fname', 'uname', 'email', 'num'] // customize fields as needed
+        },
+        {
           model: db.RentalAllVehicles,
           include: [
             { 
@@ -271,6 +277,8 @@ router.put("/cancel/:id", async (req, res) => {
     // Update the status to 'resolved'
     report.status = "cancelled";
     await report.save();
+
+    cancelEmail(req.body.reason, req.body.data)
 
     res.status(200).json({ success: true, message: "Item marked as resolved", data: report });
   } catch (error) {

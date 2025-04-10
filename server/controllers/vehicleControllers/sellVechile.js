@@ -173,6 +173,45 @@ router.get("/vehicles/all", async (req, res) => {
 
 });
 
+// same as above for admin
+router.get("/vehicles/admin/all", async (req, res) => {
+    try {
+        const vehicless = await vehicles.findAll({
+            order: sequelize.literal("RAND()"),
+            include: [
+                { model: v_img, 
+                    attributes: ["id", "image"] 
+                },
+                {
+                    model: users,
+                    as: "user",
+                    attributes: ["uname"] // Only fetch the fname field
+                }]
+        });
+
+        if (!vehicless || vehicless.length === 0) {
+            return res.status(404).json({ success: false, msg: "No vehicles found" });
+        }
+
+        // Convert BLOBs to Base64
+        const formattedVehicles = vehicless.map(vehicle => ({
+            ...vehicle.toJSON(),
+            images: vehicle.vehicle_images.map(img => ({
+                id: img.id,
+                image: img.image
+            }))
+        }));
+
+        res.json({ success: true, msg: formattedVehicles });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, msg: "Server error" });
+    }
+
+});
+
+
 router.get("/vehicles/one/:vid", async (req, res) => {
     try {
         const vehicleId = req.params.vid;
