@@ -96,16 +96,16 @@ export default function LostAndFound() {
         (item) =>
           item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (item.vehicleMake &&
-            item.vehicleMake
+          (item.make &&
+            item.make
               .toLowerCase()
               .includes(searchTerm.toLowerCase())) ||
-          (item.vehicleModel &&
-            item.vehicleModel
+          (item.model &&
+            item.model
               .toLowerCase()
               .includes(searchTerm.toLowerCase())) ||
-          (item.numberPlate &&
-            item.numberPlate.toLowerCase().includes(searchTerm.toLowerCase()))
+          (item.nplate &&
+            item.nplate.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
 
@@ -532,9 +532,9 @@ export default function LostAndFound() {
                             description: item.description,
                             location: item.location,
                             date: item.date,
-                            vehicleMake: item.vehicleMake || "",
-                            vehicleModel: item.vehicleModel || "",
-                            numberPlate: item.numberPlate || "",
+                            vehicleMake: item.make,
+                            vehicleModel: item.model,
+                            numberPlate: item.nplate,
                           });
                         }}
                         className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-full"
@@ -574,12 +574,12 @@ export default function LostAndFound() {
                     <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                     <span className="truncate">{item.location}</span>
                   </div>
-                  {item.vehicleMake && (
+                  {item.make && (
                     <div className="flex items-center text-gray-600">
                       <Car className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 flex-shrink-0" />
                       <span>
-                        {item.vehicleMake} {item.vehicleModel}
-                        {item.numberPlate && ` (${item.numberPlate})`}
+                        {item.make} {item.model}
+                        {item.nplate && ` (${item.nplate})`}
                       </span>
                     </div>
                   )}
@@ -777,7 +777,7 @@ export default function LostAndFound() {
                 type="text"
                 id="vehicleMake"
                 name="vehicleMake"
-                value={updatedData.vehicleMake || ""}
+                value={updatedData.vehicleMake}
                 onChange={(e) => {
                   setUpdatedData((prev) => ({
                     ...prev,
@@ -873,27 +873,27 @@ export default function LostAndFound() {
                       {new Date(selectedItem.date).toLocaleDateString()}
                     </p>
                   </div>
-                  {selectedItem.vehicleMake && (
+                  {selectedItem.make && (
                     <div>
                       <h3 className="text-gray-600 text-sm">Vehicle Make</h3>
                       <p className="text-lg sm:text-xl font-medium">
-                        {selectedItem.vehicleMake}
+                        {selectedItem.make}
                       </p>
                     </div>
                   )}
-                  {selectedItem.vehicleModel && (
+                  {selectedItem.model && (
                     <div>
                       <h3 className="text-gray-600 text-sm">Vehicle Model</h3>
                       <p className="text-lg sm:text-xl font-medium">
-                        {selectedItem.vehicleModel}
+                        {selectedItem.model}
                       </p>
                     </div>
                   )}
-                  {selectedItem.numberPlate && (
+                  {selectedItem.nplate && (
                     <div>
                       <h3 className="text-gray-600 text-sm">Number Plate</h3>
                       <p className="text-lg sm:text-xl font-medium">
-                        {selectedItem.numberPlate}
+                        {selectedItem.nplate}
                       </p>
                     </div>
                   )}
