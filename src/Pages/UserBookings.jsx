@@ -179,7 +179,7 @@ const UserBookings = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ reason: cancelReason }),
+        body: JSON.stringify({ reason: cancelReason, data: selectedBooking  }),
       })
 
       // Update local state

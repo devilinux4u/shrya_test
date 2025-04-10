@@ -68,7 +68,7 @@ export default function Vehicles() {
 
         // Simulating API response with sample data
 
-        const response = await fetch("http://localhost:3000/vehicles/all"); // replace with your backend URL
+        const response = await fetch("http://localhost:3000/vehicles/admin/all"); // replace with your backend URL
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
