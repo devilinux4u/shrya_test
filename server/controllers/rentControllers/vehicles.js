@@ -124,7 +124,6 @@ router.delete('/:id', async (req, res) => {
 router.get('/active/all', async (req, res) => {
   try {
     const vehiclesData = await db.rental.findAll({
-      where: { status: 'active' },
       include: [
         {
           model: db.users,
@@ -281,6 +280,28 @@ router.put("/cancel/:id", async (req, res) => {
     cancelEmail(req.body.reason, req.body.data)
 
     res.status(200).json({ success: true, message: "Item marked as resolved", data: report });
+  } catch (error) {
+    console.error("Error updating item status:", error);
+    res.status(500).json({ success: false, message: "Failed to update status", error: error.message });
+  }
+});
+
+// PUT route to update a rental booking :admin side activeRental Page
+router.put("/update/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the item
+    const report = await db.rental.findByPk(id);
+    if (!report) {
+      return res.status(404).json({ success: false, message: "Item not found" });
+    }
+
+    // Update the status to 'resolved'
+    report.status = req.body.status;
+    await report.save();
+
+    res.status(200).json({ success: true, message: "updated", data: report });
   } catch (error) {
     console.error("Error updating item status:", error);
     res.status(500).json({ success: false, message: "Failed to update status", error: error.message });
