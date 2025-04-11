@@ -216,6 +216,7 @@ router.get('/history/all', async (req, res) => {
           include: [
             { 
               model: db.RentalAllVehicleImages,
+              as: 'rentVehicleImages'
             }
           ]
         }

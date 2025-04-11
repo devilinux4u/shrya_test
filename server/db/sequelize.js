@@ -45,7 +45,7 @@ VehicleWishlist.belongsTo(user, { foreignKey: "uid", as: "user" });
 
 // RentalAllVehicles associations
 RentalAllVehicles.hasMany(RentalAllVehicleImages, {
-  as: 'RentalVehicleImages', 
+  as: 'rentVehicleImages', 
   foreignKey: 'vehicleId',
   onDelete: 'CASCADE'
 });
