@@ -4,6 +4,8 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const db = require("../../db/sequelize"); // Import the entire db object
+var request = require('request');
+
 
 // =============================================
 // FILE UPLOAD CONFIGURATION
@@ -102,23 +104,48 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
       licenseImageUrl: req.file ? `/uploads/licenses/${req.file.filename}` : null,
     };
 
-    // Create rental
-    const newRental = await db.rental.create(rentalData);
-    
-    res.status(201).json({
-      success: true,
-      data: {
-        ...newRental.toJSON(),
-        vehicle: vehicle
-      }
-    });
+    if (req.body.paymentMethod == 'payLater') {
+      // Create rental
+      const newRental = await db.rental.create(rentalData);
+
+      res.status(201).json({
+        success: true,
+        data: {
+          ...newRental.toJSON(),
+          vehicle: vehicle
+        }
+      });
+    }
+    else {
+      var options = {
+        'method': 'POST',
+        'url': 'https://dev.khalti.com/api/v2/epayment/initiate/',
+        'headers': {
+          'Authorization': 'key live_secret_key_68791341fdd94846a146f0457ff7b455',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "return_url": "http://localhost:5173/UserBookings",
+          "website_url": "http://localhost:5173/",
+          "amount": rentalData.totalAmount,
+          "purchase_order_id": rentalData.vehicleId,
+          "purchase_order_name": rentalData.vehicleId,
+        })
+
+      };
+      request(options, function (error, response) {
+        if (error) throw new Error(error);
+        console.log(response.body);
+      });
+
+    }
 
   } catch (error) {
     console.error('Rental creation error:', error);
-    
+
     // Clean up uploaded file if error occurred
     if (req.file) {
-      fs.unlink(req.file.path, () => {});
+      fs.unlink(req.file.path, () => { });
     }
 
     const statusCode = error.message.includes('not found') ? 404 : 500;
@@ -138,9 +165,9 @@ router.get('/:id', async (req, res) => {
     });
 
     if (!rentalRecord) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Rental not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Rental not found'
       });
     }
 
@@ -169,9 +196,9 @@ router.get('/:id', async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching rental:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to fetch rental' 
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch rental'
     });
   }
 });
