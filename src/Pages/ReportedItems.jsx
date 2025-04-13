@@ -468,25 +468,28 @@ const ReportedItems = () => {
                           )}
                         </div>
 
-                        <button
-                          onClick={() => {
-                            setIsEditing(true);
-                            setSelectedItemId(item.id);
-                            setUpdatedData({
-                              title: item.title,
-                              description: item.description,
-                              location: item.location,
-                              date: item.createdAt,
-                              vehicleMake: item.make || "",
-                              vehicleModel: item.model || "",
-                              numberPlate: item.nplate || "",
-                            });
-                          }}
-                          className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 justify-end"
-                        >
-                          <Edit className="w-4 h-4 mr-1" />
-                          Edit
-                        </button>
+                        {/* Only show Edit button if status is not resolved */}
+                        {item.status !== "resolved" && (
+                          <button
+                            onClick={() => {
+                              setIsEditing(true);
+                              setSelectedItemId(item.id);
+                              setUpdatedData({
+                                title: item.title,
+                                description: item.description,
+                                location: item.location,
+                                date: item.createdAt,
+                                vehicleMake: item.make || "",
+                                vehicleModel: item.model || "",
+                                numberPlate: item.nplate || "",
+                              });
+                            }}
+                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 justify-end"
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
