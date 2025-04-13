@@ -381,10 +381,10 @@ export default function MySales() {
         }
         const data = await response.json(); // Read response as text
 
-        // console.log(data.data.make);
+        // Update this line to correctly handle the array response from the updated API
+        setVehicles(Array.isArray(data.data) ? data.data : []);
 
-        // Ensure vehicles is always an array
-        setVehicles(Array.isArray(data) ? data.data : [data.data]);
+        console.log("Fetched vehicles:", data.data);
       } catch (error) {
         console.error("Error fetching vehicles:", error);
         // Initialize with empty array on error

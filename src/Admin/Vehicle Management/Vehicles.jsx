@@ -109,11 +109,17 @@ export default function Vehicles() {
     if (userFilter) {
       if (userFilter.toLowerCase() === "admin") {
         filtered = filtered.filter(
-          (vehicle) => vehicle.user.uname.toLowerCase() === "admin"
+          (vehicle) =>
+            vehicle.user &&
+            vehicle.user.uname &&
+            vehicle.user.uname.toLowerCase() === "shreya auto"
         );
       } else if (userFilter.toLowerCase() === "user") {
         filtered = filtered.filter(
-          (vehicle) => vehicle.user.uname.toLowerCase() !== "admin"
+          (vehicle) =>
+            !vehicle.user ||
+            !vehicle.user.uname ||
+            vehicle.user.uname.toLowerCase() !== "shreya auto"
         );
       }
     }

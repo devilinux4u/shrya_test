@@ -291,7 +291,7 @@ const YourList = () => {
 
         {/* Filter Options */}
         <div className="mb-8">
-          <div className="p-4 flex flex-wrap items-center gap-4 bg-white rounded-lg shadow-sm">
+          <div className="p-4 flex flex-wrap items-center gap-4">
             {/* Search Bar */}
             <div className="flex-grow">
               <input
@@ -321,63 +321,29 @@ const YourList = () => {
                 All
               </button>
 
-              <div className="relative filter-dropdown">
-                <button
-                  onClick={() =>
-                    setDropdownOpen(dropdownOpen === "status" ? null : "status")
-                  }
-                  className={`px-4 py-2 rounded-full transition-colors flex items-center ${
-                    statusFilter !== "all"
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                  disabled={isLoading}
-                >
-                  Status
-                  <ChevronLeft
-                    className={`w-4 h-4 ml-1 transform transition-transform ${
-                      dropdownOpen === "status" ? "rotate-90" : "-rotate-90"
-                    }`}
-                  />
-                </button>
+              <button
+                onClick={() => handleStatusFilterChange("available")}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  statusFilter === "available"
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                disabled={isLoading}
+              >
+                Arrived
+              </button>
 
-                {dropdownOpen === "status" && (
-                  <div className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-md z-10 w-40 py-2 border border-gray-100">
-                    <button
-                      onClick={() => handleStatusFilterChange("all")}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 ${
-                        statusFilter === "all"
-                          ? "bg-blue-50 text-blue-700 font-medium"
-                          : ""
-                      }`}
-                    >
-                      All Status
-                    </button>
-                    <button
-                      onClick={() => handleStatusFilterChange("available")}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
-                        statusFilter === "available"
-                          ? "bg-blue-50 text-blue-700 font-medium"
-                          : ""
-                      }`}
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Arrived
-                    </button>
-                    <button
-                      onClick={() => handleStatusFilterChange("pending")}
-                      className={`w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center ${
-                        statusFilter === "pending"
-                          ? "bg-blue-50 text-blue-700 font-medium"
-                          : ""
-                      }`}
-                    >
-                      <Clock className="w-4 h-4 mr-2" />
-                      Pending
-                    </button>
-                  </div>
-                )}
-              </div>
+              <button
+                onClick={() => handleStatusFilterChange("pending")}
+                className={`px-4 py-2 rounded-full transition-colors ${
+                  statusFilter === "pending"
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                disabled={isLoading}
+              >
+                Pending
+              </button>
             </div>
           </div>
         </div>
