@@ -20,6 +20,7 @@ const lostAndFound = require('./controllers/lostAndFoundControllers/lostAndFound
 const rentalRoute = require('./controllers/rentControllers/rental'); 
 const addVehicle = require('./controllers/rentControllers/addVehicles.js');
 const vehiclesRouter = require('./controllers/rentControllers/vehicles');
+const khaltiVerify = require('./controllers/khaltiVerify');
 
 app.use('/uploads', express.static(path.join(__dirname, 'controllers/uploads')));
 
@@ -27,7 +28,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }))
 
-app.use('/', login, register, message, wishlist, sell, profile, aReg);
+app.use('/', login, register, message, wishlist, sell, profile, aReg, khaltiVerify);
 app.use('/', login, register, message, wishlist, sell);
 app.use('/api/lost-and-found', lostAndFound);
 app.use('/api/rentals', rentalRoute);

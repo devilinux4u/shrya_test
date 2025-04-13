@@ -39,6 +39,7 @@ import RentalDetails from "./Admin/Rentals/RentalDetails";
 import MySales from "./Pages/MySales";
 import Feedback from "./Admin/Feedback/Feedback";
 import GoogleAuth from "./Pages/LoginGoogle";
+import PaymentVerify from "./Pages/PaymentSuccess"
 
 function App() {
   const location = useLocation();
@@ -82,6 +83,7 @@ function App() {
         <Route path="/UserBookings" element={<UserBookings />} />
         <Route path="/ReportedItems" element={<ReportedItems />} />
         <Route path="/History" element={<History />} />
+        <Route path="/payment-verify" element={<PaymentVerify />} />
         <Route
           path="/WishlistVehicleDetail/:id"
           element={<WishlistVehicleDetail />}

@@ -51,7 +51,7 @@ const UserBookings = () => {
         }
         const data = await response.json();
 
-        console.log(data.data);
+        console.log(data.data[0].RentalVehicle);
 
         setBookings(data.data.length > 0 ? data.data : []); // Ensure empty array if no bookings
       } catch (err) {
@@ -436,7 +436,7 @@ const UserBookings = () => {
                     <div className="w-full md:w-1/4 h-48 bg-gray-100 rounded-lg overflow-hidden">
                       <img
                         src={
-                          `../../server${booking.rentVehicle.rentVehicleImages[0].image}` ||
+                          `../../server${booking.RentalVehicle.rentVehicleImages[0].image}` ||
                           "/placeholder.svg"
                         }
                         alt={booking.vehicleName}
@@ -448,11 +448,11 @@ const UserBookings = () => {
                     <div className="flex-1">
                       <div className="mb-4">
                         <h3 className="text-xl font-bold text-gray-900">
-                          {booking.rentVehicle.make}
+                          {booking.RentalVehicle.make}
                         </h3>
                         <p className="text-gray-600">
-                          {booking.rentVehicle.make} {booking.rentVehicle.model}{" "}
-                          ({booking.rentVehicle.year})
+                          {booking.RentalVehicle.make} {booking.RentalVehicle.model}{" "}
+                          ({booking.RentalVehicle.year})
                         </p>
                       </div>
 

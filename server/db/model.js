@@ -477,7 +477,7 @@ module.exports.Booking = (sequelize, DataTypes) => {
             allowNull: false
         },
         status: {
-            type: DataTypes.ENUM('pending', 'active', 'late', 'completed', 'cancelled', 'completed_late'),
+            type: DataTypes.ENUM('pending', 'active', 'late', 'completed', 'cancelled', 'completed_late', 'not_paid'),
             defaultValue: 'pending'
         }
     });
@@ -489,6 +489,43 @@ module.exports.Booking = (sequelize, DataTypes) => {
 
     return Booking;
 };
+
+module.exports.Transaction = (sequelize, DataTypes) => {
+    const Transaction = sequelize.define('Transaction', {
+      bookingId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Bookings',
+          key: 'id'
+        },
+        onDelete: 'CASCADE'
+      },
+      pidx: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true
+      },
+      amount: {
+        type: DataTypes.FLOAT,
+        allowNull: false
+      },
+      status: {
+        type: DataTypes.ENUM('paid', 'pending', 'canceled', 'failed'),
+        defaultValue: 'pending'
+      },
+      method: {
+        type: DataTypes.ENUM('khalti', 'cash'),
+      }
+    });
+  
+    Transaction.associate = (models) => {
+      Transaction.belongsTo(models.Booking, { foreignKey: 'bookingId' });
+    };
+  
+    return Transaction;
+  };
+  
 
 module.exports.Contact = (sequelize, DataTypes) => {
   const Contact = sequelize.define('Contact', {

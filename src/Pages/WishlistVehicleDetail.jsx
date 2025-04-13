@@ -184,7 +184,7 @@ const WishlistVehicleDetail = () => {
               <>
                 <div className="relative h-[400px] w-full">
                   <img
-                    src={`http://localhost:3000${vehicle.images[currentImageIndex].imageUrl}`}
+                    src={`../../server${vehicle.images[currentImageIndex].imageUrl}`}
                     alt={`${vehicle.make} ${vehicle.model} - Image ${
                       currentImageIndex + 1
                     }`}
@@ -233,7 +233,7 @@ const WishlistVehicleDetail = () => {
                         }`}
                       >
                         <img
-                          src={`http://localhost:3000${image.imageUrl}`}
+                          src={`../../server${image.imageUrl}`}
                           alt={`Thumbnail ${index + 1}`}
                           className="w-full h-full object-cover"
                           onError={(e) => {

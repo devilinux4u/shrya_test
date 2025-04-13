@@ -175,7 +175,7 @@ router.get('/active/one/:id', async (req, res) => {
         {
           model: db.RentalAllVehicles,
           include: [
-            { 
+            {
               model: db.RentalAllVehicleImages,
             }
           ]
@@ -214,7 +214,7 @@ router.get('/history/all', async (req, res) => {
         {
           model: db.RentalAllVehicles,
           include: [
-            { 
+            {
               model: db.RentalAllVehicleImages,
               as: 'rentVehicleImages'
             }
@@ -243,7 +243,12 @@ router.get('/history/all', async (req, res) => {
 router.get('/active/user/all/:id', async (req, res) => {
   try {
     const vehiclesData = await db.rental.findAll({
-      where: { userId: req.params.id },
+      where: {
+        userId: req.params.id,
+        status: {
+          [Op.in]: ['cancelled', 'completed', 'completed_late', 'late', 'pending', 'active']
+        }
+      },
       include: [
         {
           model: db.users,
@@ -252,8 +257,8 @@ router.get('/active/user/all/:id', async (req, res) => {
         {
           model: db.RentalAllVehicles,
           include: [
-            { 
-              model: db.RentalAllVehicleImages, 
+            {
+              model: db.RentalAllVehicleImages,
               as: 'rentVehicleImages'
             }
           ]

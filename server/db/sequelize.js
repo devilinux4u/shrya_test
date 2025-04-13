@@ -18,6 +18,8 @@ const LostAndFoundImage = model.LostAndFoundImage(sequelize, DataTypes);
 const RentalAllVehicles = model.RentalVehicle(sequelize, DataTypes);
 const RentalAllVehicleImages = model.RentalVehicleImage(sequelize, DataTypes);
 const rental = model.Booking(sequelize, DataTypes);
+const Transaction = model.Transaction(sequelize, DataTypes);
+
 
 
 Vehicle.hasMany(VehicleImage, { foreignKey: 'vehicleId', onDelete: 'CASCADE' });
@@ -63,6 +65,8 @@ RentalAllVehicleImages.belongsTo(RentalAllVehicles, {
 rental.belongsTo(user, { foreignKey: 'userId' });
 rental.belongsTo(RentalAllVehicles, { foreignKey: 'vehicleId' });
 
+rental.hasOne(Transaction, { foreignKey: 'bookingId', as: 'transaction' });
+Transaction.belongsTo(rental, { foreignKey: 'bookingId' });
 
 sequelize.sync({ alter: true })
   .then(() => console.log('Database synced successfully'))
@@ -81,5 +85,6 @@ module.exports = {
   rental,
   RentalAllVehicles,
   RentalAllVehicleImages,
+  Transaction
 };
 

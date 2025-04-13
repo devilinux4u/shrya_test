@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require("express");
 const router = express.Router();
 const path = require("path");
@@ -100,13 +102,22 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
       paymentMethod: req.body.paymentMethod || 'payLater',
       totalAmount: parseFloat(req.body.totalAmount) || 0,
       rentalDuration: parseInt(req.body.rentalDuration) || 1,
-      status: 'active',
+      status: req.body.paymentMethod === 'payLater' ? 'active' : 'not_paid',
       licenseImageUrl: req.file ? `/uploads/licenses/${req.file.filename}` : null,
     };
 
     if (req.body.paymentMethod == 'payLater') {
       // Create rental
       const newRental = await db.rental.create(rentalData);
+
+      await db.Transaction.create({
+        bookingId: newRental.id,
+        pidx: null,
+        amount: rentalData.totalAmount,
+        status: 'pending',
+        method: 'cash'
+      });
+
 
       res.status(201).json({
         success: true,
@@ -117,27 +128,42 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
       });
     }
     else {
+
+      const newRental = await db.rental.create(rentalData);
+
       var options = {
         'method': 'POST',
         'url': 'https://dev.khalti.com/api/v2/epayment/initiate/',
         'headers': {
-          'Authorization': 'key live_secret_key_68791341fdd94846a146f0457ff7b455',
+          'Authorization': `key ${process.env.KHALTI_API}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          "return_url": "http://localhost:5173/UserBookings",
+          "return_url": "http://localhost:5173/payment-verify",
           "website_url": "http://localhost:5173/",
-          "amount": rentalData.totalAmount,
-          "purchase_order_id": rentalData.vehicleId,
-          "purchase_order_name": rentalData.vehicleId,
+          "amount": rentalData.totalAmount * 100,
+          "purchase_order_id": `vid-${rentalData.vehicleId}`,
+          "purchase_order_name": `for-${rentalData.vehicleId}`,
         })
 
       };
-      request(options, function (error, response) {
+      request(options, async function (error, response) {
         if (error) throw new Error(error);
-        console.log(response.body);
-      });
+        console.log(JSON.parse(response.body));
 
+        await db.Transaction.create({
+          bookingId: newRental.id,
+          pidx: JSON.parse(response.body).pidx,
+          amount: rentalData.totalAmount,
+          status: 'pending',
+          method: 'khalti'
+        });
+
+        res.status(201).json({
+          success: true,
+          data: JSON.parse(response.body),
+        });
+      });
     }
 
   } catch (error) {
