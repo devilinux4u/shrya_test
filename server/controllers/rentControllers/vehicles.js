@@ -253,7 +253,8 @@ router.get('/active/user/all/:id', async (req, res) => {
           model: db.RentalAllVehicles,
           include: [
             { 
-              model: db.RentalAllVehicleImages,
+              model: db.RentalAllVehicleImages, 
+              as: 'rentVehicleImages'
             }
           ]
         }
