@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ItemBooking from "../Components/WishlistBookNow";
 import {
   Car,
   Calendar,
-  DollarSign,
   ArrowLeft,
   CheckCircle,
   Clock,
@@ -19,17 +18,18 @@ import {
   ShoppingBag,
   AlertCircle,
   X,
+  Loader2,
 } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const WishlistVehicleDetail = () => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { id } = useParams(); // Get ID from URL params instead of query params
   const [vehicle, setVehicle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showBookingModal, setShowBookingModal] = useState(false); // State to control the visibility of the booking modal
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   // Fetch vehicle data based on ID in the URL
   useEffect(() => {
@@ -37,15 +37,13 @@ const WishlistVehicleDetail = () => {
       try {
         setLoading(true);
 
-        // const location = useLocation();
-        const searchParams = new URLSearchParams(location.search);
-        const vehicleId = searchParams.get("vid");
+        if (!id) {
+          throw new Error("Vehicle ID not found");
+        }
 
-        console.log(vehicleId);
-
-        // Replace the mock data with an actual API call
+        // Use the ID from URL params
         const response = await fetch(
-          `http://127.0.0.1:3000/wishlist/one/${vehicleId}`
+          `http://localhost:3000/wishlist/one/${id}`
         );
 
         if (!response.ok) {
@@ -63,14 +61,14 @@ const WishlistVehicleDetail = () => {
     };
 
     fetchVehicle();
-  }, [location]);
+  }, [id]);
 
   const handleBook = () => {
-    setShowBookingModal(true); // Show the booking modal
+    setShowBookingModal(true);
   };
 
   const nextImage = () => {
-    if (vehicle && vehicle.images) {
+    if (vehicle && vehicle.images && vehicle.images.length > 0) {
       setCurrentImageIndex((prevIndex) =>
         prevIndex === vehicle.images.length - 1 ? 0 : prevIndex + 1
       );
@@ -78,17 +76,25 @@ const WishlistVehicleDetail = () => {
   };
 
   const prevImage = () => {
-    if (vehicle && vehicle.images) {
+    if (vehicle && vehicle.images && vehicle.images.length > 0) {
       setCurrentImageIndex((prevIndex) =>
         prevIndex === 0 ? vehicle.images.length - 1 : prevIndex - 1
       );
     }
   };
 
+  // Back button handler
+  const handleBackToList = () => {
+    navigate("/YourList");
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+        <div className="flex flex-col items-center">
+          <Loader2 className="w-12 h-12 text-orange-500 animate-spin mb-4" />
+          <p className="text-gray-600">Loading vehicle details...</p>
+        </div>
       </div>
     );
   }
@@ -101,7 +107,7 @@ const WishlistVehicleDetail = () => {
           The vehicle you're looking for doesn't exist or has been removed.
         </p>
         <button
-          onClick={() => navigate("/YourList")}
+          onClick={handleBackToList}
           className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
         >
           Back to Your List
@@ -125,22 +131,35 @@ const WishlistVehicleDetail = () => {
         theme="light"
       />
 
-      <div className="mt-12 max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto mt-12">
+        {/* Back button */}
+        <button
+          onClick={handleBackToList}
+          className="mb-4 flex items-center text-gray-600 hover:text-orange-500 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 mr-2" />
+          Back to Your List
+        </button>
+
         <div className="bg-white rounded-xl shadow-sm overflow-hidden">
           {/* Header with status badge */}
           <div className="p-6 border-b border-gray-100">
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <h1 className="text-3xl font-bold">{vehicle.vehicleName}</h1>
+              <h1 className="text-3xl font-bold">
+                {vehicle.make} {vehicle.model}
+              </h1>
               <div className="flex items-center gap-3">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    vehicle.purpose === "buy"
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-purple-100 text-purple-800"
-                  }`}
-                >
-                  {vehicle.purpose === "buy" ? "Buy" : "Rent"}
-                </span>
+                {vehicle.purpose && (
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      vehicle.purpose === "buy"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-purple-100 text-purple-800"
+                    }`}
+                  >
+                    {vehicle.purpose === "buy" ? "Buy" : "Rent"}
+                  </span>
+                )}
                 {vehicle.status === "available" ? (
                   <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center">
                     <CheckCircle className="w-4 h-4 mr-1" />
@@ -155,25 +174,25 @@ const WishlistVehicleDetail = () => {
               </div>
             </div>
             <p className="text-gray-600 mt-2">
-              {vehicle.model} • {vehicle.year}
+              {vehicle.make} {vehicle.model} • {vehicle.year || "Year N/A"}
             </p>
           </div>
 
           {/* Image gallery */}
           <div className="relative">
-            {vehicle.images && vehicle.images.length > 0 && (
+            {vehicle.images && vehicle.images.length > 0 ? (
               <>
                 <div className="relative h-[400px] w-full">
                   <img
-                    src={
-                      vehicle.images && vehicle.images.length > 0
-                        ? `../../server${vehicle.images[currentImageIndex].imageUrl}`
-                        : "/placeholder.svg"
-                    }
-                    alt={`${vehicle.vehicleName} - Image ${
+                    src={`http://localhost:3000${vehicle.images[currentImageIndex].imageUrl}`}
+                    alt={`${vehicle.make} ${vehicle.model} - Image ${
                       currentImageIndex + 1
                     }`}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = "/placeholder.svg";
+                      e.target.onerror = null;
+                    }}
                   />
 
                   {/* Image navigation arrows */}
@@ -214,18 +233,23 @@ const WishlistVehicleDetail = () => {
                         }`}
                       >
                         <img
-                          src={
-                            `../../server${image.imageUrl}` ||
-                            "/placeholder.svg"
-                          }
+                          src={`http://localhost:3000${image.imageUrl}`}
                           alt={`Thumbnail ${index + 1}`}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.src = "/placeholder.svg";
+                            e.target.onerror = null;
+                          }}
                         />
                       </button>
                     ))}
                   </div>
                 )}
               </>
+            ) : (
+              <div className="h-[200px] bg-gray-100 flex items-center justify-center">
+                <p className="text-gray-500">No images available</p>
+              </div>
             )}
           </div>
 
@@ -236,46 +260,36 @@ const WishlistVehicleDetail = () => {
                 <h2 className="text-xl font-semibold mb-4">Vehicle Details</h2>
                 <div className="grid grid-cols-1 gap-y-4">
                   <div>
-                    {/* <h3 className="text-sm font-medium text-gray-500 flex items-center">
-                      <Tag className="w-4 h-4 mr-2 text-gray-500" />
-                      Brand
-                    </h3>
-                    <p className="text-lg">{vehicle.brand}</p> */}
-                  </div>
-                  <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
                       <Car className="w-4 h-4 mr-2 text-gray-500" />
-                      Model
+                      Make & Model
                     </h3>
-                    <p className="text-lg">{vehicle.model}</p>
+                    <p className="text-lg">
+                      {vehicle.make} {vehicle.model}
+                    </p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
                       <Calendar className="w-4 h-4 mr-2 text-gray-500" />
                       Year
                     </h3>
-                    <p className="text-lg">{vehicle.year}</p>
-                  </div>
-                  <div>
-                    {/* <h3 className="text-sm font-medium text-gray-500 flex items-center">
-                      <ShoppingBag className="w-4 h-4 mr-2 text-gray-500" />
-                      Vehicle Type
-                    </h3>
-                    <p className="text-lg capitalize">{vehicle.vehicleType || "Not specified"}</p> */}
+                    <p className="text-lg">{vehicle.year || "Not specified"}</p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
                       <Car className="w-4 h-4 mr-2 text-gray-500" />
                       Kilometers
                     </h3>
-                    <p className="text-lg">{vehicle.kmRun} km</p>
+                    <p className="text-lg">{vehicle.kmRun || "0"} km</p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
                       <Fuel className="w-4 h-4 mr-2 text-gray-500" />
                       Fuel Type
                     </h3>
-                    <p className="text-lg capitalize">{vehicle.fuelType}</p>
+                    <p className="text-lg capitalize">
+                      {vehicle.fuelType || "Not specified"}
+                    </p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
@@ -286,43 +300,30 @@ const WishlistVehicleDetail = () => {
                       <span
                         className="w-4 h-4 rounded-full mr-2"
                         style={{
-                          backgroundColor: vehicle.color
-                            ? vehicle.color.toLowerCase()
-                            : "gray",
+                          backgroundColor: vehicle.color || "gray",
                         }}
                       ></span>
-                      <p className="text-lg">{vehicle.color || "N/A"}</p>
+                      <p className="text-lg">
+                        {vehicle.color || "Not specified"}
+                      </p>
                     </div>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
-                      <User className="w-4 h-4 mr-2 text-gray-500" />
-                      Ownership
-                    </h3>
-                    <p className="text-lg">
-                      {vehicle.ownership || "Not specified"}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 flex items-center">
-                      <DollarSign className="w-4 h-4 mr-2 text-gray-500" />
                       Budget
                     </h3>
-                    <p className="text-lg">Rs. {vehicle.budget}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500 flex items-center">
-                      <ShoppingBag className="w-4 h-4 mr-2 text-gray-500" />
-                      Purpose
-                    </h3>
-                    <p className="text-lg capitalize">{vehicle.purpose}</p>
+                    <p className="text-lg">
+                      Rs. {vehicle.budget || "Not specified"}
+                    </p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500 flex items-center">
                       <AlertCircle className="w-4 h-4 mr-2 text-gray-500" />
                       Status
                     </h3>
-                    <p className="text-lg capitalize">{vehicle.status}</p>
+                    <p className="text-lg capitalize">
+                      {vehicle.status || "Pending"}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -344,7 +345,7 @@ const WishlistVehicleDetail = () => {
                 {vehicle.status === "available" && (
                   <button
                     onClick={handleBook}
-                    className="w-full bg-[#4B3EAE] text-white px-6 py-3 rounded-lg hover:bg-[#3c318a] transition-colors flex items-center justify-center"
+                    className="w-full bg-orange-500 text-white px-6 py-3 rounded-lg hover:bg-orange-600 transition-colors flex items-center justify-center"
                   >
                     <Car className="w-5 h-5 mr-2" />
                     Book Now
@@ -359,7 +360,7 @@ const WishlistVehicleDetail = () => {
       {/* Booking Modal */}
       {showBookingModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-3xl relative">
             <button
               onClick={() => setShowBookingModal(false)}
               className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"

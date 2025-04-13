@@ -174,7 +174,7 @@ module.exports.Wishlist = (sequelize, DataTypes) => {
             onDelete: 'CASCADE',
             onUpdate: 'CASCADE'
         },
-        purpose: {
+       make: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -182,10 +182,7 @@ module.exports.Wishlist = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        vehicleName: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
+        
         year: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -198,16 +195,8 @@ module.exports.Wishlist = (sequelize, DataTypes) => {
             type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
         },
-        duration: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
         kmRun: {
             type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        ownership: {
-            type: DataTypes.STRING,
             allowNull: false,
         },
         fuelType: {

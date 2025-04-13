@@ -18,7 +18,9 @@ const storage = multer.diskStorage({
         cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
+        // Sanitize filename to remove special characters
+        const sanitizedFilename = file.originalname.replace(/[^a-zA-Z0-9.]/g, '-');
+        cb(null, Date.now() + '-' + sanitizedFilename);
     },
 });
 
@@ -34,77 +36,89 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
     storage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 },
-}).array('images[]', 10);
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+}).array('images', 5); // Changed from 'images[]' to 'images' and max 5 files
 
 // Route for creating a wishlist item with images
-router.post('/wishlistForm', upload, async (req, res) => {
-    try {
-        console.log('Request Body:', req.body);
-        console.log('Request Files:', req.files);
-
-        const {
-            id,
-            purpose,
-            model,
-            vehicleName,
-            year,
-            color,
-            budget,
-            duration,
-            kmRun,
-            ownership,
-            fuelType,
-            description,
-        } = req.body;
-
-        // Validate required fields
-        if (
-            !purpose || !model || !vehicleName || !year ||
-            !color || !budget || !kmRun || !ownership || !fuelType
-        ) {
-            return res.status(400).json({ message: 'All required fields must be provided' });
+router.post('/wishlistForm', async (req, res) => {
+    upload(req, res, async (err) => {
+        if (err) {
+            console.error('File upload error:', err);
+            return res.status(400).json({ 
+                success: false, 
+                message: err.message || 'File upload failed' 
+            });
         }
 
-        // Create wishlist item first
-        const newWishlist = await vehicleWishlist.create({
-            uid: id,
-            purpose,
-            model,
-            vehicleName,
-            year: parseInt(year),
-            color,
-            budget: parseFloat(budget),
-            duration: purpose === 'rent' ? duration : null,
-            kmRun: parseInt(kmRun),
-            ownership,
-            fuelType,
-            description,
-        });
+        try {
+            const {
+                id,
+                make,
+                model,
+                year,
+                color,
+                budget,
+                kmRun,
+                fuelType,
+                description,
+            } = req.body;
 
-        // Save image paths in the WishlistImage table
-        if (req.files && req.files.length > 0) {
-            const imagesToSave = req.files.map((file) => ({
-                wishlistId: newWishlist.id,
-                imageUrl: `/uploads/wishlist/${file.filename}`, // Save relative path
-            }));
+            // Validate required fields
+            if (!id || !model || !make) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'All required fields must be provided' 
+                });
+            }
 
-            await wishlistImage.bulkCreate(imagesToSave);
+            // Create wishlist item first
+            const newWishlist = await vehicleWishlist.create({
+                uid: id,
+                model,
+                make,
+                year: year ? parseInt(year) : null,
+                color: color || '',
+                budget: budget ? parseFloat(budget) : null,
+                kmRun: kmRun ? parseInt(kmRun) : null,
+                fuelType: fuelType || '',
+                description: description || '',
+            });
+
+            // Save image paths in the WishlistImage table
+            if (req.files && req.files.length > 0) {
+                const imagesToSave = req.files.map((file) => ({
+                    wishlistId: newWishlist.id,
+                    imageUrl: `/uploads/wishlist/${file.filename}`,
+                }));
+
+                await wishlistImage.bulkCreate(imagesToSave);
+            }
+
+            return res.status(201).json({
+                success: true,
+                message: 'Wishlist item created successfully',
+                data: newWishlist,
+            });
+        } catch (error) {
+            console.error('Error submitting wishlist:', error);
+            
+            // Clean up uploaded files if there was an error
+            if (req.files && req.files.length > 0) {
+                req.files.forEach(file => {
+                    const filePath = path.join(uploadDir, file.filename);
+                    if (fs.existsSync(filePath)) {
+                        fs.unlinkSync(filePath);
+                    }
+                });
+            }
+
+            return res.status(500).json({
+                success: false,
+                message: 'Internal server error',
+                error: error.message,
+            });
         }
-
-        return res.status(201).json({
-            success: true,
-            message: 'Wishlist item created successfully with images',
-            data: newWishlist,
-        });
-    } catch (error) {
-        console.error('Error submitting wishlist:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Internal server error',
-            error: error.message,
-        });
-    }
+    });
 });
 
 
@@ -199,11 +213,10 @@ router.get('/wishlist/one/:wishlistId', async (req, res) => {
 router.put('/wishlist/edit/:wishlistId', async (req, res) => {
     const { wishlistId } = req.params;
     const {
-        vehicleName,
+        make,
         model,
         kmRun,
         fuelType,
-        ownership,
         year,
         color,
         budget,
@@ -220,11 +233,10 @@ router.put('/wishlist/edit/:wishlistId', async (req, res) => {
 
         // Update the wishlist item with new data
         await wishlist.update({
-            vehicleName,
+            make,
             model,
             kmRun: parseInt(kmRun),
             fuelType,
-            ownership,
             year: parseInt(year),
             color,
             budget: parseFloat(budget),
@@ -305,7 +317,7 @@ router.put("/wishlist/:id/available", async (req, res) => {
         wishlistItem.status = "available";
         await wishlistItem.save();
 
-        notify(wishlistItem.user.email, wishlistItem.user.fname, wishlistItem.vehicleName)
+        notify(wishlistItem.user.email, wishlistItem.user.fname, wishlistItem.make)
 
         res.json({ success: true, message: "Wishlist status updated & notification sent!" });
     } catch (error) {

@@ -601,7 +601,7 @@ export default function Vehicles() {
                         </p>
                         <p className="text-gray-600 text-sm flex items-center">
                           <Clock className="w-3.5 h-3.5 mr-1 text-gray-400" />
-                          {vehicle.mile.toLocaleString()} km
+                          Total Run: {vehicle.km.toLocaleString()} km
                         </p>
                       </div>
                       <p className="text-xl font-semibold text-gray-800 mb-3">
