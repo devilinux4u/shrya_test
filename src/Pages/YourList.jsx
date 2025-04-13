@@ -69,6 +69,8 @@ const YourList = () => {
 
         const data = await response.json();
 
+        console.log(data);
+
         if (data.success && data.data) {
           setItems(data.data);
         } else {
@@ -384,7 +386,7 @@ const YourList = () => {
                     <img
                       src={
                         item.images && item.images.length > 0
-                          ? `http://localhost:3000${item.images[0].imageUrl}`
+                          ? `../../server${item.images[0].imageUrl}`
                           : "/placeholder.svg"
                       }
                       alt={`${item.make} ${item.model}`}

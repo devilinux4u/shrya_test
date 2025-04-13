@@ -5,6 +5,8 @@ const nodemailer = require('nodemailer');
 // Function to send OTP via email
 const cancelEmail = async (msg, data, admin) => {
 
+    console.log(data)
+
     // Configure the email transporter
     const transporter = nodemailer.createTransport({
         host: 'smtp.zoho.com',
@@ -21,15 +23,15 @@ const cancelEmail = async (msg, data, admin) => {
             from: process.env.EMAIL_USER, // Sender email
             to: process.env.EMAIL_ADMIN, // Recipient email
             subject: 'Rental Cancellation Notification',
-            text: `Dear Admin, \n\n ${data.user.uname} canceled ${data.rentVehicle.make} ${data.rentVehicle.model} ${data.rentVehicle.year} rental vechile booking for ${data.pickupDate}. \n\n Reason: ${msg ? msg : 'none'}`
+            text: `Dear Admin, \n\n ${data.User.uname} canceled ${data.RentalVehicle.make} ${data.RentalVehicle.model} ${data.RentalVehicle.year} rental vechile booking for ${data.pickupDate}. \n\n Reason: ${msg ? msg : 'none'}`
         };
     }
     else{
         mailOptions = {
             from: process.env.EMAIL_USER, // Sender email
-            to: data.user.email, // Recipient email
+            to: data.User.email, // Recipient email
             subject: 'Rental Cancellation Notification',
-            text: `Dear ${data.user.fname}, \n\n Your booking for ${data.rentVehicle.make} ${data.rentVehicle.model} ${data.rentVehicle.year} rental vechile on ${data.pickupDate} has been canceled. \n\n Reason: ${msg ? msg : 'none'}`
+            text: `Dear ${data.User.fname}, \n\n Your booking for ${data.RentalVehicle.make} ${data.RentalVehicle.model} ${data.RentalVehicle.year} rental vechile on ${data.pickupDate} has been canceled. \n\n Reason: ${msg ? msg : 'none'}`
         };
     }
 
