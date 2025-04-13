@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Edit,
   Car,
+  Trash2,
 } from "lucide-react";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
@@ -32,6 +33,7 @@ const ReportedItems = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isViewing, setIsViewing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [updatedData, setUpdatedData] = useState({
@@ -208,11 +210,53 @@ const ReportedItems = () => {
       if (selectedItem && selectedItem.id === itemId) {
         setSelectedItem(null);
       }
+
+      toast.success("Item marked as resolved successfully");
     } catch (error) {
       console.error("Error updating status:", error);
-      alert("Failed to update item status. Please try again.");
+      toast.error("Failed to update item status. Please try again.");
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  // Handle item deletion
+  const handleDeleteItem = async (itemId) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) {
+      return;
+    }
+
+    setIsDeleting(true);
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/lost-and-found/${itemId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
+      // Update local state
+      setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+
+      // Close modal if open
+      if (selectedItem && selectedItem.id === itemId) {
+        setSelectedItem(null);
+      }
+
+      toast.success("Item deleted successfully");
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast.error("Failed to delete item. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -264,7 +308,16 @@ const ReportedItems = () => {
       );
 
       toast.success("Item updated successfully");
-      setUpdatedData(null);
+      setIsEditing(false);
+      setUpdatedData({
+        title: "",
+        description: "",
+        location: "",
+        date: "",
+        vehicleMake: "",
+        vehicleModel: "",
+        numberPlate: "",
+      });
     } catch (error) {
       toast.error(error.message || "Error updating item");
     }
@@ -468,28 +521,44 @@ const ReportedItems = () => {
                           )}
                         </div>
 
-                        {/* Only show Edit button if status is not resolved */}
-                        {item.status !== "resolved" && (
+                        <div className="flex space-x-2">
+                          {/* Only show Edit button if status is not resolved */}
+                          {item.status !== "resolved" && (
+                            <button
+                              onClick={() => {
+                                setIsEditing(true);
+                                setSelectedItemId(item.id);
+                                setUpdatedData({
+                                  title: item.title,
+                                  description: item.description,
+                                  location: item.location,
+                                  date: item.createdAt,
+                                  vehicleMake: item.make || "",
+                                  vehicleModel: item.model || "",
+                                  numberPlate: item.nplate || "",
+                                });
+                              }}
+                              className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              Edit
+                            </button>
+                          )}
                           <button
-                            onClick={() => {
-                              setIsEditing(true);
-                              setSelectedItemId(item.id);
-                              setUpdatedData({
-                                title: item.title,
-                                description: item.description,
-                                location: item.location,
-                                date: item.createdAt,
-                                vehicleMake: item.make || "",
-                                vehicleModel: item.model || "",
-                                numberPlate: item.nplate || "",
-                              });
-                            }}
-                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 justify-end"
+                            onClick={() => handleDeleteItem(item.id)}
+                            disabled={isDeleting}
+                            className={`inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 ${
+                              isDeleting ? "opacity-70 cursor-not-allowed" : ""
+                            }`}
                           >
-                            <Edit className="w-4 h-4 mr-1" />
-                            Edit
+                            {isDeleting ? (
+                              <RefreshCw className="w-4 h-4 mr-1 animate-spin" />
+                            ) : (
+                              <Trash2 className="w-4 h-4 mr-1" />
+                            )}
+                            {isDeleting ? "Deleting..." : "Delete"}
                           </button>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -724,6 +793,25 @@ const ReportedItems = () => {
                   </div>
 
                   <div className="pt-4 border-t border-gray-200 flex justify-end space-x-3">
+                    <button
+                      onClick={() => handleDeleteItem(selectedItem.id)}
+                      disabled={isDeleting}
+                      className={`px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 flex items-center ${
+                        isDeleting ? "opacity-70 cursor-not-allowed" : ""
+                      }`}
+                    >
+                      {isDeleting ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </>
+                      )}
+                    </button>
                     {selectedItem.status !== "resolved" && (
                       <button
                         onClick={() => handleStatusChange(selectedItem.id)}
