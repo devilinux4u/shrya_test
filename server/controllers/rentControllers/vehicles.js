@@ -146,6 +146,7 @@ router.get('/active/all', async (req, res) => {
           ],
         },
       ],
+      order: [['createdAt', 'DESC']]
     });
 
     res.json({
@@ -177,6 +178,7 @@ router.get('/active/one/:id', async (req, res) => {
           include: [
             {
               model: db.RentalAllVehicleImages,
+              as: 'rentVehicleImages'
             }
           ]
         }
@@ -220,7 +222,8 @@ router.get('/history/all', async (req, res) => {
             }
           ]
         }
-      ]
+      ],
+      order: [['createdAt', 'DESC']]
     });
 
     res.json({
@@ -263,7 +266,8 @@ router.get('/active/user/all/:id', async (req, res) => {
             }
           ]
         }
-      ]
+      ],
+      order: [['createdAt', 'DESC']]
     });
 
     res.json({
@@ -310,17 +314,31 @@ router.put("/update/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find the item
+    // Find the rental
     const report = await db.rental.findByPk(id);
     if (!report) {
       return res.status(404).json({ success: false, message: "Item not found" });
     }
 
-    // Update the status to 'resolved'
+    // Update the status
     report.status = req.body.status;
     await report.save();
 
+    // If status is 'completed' or 'late_completed' AND paymentMethod is NOT 'payLater'
+    if (
+      (req.body.status === 'completed' || req.body.status === 'completed_late') &&
+      report.paymentMethod == 'payLater'
+    ) {
+      const existingTransaction = await db.Transaction.findOne({ where: { bookingId: report.id } });
+
+      if (existingTransaction) {
+        existingTransaction.status = 'paid';
+        await existingTransaction.save();
+      };
+    }
+
     res.status(200).json({ success: true, message: "updated", data: report });
+
   } catch (error) {
     console.error("Error updating item status:", error);
     res.status(500).json({ success: false, message: "Failed to update status", error: error.message });

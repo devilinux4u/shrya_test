@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   CreditCard,
@@ -14,60 +14,38 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-// Mock data for transactions
-const initialTransactions = [
-  {
-    id: "TRX-2024-001",
-    orderId: "ORD-2024-001",
-    type: "purchase",
-    amount: 45000,
-    status: "completed",
-    date: "2024-02-20",
-    paymentMethod: "credit_card",
-    customer: "John Doe",
-    cardLast4: "4242",
-  },
-  {
-    id: "TRX-2024-002",
-    orderId: "RNT-2024-001",
-    type: "rental",
-    amount: 150,
-    status: "completed",
-    date: "2024-02-21",
-    paymentMethod: "paypal",
-    customer: "Jane Smith",
-  },
-  {
-    id: "TRX-2024-003",
-    orderId: "ORD-2024-002",
-    type: "purchase",
-    amount: 35000,
-    status: "pending",
-    date: "2024-02-22",
-    paymentMethod: "bank_transfer",
-    customer: "Mike Johnson",
-  },
-  {
-    id: "TRX-2024-004",
-    orderId: "RNT-2024-002",
-    type: "rental_deposit",
-    amount: 500,
-    status: "refunded",
-    date: "2024-02-19",
-    paymentMethod: "credit_card",
-    customer: "Sarah Williams",
-    cardLast4: "1234",
-  },
-];
-
 export default function Transactions() {
-  const [transactions, setTransactions] = useState(initialTransactions);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const transactionsPerPage = 5;
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await fetch("http://127.0.0.1:3000/api/transaction"); // Replace with your API endpoint
+        if (!response.ok) {
+          throw new Error("Failed to fetch transactions");
+        }
+        const data = await response.json();
+
+        console.log(data)
+
+        setTransactions(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -129,6 +107,14 @@ export default function Transactions() {
   );
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center mt-10 text-red-500">{error}</div>;
+  }
 
   return (
     <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">

@@ -330,15 +330,16 @@ const RentalBookingForm = ({ vehicleId }) => {
           timeout: 5000,
         }
       );
- 
+
       console.log(response)
 
-      if (formData.get("paymentMethod") === "PayLater" && response.status === 201) {
-        toast.success("Booking confirmed!");
-        navigate("/UserBookings");
-      } else if (formData.get("paymentMethod") != 'PayLater' && response.status === 201) {
+      if (formData.get("paymentMethod") != 'payLater' && response.status === 201) {
         const paymentUrl = response.data.data.payment_url; // Assume backend returns this
         window.location.href = paymentUrl; // Redirect to Khalti
+      }
+      else {
+        toast.success("Booking confirmed!");
+        navigate("/UserBookings");
       }
 
       throw new Error(response.data.message || "Unexpected response");
@@ -630,8 +631,8 @@ const RentalBookingForm = ({ vehicleId }) => {
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <div
                 className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-colors ${bookingData.driveOption === "selfDrive"
-                    ? "border-[#ff6b00] bg-orange-50"
-                    : "border-gray-200 hover:border-gray-300"
+                  ? "border-[#ff6b00] bg-orange-50"
+                  : "border-gray-200 hover:border-gray-300"
                   }`}
                 onClick={() =>
                   setBookingData((prev) => ({
@@ -664,8 +665,8 @@ const RentalBookingForm = ({ vehicleId }) => {
 
               <div
                 className={`border rounded-lg p-3 sm:p-4 cursor-pointer transition-colors ${bookingData.driveOption === "hireDriver"
-                    ? "border-[#ff6b00] bg-orange-50"
-                    : "border-gray-200 hover:border-gray-300"
+                  ? "border-[#ff6b00] bg-orange-50"
+                  : "border-gray-200 hover:border-gray-300"
                   }`}
                 onClick={() =>
                   setBookingData((prev) => ({
@@ -718,8 +719,8 @@ const RentalBookingForm = ({ vehicleId }) => {
                     value={bookingData.drivingLicense}
                     onChange={handleChange}
                     className={`w-full rounded-lg border ${errors.drivingLicense
-                        ? "border-red-500"
-                        : "border-gray-300"
+                      ? "border-red-500"
+                      : "border-gray-300"
                       } shadow-sm focus:border-[#ff6b00] focus:ring-[#ff6b00] py-2 px-3`}
                     placeholder="Enter your license number"
                   />
@@ -1386,8 +1387,8 @@ const RentalBookingForm = ({ vehicleId }) => {
                 <div className="flex flex-col items-center">
                   <div
                     className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${currentStep >= step
-                        ? "bg-[#ff6b00] text-white"
-                        : "bg-gray-200 text-gray-600"
+                      ? "bg-[#ff6b00] text-white"
+                      : "bg-gray-200 text-gray-600"
                       }`}
                   >
                     {step === 1 && (
@@ -1401,8 +1402,8 @@ const RentalBookingForm = ({ vehicleId }) => {
                   </div>
                   <span
                     className={`text-xs sm:text-sm mt-1 sm:mt-2 ${currentStep >= step
-                        ? "text-[#ff6b00] font-medium"
-                        : "text-gray-500"
+                      ? "text-[#ff6b00] font-medium"
+                      : "text-gray-500"
                       } hidden sm:block`}
                   >
                     {step === 1 && "Details"}
