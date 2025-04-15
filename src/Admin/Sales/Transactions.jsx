@@ -34,10 +34,10 @@ export default function Transactions() {
         }
         const data = await response.json();
 
-        console.log(data);
+        console.log(data.data);
 
         // Ensure transactions is an array
-        setTransactions(Array.isArray(data) ? data : []);
+        setTransactions(data.data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -65,7 +65,7 @@ export default function Transactions() {
 
   const getPaymentMethodIcon = (method) => {
     switch (method) {
-      case "credit_card":
+      case "khalti":
         return <CreditCard className="w-5 h-5" />;
       case "paypal":
         return <DollarSign className="w-5 h-5" />;
@@ -77,22 +77,25 @@ export default function Transactions() {
   };
 
   // Calculate total amounts
-  const totalAmount = transactions.reduce((sum, trx) => sum + trx.amount, 0);
+  const totalAmount = transactions.reduce((sum, trx) => sum + (trx.amount || 0), 0);
   const completedAmount = transactions
-    .filter((trx) => trx.status === "completed")
-    .reduce((sum, trx) => sum + trx.amount, 0);
+    .filter((trx) => trx.status === "paid")
+    .reduce((sum, trx) => sum + (trx.amount || 0), 0);
   const pendingAmount = transactions
     .filter((trx) => trx.status === "pending")
-    .reduce((sum, trx) => sum + trx.amount, 0);
+    .reduce((sum, trx) => sum + (trx.amount || 0), 0);
+
 
   const filteredTransactions = transactions.filter((transaction) => {
-    const matchesSearch =
-      transaction.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      transaction.orderId.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === "all" || transaction.type === filterType;
+    const customer = transaction.user?.fname?.toLowerCase() || "";
+    const matchesSearch = customer.includes(searchTerm.toLowerCase());
+
+    const matchesType =
+      filterType === "all" || transaction.type === filterType;
+
     const matchesStatus =
       filterStatus === "all" || transaction.status === filterStatus;
+
     return matchesSearch && matchesType && matchesStatus;
   });
 
@@ -259,10 +262,10 @@ export default function Transactions() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {transaction.customer}
+                        {transaction.Booking.User.fname}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {transaction.orderId}
+                        {transaction.Booking.User.uname}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -281,18 +284,17 @@ export default function Transactions() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center text-sm text-gray-900">
-                        {getPaymentMethodIcon(transaction.paymentMethod)}
+                        {getPaymentMethodIcon(transaction.method)}
                         <span className="ml-2">
-                          {transaction.paymentMethod
-                            .replace("_", " ")
-                            .toUpperCase()}
+                          {transaction.method
+                          }
                           {transaction.cardLast4 &&
                             ` (*${transaction.cardLast4})`}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {transaction.date}
+                      {transaction.createdAt}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
@@ -323,11 +325,10 @@ export default function Transactions() {
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-4 py-2 border-r border-gray-200 flex items-center ${
-                  currentPage === 1
+                className={`px-4 py-2 border-r border-gray-200 flex items-center ${currentPage === 1
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-gray-700 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -337,11 +338,10 @@ export default function Transactions() {
                   <button
                     key={number}
                     onClick={() => paginate(number)}
-                    className={`px-4 py-2 border-r border-gray-200 ${
-                      currentPage === number
+                    className={`px-4 py-2 border-r border-gray-200 ${currentPage === number
                         ? "bg-orange-500 text-white font-medium"
                         : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {number}
                   </button>
@@ -351,11 +351,10 @@ export default function Transactions() {
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-4 py-2 flex items-center ${
-                  currentPage === totalPages
+                className={`px-4 py-2 flex items-center ${currentPage === totalPages
                     ? "text-gray-400 cursor-not-allowed"
                     : "text-gray-700 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -405,7 +404,7 @@ export default function Transactions() {
                       Order ID
                     </h3>
                     <p className="text-lg font-medium text-gray-900">
-                      {selectedTransaction.orderId}
+                      {selectedTransaction.pxid}
                     </p>
                   </div>
                   <div>
@@ -436,11 +435,10 @@ export default function Transactions() {
                       Payment Method
                     </h3>
                     <div className="flex items-center mt-1">
-                      {getPaymentMethodIcon(selectedTransaction.paymentMethod)}
+                      {getPaymentMethodIcon(selectedTransaction.method)}
                       <span className="ml-2 text-gray-900">
-                        {selectedTransaction.paymentMethod
-                          .replace("_", " ")
-                          .toUpperCase()}
+                        {selectedTransaction.method
+                          }
                         {selectedTransaction.cardLast4 &&
                           ` (*${selectedTransaction.cardLast4})`}
                       </span>
@@ -449,7 +447,7 @@ export default function Transactions() {
                   <div>
                     <h3 className="text-sm font-medium text-gray-500">Date</h3>
                     <p className="text-lg font-medium text-gray-900">
-                      {selectedTransaction.date}
+                      {selectedTransaction.createdAt}
                     </p>
                   </div>
                 </div>
