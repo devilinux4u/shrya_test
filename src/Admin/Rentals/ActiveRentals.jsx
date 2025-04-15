@@ -71,25 +71,25 @@ export default function ActiveRentals() {
         returnDate: rental.returnDate,
         returnTime: rental.returnTime,
         driveOption: rental.driveOption,
-        rentVehicle: {
-          id: rental.rentVehicle?.id || "",
-          make: rental.rentVehicle?.make || "",
-          model: rental.rentVehicle?.model || "",
-          year: rental.rentVehicle?.year || "",
-          numberPlate: rental.rentVehicle?.numberPlate || "",
-          fuelType: rental.rentVehicle?.fuelType || "",
-          transmission: rental.rentVehicle?.transmission || "",
-          mileage: rental.rentVehicle?.mileage || "",
-          seats: rental.rentVehicle?.seats || "",
-          doors: rental.rentVehicle?.doors || "",
-          engine: rental.rentVehicle?.engine || "",
-          priceHour: rental.rentVehicle?.priceHour || 0,
-          priceDay: rental.rentVehicle?.priceDay || 0,
-          priceWeek: rental.rentVehicle?.priceWeek || 0,
-          priceMonth: rental.rentVehicle?.priceMonth || 0,
-          status: rental.rentVehicle?.status || "",
-          description: rental.rentVehicle?.description || "",
-          rentVehicleImages: rental.rentVehicle?.rentVehicleImages || [],
+        RentalVehicle: {
+          id: rental.RentalVehicle?.id || "",
+          make: rental.RentalVehicle?.make || "",
+          model: rental.RentalVehicle?.model || "",
+          year: rental.RentalVehicle?.year || "",
+          numberPlate: rental.RentalVehicle?.numberPlate || "",
+          fuelType: rental.RentalVehicle?.fuelType || "",
+          transmission: rental.RentalVehicle?.transmission || "",
+          mileage: rental.RentalVehicle?.mileage || "",
+          seats: rental.RentalVehicle?.seats || "",
+          doors: rental.RentalVehicle?.doors || "",
+          engine: rental.RentalVehicle?.engine || "",
+          priceHour: rental.RentalVehicle?.priceHour || 0,
+          priceDay: rental.RentalVehicle?.priceDay || 0,
+          priceWeek: rental.RentalVehicle?.priceWeek || 0,
+          priceMonth: rental.RentalVehicle?.priceMonth || 0,
+          status: rental.RentalVehicle?.status || "",
+          description: rental.RentalVehicle?.description || "",
+          rentVehicleImages: rental.RentalVehicle?.rentVehicleImages || [],
         },
         user: {
           id: rental.user?.id || "",
@@ -267,16 +267,16 @@ export default function ActiveRentals() {
   const filteredRentals = rentals.filter((rental) => {
     // Filter by search term
     const searchMatch =
-      rental.rentVehicle.make
+      rental.RentalVehicle.make
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      rental.rentVehicle.model
+      rental.RentalVehicle.model
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       `${rental.user.fname} ${rental.user.lname}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      rental.rentVehicle.numberPlate
+      rental.RentalVehicle.numberPlate
         .toLowerCase()
         .includes(searchTerm.toLowerCase());
 
@@ -433,15 +433,15 @@ export default function ActiveRentals() {
                         <div className="h-full">
                           <img
                             src={
-                              (rental.rentVehicle.rentVehicleImages &&
-                                rental.rentVehicle.rentVehicleImages.length >
+                              (rental.RentalVehicle.rentVehicleImages &&
+                                rental.RentalVehicle.rentVehicleImages.length >
                                 0 &&
-                                `../../server${rental.rentVehicle.rentVehicleImages[0]
+                                `../../server${rental.RentalVehicle.rentVehicleImages[0]
                                   .image || "/placeholder.svg"
                                 }`) ||
                               "/placeholder.svg"
                             }
-                            alt={`${rental.rentVehicle.make} ${rental.rentVehicle.model}`}
+                            alt={`${rental.RentalVehicle.make} ${rental.RentalVehicle.model}`}
                             className="w-full h-full object-cover md:h-full"
                             style={{ minHeight: "200px" }}
                             onError={(e) => {
@@ -462,9 +462,9 @@ export default function ActiveRentals() {
                           <div>
                             <div className="flex justify-between items-start">
                               <h3 className="text-lg font-bold text-gray-900 mb-1">
-                                {rental.rentVehicle.make}{" "}
-                                {rental.rentVehicle.model} (
-                                {rental.rentVehicle.year})
+                                {rental.RentalVehicle.make}{" "}
+                                {rental.RentalVehicle.model} (
+                                {rental.RentalVehicle.year})
                               </h3>
                               <div
                                 className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}
@@ -474,7 +474,7 @@ export default function ActiveRentals() {
                               </div>
                             </div>
                             <p className="text-sm text-gray-600 mb-3">
-                              Number Plate: {rental.rentVehicle.numberPlate}
+                              Number Plate: {rental.RentalVehicle.numberPlate}
                             </p>
 
                             <div className="flex items-center mb-4">
@@ -770,8 +770,8 @@ export default function ActiveRentals() {
                 <p className="text-gray-600 mb-4">
                   Are you sure you want to cancel the rental for
                   <span className="font-medium">
-                    {selectedRental.rentVehicle.make}{" "}
-                    {selectedRental.rentVehicle.model}
+                    {selectedRental.RentalVehicle.make}{" "}
+                    {selectedRental.RentalVehicle.model}
                   </span>
                   ?
                 </p>

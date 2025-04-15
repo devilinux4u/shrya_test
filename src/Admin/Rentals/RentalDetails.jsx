@@ -59,15 +59,15 @@ export default function RentalDetails() {
       const mappedRental = {
         ...data.data,
         rentVehicle: {
-          ...data.data.rentVehicle,
-          seats: data.data.rentVehicle?.seats || 5,
-          fuelType: data.data.rentVehicle?.fuelType || "petrol",
-          transmission: data.data.rentVehicle?.transmission || "manual",
-          engine: data.data.rentVehicle?.engine || "N/A",
-          rentVehicleImages: data.data[0].rentVehicle?.rentVehicleImages || [],
+          ...data.data.RentalVehicle,
+          seats: data.data.RentalVehicle?.seats || 5,
+          fuelType: data.data.RentalVehicle?.fuelType || "petrol",
+          transmission: data.data.RentalVehicle?.transmission || "manual",
+          engine: data.data.RentalVehicle?.engine || "N/A",
+          rentVehicleImages: data.data[0].RentalVehicle?.rentVehicleImages || [],
         },
         user: {
-          ...data.data[0].user,
+          ...data.data[0].User,
         },
         paymentDetails: {
           method: data.data.paymentMethod || "payLater",
@@ -245,7 +245,7 @@ export default function RentalDetails() {
                 Rental Details
               </h1>
               <p className="mt-2 text-gray-600">
-                {rental.rentVehicle?.make} {rental.rentVehicle?.model} •{" "}
+                {rental.RentalVehicle?.make} {rental.RentalVehicle?.model} •{" "}
                 {formatDate(rental.pickupDate)}
               </p>
             </div>
@@ -257,12 +257,12 @@ export default function RentalDetails() {
               {/* Vehicle Images */}
               <div className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="relative h-64 sm:h-80 md:h-96 bg-gray-100">
-                  {rental.rentVehicle?.rentVehicleImages?.length > 0 ? (
+                  {rental.RentalVehicle?.rentVehicleImages?.length > 0 ? (
                     <img
                       src={
-                        `../../server${rental.rentVehicle.rentVehicleImages[activeImage].image}` || "/placeholder.svg"
+                        `../../server${rental.RentalVehicle.rentVehicleImages[activeImage].image}` || "/placeholder.svg"
                       }
-                      alt={`${rental.rentVehicle?.make} ${rental.rentVehicle?.model}`}
+                      alt={`${rental.RentalVehicle?.make} ${rental.RentalVehicle?.model}`}
                       className="w-full h-full object-contain"
                     />
                   ) : (
@@ -272,10 +272,10 @@ export default function RentalDetails() {
                   )}
                 </div>
 
-                {rental.rentVehicle?.rentVehicleImages?.length > 1 && (
+                {rental.RentalVehicle?.rentVehicleImages?.length > 1 && (
                   <div className="p-4 overflow-x-auto">
                     <div className="flex space-x-2">
-                      {rental.rentVehicle.rentVehicleImages.map(
+                      {rental.RentalVehicle.rentVehicleImages.map(
                         (image, index) => (
                           <button
                             key={index}
@@ -311,11 +311,11 @@ export default function RentalDetails() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="text-lg font-bold text-gray-900 mb-2">
-                        {rental.rentVehicle?.make} {rental.rentVehicle?.model} (
-                        {rental.rentVehicle?.year})
+                        {rental.RentalVehicle?.make} {rental.RentalVehicle?.model} (
+                        {rental.RentalVehicle?.year})
                       </h3>
                       <p className="text-gray-600 mb-4">
-                        License Plate: {rental.rentVehicle?.numberPlate}
+                        License Plate: {rental.RentalVehicle?.numberPlate}
                       </p>
 
                       <div className="grid grid-cols-2 gap-4">
@@ -323,28 +323,28 @@ export default function RentalDetails() {
                           <Users className="h-4 w-4 mr-2 text-[#ff6b00]" />
                           <span className="font-medium">Seats:</span>
                           <span className="ml-1">
-                            {rental.rentVehicle?.seats || "N/A"}
+                            {rental.RentalVehicle?.seats || "N/A"}
                           </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <Fuel className="h-4 w-4 mr-2 text-[#ff6b00]" />
                           <span className="font-medium">Fuel:</span>
                           <span className="ml-1">
-                            {rental.rentVehicle?.fuelType || "N/A"}
+                            {rental.RentalVehicle?.fuelType || "N/A"}
                           </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <Settings className="h-4 w-4 mr-2 text-[#ff6b00]" />
                           <span className="font-medium">Trans:</span>
                           <span className="ml-1">
-                            {rental.rentVehicle?.transmission || "N/A"}
+                            {rental.RentalVehicle?.transmission || "N/A"}
                           </span>
                         </div>
                         <div className="flex items-center text-sm text-gray-600">
                           <Settings className="h-4 w-4 mr-2 text-[#ff6b00]" />
                           <span className="font-medium">Engine:</span>
                           <span className="ml-1">
-                            {rental.rentVehicle?.engine || "N/A"}
+                            {rental.RentalVehicle?.engine || "N/A"}
                           </span>
                         </div>
                       </div>
@@ -500,7 +500,7 @@ export default function RentalDetails() {
                       <div>
                         <p className="text-gray-600">Phone</p>
                         <p className="font-medium text-gray-900">
-                          {rental.user.num || "N/A"}
+                          {rental.User.num || "N/A"}
                         </p>
                       </div>
                     </div>

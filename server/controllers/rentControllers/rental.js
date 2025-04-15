@@ -102,7 +102,7 @@ router.post('/', upload.single('licenseImage'), async (req, res) => {
       paymentMethod: req.body.paymentMethod || 'payLater',
       totalAmount: parseFloat(req.body.totalAmount) || 0,
       rentalDuration: parseInt(req.body.rentalDuration) || 1,
-      status: req.body.paymentMethod === 'payLater' ? 'active' : 'not_paid',
+      status: req.body.paymentMethod === 'payLater' ? 'pending' : 'not_paid',
       licenseImageUrl: req.file ? `/uploads/licenses/${req.file.filename}` : null,
     };
 
