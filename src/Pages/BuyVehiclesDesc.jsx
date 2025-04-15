@@ -33,6 +33,35 @@ export default function BuyVehiclesDesc() {
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.8]);
 
+  const [bookingDetails, setBookingDetails] = useState({
+    date: "",
+    time: "",
+    location: "",
+    description: "",
+  });
+
+  // Update location if seller is "Shreya Auto"
+  useEffect(() => {
+    if (vehicle?.user?.fname === "Shreya Auto") {
+      setBookingDetails((prev) => ({
+        ...prev,
+        location: "Shreya Auto Enterprises, Pragati Marga, Kathmandu",
+      }));
+    }
+  }, [vehicle]);
+
+  const handleBookingChange = (e) => {
+    const { name, value } = e.target;
+    setBookingDetails((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleBookingSubmit = (e) => {
+    e.preventDefault();
+    console.log("Booking Details:", bookingDetails);
+    // Add logic to handle booking submission
+    setShowBookNowForm(false);
+  };
+
   useEffect(() => {
     // Fetch vehicle data from the backend using the ID from the URL
     const fetchVehicle = async () => {
@@ -170,7 +199,7 @@ export default function BuyVehiclesDesc() {
             </div>
 
             <button
-              onClick={() => setShowBookForm(true)}
+              onClick={() => setShowBookNowForm(true)} // Fixed the function call to open the booking form
               className="bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors"
             >
               Book Now
@@ -386,23 +415,103 @@ export default function BuyVehiclesDesc() {
               onClick={() => setShowBookNowForm(true)}
               className="w-full bg-[#4F46E5] text-white px-8 py-3 rounded-full text-lg hover:bg-[#4338CA] transition-colors"
             >
-              Buy Now
+              Book Now
             </button>
           </div>
         </motion.div>
       </section>
 
       {showBookNowForm && (
-        <BuyNowForm
-          vehicle={{
-            name: vehicle.title,
-            year: vehicle.year,
-            mileage: vehicle.km,
-            ownership: "Single-Hand",
-            price: vehicle.price,
-          }}
-          onClose={() => setShowBookNowForm(false)}
-        />
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg">
+            <h2 className="text-2xl font-bold mb-4">Book Now</h2>
+            <form onSubmit={handleBookingSubmit} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="date"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Date
+                </label>
+                <input
+                  type="date"
+                  id="date"
+                  name="date"
+                  value={bookingDetails.date}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="time"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Time
+                </label>
+                <input
+                  type="time"
+                  id="time"
+                  name="time"
+                  value={bookingDetails.time}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="location"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Location
+                </label>
+                <input
+                  type="text"
+                  id="location"
+                  name="location"
+                  value={bookingDetails.location}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="description"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="3"
+                  value={bookingDetails.description}
+                  onChange={handleBookingChange}
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Add any additional details..."
+                ></textarea>
+              </div>
+              <div className="flex justify-end space-x-4">
+                <button
+                  type="button"
+                  onClick={() => setShowBookNowForm(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Submit
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -39,7 +39,8 @@ import RentalDetails from "./Admin/Rentals/RentalDetails";
 import MySales from "./Pages/MySales";
 import Feedback from "./Admin/Feedback/Feedback";
 import GoogleAuth from "./Pages/LoginGoogle";
-import PaymentVerify from "./Pages/PaymentSuccess"
+import PaymentVerify from "./Pages/PaymentSuccess";
+import Bookings from "./Admin/Vehicle Management/Bookings";
 
 function App() {
   const location = useLocation();
@@ -108,6 +109,7 @@ function App() {
         <Route path="/admin/rentaldetails" element={<RentalDetails />} />
         <Route path="/admin/rental-details/:id" element={<RentalDetails />} />
         <Route path="/admin/feedback" element={<Feedback />} />
+        <Route path="/admin/bookings" element={<Bookings />} />
       </Routes>{" "}
       {/* Closing the Routes tag */}
       {!isAdminRoute && !isAuthRoute && <Footer />}{" "}
