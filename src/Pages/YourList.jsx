@@ -47,6 +47,9 @@ const YourList = () => {
     description: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState("");
+  const [isCancelling, setIsCancelling] = useState(false);
 
   // Fetch data from backend
   useEffect(() => {
@@ -249,6 +252,49 @@ const YourList = () => {
     }
   };
 
+  const handleCancelClick = (item) => {
+    setSelectedItem(item);
+    setIsCancelModalOpen(true);
+  };
+
+  const confirmCancellation = async () => {
+    if (!selectedItem) return;
+
+    setIsCancelling(true);
+
+    try {
+      // Simulate cancellation API call
+      await fetch(`http://localhost:3000/wishlist/${selectedItem.id}/cancel`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reason: cancelReason,
+          vehicle: selectedItem
+        }),
+      });
+
+      // Update local state
+      setItems((prevItems) =>
+        prevItems.map((item) =>
+          item.id === selectedItem.id
+            ? { ...item, status: "cancelled", cancelReason }
+            : item
+        )
+      );
+
+      toast.success("Item cancelled successfully");
+      setIsCancelModalOpen(false);
+      setCancelReason("");
+    } catch (error) {
+      console.error("Error cancelling item:", error);
+      toast.error("Failed to cancel item. Please try again.");
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <ToastContainer
@@ -439,35 +485,42 @@ const YourList = () => {
                     </div>
 
                     <div className="flex justify-between mt-4 pt-4 border-t border-gray-100">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditClick(item);
-                        }}
-                        className="flex items-center text-green-600 hover:text-green-800 transition-colors"
-                      >
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteClick(item);
-                        }}
-                        className="flex items-center text-red-600 hover:text-red-800 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Delete
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                        className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
-                      >
-                        <XCircle className="w-4 h-4 mr-1" />
-                        Cancel
-                      </button>
+                      {item.status !== "cancelled" && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditClick(item);
+                            }}
+                            className="flex items-center text-green-600 hover:text-green-800 transition-colors"
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCancelClick(item);
+                            }}
+                            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+                          >
+                            <XCircle className="w-4 h-4 mr-1" />
+                            Cancel
+                          </button>
+                        </>
+                      )}
+                      {item.status === "cancelled" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(item);
+                          }}
+                          className="flex items-center text-red-600 hover:text-red-800 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Delete
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -699,6 +752,77 @@ const YourList = () => {
               >
                 Save Changes
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Confirmation Modal */}
+      {isCancelModalOpen && selectedItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+          <div className="bg-white rounded-xl w-full max-w-md">
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Cancel Wishlist Item
+                </h2>
+                <button
+                  onClick={() => setIsCancelModalOpen(false)}
+                  className="p-2 rounded-full hover:bg-gray-100"
+                >
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <p className="text-gray-600 mb-4">
+                  Are you sure you want to cancel your wishlist request for{" "}
+                  <span className="font-medium">
+                    {selectedItem.make} {selectedItem.model}
+                  </span>
+                  ?
+                </p>
+
+                <div className="mb-4">
+                  <label
+                    htmlFor="cancelReason"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Reason for cancellation (optional)
+                  </label>
+                  <textarea
+                    id="cancelReason"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    rows="3"
+                    className="w-full rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 transition-colors"
+                    placeholder="Please provide a reason for cancellation..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setIsCancelModalOpen(false)}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Keep Item
+                </button>
+                <button
+                  onClick={confirmCancellation}
+                  disabled={isCancelling}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center"
+                >
+                  {isCancelling ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    "Confirm Cancellation"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

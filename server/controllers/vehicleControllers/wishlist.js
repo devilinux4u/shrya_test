@@ -5,6 +5,7 @@ const { vehicleWishlist, wishlistImage, users } = require('../../db/sequelize');
 const path = require('path');
 const fs = require('fs');
 const notify = require('../../helpers/wishNotify');
+const wishCancelNotify = require('../../helpers/wishCancelNotify');
 
 // Ensure the uploads/wishlist directory exists
 const uploadDir = path.join(__dirname, '../../uploads/wishlist');
@@ -318,6 +319,39 @@ router.put("/wishlist/:id/available", async (req, res) => {
         await wishlistItem.save();
 
         notify(wishlistItem.user.email, wishlistItem.user.fname, wishlistItem.make)
+
+        res.json({ success: true, message: "Wishlist status updated & notification sent!" });
+    } catch (error) {
+        console.error("Error updating wishlist status:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+});
+
+
+//cancel wishlist status
+router.put("/wishlist/:id/cancel", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        console.log(id)
+
+        // Find the Wishlist Item
+        const wishlistItem = await vehicleWishlist.findOne({
+            where: { id },
+            include: [{ model: users, as: "user", attributes: ["email", "fname"] }],
+        });
+
+        if (!wishlistItem) {
+            return res.status(404).json({ success: false, message: "Wishlist item not found" });
+        }
+
+        // Update Status to "available"
+        wishlistItem.status = "cancelled";
+        await wishlistItem.save();
+
+        console.log(req.body.vehicle, req.body.reason)
+
+        wishCancelNotify(req.body.vehicle, req.body.reason)
 
         res.json({ success: true, message: "Wishlist status updated & notification sent!" });
     } catch (error) {
