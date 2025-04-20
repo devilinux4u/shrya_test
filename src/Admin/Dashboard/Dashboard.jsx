@@ -71,7 +71,8 @@ export default function Dashboard() {
     recentTransactions: [],
     totalEarnings: 0,
     topSellingModels: [],
-    wishlistStatus: []
+    wishlistStatus: [],
+    bookingStatusOverview: [],
   });
 
   const [loading, setLoading] = useState(true);
@@ -82,7 +83,7 @@ export default function Dashboard() {
         setLoading(true);
         const response = await fetch("http://127.0.0.1:3000/dashboard/summary");
         const data = await response.json();
-        
+
         setDashboardData({
           totalUsers: data.totalUsers,
           totalSellVehicles: data.totalSellVehicles,
@@ -99,13 +100,21 @@ export default function Dashboard() {
             { model: "Honda Civic", sales: 12 },
             { model: "Ford Mustang", sales: 8 },
             { model: "Tesla Model 3", sales: 6 },
-            { model: "BMW X5", sales: 5 }
+            { model: "BMW X5", sales: 5 },
           ],
           wishlistStatus: data.wishlistStatus || [
             { name: "Available", value: 12, color: "#10B981" },
             { name: "Out of Stock", value: 5, color: "#EF4444" },
-            { name: "Coming Soon", value: 3, color: "#F59E0B" }
-          ]
+            { name: "Coming Soon", value: 3, color: "#F59E0B" },
+          ],
+          bookingStatusOverview: data.overview || [
+            { status: "Pending", count: 10 },
+            { status: "Active", count: 15 },
+            { status: "Late", count: 5 },
+            { status: "Cancelled", count: 3 },
+            { status: "Completed", count: 20 },
+            { status: "Completed Late", count: 2 },
+          ],
         });
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -295,16 +304,16 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  Top Selling Models
+                  Rental Booking Status Overview
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Best performing vehicles
+                  Overview of booking statuses
                 </p>
               </div>
             </div>
             <div className="h-[300px]">
-              <HorizontalBarChart
-                data={dashboardData.topSellingModels}
+              <BookingStatusBarChart
+                data={dashboardData.bookingStatusOverview}
                 primaryColor={primaryBlue}
               />
             </div>
@@ -346,8 +355,14 @@ export default function Dashboard() {
               iconBg="bg-blue-100"
               borderColor="border-gray-200"
               progressColor="bg-blue-600"
-              progressPercentage={(dashboardData.totalBookings > 0 ? 
-                (dashboardData.activeBookings + dashboardData.pendingBookings) / dashboardData.totalBookings * 100 : 0)}
+              progressPercentage={
+                dashboardData.totalBookings > 0
+                  ? ((dashboardData.activeBookings +
+                      dashboardData.pendingBookings) /
+                      dashboardData.totalBookings) *
+                    100
+                  : 0
+              }
             />
           </div>
           <div className="col-span-1">
@@ -454,7 +469,9 @@ export default function Dashboard() {
                             transaction.status || "completed"
                           )}`}
                         >
-                          {(transaction.status || "completed").charAt(0).toUpperCase() +
+                          {(transaction.status || "completed")
+                            .charAt(0)
+                            .toUpperCase() +
                             (transaction.status || "completed").slice(1)}
                         </span>
                       </td>
@@ -698,6 +715,36 @@ function WishlistPieChart({ data }) {
           iconSize={10}
         />
       </PieChart>
+    </ResponsiveContainer>
+  );
+}
+
+// Booking Status Bar Chart Component
+function BookingStatusBarChart({ data, primaryColor }) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+        <XAxis dataKey="status" tick={{ fontSize: 12 }} />
+        <YAxis />
+        <RechartsTooltip
+          contentStyle={{
+            backgroundColor: "rgba(17, 24, 39, 0.8)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "6px",
+            padding: "10px",
+            fontSize: "12px",
+            color: "white",
+          }}
+          itemStyle={{ color: "white" }}
+          labelStyle={{ fontWeight: "bold", marginBottom: "5px" }}
+        />
+        <Bar
+          dataKey="count"
+          fill={primaryColor}
+          radius={[4, 4, 0, 0]}
+          barSize={30}
+        />
+      </BarChart>
     </ResponsiveContainer>
   );
 }
