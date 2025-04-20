@@ -1,89 +1,56 @@
-const { users, vehicles, vehicleWishlist, LostAndFound, rental, Transaction } = require('../../db/sequelize');
+const express = require('express');
+const router = express.Router();
+const { users, vehicles, vehicleWishlist, LostAndFound, rental, Transaction, sequelize } = require('../../db/sequelize');
 
-const getNotifications = async (req, res) => {
+// Dashboard Summary Route
+router.get('/dashboard/summary', async (req, res) => {
   try {
-    // Example: Fetch notifications from a hypothetical notifications table
-    const notifications = []; // Replace with actual query
-    res.json(notifications);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch notifications' });
-  }
-};
+    // 1. Total Users
+    const totalUsers = await users.count();
 
-const getBookings = async (req, res) => {
-  try {
-    const total = await rental.count();
-    const active = await rental.count({ where: { status: 'active' } });
-    const pending = await rental.count({ where: { status: 'pending' } });
-    res.json({ total, active, pending });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch bookings' });
-  }
-};
+    // 2. Total Vehicles for Sell
+    const totalSellVehicles = await vehicles.count();
 
-const getWishlist = async (req, res) => {
-  try {
-    const wishlist = await vehicleWishlist.findAll();
-    res.json(wishlist);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch wishlist' });
-  }
-};
+    // 3. Total Rental Vehicles
+    const totalRentalVehicles = await rental.count();
 
-const getWishlistStatus = async (req, res) => {
-  try {
-    const statuses = await vehicleWishlist.findAll({
-      attributes: ['status', [sequelize.fn('COUNT', 'status'), 'count']],
-      group: ['status'],
-    });
-    res.json(statuses);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch wishlist status' });
-  }
-};
+    // 4. Total Bookings and Active Bookings
+    const totalBookings = await vehicleWishlist.count();
+    const activeBookings = await vehicleWishlist.count({ where: { status: 'active' } });
 
-const getLostAndFound = async (req, res) => {
-  try {
-    const total = await LostAndFound.count();
-    const lost = await LostAndFound.count({ where: { status: 'lost' } });
-    const found = await LostAndFound.count({ where: { status: 'found' } });
-    res.json({ total, lost, found });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch lost and found data' });
-  }
-};
+    // 5. Lost and Found Separate Count
+    const totalLost = await LostAndFound.count({ where: { status: 'lost' } });
+    const totalFound = await LostAndFound.count({ where: { status: 'found' } });
 
-const getTransactions = async (req, res) => {
-  try {
-    const transactions = await Transaction.findAll({
-      include: [{ model: rental, as: 'booking' }],
-    });
-    res.json(transactions);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch transactions' });
-  }
-};
-
-const getTopSellingModels = async (req, res) => {
-  try {
-    const topSellingModels = await vehicles.findAll({
-      attributes: ['model', [sequelize.fn('COUNT', 'model'), 'sales']],
-      group: ['model'],
-      order: [[sequelize.fn('COUNT', 'model'), 'DESC']],
+    // 6. 5 Most Recent Transactions
+    const recentTransactions = await Transaction.findAll({
+      order: [['createdAt', 'DESC']],
       limit: 5,
     });
-    res.json(topSellingModels);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch top-selling models' });
-  }
-};
 
-module.exports = {
-  getNotifications,
-  getBookings,
-  getWishlist,
-  getWishlistStatus,
-  getLostAndFound,
-  getTransactions,
-  getTopSellingModels,
-};
+    // 7. Total Earning (sum of amounts in transactions)
+    const totalEarningsResult = await Transaction.findOne({
+      attributes: [[sequelize.fn('SUM', sequelize.col('amount')), 'totalEarnings']],
+      raw: true,
+    });
+
+    const totalEarnings = parseFloat(totalEarningsResult.totalEarnings || 0);
+
+    res.json({
+      totalUsers,
+      totalSellVehicles,
+      totalRentalVehicles,
+      totalBookings,
+      activeBookings,
+      totalLost,
+      totalFound,
+      recentTransactions,
+      totalEarnings,
+    });
+  } catch (error) {
+    console.error("Dashboard Summary Error:", error);
+    res.status(500).json({ error: "Failed to load dashboard summary" });
+  }
+});
+
+module.exports = router;

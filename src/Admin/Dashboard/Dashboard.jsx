@@ -58,56 +58,63 @@ export default function Dashboard() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
-  const [notifications, setNotifications] = useState([]);
-  const [bookings, setBookings] = useState({});
-  const [wishlist, setWishlist] = useState({});
-  const [wishlistStatus, setWishlistStatus] = useState([]);
-  const [lostAndFound, setLostAndFound] = useState({});
-  const [transactions, setTransactions] = useState([]);
-  const [topSellingModels, setTopSellingModels] = useState([]);
+  // State for all data
+  const [dashboardData, setDashboardData] = useState({
+    totalUsers: 0,
+    totalSellVehicles: 0,
+    totalRentalVehicles: 0,
+    totalBookings: 0,
+    activeBookings: 0,
+    pendingBookings: 0,
+    totalLost: 0,
+    totalFound: 0,
+    recentTransactions: [],
+    totalEarnings: 0,
+    topSellingModels: [],
+    wishlistStatus: []
+  });
+
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch notifications
-    fetch("/api/notifications")
-      .then((res) => res.json())
-      .then((data) => setNotifications(data))
-      .catch((err) => console.error("Error fetching notifications:", err));
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("http://127.0.0.1:3000/dashboard/summary");
+        const data = await response.json();
+        
+        setDashboardData({
+          totalUsers: data.totalUsers,
+          totalSellVehicles: data.totalSellVehicles,
+          totalRentalVehicles: data.totalRentalVehicles,
+          totalBookings: data.totalBookings,
+          activeBookings: data.activeBookings,
+          pendingBookings: data.pendingBookings || 0,
+          totalLost: data.totalLost,
+          totalFound: data.totalFound,
+          recentTransactions: data.recentTransactions,
+          totalEarnings: data.totalEarnings,
+          topSellingModels: data.topSellingModels || [
+            { model: "Toyota Corolla", sales: 15 },
+            { model: "Honda Civic", sales: 12 },
+            { model: "Ford Mustang", sales: 8 },
+            { model: "Tesla Model 3", sales: 6 },
+            { model: "BMW X5", sales: 5 }
+          ],
+          wishlistStatus: data.wishlistStatus || [
+            { name: "Available", value: 12, color: "#10B981" },
+            { name: "Out of Stock", value: 5, color: "#EF4444" },
+            { name: "Coming Soon", value: 3, color: "#F59E0B" }
+          ]
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Fetch bookings
-    fetch("/api/bookings")
-      .then((res) => res.json())
-      .then((data) => setBookings(data))
-      .catch((err) => console.error("Error fetching bookings:", err));
-
-    // Fetch wishlist
-    fetch("/api/wishlist")
-      .then((res) => res.json())
-      .then((data) => setWishlist(data))
-      .catch((err) => console.error("Error fetching wishlist:", err));
-
-    // Fetch wishlist status
-    fetch("/api/wishlist/status")
-      .then((res) => res.json())
-      .then((data) => setWishlistStatus(data))
-      .catch((err) => console.error("Error fetching wishlist status:", err));
-
-    // Fetch lost and found
-    fetch("/api/lostandfound")
-      .then((res) => res.json())
-      .then((data) => setLostAndFound(data))
-      .catch((err) => console.error("Error fetching lost and found:", err));
-
-    // Fetch transactions
-    fetch("/api/transactions")
-      .then((res) => res.json())
-      .then((data) => setTransactions(data))
-      .catch((err) => console.error("Error fetching transactions:", err));
-
-    // Fetch top-selling models
-    fetch("/api/topsellingmodels")
-      .then((res) => res.json())
-      .then((data) => setTopSellingModels(data))
-      .catch((err) => console.error("Error fetching top-selling models:", err));
+    fetchDashboardData();
   }, []);
 
   const handleTotalUsers = () => {
@@ -203,9 +210,25 @@ export default function Dashboard() {
     return `${yyyy}-${mm}-${dd}, ${hh}:${min}`;
   };
 
+  // Format currency
+  const formatCurrency = (amount) => {
+    return `Rs. ${amount?.toLocaleString() || 0}`;
+  };
+
   // Theme colors
   const primaryBlue = "#2563EB"; // Blue-600
   const primaryOrange = "#F97316"; // Orange-500
+
+  if (loading) {
+    return (
+      <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-pulse text-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100"></div>
+          <p className="text-gray-600">Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50">
@@ -231,7 +254,7 @@ export default function Dashboard() {
             <StatCard
               title="Total Users"
               onClick={handleTotalUsers}
-              value="1,280"
+              value={dashboardData.totalUsers.toLocaleString()}
               icon={<Users className="w-5 h-5 text-blue-600" />}
               bgColor="bg-white"
               borderColor="border-gray-200"
@@ -242,7 +265,7 @@ export default function Dashboard() {
             <StatCard
               title="Vehicles for Sale"
               onClick={handleAddVehicle}
-              value="180"
+              value={dashboardData.totalSellVehicles.toLocaleString()}
               icon={<Car className="w-5 h-5 text-orange-500" />}
               bgColor="bg-white"
               borderColor="border-gray-200"
@@ -255,7 +278,7 @@ export default function Dashboard() {
             <StatCard
               title="Rental Vehicles"
               onClick={handleAddRentalVehicle}
-              value="140"
+              value={dashboardData.totalRentalVehicles.toLocaleString()}
               icon={<Car className="w-5 h-5 text-blue-600" />}
               bgColor="bg-white"
               borderColor="border-gray-200"
@@ -281,7 +304,7 @@ export default function Dashboard() {
             </div>
             <div className="h-[300px]">
               <HorizontalBarChart
-                data={topSellingModels}
+                data={dashboardData.topSellingModels}
                 primaryColor={primaryBlue}
               />
             </div>
@@ -306,7 +329,7 @@ export default function Dashboard() {
               </button>
             </div>
             <div className="h-[300px]">
-              <WishlistPieChart data={wishlistStatus} />
+              <WishlistPieChart data={dashboardData.wishlistStatus} />
             </div>
           </div>
         </div>
@@ -317,27 +340,29 @@ export default function Dashboard() {
             <SimpleBookingCard
               title="Total Bookings"
               onClick={handleViewActiveRentals}
-              value={bookings.total}
+              value={dashboardData.totalBookings}
               icon={<Calendar className="w-5 h-5 text-blue-600" />}
               bgColor="bg-white"
               iconBg="bg-blue-100"
               borderColor="border-gray-200"
               progressColor="bg-blue-600"
+              progressPercentage={(dashboardData.totalBookings > 0 ? 
+                (dashboardData.activeBookings + dashboardData.pendingBookings) / dashboardData.totalBookings * 100 : 0)}
             />
           </div>
           <div className="col-span-1">
             <SimpleOngoingBookingCard
-              active={bookings.active}
-              pending={bookings.pending}
+              active={dashboardData.activeBookings}
+              pending={dashboardData.pendingBookings}
               activeColor="bg-blue-600"
               pendingColor="bg-orange-400"
             />
           </div>
           <div className="col-span-1">
             <LostAndFoundCard
-              total={lostAndFound.total}
-              lost={lostAndFound.lost}
-              found={lostAndFound.found}
+              total={dashboardData.totalLost + dashboardData.totalFound}
+              lost={dashboardData.totalLost}
+              found={dashboardData.totalFound}
               onClick={handleLostAndFound}
               lostColor="bg-orange-500"
               foundColor="bg-blue-500"
@@ -353,7 +378,9 @@ export default function Dashboard() {
                 Recent Transactions
                 <span className="text-sm text-gray-500 block sm:inline sm:ml-4">
                   Total Earnings:{" "}
-                  <span className="font-bold text-gray-900">$152,000</span>
+                  <span className="font-bold text-gray-900">
+                    {formatCurrency(dashboardData.totalEarnings)}
+                  </span>
                 </span>
               </h2>
               <p className="text-sm text-gray-500">Latest payment activities</p>
@@ -375,9 +402,6 @@ export default function Dashboard() {
                       ID
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Customer
-                    </th>
-                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Amount
                     </th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -392,7 +416,7 @@ export default function Dashboard() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {transactions.map((transaction) => (
+                  {dashboardData.recentTransactions?.map((transaction) => (
                     <tr
                       key={transaction.id}
                       className="hover:bg-gray-50 transition-colors"
@@ -404,42 +428,34 @@ export default function Dashboard() {
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          {transaction.customer.name}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {transaction.customer.email}
-                        </div>
-                      </td>
-                      <td className="px-3 py-3 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
                           Rs. {transaction.amount.toLocaleString()}
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <span
                           className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full items-center ${getPaymentMethodStyle(
-                            transaction.method
+                            transaction.method || "cash"
                           )}`}
                         >
                           <span className="mr-1">
-                            {getPaymentMethodIcon(transaction.method)}
+                            {getPaymentMethodIcon(transaction.method || "cash")}
                           </span>
-                          {getPaymentMethodName(transaction.method)}
+                          {getPaymentMethodName(transaction.method || "cash")}
                         </span>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <div className="text-sm text-gray-600">
-                          {formatDateTime(transaction.date)}
+                          {formatDateTime(transaction.createdAt)}
                         </div>
                       </td>
                       <td className="px-3 py-3 whitespace-nowrap">
                         <span
                           className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(
-                            transaction.status
+                            transaction.status || "completed"
                           )}`}
                         >
-                          {transaction.status.charAt(0).toUpperCase() +
-                            transaction.status.slice(1)}
+                          {(transaction.status || "completed").charAt(0).toUpperCase() +
+                            (transaction.status || "completed").slice(1)}
                         </span>
                       </td>
                     </tr>
@@ -463,6 +479,8 @@ function StatCard({
   borderColor,
   iconBg,
   onClick,
+  buttonText,
+  buttonColor,
 }) {
   return (
     <div
@@ -476,6 +494,13 @@ function StatCard({
         </div>
         <div className={`p-3 rounded-lg ${iconBg} shadow-sm`}>{icon}</div>
       </div>
+      {buttonText && (
+        <button
+          className={`mt-4 px-3 py-1 text-xs font-medium text-white rounded-lg ${buttonColor} hover:opacity-90 transition-opacity`}
+        >
+          {buttonText}
+        </button>
+      )}
     </div>
   );
 }
@@ -489,6 +514,7 @@ function SimpleBookingCard({
   borderColor,
   onClick,
   progressColor,
+  progressPercentage,
 }) {
   return (
     <div
@@ -503,7 +529,7 @@ function SimpleBookingCard({
       <div className="w-full h-1 bg-gray-100 rounded-full mt-4">
         <div
           className={`h-1 ${progressColor} rounded-full`}
-          style={{ width: "70%" }}
+          style={{ width: `${progressPercentage}%` }}
         ></div>
       </div>
     </div>
@@ -543,7 +569,7 @@ function SimpleOngoingBookingCard({
   );
 }
 
-// New Lost and Found Card Component
+// Lost and Found Card Component
 function LostAndFoundCard({
   total,
   lost,
