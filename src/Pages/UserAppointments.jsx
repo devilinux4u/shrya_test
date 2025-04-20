@@ -99,7 +99,7 @@ export default function UserAppointments() {
     setShowDetailsModal(false);
   };
 
-  const cancelAppointment = async (id) => {
+  const cancelAppointment = async (id, roles) => {
     try {
       // Log the ID being sent
       console.log("Cancelling appointment with ID:", id);
@@ -111,7 +111,7 @@ export default function UserAppointments() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ status: "cancelled" }),
+          body: JSON.stringify({ status: "cancelled", role: roles }),
         }
       );
 
@@ -552,7 +552,7 @@ export default function UserAppointments() {
                       <User className="w-4 h-4 mr-2 text-gray-400" />
                       <p className="text-gray-600">
                         {isUserBuyer(appointment)
-                          ? `Seller: ${appointment.seller.name}`
+                          ? `Seller: ${appointment.seller.name || "Shreya Auto" }`
                           : `Buyer: ${appointment.buyer.name}`}
                       </p>
                     </div>
@@ -596,7 +596,7 @@ export default function UserAppointments() {
                         )}
                       {appointment.status === "pending" && (
                         <button
-                          onClick={() => cancelAppointment(appointment._id)}
+                          onClick={() => cancelAppointment(appointment.id, isUserBuyer(appointment) ? "buyer" : "seller")}
                           className="flex items-center text-red-600 hover:text-red-800 transition-colors"
                         >
                           <XCircle className="w-4 h-4 mr-1" />
@@ -824,7 +824,7 @@ export default function UserAppointments() {
                         <div>
                           <p className="font-medium text-gray-900">
                             {isUserBuyer(selectedAppointment)
-                              ? selectedAppointment.seller.name
+                              ? selectedAppointment.seller.name || "Shreya Auto"
                               : selectedAppointment.buyer.name}
                           </p>
                           <p className="text-sm text-gray-500">
@@ -925,7 +925,7 @@ export default function UserAppointments() {
                         <button
                           type="button"
                           onClick={() => {
-                            cancelAppointment(selectedAppointment._id);
+                            cancelAppointment(selectedAppointment.id, isUserBuyer(appointment) ? "buyer" : "seller");
                           }}
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >
@@ -951,7 +951,7 @@ export default function UserAppointments() {
                           <button
                             type="button"
                             onClick={() => {
-                              cancelAppointment(selectedAppointment._id);
+                              cancelAppointment(selectedAppointment.id, isUserBuyer(appointment) ? "buyer" : "seller");
                             }}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                           >
@@ -982,7 +982,7 @@ export default function UserAppointments() {
                         <button
                           type="button"
                           onClick={() => {
-                            cancelAppointment(selectedAppointment._id);
+                            cancelAppointment(selectedAppointment.id, isUserBuyer(appointment) ? "buyer" : "seller");
                           }}
                           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >

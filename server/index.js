@@ -22,7 +22,7 @@ const addVehicle = require('./controllers/rentControllers/addVehicles.js');
 const vehiclesRouter = require('./controllers/rentControllers/vehicles');
 const khaltiVerify = require('./controllers/khaltiVerify');
 const transaction = require('./controllers/transaction');
-const appointment = require('./controllers/appointmentControllers/Appointments');
+const appointment = require('./controllers/appointmentControllers/appointments.js');
 
 app.use('/uploads', express.static(path.join(__dirname, 'controllers/uploads')));
 
