@@ -76,6 +76,8 @@ export default function UserAppointments() {
           })),
         ];
 
+        console.log(combinedAppointments);
+
         setAppointments(combinedAppointments);
       } catch (error) {
         console.error("Error fetching appointments:", error);
@@ -305,8 +307,8 @@ export default function UserAppointments() {
         appointment.location.toLowerCase().includes(query) ||
         (appointment.description &&
           appointment.description.toLowerCase().includes(query)) ||
-        (appointment.seller.name &&
-          appointment.seller.name.toLowerCase().includes(query))
+        (appointment.seller.fname &&
+          appointment.seller.fname.toLowerCase().includes(query))
       );
     }
     return true;
@@ -586,9 +588,9 @@ export default function UserAppointments() {
                       <p className="text-gray-600">
                         {isUserBuyer(appointment)
                           ? `Seller: ${
-                              appointment.seller.name || "Shreya Auto"
+                              appointment.seller.fname || "Shreya Auto"
                             }`
-                          : `Buyer: ${appointment.buyer.name}`}
+                          : `Buyer: ${appointment.buyer.fname}`}
                       </p>
                     </div>
                     <p className="text-gray-600 line-clamp-2">
@@ -622,7 +624,7 @@ export default function UserAppointments() {
                       {isUserSeller(appointment) &&
                         appointment.status === "pending" && (
                           <button
-                            onClick={() => approveAppointment(appointment._id)}
+                            onClick={() => approveAppointment(appointment.id)}
                             className="flex items-center text-green-600 hover:text-green-800 transition-colors"
                           >
                             <CheckCircle className="w-4 h-4 mr-1" />
@@ -833,7 +835,7 @@ export default function UserAppointments() {
                       <div>
                         <p className="text-gray-500">Listed By</p>
                         <p className="font-medium">
-                          {selectedAppointment.seller.fname}
+                          {selectedAppointment.User.fname}
                         </p>
                       </div>
                       <div>
@@ -864,9 +866,9 @@ export default function UserAppointments() {
                         <div>
                           <p className="font-medium text-gray-900">
                             {isUserBuyer(selectedAppointment)
-                              ? selectedAppointment.seller.fname ||
+                              ? selectedAppointment.User.fname ||
                                 "Shreya Auto"
-                              : selectedAppointment.buyer.name}
+                              : selectedAppointment.User.fname}
                           </p>
                           <p className="text-sm text-gray-500">
                             {isUserBuyer(selectedAppointment)
@@ -881,16 +883,16 @@ export default function UserAppointments() {
                           <Mail className="h-4 w-4 text-gray-400 mr-2" />
                           <span>
                             {isUserBuyer(selectedAppointment)
-                              ? selectedAppointment.seller.email
-                              : selectedAppointment.buyer.email}
+                              ? selectedAppointment.User.email
+                              : selectedAppointment.User.email}
                           </span>
                         </div>
                         <div className="flex items-center">
                           <Phone className="h-4 w-4 text-gray-400 mr-2" />
                           <span>
                             {isUserBuyer(selectedAppointment)
-                              ? selectedAppointment.seller.phone
-                              : selectedAppointment.buyer.phone}
+                              ? selectedAppointment.seller.num
+                              : selectedAppointment.buyer.num}
                           </span>
                         </div>
                       </div>
