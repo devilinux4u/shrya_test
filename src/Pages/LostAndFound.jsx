@@ -5,7 +5,6 @@ import {
   CheckCircle,
   Clock,
   MapPin,
-  Calendar,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -365,14 +364,14 @@ const LostAndFound = () => {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-500">
                     Reported on: {new Date(item.createdAt).toLocaleDateString()}
-                  </span>
+                  </div>
                   {item.status !== "resolved" && (
                     <button
                       onClick={() => handleContact(item)}
-                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      className="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Contact Reporter
                     </button>
@@ -559,6 +558,7 @@ const LostAndFound = () => {
                         selectedItem.images[currentImageIndex] &&
                         `../../server${
                           selectedItem.images[currentImageIndex].imageUrl ||
+                          "/placeholder.svg" ||
                           "/placeholder.svg"
                         }`) ||
                       "/placeholder.svg"
