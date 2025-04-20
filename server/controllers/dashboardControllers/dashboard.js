@@ -36,6 +36,45 @@ router.get('/dashboard/summary', async (req, res) => {
 
     const totalEarnings = parseFloat(totalEarningsResult.totalEarnings || 0);
 
+    //wishlist stsus
+    const statusCounts = await vehicleWishlist.findAll({
+      attributes: [
+        'status',
+        [sequelize.fn('COUNT', sequelize.col('status')), 'value']
+      ],
+      group: ['status'],
+      raw: true
+    });
+
+    // Updated color mapping
+    const statusColorMap = {
+      'Available': '#10B981',
+      'Pending': '#F59E0B',
+      'Cancelled': '#EF4444'
+    };
+
+    const wishlistStatus = statusCounts.map(item => ({
+      name: item.status,
+      value: parseInt(item.value),
+      color: statusColorMap[item.status] || '#6B7280' // default gray if not mapped
+    }));
+
+
+    //top selling
+    const statusCount = await rental.findAll({
+      attributes: [
+        'status',
+        [sequelize.fn('COUNT', sequelize.col('status')), 'count']
+      ],
+      group: ['status']
+    });
+
+    const overview = statusCount.map(item => ({
+      status: item.status,
+      count: item.dataValues.count
+    }));
+    
+
     res.json({
       totalUsers,
       totalSellVehicles,
@@ -46,6 +85,8 @@ router.get('/dashboard/summary', async (req, res) => {
       totalFound,
       recentTransactions,
       totalEarnings,
+      wishlistStatus,
+      overview
     });
   } catch (error) {
     console.error("Dashboard Summary Error:", error);
