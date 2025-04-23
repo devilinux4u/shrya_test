@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { users, vehicles, vehicleWishlist, LostAndFound, rental, Transaction, sequelize } = require('../../db/sequelize');
+const { users, vehicles, vehicleWishlist, LostAndFound, rental, RentalAllVehicles, Transaction, sequelize } = require('../../db/sequelize');
+const { Op } = require('sequelize');
 
 // Dashboard Summary Route
 router.get('/dashboard/summary', async (req, res) => {
@@ -9,18 +10,24 @@ router.get('/dashboard/summary', async (req, res) => {
     const totalUsers = await users.count();
 
     // 2. Total Vehicles for Sell
-    const totalSellVehicles = await vehicles.count();
+    const totalSellVehicles = await vehicles.count({ where: { status: 'sold' } });
 
     // 3. Total Rental Vehicles
     const totalRentalVehicles = await rental.count();
 
     // 4. Total Bookings and Active Bookings
-    const totalBookings = await vehicleWishlist.count();
+    const totalBookings = await rental.count({
+      where: {
+        status: {
+          [Op.in]: ['active', 'pending', 'late']
+        }
+      }
+    });
     const activeBookings = await vehicleWishlist.count({ where: { status: 'active' } });
 
     // 5. Lost and Found Separate Count
-    const totalLost = await LostAndFound.count({ where: { status: 'lost' } });
-    const totalFound = await LostAndFound.count({ where: { status: 'found' } });
+    const totalLost = await LostAndFound.count({ where: { type: 'lost' } });
+    const totalFound = await LostAndFound.count({ where: { type: 'found' } });
 
     // 6. 5 Most Recent Transactions
     const recentTransactions = await Transaction.findAll({
@@ -73,7 +80,7 @@ router.get('/dashboard/summary', async (req, res) => {
       status: item.status,
       count: item.dataValues.count
     }));
-    
+
 
     res.json({
       totalUsers,
