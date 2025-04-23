@@ -104,8 +104,8 @@ export default function Dashboard() {
           ],
           wishlistStatus: data.wishlistStatus || [
             { name: "Available", value: 12, color: "#10B981" },
-            { name: "Out of Stock", value: 5, color: "#EF4444" },
-            { name: "Coming Soon", value: 3, color: "#F59E0B" },
+            { name: "Pending", value: 5, color: "#F59E0B" },
+            { name: "Cancelled", value: 3, color: "#EF4444" },
           ],
           bookingStatusOverview: data.overview || [
             { status: "Pending", count: 10 },
@@ -228,6 +228,13 @@ export default function Dashboard() {
   const primaryBlue = "#2563EB"; // Blue-600
   const primaryOrange = "#F97316"; // Orange-500
 
+  // Colors for wishlist chart
+  const wishlistColors = {
+    available: "#10B981", // Green
+    pending: "#F59E0B", // Amber
+    cancelled: "#EF4444", // Red
+  };
+
   if (loading) {
     return (
       <div className="flex-1 ml-0 md:ml-64 min-h-screen bg-gray-50 flex items-center justify-center">
@@ -338,23 +345,46 @@ export default function Dashboard() {
               </button>
             </div>
             <div className="h-[300px]">
-              <WishlistPieChart data={dashboardData.wishlistStatus} />
+              <WishlistPieChart
+                data={[
+                  {
+                    name: "Available",
+                    value: 12,
+                    color: wishlistColors.available,
+                  },
+                  {
+                    name: "Pending",
+                    value: 5,
+                    color: wishlistColors.pending,
+                  },
+                  {
+                    name: "Cancelled",
+                    value: 3,
+                    color: wishlistColors.cancelled,
+                  },
+                ]}
+              />
             </div>
           </div>
         </div>
 
         {/* Status Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          
-          <div className="col-span-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="col-span-1 sm:col-span-2">
             <SimpleOngoingBookingCard
               active={dashboardData.activeBookings}
               pending={dashboardData.pendingBookings}
+              late={
+                dashboardData.bookingStatusOverview.find(
+                  (status) => status.status === "Late"
+                )?.count || 0
+              }
               activeColor="bg-blue-600"
               pendingColor="bg-orange-400"
+              lateColor="bg-red-500"
             />
           </div>
-          <div className="col-span-1">
+          <div className="col-span-1 sm:col-span-2">
             <LostAndFoundCard
               total={dashboardData.totalLost + dashboardData.totalFound}
               lost={dashboardData.totalLost}
@@ -537,8 +567,10 @@ function SimpleBookingCard({
 function SimpleOngoingBookingCard({
   active,
   pending,
+  late,
   activeColor,
   pendingColor,
+  lateColor,
 }) {
   return (
     <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all h-full">
@@ -548,7 +580,9 @@ function SimpleOngoingBookingCard({
           <Clock className="w-5 h-5 text-orange-500" />
         </div>
       </div>
-      <p className="text-2xl font-bold text-gray-900">{active + pending}</p>
+      <p className="text-2xl font-bold text-gray-900">
+        {active + pending + late}
+      </p>
       <div className="flex justify-between mt-4 text-xs text-gray-500">
         <div>
           <span
@@ -561,6 +595,12 @@ function SimpleOngoingBookingCard({
             className={`inline-block w-2 h-2 ${pendingColor} rounded-full mr-1`}
           ></span>
           Pending: {pending}
+        </div>
+        <div>
+          <span
+            className={`inline-block w-2 h-2 ${lateColor} rounded-full mr-1`}
+          ></span>
+          Late: {late}
         </div>
       </div>
     </div>
