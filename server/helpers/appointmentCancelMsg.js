@@ -18,7 +18,7 @@ const formatDateTime = (dateString) => {
 };
 
 // Function to send cancellation email notification
-const cancelEmail = async (udata, adata) => {
+const cancelEmail = async (udata, adata, msg) => {
     console.log(udata);
 
     // Configure the email transporter
@@ -68,6 +68,8 @@ We're writing to inform you that your vehicle appointment scheduled for ${format
 If you would like to reschedule your appointment or have any questions, please contact our customer service team at (123) 456-7890 or reply to this email.
 
 Thank you for your understanding.
+
+\n\n Reason: ${msg ? msg : 'none'}
 
 Shreya Auto
 Your trusted partner for vehicle transactions

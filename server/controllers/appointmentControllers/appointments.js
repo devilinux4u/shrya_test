@@ -121,7 +121,7 @@ router.get("/user/:userId", async (req, res) => {
 
 router.patch("/:id/status", async (req, res) => {
   const { id } = req.params;
-  const { status, role } = req.body;
+  const { status, role, reason } = req.body;
   // console.log(req.body) // Debug log
 
   console.log(`Updating status for appointment ID: ${id}`); // Debug log
@@ -166,7 +166,7 @@ router.patch("/:id/status", async (req, res) => {
 
       const userEmail = await users.findOne({ where: { id: eid } });
 
-      cancelEmail(userEmail, appointment)
+      cancelEmail(userEmail, appointment, reason)
 
     }
 
