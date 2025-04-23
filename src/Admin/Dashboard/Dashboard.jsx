@@ -345,26 +345,7 @@ export default function Dashboard() {
 
         {/* Status Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <div className="col-span-1">
-            <SimpleBookingCard
-              title="Total Bookings"
-              onClick={handleViewActiveRentals}
-              value={dashboardData.totalBookings}
-              icon={<Calendar className="w-5 h-5 text-blue-600" />}
-              bgColor="bg-white"
-              iconBg="bg-blue-100"
-              borderColor="border-gray-200"
-              progressColor="bg-blue-600"
-              progressPercentage={
-                dashboardData.totalBookings > 0
-                  ? ((dashboardData.activeBookings +
-                      dashboardData.pendingBookings) /
-                      dashboardData.totalBookings) *
-                    100
-                  : 0
-              }
-            />
-          </div>
+          
           <div className="col-span-1">
             <SimpleOngoingBookingCard
               active={dashboardData.activeBookings}

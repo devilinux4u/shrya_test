@@ -48,6 +48,9 @@ export default function Transactions() {
           throw new Error("Failed to fetch transactions");
         }
         const data = await response.json();
+
+        console.log("Fetched transactions:", data.data);
+
         setTransactions(data.data);
       } catch (err) {
         setError(err.message);
@@ -509,7 +512,7 @@ export default function Transactions() {
                       <div className="flex items-center">
                         <Phone className="w-4 h-4 mr-1 text-gray-400" />
                         <p className="font-medium">
-                          {selectedTransaction.Booking?.User?.phone || "N/A"}
+                          {selectedTransaction.Booking?.User?.num || "N/A"}
                         </p>
                       </div>
                     </div>
@@ -527,12 +530,12 @@ export default function Transactions() {
                     <div>
                       <p className="text-sm text-gray-500">Vehicle</p>
                       <p className="font-medium">
-                        {selectedTransaction.Booking?.Rental?.RentVehicle
+                        {selectedTransaction.Booking?.RentalVehicle
                           ?.make || "N/A"}{" "}
-                        {selectedTransaction.Booking?.Rental?.RentVehicle
+                        {selectedTransaction.Booking?.RentalVehicle
                           ?.model || ""}{" "}
                         (
-                        {selectedTransaction.Booking?.Rental?.RentVehicle
+                        {selectedTransaction.Booking?.RentalVehicle
                           ?.year || ""}
                         )
                       </p>
@@ -541,7 +544,7 @@ export default function Transactions() {
                     <div>
                       <p className="text-sm text-gray-500">License Plate</p>
                       <p className="font-medium">
-                        {selectedTransaction.Booking?.Rental?.RentVehicle
+                        {selectedTransaction.Booking?.RentalVehicle
                           ?.numberPlate || "N/A"}
                       </p>
                     </div>
@@ -552,9 +555,9 @@ export default function Transactions() {
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-1 text-gray-400" />
                           <p className="font-medium">
-                            {selectedTransaction.Booking?.Rental?.startDate
+                            {selectedTransaction.Booking?.pickupDate
                               ? formatDate(
-                                  selectedTransaction.Booking.Rental.startDate
+                                  selectedTransaction.Booking.pickupDate
                                 )
                               : "N/A"}
                           </p>
@@ -566,9 +569,9 @@ export default function Transactions() {
                         <div className="flex items-center">
                           <Calendar className="w-4 h-4 mr-1 text-gray-400" />
                           <p className="font-medium">
-                            {selectedTransaction.Booking?.Rental?.endDate
+                            {selectedTransaction.Booking?.returnDate
                               ? formatDate(
-                                  selectedTransaction.Booking.Rental.endDate
+                                  selectedTransaction.Booking.returnDate
                                 )
                               : "N/A"}
                           </p>
@@ -579,7 +582,7 @@ export default function Transactions() {
                     <div>
                       <p className="text-sm text-gray-500">Rental Duration</p>
                       <p className="font-medium">
-                        {selectedTransaction.Booking?.Rental?.totalDays || "0"}{" "}
+                        {selectedTransaction.Booking?.rentalDuration || "0"}{" "}
                         days
                       </p>
                     </div>

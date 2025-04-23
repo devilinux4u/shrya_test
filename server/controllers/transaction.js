@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Transaction, rental, users } = require('../db/sequelize');
+const { Transaction, rental, users, RentalAllVehicles } = require('../db/sequelize');
 
 router.get('/api/transaction', async (req, res) => {
   try {
@@ -8,17 +8,21 @@ router.get('/api/transaction', async (req, res) => {
       include: [
         {
           model: rental,
-          attributes: ['pickupLocation', 'dropoffLocation'],
           include: [
             {
               model: users,
               attributes: ['id', 'fname', 'uname', 'email', 'num', 'profile']
+            },
+            {
+              model: RentalAllVehicles, // Make sure this is the model you defined for rental vehicles // Add more fields as needed
             }
           ]
         }
       ],
       order: [['createdAt', 'DESC']]
     });
+    
+    // console.log("Fetched transactions:", transactions);
 
     // Calculate total, pending, cancelled, and completed amounts
     const totalAmount = transactions
