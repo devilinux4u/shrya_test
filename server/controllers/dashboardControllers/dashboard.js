@@ -10,7 +10,7 @@ router.get('/dashboard/summary', async (req, res) => {
     const totalUsers = await users.count();
 
     // 2. Total Vehicles for Sell
-    const totalSellVehicles = await vehicles.count({ where: { status: 'sold' } });
+    const totalSellVehicles = await vehicles.count();
 
     // 3. Total Rental Vehicles
     const totalRentalVehicles = await rental.count();
@@ -21,9 +21,13 @@ router.get('/dashboard/summary', async (req, res) => {
         status: {
           [Op.in]: ['active', 'pending', 'late']
         }
-      }
+      } 
     });
-    const activeBookings = await vehicleWishlist.count({ where: { status: 'active' } });
+    const activeBookings = await rental.count({ where: { status: 'active' } });
+    const pendingBookings = await rental.count({ where: { status: 'pending' } });
+    const lateBookings = await rental.count({ where: { status: 'late' } });
+
+
 
     // 5. Lost and Found Separate Count
     const totalLost = await LostAndFound.count({ where: { type: 'lost' } });
@@ -88,6 +92,8 @@ router.get('/dashboard/summary', async (req, res) => {
       totalRentalVehicles,
       totalBookings,
       activeBookings,
+      pendingBookings,
+      lateBookings,
       totalLost,
       totalFound,
       recentTransactions,

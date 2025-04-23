@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { Appointment, users, vehicles, v_img } = require("../../db/sequelize");
 const cancelEmail = require("../../helpers/appointmentCancelMsg");
+const confirmEmail = require("../../helpers/appointmentConfirmMsg");
 
 router.post("/", async (req, res) => {
   const { userId, vehicleId, date, time, location, description } = req.body;
@@ -168,6 +169,22 @@ router.patch("/:id/status", async (req, res) => {
 
       cancelEmail(userEmail, appointment, reason)
 
+    }
+
+    if (status === "confirmed") {
+      let eid;
+      if (role === 'buyer') {
+        eid = appointment.SelleruserId;
+      } else if (role === 'seller') {
+        eid = appointment.userId;
+      } else {
+        console.log('Invalid role');
+        return;
+      }
+
+      const userEmail = await users.findOne({ where: { id: eid } });
+
+      confirmEmail(userEmail, appointment)
     }
 
     console.log(`Successfully updated appointment ${id} to status: ${status}`);
