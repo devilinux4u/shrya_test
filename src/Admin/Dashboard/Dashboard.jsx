@@ -84,12 +84,16 @@ export default function Dashboard() {
         const response = await fetch("http://127.0.0.1:3000/dashboard/summary");
         const data = await response.json();
 
+        console.log("Dashboard Data:", data);
+
         setDashboardData({
           totalUsers: data.totalUsers,
           totalSellVehicles: data.totalSellVehicles,
           totalRentalVehicles: data.totalRentalVehicles,
           totalBookings: data.totalBookings,
           activeBookings: data.activeBookings,
+          pendingBookings: data.pendingBookings,
+          lateBookings: data.lateBookings,
           pendingBookings: data.pendingBookings || 0,
           totalLost: data.totalLost,
           totalFound: data.totalFound,
@@ -346,23 +350,7 @@ export default function Dashboard() {
             </div>
             <div className="h-[300px]">
               <WishlistPieChart
-                data={[
-                  {
-                    name: "Available",
-                    value: 12,
-                    color: wishlistColors.available,
-                  },
-                  {
-                    name: "Pending",
-                    value: 5,
-                    color: wishlistColors.pending,
-                  },
-                  {
-                    name: "Cancelled",
-                    value: 3,
-                    color: wishlistColors.cancelled,
-                  },
-                ]}
+                data={dashboardData.wishlistStatus}
               />
             </div>
           </div>
