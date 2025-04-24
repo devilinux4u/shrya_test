@@ -165,14 +165,14 @@ export default function UserAppointments() {
     }
   };
 
-  const approveAppointment = async (id) => {
+  const approveAppointment = async (id, roles) => {
     try {
       // Set confirmation dialog state
       setConfirmationDialog({
         isOpen: true,
         action: "confirm",
         bookingId: id,
-        role: null,
+        role: roles,
       });
     } catch (error) {
       console.error("Error approving appointment:", error);
@@ -695,7 +695,11 @@ export default function UserAppointments() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation(); // Prevent triggering the card click event
-                              approveAppointment(appointment.id);
+                              approveAppointment(appointment.id,
+                                isUserBuyer(appointment)
+                              ? "buyer"
+                              : "seller"
+                          );
                             }}
                             className="flex items-center text-green-600 hover:text-green-800 transition-colors"
                           >
@@ -1043,7 +1047,11 @@ export default function UserAppointments() {
                           <button
                             type="button"
                             onClick={() => {
-                              approveAppointment(selectedAppointment.id);
+                              approveAppointment(selectedAppointment.id,
+                                isUserBuyer(appointment)
+                              ? "buyer"
+                              : "seller"
+                          );
                             }}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                           >
