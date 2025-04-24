@@ -49,13 +49,24 @@ router.get("/", async (req, res) => {
         {
           model: vehicles,
           as: "SellVehicle",
-          include: [{ model: v_img, attributes: ["id", "image"] }],
+          include: [
+            {
+              model: v_img,
+              attributes: ["id", "image"],
+            },
+            {
+              model: users,
+              as: "Seller", // Define alias for seller
+              attributes: ["id", "fname", "email", "num"]
+            }
+          ]
         },
         {
-          model: users, // Ensure this matches the alias defined in the association
-          attributes: ["id", "fname", "email", "num"],
-        },
-      ],
+          model: users,
+          as: "Buyer", // Define alias for buyer
+          attributes: ["id", "fname", "email", "num"]
+        }
+      ]
     });
 
     console.log("Appointments fetched successfully:", appointments); // Debug log

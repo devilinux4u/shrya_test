@@ -67,6 +67,12 @@ Appointment.belongsTo(user, { foreignKey: "userId" });
 Appointment.belongsTo(Vehicle, { foreignKey: "vehicleId" });
 
 
+Appointment.belongsTo(user, { as: "Buyer", foreignKey: "userId" }); // who booked
+Vehicle.belongsTo(user, { as: "Seller", foreignKey: "uid" });   // who owns the vehicle
+Appointment.belongsTo(Vehicle, { as: "BookedVehicle", foreignKey: "id" });
+
+
+
 sequelize.sync({ alter: true })
   .then(() => console.log('Database synced successfully'))
   .catch(error => console.error('Unable to sync database:', error));
