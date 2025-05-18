@@ -590,7 +590,7 @@ export default function Users() {
                     {selectedUser.profile ? (
                       <img
                         src={
-                          `../../server/controllers${selectedUser.profile}` ||
+                          `../../server/${selectedUser.profile}` ||
                           "/placeholder.svg?height=128&width=128"
                         }
                         alt={selectedUser.fname}

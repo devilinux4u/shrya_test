@@ -391,8 +391,8 @@ export default function RentalDetails() {
                           <CreditCard className="h-4 w-4 mr-2 text-[#ff6b00]" />
                           {rental.paymentMethod === "payLater"
                             ? "Pay Later"
-                            : rental.paymentMethod === "creditCard"
-                            ? "Credit Card"
+                            : rental.paymentMethod === "khalti"
+                            ? "Khalti"
                             : "N/A"}
                         </p>
                       </div>

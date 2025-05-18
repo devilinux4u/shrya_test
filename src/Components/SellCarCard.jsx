@@ -18,7 +18,7 @@ function VehicleCard({ vehicle }) {
           src={
             (vehicle.images &&
               vehicle.images.length > 0 &&
-              `../../server/controllers${vehicle.images[0].image}`) ||
+              `../../server${vehicle.images[0].image}`) ||
             "/placeholder.svg"
           }
           alt={`${vehicle.make || "Unknown"} ${vehicle.model || ""}`}

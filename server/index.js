@@ -9,23 +9,23 @@ app.use(
     cors()
 )
 
-const login = require('./controllers/authControllers/login');
-const aReg = require('./controllers/authControllers/adminReg');
-const register = require('./controllers/authControllers/register');
-const message = require('./controllers/contactusControllers/message');
-const wishlist = require('./controllers/vehicleControllers/wishlist');
-const sell = require('./controllers/vehicleControllers/sellVechile');
-const profile = require('./controllers/profileController/profile');
-const lostAndFound = require('./controllers/lostAndFoundControllers/lostAndFound');
-const rentalRoute = require('./controllers/rentControllers/rental'); 
-const addVehicle = require('./controllers/rentControllers/addVehicles.js');
-const vehiclesRouter = require('./controllers/rentControllers/vehicles');
-const khaltiVerify = require('./controllers/khaltiVerify');
-const transaction = require('./controllers/transaction');
-const appointment = require('./controllers/appointmentControllers/appointments.js');
-const dashboard = require('./controllers/dashboardControllers/dashboard.js');
+const login = require('./Routes/AuthRoute/Login.js');
+const aReg = require('./Routes/AuthRoute/AdminReg.js');
+const register = require('./Routes/AuthRoute/Register.js');
+const message = require('./Routes/ContactUsRoute/Message.js');
+const wishlist = require('./Routes/VehicleRoute/Wishlist.js');
+const sell = require('./Routes/VehicleRoute/SellVechile.js');
+const profile = require('./Routes/ProfileRoute/Profile.js');
+const lostAndFound = require('./Routes/LostAndFoundRoute/LostAndFound.js');
+const rentalRoute = require('./Routes/RentRoute/AddToRental.js'); 
+const addVehicle = require('./Routes/RentRoute/AddVehicles.js');
+const vehiclesRouter = require('./Routes/RentRoute/GetRentalVehicles_admin.js');
+const khaltiVerify = require('./Routes/KhaltiVerify.js');
+const transaction = require('./Routes/Transaction.js');
+const appointment = require('./Routes/AppointmentRoute/Appointments.js');
+const dashboard = require('./Routes/DashboardRoute/Dashboard.js');
 
-app.use('/uploads', express.static(path.join(__dirname, 'controllers/uploads')));
+app.use('/uploads', express.static(path.join(__dirname, './uploads')));
 
 app.use(express.json());
 app.use(bodyParser.json());
@@ -40,7 +40,7 @@ app.use('/api/vehicles', vehiclesRouter);
 app.use('/api/appointments', appointment);
 
 
-const rentVehiclesController = require('./controllers/rentControllers/rentVehiclesController');
+const rentVehiclesController = require('./Routes/RentRoute/GetRentVehicles_user.js');
 app.use('/rent', rentVehiclesController);
 
 app.get('*', (req, res) => {

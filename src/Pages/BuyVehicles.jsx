@@ -79,7 +79,7 @@ export default function VehicleDetails() {
               <div>
                 <img
                   src={
-                    `../../server/controllers${vehicle.images[0].image}` ||
+                    `../../server${vehicle.images[0].image}` ||
                     "/placeholder.svg"
                   }
                   alt={vehicle.model || "Vehicle"}

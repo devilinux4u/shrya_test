@@ -268,7 +268,7 @@ export default function BuyVehiclesDesc() {
           <div className="relative">
             {vehicle.images && vehicle.images.length > 0 ? (
               <img
-                src={`../../server/controllers${vehicle.images[0].image}`}
+                src={`../../server${vehicle.images[0].image}`}
                 alt={vehicle.title}
                 className="w-full h-auto rounded-lg shadow-lg"
               />
@@ -341,7 +341,7 @@ export default function BuyVehiclesDesc() {
                     className="absolute inset-0"
                   >
                     <img
-                      src={`../../server/controllers${vehicle.images[currentImageIndex].image}`}
+                      src={`../../server${vehicle.images[currentImageIndex].image}`}
                       alt={`${vehicle.type}-image-${currentImageIndex}`}
                       className="w-3/4 h-full object-cover mx-auto"
                     />
@@ -383,7 +383,7 @@ export default function BuyVehiclesDesc() {
                     }`}
                   >
                     <img
-                      src={`../../server/controllers${image.image}`}
+                      src={`../../server${image.image}`}
                       alt={`Thumbnail ${index}`}
                       className="w-12 h-12 object-cover"
                     />
@@ -458,7 +458,7 @@ export default function BuyVehiclesDesc() {
             {vehicle.images && vehicle.images.length > 0 ? (
               <div className="relative aspect-video overflow-hidden rounded-lg mb-4">
                 <img
-                  src={`../../server/controllers${vehicle.images[currentImageIndex].image}`}
+                  src={`../../server${vehicle.images[currentImageIndex].image}`}
                   alt={`${vehicle.title}-featured`}
                   className="w-full h-full object-cover"
                 />

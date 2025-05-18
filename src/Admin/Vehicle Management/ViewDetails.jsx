@@ -294,7 +294,7 @@ export default function ViewDetails() {
               <img
                 src={
                   vehicle.images && vehicle.images.length > 0
-                    ? `../../server/controllers${vehicle.images[activeImage].image}`
+                    ? `../../server${vehicle.images[activeImage].image}`
                     : "/placeholder.svg"
                 }
                 alt={`${vehicle.make} ${vehicle.model}`}
@@ -317,7 +317,7 @@ export default function ViewDetails() {
                     onClick={() => setActiveImage(index)}
                   >
                     <img
-                      src={`../../server/controllers${img.image}`}
+                      src={`../../server${img.image}`}
                       alt={`${vehicle.make} ${vehicle.model} thumbnail ${
                         index + 1
                       }`}

@@ -334,7 +334,7 @@ const Profile = () => {
               <img
                 className="h-32 w-32 sm:h-40 sm:w-40 rounded-full border-4 border-white shadow-lg object-cover cursor-pointer transition-transform hover:scale-105"
                 src={
-                  `../../server/controllers${user.profile}` ||
+                  `../../server/${user.profile}` ||
                   "/placeholder.svg?height=200&width=200"
                 }
                 alt={user.fname}

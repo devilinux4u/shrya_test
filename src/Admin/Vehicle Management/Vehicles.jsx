@@ -604,7 +604,7 @@ export default function Vehicles() {
                       src={
                         (vehicle.images &&
                           vehicle.images.length > 0 &&
-                          `../../server/controllers${
+                          `../../server${
                             vehicle.images[0].image || "/placeholder.svg"
                           }`) ||
                         "/placeholder.svg"

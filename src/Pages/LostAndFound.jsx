@@ -33,13 +33,7 @@ const LostAndFound = () => {
   const checkCookiesAvailable = () => {
     const cookie = Cookies.get("sauto");
     if (cookie) {
-      try {
-        const userData = JSON.parse(cookie);
-        setCurrentUserId(userData.id);
         return true;
-      } catch (e) {
-        return false;
-      }
     }
     return false;
   };
